@@ -1,0 +1,1542 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>STRUCTURA PRO</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@200;400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="./src/styles.css" />
+    </head>
+    <body>
+        <div class="app">
+            <aside class="sidebar">
+                <div class="sidebar-brand">
+                    <img
+                        class="sidebar-logo"
+                        src="./assets/structura-logo-sidebar.png"
+                        alt="STRUCTURA"
+                        width="700"
+                        height="154"
+                    />
+                </div>
+                <nav class="sidebar-nav">
+                    <div
+                        class="nav-tab active"
+                        onclick="nav('dashboard')"
+                        id="tab-dashboard"
+                    >
+                        <span class="ico">⬛</span> Dashboard
+                    </div>
+                    <div
+                        class="nav-tab"
+                        onclick="nav('clients')"
+                        id="tab-clients"
+                    >
+                        <span class="ico">◉</span> Clients
+                    </div>
+                    <div
+                        class="nav-tab"
+                        onclick="nav('portfolio')"
+                        id="tab-portfolio"
+                    >
+                        <span class="ico">◫</span> Portefeuille
+                    </div>
+                    <div
+                        class="nav-tab"
+                        onclick="nav('barriers')"
+                        id="tab-barriers"
+                    >
+                        <span class="ico">⚠</span> Barrières
+                        <span class="tab-badge badge-red" id="cnt-bar">5</span>
+                    </div>
+                    <div
+                        class="nav-tab"
+                        onclick="nav('calendar')"
+                        id="tab-calendar"
+                    >
+                        <span class="ico">◻</span> Calendrier
+                    </div>
+                    <div
+                        class="nav-tab"
+                        onclick="nav('analytics')"
+                        id="tab-analytics"
+                    >
+                        <span class="ico">◈</span> Pilotage
+                    </div>
+                    <div
+                        class="nav-tab"
+                        onclick="nav('autopitch')"
+                        id="tab-autopitch"
+                    >
+                        <span class="ico">▣</span> Pitch Engine
+                    </div>
+                    <div
+                        class="nav-tab"
+                        onclick="nav('screener')"
+                        id="tab-screener"
+                    >
+                        <span class="ico">◎</span> Decrement Score
+                    </div>
+                    <div class="nav-tab" onclick="nav('ingest')" id="tab-ingest">
+                        <span class="ico">◧</span> Doc Reader
+                    </div>
+                </nav>
+                <div class="sidebar-foot">
+                    <button
+                        class="btn mode-btn sidebar-mode"
+                        id="mode-toggle"
+                        onclick="toggleAppMode()"
+                    >
+                        MODE DEMO
+                    </button>
+                    <div class="sidebar-actions">
+                        <button class="btn sidebar-btn" onclick="exportCSV()">CSV</button>
+                        <button class="btn sidebar-btn" onclick="exportXLSX()">Excel</button>
+                    </div>
+                    <button class="btn btn-gold sidebar-add" onclick="openModal()">
+                        + Nouveau produit
+                    </button>
+                </div>
+            </aside>
+
+            <div class="app-shell">
+            <div class="header">
+                <div class="header-ticker" id="ticker"></div>
+                <div class="header-right">
+                    <div class="user-pill header-user-pill" id="session-user-pill">
+                        <span class="user-avatar" id="session-avatar">CG</span>
+                        <span class="user-meta">
+                            <strong id="session-user-name">Conseiller</strong>
+                            <small id="session-user-role">CGP</small>
+                        </span>
+                    </div>
+                    <div class="live-badge">
+                        <div class="live-dot"></div>
+                        LIVE
+                    </div>
+                    <div>
+                        <div class="clock" id="clk">--:--:--</div>
+                        <div class="date-str" id="dt-str">Paris · CET</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main">
+                <!-- ===== DASHBOARD ===== -->
+                <div class="view active" id="view-dashboard">
+                    <div class="dash-welcome panel" id="dash-welcome">
+                        <div class="dash-welcome-copy">
+                            <div class="dash-welcome-kicker" id="session-org-line">Cabinet Structura</div>
+                            <h2 class="dash-welcome-title" id="session-headline">—</h2>
+                            <p class="dash-welcome-sub" id="session-subline">—</p>
+                        </div>
+                    </div>
+                    <div class="kpi-row">
+                        <div class="kpi k-gold">
+                            <div class="kpi-lbl">
+                                Valeur totale portefeuille
+                            </div>
+                            <div
+                                class="kpi-val"
+                                id="kpi-total-val"
+                                style="color: var(--gold)"
+                            >
+                                €124.7M
+                            </div>
+                            <div class="kpi-sub up" id="kpi-total-sub">
+                                ▲ +2.34% vs. émission
+                            </div>
+                        </div>
+                        <div class="kpi k-red">
+                            <div class="kpi-lbl">Barrières franchies</div>
+                            <div
+                                class="kpi-val"
+                                id="kpi-breach-val"
+                                style="color: var(--red)"
+                            >
+                                3
+                            </div>
+                            <div class="kpi-sub dn" id="kpi-breach-sub">
+                                Action immédiate requise
+                            </div>
+                        </div>
+                        <div class="kpi k-orange">
+                            <div class="kpi-lbl">Hors zone saine (&lt; 15 %)</div>
+                            <div
+                                class="kpi-val"
+                                id="kpi-watch-val"
+                                style="color: var(--orange)"
+                            >
+                                8
+                            </div>
+                            <div class="kpi-sub warn" id="kpi-watch-sub">
+                                Critique &lt; 5 % · alerte 5–15 %
+                            </div>
+                        </div>
+                        <div class="kpi k-blue">
+                            <div class="kpi-lbl">Nb. produits actifs</div>
+                            <div
+                                class="kpi-val"
+                                id="kpi-count-val"
+                                style="color: var(--blue)"
+                            >
+                                54
+                            </div>
+                            <div class="kpi-sub" id="kpi-count-sub">
+                                — 4 types · 12 émetteurs
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dash-alerts-block" id="dash-alerts-block">
+                        <div class="sec-hdr">
+                            <div class="sec-title">Alertes prioritaires</div>
+                            <span class="sec-meta" id="alerts-meta">Risque barrière : produits à traiter en priorité</span>
+                        </div>
+                        <div class="panel dash-alerts-panel">
+                            <div class="alert-strip" id="alerts-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="dash-perf-section">
+                        <div class="sec-hdr">
+                            <div class="sec-title">Performance du portefeuille</div>
+                            <span class="sec-meta" id="perf-section-meta">Encours initial vs valorisation · performance sur la période</span>
+                        </div>
+                        <div class="panel perf-panel">
+                            <div class="perf-header">
+                                <div class="perf-kpi-row">
+                                    <div class="perf-kpi">
+                                        <span class="perf-kpi-label">Encours initial</span>
+                                        <strong id="perf-nominal">—</strong>
+                                    </div>
+                                    <div class="perf-kpi">
+                                        <span class="perf-kpi-label">Valorisation</span>
+                                        <strong id="perf-valuation">—</strong>
+                                    </div>
+                                    <div class="perf-kpi perf-kpi-main">
+                                        <span class="perf-kpi-label" id="perf-change-label">Performance période</span>
+                                        <strong id="perf-change">—</strong>
+                                        <small id="perf-change-abs">—</small>
+                                    </div>
+                                </div>
+                                <div class="perf-range-controls">
+                                    <span class="filter-chip on" data-perf-range="ytd" onclick="setRange(this, 'ytd')">YTD</span>
+                                    <span class="filter-chip" data-perf-range="6m" onclick="setRange(this, '6m')">6M</span>
+                                    <span class="filter-chip" data-perf-range="1a" onclick="setRange(this, '1a')">1A</span>
+                                    <span class="filter-chip" data-perf-range="all" onclick="setRange(this, 'all')">Depuis le début</span>
+                                </div>
+                            </div>
+                            <div class="perf-chart-area" id="perf-cgp">
+                                <svg id="perf-history-svg" viewBox="0 0 800 180" preserveAspectRatio="xMidYMid meet"></svg>
+                            </div>
+                            <p class="perf-chart-note" id="perf-chart-note">Courbe reconstituée indicative · base 100 au début de la période</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-vl-section">
+                        <div class="sec-hdr">
+                            <div class="sec-title">Top / Flop VL</div>
+                            <span class="sec-meta">Meilleures et moindres valorisations du portefeuille</span>
+                        </div>
+                        <div class="panel dash-module-panel">
+                            <div id="vl-top-flop" class="vl-top-flop"></div>
+                        </div>
+                    </div>
+
+                    <div class="dash-insights-grid">
+                        <div class="dash-module dash-module-wide">
+                            <div class="sec-hdr">
+                                <div class="sec-title">Exposition par groupe bancaire</div>
+                                <span class="sec-meta">Exposition nominale par banque</span>
+                            </div>
+                            <div class="panel dash-module-panel">
+                                <div id="issuer-exposure" class="issuer-exposure"></div>
+                            </div>
+                        </div>
+                        <div class="dash-module">
+                            <div class="sec-hdr">
+                                <div class="sec-title">Agenda produits</div>
+                                <span
+                                    class="sec-meta"
+                                    style="cursor: pointer; color: var(--gold)"
+                                    onclick="nav('calendar')"
+                                    >Calendrier complet →</span
+                                >
+                            </div>
+                            <div class="panel dash-module-panel">
+                                <div id="dashboard-timeline" class="dash-timeline"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== PORTFOLIO ===== -->
+                <div class="view" id="view-portfolio">
+                    <div class="toolbar">
+                        <input
+                            class="search"
+                            type="text"
+                            placeholder="Rechercher produit, ISIN, émetteur, client (nom, prénom)..."
+                            oninput="filterPf(this.value)"
+                            id="pf-search"
+                        />
+                        <select class="f-sel portfolio-type-select" id="pf-type-select" onchange="pfType(this.value)">
+                            <option value="all">Tous les produits</option>
+                            <option value="family:phoenix">Phoenix Autocall</option>
+                            <option value="family:athena">Athena Autocall</option>
+                            <option value="family:bearish_taux">Bearish Taux</option>
+                            <option value="family:cln">CLN</option>
+                            <option value="family:note">Note taux fixe/variable</option>
+                        </select>
+                        <span
+                            class="filter-chip"
+                            id="chip-alerts"
+                            onclick="pfAlerts(this)"
+                            >⚠ Alertes seules</span
+                        >
+                        <div class="toolbar-spacer"></div>
+                        <span class="portfolio-count" id="pf-count">54 produits</span>
+                    </div>
+                    <div class="tbl-wrap" id="pf-table-wrap">
+                        <table id="pf-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortPf('name')">PRODUIT</th>
+                                    <th onclick="sortPf('type')">TYPE</th>
+                                    <th onclick="sortPf('emetteur')">
+                                        ÉMETTEUR
+                                    </th>
+                                    <th onclick="sortPf('nominal')" class="num">
+                                        NOMINAL
+                                    </th>
+                                    <th onclick="sortPf('vlPct')" class="num">
+                                        VL
+                                    </th>
+                                    <th onclick="sortPf('val')" class="num">
+                                        VALORISATION
+                                    </th>
+                                    <th onclick="sortPf('pnl')" class="num">
+                                        P&L
+                                    </th>
+                                    <th onclick="sortPf('pnlPct')" class="num">
+                                        P&L %
+                                    </th>
+                                    <th onclick="sortPf('coupon')">
+                                        COUPON/AN
+                                    </th>
+                                    <th onclick="sortPf('dist')">BARRIÈRE</th>
+                                    <th onclick="sortPf('maturity')">
+                                        MATURITÉ
+                                    </th>
+                                    <th onclick="sortPf('nextEvtDate')">PROCH. ÉVT.</th>
+                                    <th onclick="sortPf('statusRank')">STATUT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pf-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== BARRIERS ===== -->
+                <div class="view" id="view-barriers">
+                    <div class="kpi-row bar-kpi-row">
+                        <div class="kpi k-red">
+                            <div class="kpi-lbl">Barrières franchies</div>
+                            <div class="kpi-val" id="bar-kpi-breach" style="color: var(--red)">—</div>
+                            <div class="kpi-sub dn">Perte de capital probable</div>
+                        </div>
+                        <div class="kpi k-orange">
+                            <div class="kpi-lbl">Alerte critique &lt; 5 %</div>
+                            <div class="kpi-val" id="bar-kpi-crit" style="color: var(--orange)">—</div>
+                            <div class="kpi-sub warn">Intervention urgente</div>
+                        </div>
+                        <div class="kpi k-gold">
+                            <div class="kpi-lbl">Alerte 5–15 %</div>
+                            <div class="kpi-val" id="bar-kpi-watch" style="color: var(--gold)">—</div>
+                            <div class="kpi-sub">Surveillance renforcée</div>
+                        </div>
+                        <div class="kpi k-green">
+                            <div class="kpi-lbl">Zone saine ≥ 15 %</div>
+                            <div class="kpi-val" id="bar-kpi-safe" style="color: var(--green)">—</div>
+                            <div class="kpi-sub up">Situation normale</div>
+                        </div>
+                    </div>
+
+                    <div class="sec-hdr">
+                        <div class="sec-title">Suivi des barrières</div>
+                        <span class="sec-meta">Produits structurés avec barrière de protection</span>
+                    </div>
+                    <div class="toolbar">
+                        <input
+                            class="search"
+                            type="text"
+                            placeholder="Rechercher produit, ISIN, émetteur, sous-jacent, client..."
+                            oninput="filterBarriers(this.value)"
+                            id="bar-search"
+                        />
+                    </div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th onclick="sortBarriers('name')">PRODUIT / ISIN</th>
+                                    <th onclick="sortBarriers('barrierType')">TYPE BARRIÈRE</th>
+                                    <th onclick="sortBarriers('underlying')">SOUS-JACENT</th>
+                                    <th onclick="sortBarriers('barrier')" class="num">NIVEAU BARRIÈRE</th>
+                                    <th onclick="sortBarriers('vlPct')" class="num">VL</th>
+                                    <th onclick="sortBarriers('val')" class="num">VALORISATION</th>
+                                    <th onclick="sortBarriers('dist')" class="num">DISTANCE</th>
+                                    <th style="width: 120px">PROGRESSION</th>
+                                    <th onclick="sortBarriers('nextEvtDate')">PROCHAINE OBS.</th>
+                                    <th onclick="sortBarriers('sri')">SRI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bar-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== CALENDAR ===== -->
+                <div class="view" id="view-calendar">
+                    <div class="cal-context panel">
+                        <div class="cal-context-copy">
+                            <div class="cal-context-kicker">Agenda structuré</div>
+                            <h2 class="cal-context-title" id="cal-context-title">—</h2>
+                            <p class="cal-context-sub" id="cal-context-sub">—</p>
+                        </div>
+                        <div class="cal-context-badge" id="cal-context-mode">—</div>
+                    </div>
+                    <div class="toolbar">
+                        <input
+                            class="search"
+                            type="text"
+                            placeholder="Rechercher un produit (nom, ISIN, émetteur, sous-jacent) — échéancier complet"
+                            oninput="filterCalendar(this.value)"
+                            id="cal-search"
+                        />
+                    </div>
+                    <div class="calendar-controls-panel">
+                        <div class="calendar-control calendar-day-control">
+                            <label class="f-lbl">Date de référence</label>
+                            <input class="f-inp calendar-date-input" type="date" id="cal-date" onchange="setCalendarDate(this.value)" />
+                        </div>
+                        <div class="calendar-period-workbench">
+                            <label class="f-lbl">Période affichée</label>
+                            <div class="calendar-mode-buttons">
+                                <button class="calendar-mode-btn calendar-home-btn" onclick="resetCalendarView()">Vue principale</button>
+                                <button class="calendar-mode-btn" data-calendar-mode="day" onclick="setCalendarMode('day')">Jour</button>
+                                <button class="calendar-mode-btn" data-calendar-mode="week" onclick="setCalendarMode('week')">Semaine</button>
+                                <button class="calendar-mode-btn on" data-calendar-mode="month" onclick="setCalendarMode('month')">Mois</button>
+                                <button class="calendar-mode-btn" data-calendar-mode="year" onclick="setCalendarMode('year')">Année</button>
+                                <button class="calendar-mode-btn" data-calendar-mode="range" onclick="setCalendarMode('range')">Plage</button>
+                                <button class="calendar-mode-btn" data-calendar-mode="rolling" onclick="setCalendarMode('rolling')">Glissant</button>
+                            </div>
+                            <select class="f-sel calendar-mode-select" id="cal-mode" onchange="setCalendarMode(this.value)" aria-hidden="true" tabindex="-1" hidden>
+                                <option value="day">Jour</option>
+                                <option value="week">Semaine</option>
+                                <option value="month" selected>Mois</option>
+                                <option value="year">Année</option>
+                                <option value="range">Plage de dates</option>
+                                <option value="rolling">Période glissante</option>
+                            </select>
+                            <div class="calendar-picker-row">
+                                <input class="f-inp calendar-date-input calendar-period-field" type="week" id="cal-week" onchange="setCalendarWeek(this.value)" />
+                                <input class="f-inp calendar-date-input calendar-period-field" type="month" id="cal-month-picker" onchange="setCalendarMonth(this.value)" />
+                                <input class="f-inp calendar-date-input calendar-period-field" type="number" min="2000" max="2100" id="cal-year" onchange="setCalendarYear(this.value)" />
+                                <input class="f-inp calendar-date-input calendar-range-field" type="date" id="cal-start" onchange="setCalendarRange()" />
+                                <input class="f-inp calendar-date-input calendar-range-field" type="date" id="cal-end" onchange="setCalendarRange()" />
+                                <select class="f-sel calendar-date-input calendar-period-field" id="cal-rolling" onchange="setCalendarRolling(this.value)">
+                                    <option value="7">7 jours glissants</option>
+                                    <option value="30" selected>30 jours glissants</option>
+                                    <option value="90">90 jours glissants</option>
+                                    <option value="180">180 jours glissants</option>
+                                    <option value="365">12 mois glissants</option>
+                                </select>
+                            </div>
+                            <p class="calendar-period-hint" id="cal-period-hint">Choisissez une granularité, puis affinez la période avec les sélecteurs ci-dessous.</p>
+                        </div>
+                    </div>
+                    <div id="cal-period-view">
+                    <div class="sec-hdr cal-kpi-hdr">
+                        <div class="sec-title">Prochains 30 jours</div>
+                        <span class="sec-meta">Indicateurs à venir, indépendants de la période affichée</span>
+                    </div>
+                    <div class="g4 cal-kpi-row">
+                        <div class="kpi k-cyan">
+                            <div class="kpi-lbl">Coupons attendus</div>
+                            <div
+                                class="kpi-val"
+                                id="cal-kpi-coupon-val"
+                                style="color: var(--cyan); font-size: 18px"
+                            >
+                                —
+                            </div>
+                            <div class="kpi-sub" id="cal-kpi-coupon-sub">—</div>
+                        </div>
+                        <div class="kpi k-gold">
+                            <div class="kpi-lbl">Maturités / remboursements</div>
+                            <div
+                                class="kpi-val"
+                                id="cal-kpi-mat-val"
+                                style="color: var(--gold); font-size: 18px"
+                            >
+                                —
+                            </div>
+                            <div class="kpi-sub" id="cal-kpi-mat-sub">—</div>
+                        </div>
+                        <div class="kpi k-orange">
+                            <div class="kpi-lbl">Observations à venir</div>
+                            <div
+                                class="kpi-val"
+                                id="cal-kpi-obs-val"
+                                style="color: var(--orange); font-size: 18px"
+                            >
+                                —
+                            </div>
+                            <div class="kpi-sub" id="cal-kpi-obs-sub">—</div>
+                        </div>
+                        <div class="kpi k-red">
+                            <div class="kpi-lbl">Événements — période affichée</div>
+                            <div
+                                class="kpi-val"
+                                id="cal-kpi-bar-val"
+                                style="color: var(--red); font-size: 18px"
+                            >
+                                —
+                            </div>
+                            <div class="kpi-sub" id="cal-kpi-bar-sub">Sur la période sélectionnée ci-dessus</div>
+                        </div>
+                    </div>
+
+                    <div class="sec-hdr cal-events-hdr">
+                        <div class="sec-title">Événements produits</div>
+                        <span class="sec-meta" id="cal-events-meta">—</span>
+                    </div>
+                    <div class="g2 cal-events-grid" id="cal-events-grid">
+                        <div class="cal-events-col" id="cal-day-col">
+                            <div class="sec-hdr cal-col-hdr">
+                                <div class="sec-title" id="cal-day-title">—</div>
+                                <span class="sec-meta">Focus sur la date de référence</span>
+                            </div>
+                            <div class="panel cal-events-panel">
+                                <div class="ev-list" id="cal-day"></div>
+                            </div>
+                        </div>
+                        <div class="cal-events-col" id="cal-period-col">
+                            <div class="sec-hdr cal-col-hdr">
+                                <div class="sec-title" id="cal-period-title">—</div>
+                                <span class="sec-meta" id="cal-period-meta">Période affichée</span>
+                            </div>
+                            <div class="panel cal-events-panel">
+                                <div class="ev-list" id="cal-period"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel cal-flux-panel">
+                        <div class="sec-hdr" style="margin-bottom: 10px">
+                            <div class="sec-title" id="cal-flux-title">Flux de coupons</div>
+                            <span class="sec-meta" id="cal-flux-meta">Sur la période sélectionnée</span>
+                        </div>
+                        <div class="cal-flux-chart" id="cal-flux-chart"></div>
+                    </div>
+                    </div>
+
+                    <div id="cal-product-focus" class="cal-product-focus" hidden>
+                        <div class="sec-hdr">
+                            <div class="sec-title">Échéancier produit</div>
+                            <span class="sec-meta" id="cal-product-focus-meta">Recherche indépendante de la période affichée</span>
+                        </div>
+                        <div id="cal-product-focus-list" class="cal-product-focus-list"></div>
+                    </div>
+                </div>
+
+                <!-- ===== ANALYTICS / PILOTAGE ===== -->
+                <div class="view" id="view-analytics">
+                    <div class="pilotage-page">
+                        <div class="pilotage-hero panel">
+                            <div class="pilotage-hero-copy">
+                                <div class="pilotage-kicker">Analyse cabinet</div>
+                                <h1 class="pilotage-hero-title">Pilotage</h1>
+                                <p class="pilotage-hero-sub">
+                                    Concentrations, répartition par type et aperçu des dossiers clients.
+                                    Le détail barrière et client se trouve dans les onglets dédiés.
+                                </p>
+                            </div>
+                            <div class="pilotage-hero-actions">
+                                <button type="button" class="btn" onclick="nav('barriers')">Barrières</button>
+                                <button type="button" class="btn btn-gold" onclick="nav('clients')">Dossiers clients</button>
+                            </div>
+                        </div>
+                        <div class="pilotage-grid">
+                            <div class="dash-module">
+                                <div class="sec-hdr">
+                                    <div class="sec-title">Concentration & risques</div>
+                                    <span class="sec-meta">Exposition et diversité du portefeuille</span>
+                                </div>
+                                <div class="panel dash-module-panel pilotage-panel">
+                                    <div id="ana-metrics" class="pilotage-metrics"></div>
+                                    <div class="sec-hdr pilotage-type-hdr">
+                                        <div class="sec-title">Répartition par type</div>
+                                    </div>
+                                    <div id="ana-type-breakdown" class="pilotage-type-breakdown"></div>
+                                </div>
+                            </div>
+                            <div class="dash-module">
+                                <div class="sec-hdr">
+                                    <div class="sec-title">Top 5 dossiers</div>
+                                    <span class="sec-meta">Encours nominal par client</span>
+                                </div>
+                                <div class="panel dash-module-panel pilotage-panel">
+                                    <div id="ana-client-preview" class="pilotage-client-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== CLIENTS ===== -->
+                <div class="view" id="view-clients">
+                    <div class="clients-page">
+                        <div class="clients-hero panel">
+                            <div class="clients-hero-copy">
+                                <div class="clients-kicker">Relation client</div>
+                                <h1 class="clients-hero-title">Dossiers & allocations</h1>
+                                <p class="clients-hero-sub">
+                                    Visualisez l'encours, les alertes et les produits structurés de chaque client.
+                                </p>
+                            </div>
+                            <div class="clients-hero-actions">
+                                <button class="btn btn-gold" type="button" onclick="openClientModal()">+ Nouveau client</button>
+                            </div>
+                        </div>
+                        <div class="clients-layout clients-layout-page">
+                            <div class="clients-panel panel">
+                                <div class="clients-panel-hdr">
+                                    <div>
+                                        <div class="sec-title">Vos clients</div>
+                                        <div class="sec-meta" id="clients-page-meta">—</div>
+                                    </div>
+                                </div>
+                                <input
+                                    class="search clients-search"
+                                    id="clients-search"
+                                    type="text"
+                                    placeholder="Rechercher par nom, prénom ou les deux..."
+                                    oninput="filterClients(this.value)"
+                                />
+                                <div class="clients-list" id="clients-list"></div>
+                            </div>
+                            <div class="clients-detail panel" id="clients-detail"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== AUTO PITCH ===== -->
+                <div class="view" id="view-autopitch">
+                    <div class="g2">
+                        <div class="panel">
+                            <div class="panel-title">
+                                Pitch Engine
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label class="f-lbl">Nom client</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-client"
+                                        value="Client Professionnel"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="f-lbl">Type produit</label>
+                                    <select class="f-sel" id="ap-type" onchange="updatePitchProductFields()">
+                                        <option value="phoenix">Phoenix Autocall</option>
+                                        <option value="athena">Athena Autocall</option>
+                                        <option value="bearish_taux">Bearish Taux</option>
+                                        <option value="cln">CLN (Credit Linked Note)</option>
+                                        <option value="note">Note taux fixe/variable</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label class="f-lbl">Sous-jacent(s)</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-under"
+                                        value="CAC 40"
+                                        placeholder="Séparer plusieurs sous-jacents par ;"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="f-lbl">Durée</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-dur"
+                                        value="2 ans"
+                                    />
+                                </div>
+                            </div>
+                            <div class="form-row triple">
+                                <div>
+                                    <label class="f-lbl">Coupon (%/an)</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-coupon"
+                                        type="number"
+                                        step="0.1"
+                                        value="9.5"
+                                    />
+                                </div>
+                                <div class="pitch-field" data-families="phoenix athena bearish_taux">
+                                    <label class="f-lbl">PDI / barrière protection (%)</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-barrier"
+                                        type="number"
+                                        step="1"
+                                        value="60"
+                                    />
+                                </div>
+                                <div class="pitch-field" data-families="phoenix athena bearish_taux">
+                                    <label class="f-lbl">Rappel (%)</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-recall"
+                                        type="number"
+                                        step="1"
+                                        value="100"
+                                    />
+                                </div>
+                            </div>
+                            <div class="pitch-advanced-block">
+                                <div class="pitch-advanced-title">
+                                    Paramètres produit
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="phoenix athena bearish_taux cln note">
+                                        <label class="f-lbl">Fréquence</label>
+                                        <select class="f-sel" id="ap-frequency">
+                                            <option value="annuel">Annuelle</option>
+                                            <option value="semestriel">Semestrielle</option>
+                                            <option value="trimestriel">Trimestrielle</option>
+                                            <option value="mensuel">Mensuelle</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field" data-families="phoenix">
+                                        <label class="f-lbl">Mémoire</label>
+                                        <select class="f-sel" id="ap-memory">
+                                            <option value="false">Non</option>
+                                            <option value="true">Oui</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Niveau initial</label>
+                                        <select class="f-sel" id="ap-initial-level">
+                                            <option value="coursDeCloture">Cours de clôture</option>
+                                            <option value="moyenne">Moyenne de clôtures</option>
+                                            <option value="minimum">Plus bas des clôtures</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="phoenix athena bearish_taux cln note">
+                                        <label class="f-lbl">Date d'émission</label>
+                                        <input class="f-inp" id="ap-issue-date" placeholder="jj/mm/aaaa" />
+                                    </div>
+                                    <div class="pitch-field" data-families="phoenix athena bearish_taux cln note">
+                                        <label class="f-lbl">Fin commercialisation</label>
+                                        <input class="f-inp" id="ap-commercial-end" placeholder="jj/mm/aaaa" />
+                                    </div>
+                                    <div class="pitch-field" data-families="phoenix athena bearish_taux cln note">
+                                        <label class="f-lbl">Date de maturité</label>
+                                        <input class="f-inp" id="ap-maturity-date" placeholder="jj/mm/aaaa" />
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Nature sous-jacent</label>
+                                        <select class="f-sel" id="ap-underlying-type">
+                                            <option value="indice">Indice standard</option>
+                                            <option value="action_vanille">Action vive</option>
+                                            <option value="action_decrement">Indice/action décrémenté</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Nombre de sous-jacents</label>
+                                        <input class="f-inp" id="ap-underlying-count" type="number" min="1" value="1" oninput="updatePitchProductFields()" />
+                                    </div>
+                                    <div class="pitch-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Décrément type</label>
+                                        <select class="f-sel" id="ap-decrement-type">
+                                            <option value="points">Points</option>
+                                            <option value="percent">Pourcentage</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field" data-families="bearish_taux">
+                                        <label class="f-lbl">Type Bearish</label>
+                                        <select class="f-sel" id="ap-bearish-subtype" onchange="updatePitchProductFields()">
+                                            <option value="phoenix">Bearish Phoenix</option>
+                                            <option value="athena">Bearish Athena</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field pitch-bearish-phoenix-field" data-families="bearish_taux">
+                                        <label class="f-lbl">Version Bearish Phoenix</label>
+                                        <select class="f-sel" id="ap-bearish-version">
+                                            <option value="distribue">Distribué</option>
+                                            <option value="in_fine">In Fine</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field pitch-bearish-phoenix-field" data-families="phoenix bearish_taux">
+                                        <label class="f-lbl">Barrière coupon (%)</label>
+                                        <input class="f-inp" id="ap-coupon-barrier" type="number" step="1" value="60" />
+                                    </div>
+                                    <div class="pitch-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Décrément (pts)</label>
+                                        <input class="f-inp" id="ap-decrement" type="number" step="5" placeholder="ex: 50" />
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Type rappel</label>
+                                        <select class="f-sel" id="ap-recall-type">
+                                            <option value="fixe">Fixe</option>
+                                            <option value="degressif">Dégressif</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field pitch-degressive-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Dégressivité / obs. (%)</label>
+                                        <input class="f-inp" id="ap-degressivity" type="number" step="0.5" placeholder="ex: 1" />
+                                    </div>
+                                    <div class="pitch-field pitch-degressive-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Floor rappel (%)</label>
+                                        <input class="f-inp" id="ap-floor" type="number" step="1" placeholder="ex: 80" />
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="phoenix">
+                                        <label class="f-lbl">Put Leveraged</label>
+                                        <select class="f-sel" id="ap-put-leveraged">
+                                            <option value="false">Non</option>
+                                            <option value="true">Oui</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field pitch-put-field" data-families="phoenix">
+                                        <label class="f-lbl">PDI Put Leveraged (%)</label>
+                                        <input class="f-inp" id="ap-put-pdi" type="number" step="1" placeholder="ex: 50" />
+                                    </div>
+                                    <div class="pitch-field pitch-put-field" data-families="phoenix">
+                                        <label class="f-lbl">Multiplicateur perte</label>
+                                        <input class="f-inp" id="ap-put-multiplier" type="number" step="0.1" placeholder="ex: 2" />
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field pitch-multi-underlying-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Structure panier</label>
+                                        <select class="f-sel" id="ap-basket">
+                                            <option value="single">Mono sous-jacent</option>
+                                            <option value="worstof">Worst-of</option>
+                                            <option value="equipondere">Équipondéré</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field" data-families="athena">
+                                        <label class="f-lbl">Barrière oxygène (%)</label>
+                                        <input class="f-inp" id="ap-oxygen-barrier" type="number" step="1" placeholder="ex: 60" />
+                                    </div>
+                                    <div class="pitch-field pitch-bearish-phoenix-field" data-families="bearish_taux">
+                                        <label class="f-lbl">Coupon garanti</label>
+                                        <select class="f-sel" id="ap-bearish-guaranteed" onchange="updatePitchProductFields()">
+                                            <option value="false">Non</option>
+                                            <option value="true">Oui</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field pitch-bearish-phoenix-field pitch-bearish-guaranteed-field" data-families="bearish_taux">
+                                        <label class="f-lbl">Montant coupon garanti (%)</label>
+                                        <input class="f-inp" id="ap-bearish-guaranteed-amount" type="number" step="0.1" placeholder="ex: 2.0" />
+                                    </div>
+                                    <div class="pitch-field pitch-bearish-phoenix-field pitch-bearish-guaranteed-field" data-families="bearish_taux">
+                                        <label class="f-lbl">Période coupon garanti</label>
+                                        <input class="f-inp" id="ap-bearish-guaranteed-period" placeholder="ex: 1ère année écoulée" />
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="bearish_taux">
+                                        <label class="f-lbl">Barrière rappel bearish (%)</label>
+                                        <input class="f-inp" id="ap-bearish-recall-barrier" type="number" step="1" placeholder="ex: 100" />
+                                    </div>
+                                    <div class="pitch-field" data-families="bearish_taux">
+                                        <label class="f-lbl">Barrière coupon bearish (%)</label>
+                                        <input class="f-inp" id="ap-bearish-coupon-barrier" type="number" step="1" placeholder="ex: 95" />
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="cln note">
+                                        <label class="f-lbl">Callable émetteur</label>
+                                        <select class="f-sel" id="ap-callable" onchange="updatePitchProductFields()">
+                                            <option value="false">Non</option>
+                                            <option value="true">Oui</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field" data-families="note">
+                                        <label class="f-lbl">Type de taux</label>
+                                        <select class="f-sel" id="ap-rate-type" onchange="updatePitchProductFields()">
+                                            <option value="fixe">Fixe</option>
+                                            <option value="variable">Variable</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field" data-families="note">
+                                        <label class="f-lbl">Version coupon</label>
+                                        <select class="f-sel" id="ap-note-version">
+                                            <option value="distribue">Distribué</option>
+                                            <option value="in_fine">In Fine</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field pitch-note-reference-field" data-families="cln note">
+                                        <label class="f-lbl">Référence taux / crédit</label>
+                                        <input class="f-inp" id="ap-note-underlying" placeholder="EURIBOR 12M, Entité CLN..." />
+                                    </div>
+                                    <div class="pitch-field pitch-note-variable-field" data-families="note">
+                                        <label class="f-lbl">Spread (%)</label>
+                                        <input class="f-inp" id="ap-spread" type="number" step="0.1" placeholder="ex: 1.5" />
+                                    </div>
+                                    <div class="pitch-field pitch-note-variable-field" data-families="note">
+                                        <label class="f-lbl">Cap / Floor (%)</label>
+                                        <input class="f-inp" id="ap-cap-floor" placeholder="ex: 8 / 2" />
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field pitch-call-field pitch-cln-call-period-field" data-families="cln">
+                                        <label class="f-lbl">Début call</label>
+                                        <input class="f-inp" id="ap-call-start" type="date" />
+                                    </div>
+                                    <div class="pitch-field pitch-call-field pitch-cln-call-period-field" data-families="cln">
+                                        <label class="f-lbl">Fin call</label>
+                                        <input class="f-inp" id="ap-call-end" type="date" />
+                                    </div>
+                                    <div class="pitch-field pitch-call-field pitch-cln-call-dates-field" data-families="cln">
+                                        <label class="f-lbl">Dates fixes de call</label>
+                                        <input class="f-inp" id="ap-call-dates" placeholder="ex: 01/06/2027; 01/06/2028" />
+                                    </div>
+                                    <div class="pitch-field pitch-call-field" data-families="cln note">
+                                        <label class="f-lbl">Fréquence call</label>
+                                        <select class="f-sel" id="ap-call-frequency">
+                                            <option value="">N/A</option>
+                                            <option value="annuel">Annuelle</option>
+                                            <option value="semestriel">Semestrielle</option>
+                                            <option value="trimestriel">Trimestrielle</option>
+                                            <option value="mensuel">Mensuelle</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="phoenix bearish_taux">
+                                        <label class="f-lbl">Période de non-call</label>
+                                        <select class="f-sel" id="ap-start-period">
+                                            <option value="1">1ère période écoulée</option>
+                                            <option value="2">2ème période écoulée</option>
+                                            <option value="3">3ème période écoulée</option>
+                                            <option value="4">4ème période écoulée</option>
+                                            <option value="5">5ème période écoulée</option>
+                                        </select>
+                                    </div>
+                                    <div class="pitch-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Dates niveau initial</label>
+                                        <input class="f-inp" id="ap-initial-dates" placeholder="ex: 01/03/2026; 05/03/2026" />
+                                    </div>
+                                    <div class="pitch-field pitch-call-field" data-families="cln">
+                                        <label class="f-lbl">Mode call CLN</label>
+                                        <select class="f-sel" id="ap-call-mode" onchange="updatePitchProductFields()">
+                                            <option value="periode">Période récurrente</option>
+                                            <option value="dates">Dates fixes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row triple">
+                                    <div class="pitch-field" data-families="note">
+                                        <label class="f-lbl">Début coupon (Note)</label>
+                                        <input class="f-inp" id="ap-note-coupon-start-period" type="number" min="1" value="1" />
+                                    </div>
+                                    <div class="pitch-field pitch-call-field" data-families="note">
+                                        <label class="f-lbl">Début call émetteur (Note)</label>
+                                        <input class="f-inp" id="ap-note-call-start-period" type="number" min="1" value="1" />
+                                    </div>
+                                    <div class="pitch-field" data-families="note">
+                                        <label class="f-lbl">Protection Note</label>
+                                        <input class="f-inp" value="100% capital garanti" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row triple">
+                                <div>
+                                    <label class="f-lbl">Émetteur</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-issuer"
+                                        value="BNP Paribas"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="f-lbl">Notation</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-rating"
+                                        value="A+"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="f-lbl">SRI (KID)</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-sri"
+                                        type="number"
+                                        min="1"
+                                        max="7"
+                                        step="1"
+                                        placeholder="1 à 7"
+                                    />
+                                </div>
+                            </div>
+                            <div class="form-row full">
+                                <div>
+                                    <label class="f-lbl">Objectif client</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-objective"
+                                        value="Générer du rendement récurrent avec protection partielle du capital."
+                                    />
+                                </div>
+                            </div>
+                            <div class="form-row full">
+                                <div>
+                                    <label class="f-lbl">Contexte marché</label
+                                    ><input
+                                        class="f-inp"
+                                        id="ap-context"
+                                        value="Volatilité implicite élevée, corrélations stables, dividendes attractifs."
+                                    />
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button
+                                    class="btn"
+                                    onclick="hydratePitchFromLastExtraction()"
+                                >
+                                    Utiliser dernier document lu
+                                </button>
+                                <button
+                                    class="btn btn-gold"
+                                    onclick="generatePitchLocal()"
+                                >
+                                    Générer pitch
+                                </button>
+                                <button
+                                    class="btn"
+                                    onclick="downloadPitchPPTX()"
+                                >
+                                    Exporter PPTX
+                                </button>
+                                <button
+                                    class="btn"
+                                    onclick="downloadPitchPDF()"
+                                >
+                                    Exporter PDF
+                                </button>
+                            </div>
+                        </div>
+                        <div class="panel">
+                            <div class="panel-title">
+                                Prévisualisation slides
+                            </div>
+                            <div class="toolbar" style="margin-bottom: 10px">
+                                <span
+                                    class="filter-chip on"
+                                    id="ap-tab-slides"
+                                    onclick="switchPitchTab('slides')"
+                                    >Slides</span
+                                >
+                                <span
+                                    class="filter-chip"
+                                    id="ap-tab-raw"
+                                    onclick="switchPitchTab('raw')"
+                                    >Contenu brut</span
+                                >
+                            </div>
+                            <div
+                                id="ap-loading"
+                                class="pitch-loading"
+                                style="display: none"
+                            >
+                                Composition du pitch en cours...
+                            </div>
+                            <div id="ap-preview" class="pitch-preview-empty">
+                                Générez un pitch pour afficher le deck.
+                            </div>
+                            <pre
+                                id="ap-raw"
+                                class="json-view"
+                                style="display: none"
+                            >
+En attente de génération...</pre
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== SCREENER ===== -->
+                <div class="view" id="view-screener">
+                    <div class="ingest-hero" style="grid-template-columns: 1fr; margin-bottom: 16px;">
+                        <div class="ingest-hero-copy">
+                            <div class="ingest-kicker">Structuration</div>
+                            <h1 class="ingest-hero-title">Decrement Score</h1>
+                            <p class="ingest-hero-sub">
+                                Lire rapidement si le décrément est payé par le dividende,
+                                s'il mange la performance et si le coupon mérite le risque.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="dec-layout">
+                        <aside class="panel dec-sidebar">
+                            <div class="panel-title">Sélection</div>
+                            <div style="font-size: 10px; color: var(--text3); margin-bottom: 14px; line-height: 1.5;">
+                                Choisissez l'univers à comparer. Le meilleur compromis reste en haut.
+                            </div>
+                            <div class="dec-source-panel">
+                                <div class="dec-source-title">Lecture simple</div>
+                                <div class="dec-source-line"><span>1</span> Le dividende couvre-t-il le décrément ?</div>
+                                <div class="dec-source-line"><span>2</span> Combien de performance est sacrifiée ?</div>
+                                <div class="dec-source-line"><span>3</span> Que se passe-t-il si le produit n'est pas rappelé ?</div>
+                            </div>
+                            <div style="margin-bottom: 12px">
+                                <label class="f-lbl">Type d'actif</label>
+                                <select class="f-inp" id="scr-asset-type" onchange="runScreener()">
+                                    <option value="all">Tous</option>
+                                    <option value="Indice" selected>Indices</option>
+                                    <option value="Action">Actions</option>
+                                    <option value="Basket">Baskets</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 12px">
+                                <label class="f-lbl">Région</label>
+                                <select class="f-inp" id="scr-region" onchange="runScreener()">
+                                    <option value="all">Toutes</option>
+                                    <option value="Europe">Europe</option>
+                                    <option value="USA">USA</option>
+                                    <option value="Monde">Monde</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 12px">
+                                <label class="f-lbl">Dividende historique min. (%/an)</label>
+                                <input class="f-inp" id="scr-min-div" type="number" step="0.1" value="0" oninput="runScreener()" />
+                            </div>
+                            <div style="margin-bottom: 12px">
+                                <label class="f-lbl">Décrément max (%/an)</label>
+                                <input class="f-inp" id="scr-max-dec" type="number" step="0.1" value="15" oninput="runScreener()" />
+                            </div>
+                            <div style="margin-bottom: 12px">
+                                <label class="f-lbl">Note minimum</label>
+                                <select class="f-inp" id="scr-min-grade" onchange="runScreener()">
+                                    <option value="E">E</option>
+                                    <option value="D">D</option>
+                                    <option value="C">C</option>
+                                    <option value="B">B</option>
+                                    <option value="A">A</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn btn-gold" onclick="runScreener()">Recalculer</button>
+                            </div>
+                        </aside>
+
+                        <div class="panel dec-main">
+                            <div class="panel-title">Table de décision</div>
+                            <div class="dec-column-legend">
+                                <span><b>Vert</b> mécanisme confortable</span>
+                                <span><b>Orange</b> à justifier par le coupon</span>
+                                <span><b>Rouge</b> coût difficile à défendre</span>
+                            </div>
+                            <div class="tbl-wrap" style="max-height: 420px">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>SOUS-JACENT</th>
+                                            <th class="num">DIVIDENDE - DÉCRÉMENT</th>
+                                            <th class="num">COÛT HISTORIQUE</th>
+                                            <th class="num">SI NON-RAPPEL</th>
+                                            <th class="num">SCORE</th>
+                                            <th>VERDICT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="screener-tbody">
+                                        <tr>
+                                            <td colspan="6" style="text-align:center;color:var(--text3);padding:24px;">Prêt à scorer. Lancez le classement.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="scr-detail-panel" class="dec-detail-panel" style="margin-top: 12px;">
+                                <div style="color:var(--text3);font-size:11px;padding:20px;text-align:center;">
+                                    Choisissez une ligne pour ouvrir la carte d'identité du sous-jacent
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="view" id="view-ingest">
+                    <div class="ingest-hero">
+                        <div class="ingest-hero-copy">
+                            <div class="ingest-kicker">Doc Reader</div>
+                            <h1 class="ingest-hero-title">
+                                Importer. Lire. Valider.
+                            </h1>
+                            <p class="ingest-hero-sub">
+                                Déposez un document produit. STRUCTURA prépare une
+                                fiche claire, à contrôler avant intégration.
+                            </p>
+                        </div>
+                        <div class="ingest-hero-metrics">
+                            <div class="ingest-metric ingest-memory-chip">
+                                <span class="ingest-metric-label"
+                                    >Mémoire</span
+                                >
+                                <span class="ingest-metric-value"
+                                    id="ing-learn-count"
+                                    >Locale</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="g2 ingest-grid">
+                        <div class="panel ingest-panel ingest-panel-input">
+                            <div class="panel-title ingest-panel-title">
+                                Document
+                            </div>
+                            <div class="ingest-dropzone">
+                                <div class="ingest-dropzone-title">
+                                    Déposer un fichier
+                                </div>
+                                <div class="ingest-dropzone-sub">
+                                    PDF · TXT · HTML · DOCX
+                                </div>
+                                <div class="form-row full">
+                                    <div>
+                                        <input
+                                            class="f-inp"
+                                            id="ing-file"
+                                            type="file"
+                                            multiple
+                                            accept=".pdf,.txt,.md,.html,.htm,.docx"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button
+                                    class="btn btn-gold"
+                                    onclick="runOnboarding()"
+                                    style="width: 100%"
+                                >
+                                    Analyser
+                                </button>
+                            </div>
+                            <div class="ing-ai-note">
+                                <div class="ing-ai-note-title">Mémoire produit</div>
+                                <div class="ing-ai-note-body">
+                                    Les validations enrichissent une mémoire privée de
+                                    caractéristiques produit.
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button
+                                    class="btn"
+                                    onclick="addOnboardedProduct()"
+                                    id="btn-add-product"
+                                    disabled
+                                    style="opacity: 0.5"
+                                >
+                                    Ajouter au portefeuille
+                                </button>
+                            </div>
+                        </div>
+                        <div class="panel ingest-panel ingest-panel-output">
+                            <div class="panel-title ingest-panel-title">
+                                Fiche produit
+                            </div>
+                            <div id="ing-story" class="ing-story empty">
+                                La fiche apparaîtra ici.
+                            </div>
+                            <div
+                                id="ing-compare"
+                                class="ing-compare"
+                                style="display: none"
+                            ></div>
+                            <details class="debug-panel">
+                                <summary>Données techniques</summary>
+                                <pre id="ing-output" class="json-view"></pre>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /main -->
+            </div>
+            <!-- /app-shell -->
+
+        <!-- DETAIL DRAWER -->
+        <div
+            class="drawer-overlay"
+            id="drawer-ov"
+            onclick="closeDrawerIfOut(event)"
+        >
+            <div class="drawer" style="position: relative">
+                <button class="dr-close" onclick="closeDrawer()">✕</button>
+                <div class="dr-name" id="dr-name">—</div>
+                <div class="dr-isin" id="dr-isin">ISIN —</div>
+                <div class="dr-client" id="dr-client"></div>
+                <div class="dr-grid" id="dr-grid"></div>
+                <div id="dr-characteristics"></div>
+                <div class="divider"></div>
+                <div
+                    style="
+                        font-size: 9px;
+                        color: var(--text3);
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        margin-bottom: 12px;
+                    "
+                >
+                    CALENDRIER DES ÉVÉNEMENTS
+                </div>
+                <div class="timeline" id="dr-timeline"></div>
+            </div>
+        </div>
+
+        <!-- ADD MODAL -->
+        <div class="modal-ov" id="modal-ov" onclick="closeModalOut(event)">
+            <div class="modal">
+                <h2 class="modal-title">Nouveau produit structuré</h2>
+                <div class="form-row">
+                    <div>
+                        <label class="f-lbl">Nom du produit *</label
+                        ><input
+                            class="f-inp"
+                            id="f-name"
+                            placeholder="Phoenix CAC40 – Avr 2024"
+                        />
+                    </div>
+                    <div>
+                        <label class="f-lbl">ISIN</label
+                        ><input
+                            class="f-inp"
+                            id="f-isin"
+                            placeholder="FR0014XXXXXX"
+                        />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label class="f-lbl">Type *</label>
+                        <select class="f-sel" id="f-type">
+                            <option value="AC">Autocall / Phoenix</option>
+                            <option value="CG">Capital Garanti</option>
+                            <option value="RC">Reverse Convertible</option>
+                            <option value="LV">
+                                Certificat à effet de levier
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="f-lbl">Émetteur *</label>
+                        <select class="f-sel" id="f-emit">
+                            <option>BNP Paribas</option>
+                            <option>Société Générale</option>
+                            <option>Crédit Agricole CIB</option>
+                            <option>Goldman Sachs</option>
+                            <option>Deutsche Bank</option>
+                            <option>Barclays</option>
+                            <option>HSBC</option>
+                            <option>JP Morgan</option>
+                            <option>Morgan Stanley</option>
+                            <option>Natixis</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row triple">
+                    <div>
+                        <label class="f-lbl">Nominal (€) *</label
+                        ><input
+                            class="f-inp"
+                            id="f-nom"
+                            type="number"
+                            placeholder="1000000"
+                        />
+                    </div>
+                    <div>
+                        <label class="f-lbl">Date d'émission</label
+                        ><input class="f-inp" id="f-emit-d" type="date" />
+                    </div>
+                    <div>
+                        <label class="f-lbl">Date de maturité</label
+                        ><input class="f-inp" id="f-mat" type="date" />
+                    </div>
+                </div>
+                <div class="form-row triple">
+                    <div>
+                        <label class="f-lbl">Sous-jacent</label
+                        ><input class="f-inp" id="f-und" placeholder="CAC 40" />
+                    </div>
+                    <div>
+                        <label class="f-lbl">Barrière protection (%)</label
+                        ><input
+                            class="f-inp"
+                            id="f-bar"
+                            type="number"
+                            placeholder="60"
+                            min="0"
+                            max="100"
+                        />
+                    </div>
+                    <div>
+                        <label class="f-lbl">Coupon (%/an)</label
+                        ><input
+                            class="f-inp"
+                            id="f-cpn"
+                            type="number"
+                            placeholder="8.5"
+                            step="0.01"
+                        />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label class="f-lbl">Client</label>
+                        <select class="f-sel" id="f-client"></select>
+                    </div>
+                </div>
+                <div class="form-row triple">
+                    <div>
+                        <label class="f-lbl">Niveau de rappel (%)</label
+                        ><input
+                            class="f-inp"
+                            id="f-recall"
+                            type="number"
+                            placeholder="100"
+                        />
+                    </div>
+                    <div>
+                        <label class="f-lbl">Notation émetteur</label>
+                        <select class="f-sel" id="f-rat">
+                            <option>AAA</option>
+                            <option>AA+</option>
+                            <option>AA</option>
+                            <option>AA-</option>
+                            <option>A+</option>
+                            <option selected>A</option>
+                            <option>A-</option>
+                            <option>BBB+</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="f-lbl">Valorisation actuelle (€)</label
+                        ><input
+                            class="f-inp"
+                            id="f-val"
+                            type="number"
+                            placeholder="1000000"
+                        />
+                    </div>
+                </div>
+                <div class="form-row full">
+                    <div>
+                        <label class="f-lbl"
+                            >Notes / Conditions particulières</label
+                        ><input
+                            class="f-inp"
+                            id="f-notes"
+                            placeholder="Mémorisation des coupons, type de barrière, conditions spéciales..."
+                        />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn" onclick="closeModal()">Annuler</button>
+                    <button class="btn btn-gold" onclick="addProduct()">
+                        Enregistrer le produit
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-ov" id="client-modal-ov" onclick="closeClientModalOut(event)">
+            <div class="modal modal-sm">
+                <h2 class="modal-title" id="client-modal-title">Nouveau client</h2>
+                <input type="hidden" id="c-id" />
+                <div class="form-row full">
+                    <div>
+                        <label class="f-lbl">Nom du client *</label>
+                        <input class="f-inp" id="c-name" placeholder="Famille Dupont" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label class="f-lbl">Email</label>
+                        <input class="f-inp" id="c-email" placeholder="client@email.fr" />
+                    </div>
+                    <div>
+                        <label class="f-lbl">Segment</label>
+                        <select class="f-sel" id="c-segment">
+                            <option>Patrimonial</option>
+                            <option>Professionnel</option>
+                            <option>Grand public</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row full">
+                    <div>
+                        <label class="f-lbl">Notes dossier</label>
+                        <input class="f-inp" id="c-notes" placeholder="Profil, objectifs, sensibilité au risque..." />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn" type="button" onclick="closeClientModal()">Annuler</button>
+                    <button class="btn btn-gold" type="button" onclick="saveClient()">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- /app -->
+
+        <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <script src="./src/issuer-registry.js" defer></script>
+        <script src="./src/modules/structura-domain.js" defer></script>
+        <script src="./src/modules/product-schema.js" defer></script>
+        <script src="./src/modules/app-state.js" defer></script>
+        <script src="./src/modules/vl-registry.js" defer></script>
+        <script src="./src/modules/app-utils.js" defer></script>
+        <script src="./src/modules/app-portfolio-constants.js" defer></script>
+        <script src="./src/modules/app-navigation.js" defer></script>
+        <script src="./src/modules/app-exports.js" defer></script>
+        <script src="./src/modules/app-dashboard.js" defer></script>
+        <script src="./src/modules/app-clients.js" defer></script>
+        <script src="./src/modules/app-portfolio.js" defer></script>
+        <script src="./src/modules/app-calendar.js" defer></script>
+        <script src="./src/modules/app-analytics.js" defer></script>
+        <script src="./src/modules/decrement-engine.js" defer></script>
+        <script src="./src/modules/app-screener.js" defer></script>
+        <script src="./src/modules/index-registry.js" defer></script>
+        <script src="./src/modules/extraction-engine.js" defer></script>
+        <script src="./src/app.js" defer></script>
+    </body>
+</html>
