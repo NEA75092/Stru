@@ -515,14 +515,24 @@ th {
 td:has(.bar-wrap) {
     padding-right: var(--space-6) !important;
 }
-/* #view-portfolio a ses propres règles nth-child(10) sur la colonne
-   BARRIÈRE, plus spécifiques (id + pseudo-classe) que la règle
-   générique ci-dessus : elle gagnait encore, d'où le "%" collé à la
-   date de maturité. Rattrapée explicitement, plus large que la
-   colonne n'est étroite (min-width 100px vs ~106px de contenu). */
+/* #view-portfolio table a `table-layout: fixed` : dans ce mode, la
+   largeur des colonnes vient UNIQUEMENT de `width` sur les cellules
+   de la première ligne — `min-width`/`padding` sur les td n'a aucun
+   effet sur la largeur réellement allouée. C'est pourquoi le
+   correctif précédent (min-width sur le td) ne changeait rien : la
+   colonne restait ~114px de large quel que soit le contenu, et le
+   "%" débordait tel quel par-dessus la date suivante (overflow:
+   visible hérité de l'ancien CSS). Le vrai correctif est une largeur
+   fixe en px sur th ET td, plus une table légèrement plus large pour
+   l'accueillir sans resserrer les autres colonnes. Même technique
+   que #view-barriers, qui n'a jamais eu ce problème car sa colonne
+   "PROGRESSION" a déjà un width:120px en dur dans le HTML. */
+#view-portfolio table {
+    min-width: 1260px !important;
+}
 #view-portfolio th:nth-child(10),
 #view-portfolio td:nth-child(10) {
-    min-width: 130px !important;
+    width: 150px !important;
     padding-right: var(--space-6) !important;
 }
 #view-portfolio .bar-wrap {
