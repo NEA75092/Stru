@@ -1,0 +1,14 @@
+# Netlify — package directory is structura-v2/
+# Site: https://zesty-tiramisu-e45883.netlify.app/
+
+[build]
+  # Static Vanilla app (no framework build)
+  command = "echo 'Structura static publish'"
+  publish = "."
+
+# SPA-style fallback not required for multi-view single index.html,
+# but keeps deep links safe if you add routes later.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

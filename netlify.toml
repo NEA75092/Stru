@@ -1,12 +1,6 @@
-# Netlify — repo GitHub NEA75092/Stru
-# Site: https://zesty-tiramisu-e45883.netlify.app/
+# Used only if Netlify "Package directory" is empty (repo root).
+# Current Netlify UI has Package directory = structura-v2/ → see structura-v2/netlify.toml
 
 [build]
-  # Static front (Vanilla) — no build step required
   publish = "structura-v2"
-  command = "echo 'Static publish structura-v2'"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  command = "echo 'Structura static publish'"
