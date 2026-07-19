@@ -438,7 +438,7 @@
     }
 
     const DEFAULT_SESSION = {
-      advisorName: "Marie Laurent",
+      advisorName: "Marie",
       orgName: "Cabinet Structura",
       role: "CGP",
       lastVisit: null,
@@ -449,7 +449,11 @@
       try {
         const raw = root.localStorage.getItem(SESSION_KEY);
         if (!raw) return { ...DEFAULT_SESSION };
-        return { ...DEFAULT_SESSION, ...JSON.parse(raw) };
+        const session = { ...DEFAULT_SESSION, ...JSON.parse(raw) };
+        if (session.advisorName === "Marie Laurent") {
+          session.advisorName = "Marie";
+        }
+        return session;
       } catch {
         return { ...DEFAULT_SESSION };
       }
