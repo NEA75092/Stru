@@ -9,7 +9,9 @@
     "test": "node tests/domain-conventions.test.js && node tests/product-schema.test.js && node tests/decrement-engine.test.js && node tests/extraction-regressions.js && node tests/vl-registry.test.js && node tests/clients.test.js && node tests/ui-smoke.test.js",
     "test:py": "python3 tests/decrement_score_test.py",
     "test:all": "npm test && npm run test:py",
-    "lint": "eslint src/**/*.js tests/**/*.js"
+    "lint": "eslint src/**/*.js tests/**/*.js",
+    "publish:prep": "bash scripts/publish.sh",
+    "publish": "bash scripts/push.sh"
   },
   "devDependencies": {
     "eslint": "^9.30.0",
