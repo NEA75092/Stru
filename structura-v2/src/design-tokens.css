@@ -35,9 +35,12 @@
     --color-text-tertiary: #8a8d93;
     --color-text-on-dark: #fafaf8;
 
-    /* ── Brand — bleu Égée / bleu ciel / corail ── */
-    --color-aegean: #1b4b73;
-    --color-aegean-2: #143a59;
+    /* ── Brand — bleu Sidi Bou Said / bleu ciel / corail ──
+       Cobalt saturé (portes et volets méditerranéens), pas un bleu
+       marine institutionnel délavé — accent quasi-unique de l'app. */
+    --color-aegean: #1d4f91;
+    --color-aegean-2: #153d70;
+    --color-aegean-tint: #e7edf7;
     --color-sky: #5b9bd5;
     --color-sky-2: #4a87be;
     --color-coral: #e8734f;
@@ -92,9 +95,13 @@
     --radius-xl: 20px;
     --radius-full: 999px;
 
-    /* ── Ombres — seule source de relief : pas de bordure sur les cartes ── */
-    --shadow-card: 0 1px 2px rgba(20, 23, 28, 0.03), 0 10px 24px rgba(20, 23, 28, 0.055);
-    --shadow-card-hover: 0 2px 4px rgba(20, 23, 28, 0.04), 0 16px 32px rgba(20, 23, 28, 0.07);
+    /* ── Ombres — seule source de relief : pas de bordure sur les cartes ──
+       Deux couches : un contact serré (la carte "touche" la page) + une
+       diffusion large (la carte "flotte" dessus). C'est la diffusion qui
+       donne le relief — augmentée le 2026-07-19 après retour "les
+       bulles manquent de relief". */
+    --shadow-card: 0 1px 3px rgba(20, 23, 28, 0.05), 0 16px 36px rgba(20, 23, 28, 0.1);
+    --shadow-card-hover: 0 2px 6px rgba(20, 23, 28, 0.06), 0 22px 44px rgba(20, 23, 28, 0.13);
     --shadow-sm: 0 1px 2px rgba(20, 23, 28, 0.05);
     --shadow-md: 0 6px 16px rgba(20, 23, 28, 0.06);
     --shadow-lg: 0 16px 32px rgba(20, 23, 28, 0.08);

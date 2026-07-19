@@ -8,16 +8,23 @@
    ombre, typo) en se chargeant en dernier, avec !important là où
    la cascade legacy en abuse déjà (1000+ occurrences).
 
-   Système de couleur — 3 rôles, pas une palette décorative :
-   - Corail  : la seule chose qui demande une action (CTA, carte
-     KPI "critique", alerte critique, jauge de barrière en zone
-     rouge/breach).
-   - Bleu océan : état interactif — hover, focus, ligne
-     sélectionnée, colonne triée, jauge de barrière en zone saine.
-   - Encre (anthracite) : tout le reste. La hiérarchie se fait par
-     la taille et le poids typographique, pas par la couleur.
-   Vert/rouge de P&L restent des indicateurs sémantiques (gain/perte),
-   pas des accents décoratifs.
+   Système de couleur — v3 : un seul accent dominant, pas deux à
+   égalité (corrigé le 2026-07-19 après retour utilisateur) :
+   - Bleu Égée : l'accent quasi-unique. Nav active, liens, boutons
+     d'action ("+ Nouveau produit"...), tout élément interactif
+     (hover, focus, ligne sélectionnée, colonne triée).
+   - Corail : usage très restreint — uniquement une urgence ou une
+     alerte critique ponctuelle (carte KPI "critique", alerte
+     critique, jauge de barrière en zone rouge/breach). Jamais sur
+     un CTA standard, jamais sur un titre.
+   - Bleu océan : conservé UNIQUEMENT comme couleur de statut dans
+     les jauges de barrière (zone saine), au même titre que
+     l'ambre (surveillance) et le corail (critique) — ce n'est pas
+     un accent d'interface, c'est un indicateur de donnée, comme le
+     vert/rouge de P&L.
+   - Encre (anthracite) : tout le texte, y compris les titres de
+     page (h1/h2) — la couleur ne sert jamais à hiérarchiser un
+     titre, seulement une action ou un statut.
    ============================================================ */
 
 :root {
@@ -43,12 +50,12 @@
     --sand: var(--color-coral-tint);
     --cyan: var(--color-text-secondary);
     --cyan2: var(--color-text-secondary);
-    --sea: var(--color-ocean);
-    --sea-light: var(--color-ocean-2);
-    --aegean: var(--color-ocean);
-    --aegean-2: var(--color-ocean-2);
-    --blue: var(--color-ocean);
-    --blue2: var(--color-ocean-2);
+    --sea: var(--color-aegean);
+    --sea-light: var(--color-aegean-2);
+    --aegean: var(--color-aegean);
+    --aegean-2: var(--color-aegean-2);
+    --blue: var(--color-aegean);
+    --blue2: var(--color-aegean-2);
     --red: var(--color-danger);
     --red2: var(--color-danger-2);
     --terracotta: var(--color-danger-2);
@@ -86,30 +93,15 @@
         background var(--duration-fast) var(--ease-standard),
         color var(--duration-fast) var(--ease-standard) !important;
 }
-.nav-tab::before {
-    content: "";
-    position: absolute;
-    left: -14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 0;
-    border-radius: var(--radius-full);
-    background: var(--color-coral);
-    transition: height var(--duration-fast) var(--ease-standard);
-}
 .nav-tab:hover {
     background: var(--color-surface-2) !important;
     color: var(--color-ink) !important;
 }
 .nav-tab.active {
-    background: var(--color-surface-3) !important;
-    color: var(--color-ink) !important;
+    background: var(--color-aegean) !important;
+    color: var(--color-text-on-dark) !important;
     font-weight: 700 !important;
     box-shadow: none !important;
-}
-.nav-tab.active::before {
-    height: 16px;
 }
 .nav-tab .ico {
     color: inherit !important;
@@ -137,19 +129,19 @@
     box-shadow: none !important;
 }
 .mode-btn.on {
-    background: var(--color-ink) !important;
-    border-color: var(--color-ink) !important;
+    background: var(--color-aegean) !important;
+    border-color: var(--color-aegean) !important;
     color: var(--color-text-on-dark) !important;
 }
 .sidebar-add.btn-gold {
     border: none !important;
-    background: var(--color-coral) !important;
+    background: var(--color-aegean) !important;
     color: var(--color-text-on-dark) !important;
     box-shadow: var(--shadow-sm) !important;
     font-weight: 600 !important;
 }
 .sidebar-add.btn-gold:hover {
-    background: var(--color-coral-2) !important;
+    background: var(--color-aegean-2) !important;
 }
 
 /* ── Shell : header ── */
@@ -209,6 +201,13 @@
 }
 
 /* ── Primitives globales : cartes, sections, alertes, chips ── */
+.panel,
+.kpi,
+#view-dashboard .dash-welcome {
+    transition:
+        transform var(--duration-base) var(--ease-standard),
+        box-shadow var(--duration-base) var(--ease-standard) !important;
+}
 .panel {
     border-radius: var(--radius-lg) !important;
     border: none !important;
@@ -220,7 +219,11 @@
     border: none !important;
     background: var(--color-surface-1) !important;
     box-shadow: var(--shadow-card) !important;
-    padding: var(--space-5) var(--space-5) var(--space-4) !important;
+    padding: var(--space-6) var(--space-6) var(--space-5) !important;
+}
+.kpi:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover) !important;
 }
 .kpi::before {
     content: none !important;
@@ -256,30 +259,39 @@
    simples couleurs de statut, pas comme un ordre "héros puis discret" —
    généraliser la taille casserait leurs rangées de KPI à 4 égaux). */
 #view-dashboard .kpi.k-gold {
+    padding: var(--space-7) var(--space-7) var(--space-6) !important;
     box-shadow: var(--shadow-card-hover) !important;
 }
 #view-dashboard .kpi.k-gold .kpi-val {
     font-size: var(--text-hero) !important;
     letter-spacing: -0.02em !important;
-    margin-bottom: var(--space-2) !important;
+    margin-bottom: var(--space-3) !important;
 }
 #view-dashboard .kpi.k-gold .kpi-lbl {
-    margin-bottom: var(--space-3) !important;
+    margin-bottom: var(--space-4) !important;
+}
+#view-dashboard .kpi.k-gold .kpi-sub {
+    margin-top: var(--space-1);
 }
 #view-dashboard .kpi.k-red .kpi-val,
 #view-dashboard .kpi.k-orange .kpi-val,
 #view-dashboard .kpi.k-blue .kpi-val {
     font-size: var(--text-xl) !important;
 }
-/* La carte qui porte l'accent corail : celle qui signale un danger —
-   convention "k-red" tenue dans toute l'app (dashboard, barrières...). */
-.kpi.k-red {
+/* La carte qui porte l'accent corail : celle qui signale un vrai danger.
+   Scopé à Dashboard/Barrières où k-red = urgence confirmée — sur
+   Calendrier la même classe habille un simple compteur d'événements,
+   pas une alerte, donc elle reste neutre comme les 3 autres. */
+#view-dashboard .kpi.k-red,
+#view-barriers .kpi.k-red {
     background: linear-gradient(180deg, rgba(232, 115, 79, 0.07), rgba(232, 115, 79, 0.03)), var(--color-surface-1) !important;
 }
-.kpi.k-red .kpi-val {
+#view-dashboard .kpi.k-red .kpi-val,
+#view-barriers .kpi.k-red .kpi-val {
     color: var(--color-coral) !important;
 }
-.kpi.k-red .kpi-lbl {
+#view-dashboard .kpi.k-red .kpi-lbl,
+#view-barriers .kpi.k-red .kpi-lbl {
     color: var(--color-coral-2) !important;
 }
 /* #view-barriers a ses propres surcharges de couleur/taille sur ces
@@ -371,8 +383,8 @@
 }
 .filter-chip.on,
 .compact-toggle.on {
-    background: var(--color-ink) !important;
-    border-color: var(--color-ink) !important;
+    background: var(--color-aegean) !important;
+    border-color: var(--color-aegean) !important;
     color: var(--color-text-on-dark) !important;
 }
 .empty-inline {
@@ -393,12 +405,12 @@
     color: var(--color-ink) !important;
 }
 .btn-gold {
-    background: var(--color-coral) !important;
+    background: var(--color-aegean) !important;
     color: var(--color-text-on-dark) !important;
     box-shadow: var(--shadow-sm) !important;
 }
 .btn-gold:hover {
-    background: var(--color-coral-2) !important;
+    background: var(--color-aegean-2) !important;
 }
 
 .badge-red {
@@ -410,8 +422,8 @@
     color: var(--color-warning-2) !important;
 }
 .badge-gold {
-    background: rgba(232, 115, 79, 0.12) !important;
-    color: var(--color-coral-2) !important;
+    background: rgba(27, 75, 115, 0.1) !important;
+    color: var(--color-aegean) !important;
 }
 .up {
     color: var(--color-success) !important;
@@ -441,21 +453,35 @@ thead th {
 }
 thead th:hover,
 thead th.sorted {
-    color: var(--color-ocean) !important;
+    color: var(--color-aegean) !important;
 }
 tbody tr {
     border-bottom: 1px solid var(--color-border) !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+td,
+th {
+    padding: var(--space-4) var(--space-4) !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+/* La colonne "progression" (barre + libellé de statut) est la plus
+   chargée visuellement de la ligne : un peu plus d'air avant la
+   colonne suivante pour ne pas coller à la date. */
+td:has(.bar-wrap) {
+    padding-right: var(--space-6) !important;
 }
 tbody tr:hover {
     background: var(--color-surface-2) !important;
 }
 tbody tr.selected {
-    background: var(--color-ocean-tint) !important;
-    border-left: 3px solid var(--color-ocean) !important;
+    background: var(--color-aegean-tint) !important;
+    border-left: 3px solid var(--color-aegean) !important;
 }
-.p-name {
-    color: var(--color-text-primary) !important;
-}
+/* .p-name porte déjà var(--aegean) depuis institutional-theme.css : un
+   nom de produit est cliquable (ouvre le tiroir de détail), donc "lien"
+   au sens de la règle #1 — pas besoin de le repasser en encre. */
 .p-isin {
     color: var(--color-text-tertiary) !important;
     font-family: var(--font-mono-data) !important;
@@ -481,8 +507,8 @@ tbody tr.selected {
 .search:focus,
 .f-inp:focus,
 .f-sel:focus {
-    border-color: var(--color-ocean) !important;
-    box-shadow: 0 0 0 4px rgba(20, 110, 156, 0.12) !important;
+    border-color: var(--color-aegean) !important;
+    box-shadow: 0 0 0 4px rgba(27, 75, 115, 0.12) !important;
 }
 .search::placeholder {
     color: var(--color-text-tertiary) !important;
@@ -512,7 +538,7 @@ tbody tr.selected {
     color: var(--color-text-secondary) !important;
 }
 .dr-close:hover {
-    background: var(--color-ocean) !important;
+    background: var(--color-aegean) !important;
     color: var(--color-text-on-dark) !important;
 }
 .form-actions {
@@ -570,9 +596,10 @@ tbody tr.selected {
 /* ── Dashboard : contenu propre à l'écran (hors primitives ci-dessus) ── */
 #view-dashboard .dash-welcome {
     border-radius: var(--radius-lg) !important;
-    background: transparent !important;
+    background: var(--color-surface-1) !important;
     border: none !important;
-    padding: var(--space-3) 2px var(--space-5) !important;
+    box-shadow: var(--shadow-card) !important;
+    padding: var(--space-6) var(--space-7) !important;
 }
 #view-dashboard .dash-welcome-title {
     font-family: var(--font-heading) !important;
@@ -659,7 +686,7 @@ tbody tr.selected {
     background: var(--color-surface-3) !important;
 }
 #view-dashboard .issuer-bar span {
-    background: var(--color-ocean) !important;
+    background: var(--color-aegean) !important;
 }
 #view-dashboard .dash-timeline {
     gap: var(--space-3) !important;
@@ -671,7 +698,7 @@ tbody tr.selected {
 }
 #view-dashboard .timeline-date b {
     font-family: var(--font-heading) !important;
-    color: var(--color-ocean) !important;
+    color: var(--color-aegean) !important;
     font-weight: 400 !important;
 }
 #view-dashboard .timeline-main b {
@@ -681,5 +708,133 @@ tbody tr.selected {
     color: var(--color-text-tertiary) !important;
 }
 #view-dashboard .sec-meta[onclick] {
-    color: var(--color-coral) !important;
+    color: var(--color-aegean) !important;
+}
+
+/* ── Titres de page : toujours en encre, jamais en couleur (règle #1) ── */
+.sec-title,
+.dash-welcome-title,
+.clients-hero-title,
+.cal-context-title,
+.ingest-hero-title,
+.pilotage-hero-title {
+    color: var(--color-ink) !important;
+}
+#view-portfolio > .toolbar::before {
+    color: var(--color-ink) !important;
+}
+
+/* ── Pilotage : cartes de métriques — mêmes règles que les KPI/panels
+   (pas de bordure colorée pleine longueur, statut porté par la barre
+   de progression et le chiffre, pas par le contour de la carte) ── */
+.pilotage-hero-actions .btn-gold {
+    background: var(--color-aegean) !important;
+}
+.pilotage-metric {
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    background: var(--color-surface-2) !important;
+    box-shadow: none !important;
+}
+.pilotage-metric-warn,
+.pilotage-metric-crit {
+    border-color: transparent !important;
+}
+.pilotage-metric-value {
+    color: var(--color-ink) !important;
+}
+.pilotage-metric-bar {
+    background: var(--color-surface-3) !important;
+}
+.pilotage-metric-bar span {
+    background: var(--color-aegean) !important;
+}
+.pilotage-metric-warn .pilotage-metric-bar span {
+    background: var(--color-warning) !important;
+}
+.pilotage-metric-crit .pilotage-metric-bar span {
+    background: var(--color-coral) !important;
+}
+
+/* ── Calendrier : contrôles de période — mêmes couleurs en dur que
+   pilotage-metric, mêmes corrections ── */
+.calendar-controls-panel {
+    border: none !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--color-surface-2) !important;
+    box-shadow: none !important;
+}
+.calendar-mode-btn {
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    color: var(--color-text-secondary) !important;
+}
+.calendar-mode-btn.on {
+    background: var(--color-aegean) !important;
+    border-color: var(--color-aegean) !important;
+    color: var(--color-text-on-dark) !important;
+}
+.calendar-home-btn {
+    color: var(--color-aegean) !important;
+    border-color: transparent !important;
+    background: var(--color-aegean-tint) !important;
+}
+
+/* ── Decrement Score : plusieurs échelles sémantiques à 3 niveaux
+   (vert/or/rouge) où le palier "moyen" pointait vers --gold, donc
+   corail depuis le remap — trop proche du "danger" pour un niveau
+   intermédiaire. Repointé vers l'ambre, cohérent avec les jauges de
+   barrière et pilotage-metric-warn. ── */
+.dec-mini-score.grade-C {
+    color: var(--color-warning) !important;
+    border-color: rgba(214, 138, 60, 0.35) !important;
+}
+.ob-medium {
+    background: rgba(214, 138, 60, 0.15) !important;
+    color: var(--color-warning-2) !important;
+}
+.rb-med {
+    background: rgba(214, 138, 60, 0.12) !important;
+    color: var(--color-warning-2) !important;
+}
+.decision-pill.warn {
+    color: var(--color-warning-2) !important;
+    background: rgba(214, 138, 60, 0.1) !important;
+    border-color: rgba(214, 138, 60, 0.28) !important;
+}
+/* Onglet actif = état interactif, pas un statut : Égée comme le
+   reste de la navigation. */
+.dec-browser-tabs button.on {
+    color: var(--color-aegean) !important;
+    border-color: var(--color-aegean) !important;
+}
+/* Badge de segment client — catégorie, pas une alerte : neutre. */
+.seg-retail {
+    background: var(--color-surface-3) !important;
+    color: var(--color-text-secondary) !important;
+}
+/* Encart pédagogique "Lecture simple" : information, pas une alerte. */
+.dec-source-panel {
+    border: none !important;
+    background: var(--color-aegean-tint) !important;
+    box-shadow: none !important;
+}
+.dec-source-title,
+.dec-source-line span {
+    color: var(--color-aegean) !important;
+}
+
+/* ── Pitch Engine : bloc "Paramètres produit" — regroupement de champs,
+   pas une alerte : neutre au lieu du lavis corail en dur. ── */
+.pitch-advanced-block {
+    border: none !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--color-surface-2) !important;
+}
+.pitch-advanced-title {
+    color: var(--color-text-tertiary) !important;
+}
+.pitch-loading {
+    color: var(--color-aegean) !important;
+    background: var(--color-aegean-tint) !important;
 }
