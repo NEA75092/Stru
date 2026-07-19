@@ -107,9 +107,16 @@
     --shadow-lg: 0 16px 32px rgba(20, 23, 28, 0.08);
     --shadow-focus: 0 0 0 3px rgba(232, 115, 79, 0.3);
 
-    /* ── Mouvement ── */
+    /* ── Mouvement ──
+       standard : hover/focus, micro-interactions
+       out      : éléments qui entrent depuis un état neutre (fade de vue)
+       spring   : panneaux qui prennent possession de l'écran (modale,
+                  tiroir) — décélération franche avec un tout petit
+                  dépassement, sensation "premium", pas mécanique. */
     --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     --duration-fast: 120ms;
     --duration-base: 200ms;
+    --duration-slow: 320ms;
 }

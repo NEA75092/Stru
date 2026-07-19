@@ -103,9 +103,52 @@
     font-weight: 700 !important;
     box-shadow: none !important;
 }
+/* Icônes de nav : jeu SVG maison (trait fin uniforme), remplace les
+   glyphes Unicode d'origine. Plusieurs anciennes règles injectaient
+   un autre symbole via ::before (jusqu'à un simple carré en dur) —
+   neutralisées pour laisser le SVG du HTML s'afficher. */
 .nav-tab .ico {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
     color: inherit !important;
     opacity: 0.55;
+}
+.nav-tab .ico::before {
+    content: none !important;
+    border: none !important;
+}
+/* Chaque onglet a sa propre règle #tab-X .ico::before héritée des
+   anciennes itérations (formes dessinées en CSS pur via border/
+   background-image) — plus spécifiques (ID) que la règle générique
+   ci-dessus, donc rattrapées une par une. */
+#tab-dashboard .ico::before,
+#tab-clients .ico::before,
+#tab-portfolio .ico::before,
+#tab-barriers .ico::before,
+#tab-calendar .ico::before,
+#tab-analytics .ico::before,
+#tab-autopitch .ico::before,
+#tab-screener .ico::before,
+#tab-ingest .ico::before {
+    content: none !important;
+    border: none !important;
+    background: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+.nav-tab .ico svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 .nav-tab.active .ico {
     opacity: 1;
@@ -462,7 +505,7 @@ tbody tr {
 }
 td,
 th {
-    padding: var(--space-4) var(--space-4) !important;
+    padding: var(--space-4) var(--space-3) !important;
     border-left: none !important;
     border-right: none !important;
 }
@@ -471,6 +514,19 @@ th {
    colonne suivante pour ne pas coller à la date. */
 td:has(.bar-wrap) {
     padding-right: var(--space-6) !important;
+}
+/* #view-portfolio a ses propres règles nth-child(10) sur la colonne
+   BARRIÈRE, plus spécifiques (id + pseudo-classe) que la règle
+   générique ci-dessus : elle gagnait encore, d'où le "%" collé à la
+   date de maturité. Rattrapée explicitement, plus large que la
+   colonne n'est étroite (min-width 100px vs ~106px de contenu). */
+#view-portfolio th:nth-child(10),
+#view-portfolio td:nth-child(10) {
+    min-width: 130px !important;
+    padding-right: var(--space-6) !important;
+}
+#view-portfolio .bar-wrap {
+    gap: var(--space-2) !important;
 }
 tbody tr:hover {
     background: var(--color-surface-2) !important;
@@ -837,4 +893,81 @@ tbody tr.selected {
 .pitch-loading {
     color: var(--color-aegean) !important;
     background: var(--color-aegean-tint) !important;
+}
+
+/* ── Tiroir de détail produit : mêmes corrections que Pilotage/Pitch —
+   encart "Caractéristiques produit" en lavis corail en dur, jamais
+   audité jusqu'ici. ── */
+.dr-section-title {
+    color: var(--color-text-tertiary) !important;
+}
+.dr-char-grid {
+    border: none !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--color-surface-2) !important;
+}
+.dr-client-card {
+    border: none !important;
+    background: var(--color-aegean-tint) !important;
+}
+
+/* ============================================================
+   MOUVEMENT — premier passage
+   Vue : fondu d'entrée léger au changement d'onglet.
+   Overlays : le fond s'estompe, le panneau lui-même prend un easing
+   "spring" (décélération franche + très léger dépassement) plutôt
+   que le ease générique du navigateur — c'est ce petit dépassement
+   qui donne la sensation "premium" plutôt que mécanique.
+   Contrôles : retour tactile bref au clic (scale), cohérent partout.
+   ============================================================ */
+@keyframes viewFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.view.active {
+    animation: viewFadeIn var(--duration-slow) var(--ease-out);
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.modal-ov.open,
+.drawer-overlay.open {
+    animation: overlayFadeIn var(--duration-base) var(--ease-standard);
+}
+.modal {
+    animation: popIn var(--duration-slow) var(--ease-spring) !important;
+}
+.drawer {
+    animation: slideRight var(--duration-slow) var(--ease-spring) !important;
+}
+
+.btn:active,
+.btn-gold:active,
+.nav-tab:active,
+.filter-chip:active,
+.sidebar-add:active,
+.mode-btn:active {
+    transform: scale(0.97);
+}
+.btn,
+.btn-gold,
+.filter-chip,
+.sidebar-add,
+.mode-btn {
+    transition:
+        transform var(--duration-fast) var(--ease-standard),
+        background var(--duration-fast) var(--ease-standard),
+        color var(--duration-fast) var(--ease-standard) !important;
 }
