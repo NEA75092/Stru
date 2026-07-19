@@ -8,7 +8,16 @@
             href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@200;400;700&display=swap"
             rel="stylesheet"
         />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
         <link rel="stylesheet" href="./src/styles.css" />
+        <link rel="stylesheet" href="./src/institutional-theme.css?v=no-relief" />
+        <link rel="stylesheet" href="./src/design-tokens.css" />
+        <link rel="stylesheet" href="./src/dashboard.css" />
     </head>
     <body>
         <div class="app">
@@ -151,7 +160,7 @@
                             </div>
                         </div>
                         <div class="kpi k-red">
-                            <div class="kpi-lbl">Barrières franchies</div>
+                            <div class="kpi-lbl">Critique — barrière franchie</div>
                             <div
                                 class="kpi-val"
                                 id="kpi-breach-val"
@@ -164,7 +173,7 @@
                             </div>
                         </div>
                         <div class="kpi k-orange">
-                            <div class="kpi-lbl">Hors zone saine (&lt; 15 %)</div>
+                            <div class="kpi-lbl">Sous surveillance</div>
                             <div
                                 class="kpi-val"
                                 id="kpi-watch-val"
@@ -177,7 +186,7 @@
                             </div>
                         </div>
                         <div class="kpi k-blue">
-                            <div class="kpi-lbl">Nb. produits actifs</div>
+                            <div class="kpi-lbl">Portefeuille actif</div>
                             <div
                                 class="kpi-val"
                                 id="kpi-count-val"
@@ -193,8 +202,8 @@
 
                     <div class="dash-alerts-block" id="dash-alerts-block">
                         <div class="sec-hdr">
-                            <div class="sec-title">Alertes prioritaires</div>
-                            <span class="sec-meta" id="alerts-meta">Risque barrière : produits à traiter en priorité</span>
+                            <div class="sec-title">Actions requises</div>
+                            <span class="sec-meta" id="alerts-meta">Détail des lignes critiques et sous surveillance — pas un total séparé</span>
                         </div>
                         <div class="panel dash-alerts-panel">
                             <div class="alert-strip" id="alerts-list"></div>

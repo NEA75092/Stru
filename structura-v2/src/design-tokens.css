@@ -1,0 +1,108 @@
+/* ============================================================
+   DESIGN TOKENS — Structura
+   Direction : SaaS premium — épure Apple, densité data Palantir,
+   précision Porsche. Palette Santorini.
+
+   Ce fichier ne définit QUE des variables sous des noms neufs
+   (--color-*, --space-*, --radius-*, --shadow-*, --font-*, --ease-*).
+   Aucun nom existant (--gold, --text, --font-display, ...) n'est
+   redéfini ici : ces noms sont consommés par des dizaines de règles
+   dans styles.css / institutional-theme.css sur TOUTES les vues, et
+   par du JS qui injecte `style="color:var(--gold)"` en dur. Les
+   redéfinir sur :root republierait l'app entière d'un coup.
+
+   Le remappage des anciens noms vers cette palette se fait de façon
+   SCOPÉE (sidebar + header + #view-dashboard) dans dashboard.css,
+   le temps de juger le rendu avant propagation aux 8 autres vues.
+   ============================================================ */
+
+:root {
+    /* ── Neutrals — blanc chaux / anthracite ──
+       Jamais de blanc pur sur une carte : chaque palier de surface est
+       une nuance à peine décalée du fond, la profondeur vient de
+       l'ombre, pas du contraste de blancheur. */
+    --color-bg: #fafaf8;
+    --color-surface-1: #f4f3ef;
+    --color-surface-2: #eeece4;
+    --color-surface-3: #e6e3d9;
+    --color-wash: #f2f6fa;
+    --color-border: rgba(20, 23, 28, 0.06);
+    --color-border-strong: rgba(20, 23, 28, 0.12);
+
+    --color-ink: #14171c;
+    --color-text-primary: #14171c;
+    --color-text-secondary: #4d5561;
+    --color-text-tertiary: #8a8d93;
+    --color-text-on-dark: #fafaf8;
+
+    /* ── Brand — bleu Égée / bleu ciel / corail ── */
+    --color-aegean: #1b4b73;
+    --color-aegean-2: #143a59;
+    --color-sky: #5b9bd5;
+    --color-sky-2: #4a87be;
+    --color-coral: #e8734f;
+    --color-coral-2: #d4623f;
+    --color-coral-tint: #f0916f;
+
+    /* Bleu océan — état interactif (hover/focus/sélection) et jauges de
+       proximité de barrière. Plus saturé que --color-aegean : c'est le
+       bleu de la caldeira, pas le bleu institutionnel. */
+    --color-ocean: #146e9c;
+    --color-ocean-2: #0f5878;
+    --color-ocean-tint: #dcedf5;
+
+    /* ── Statuts sémantiques ── */
+    --color-success: #3d8361;
+    --color-success-2: #2f6b4c;
+    --color-warning: #d68a3c;
+    --color-warning-2: #b87330;
+    --color-danger: #c1483b;
+    --color-danger-2: #a03a2f;
+
+    /* ── Typographie ── */
+    --font-heading: "Unbounded", sans-serif;
+    --font-body: "Inter", "Inter Tight", system-ui, sans-serif;
+    --font-mono-data: "IBM Plex Mono", monospace;
+
+    --text-2xs: 9px;
+    --text-xs: 10px;
+    --text-sm: 11px;
+    --text-base: 12.5px;
+    --text-md: 14px;
+    --text-lg: 16px;
+    --text-xl: 20px;
+    --text-2xl: 28px;
+    --text-hero: clamp(3.25rem, 6vw, 4.75rem);
+    --text-display: clamp(1.7rem, 2.6vw, 2.25rem);
+
+    /* ── Espacements (grille 4px) ── */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 32px;
+    --space-8: 40px;
+
+    /* ── Rayons — cartes toujours entre 16 et 20px ── */
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 18px;
+    --radius-xl: 20px;
+    --radius-full: 999px;
+
+    /* ── Ombres — seule source de relief : pas de bordure sur les cartes ── */
+    --shadow-card: 0 1px 2px rgba(20, 23, 28, 0.03), 0 10px 24px rgba(20, 23, 28, 0.055);
+    --shadow-card-hover: 0 2px 4px rgba(20, 23, 28, 0.04), 0 16px 32px rgba(20, 23, 28, 0.07);
+    --shadow-sm: 0 1px 2px rgba(20, 23, 28, 0.05);
+    --shadow-md: 0 6px 16px rgba(20, 23, 28, 0.06);
+    --shadow-lg: 0 16px 32px rgba(20, 23, 28, 0.08);
+    --shadow-focus: 0 0 0 3px rgba(232, 115, 79, 0.3);
+
+    /* ── Mouvement ── */
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --duration-fast: 120ms;
+    --duration-base: 200ms;
+}

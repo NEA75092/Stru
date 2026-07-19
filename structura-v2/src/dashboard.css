@@ -1,0 +1,685 @@
+/* ============================================================
+   THEME — Structura (déployé à toute l'app)
+   Direction Santorini validée sur le dashboard, promue globalement :
+   shell (sidebar/header) + les 9 vues. styles.css et
+   institutional-theme.css restent chargés pour la mécanique de
+   layout (grid/flex, tailles, responsive) — ce fichier prend le
+   dessus sur tout ce qui est visuel (couleur, fond, bordure,
+   ombre, typo) en se chargeant en dernier, avec !important là où
+   la cascade legacy en abuse déjà (1000+ occurrences).
+
+   Système de couleur — 3 rôles, pas une palette décorative :
+   - Corail  : la seule chose qui demande une action (CTA, carte
+     KPI "critique", alerte critique, jauge de barrière en zone
+     rouge/breach).
+   - Bleu océan : état interactif — hover, focus, ligne
+     sélectionnée, colonne triée, jauge de barrière en zone saine.
+   - Encre (anthracite) : tout le reste. La hiérarchie se fait par
+     la taille et le poids typographique, pas par la couleur.
+   Vert/rouge de P&L restent des indicateurs sémantiques (gain/perte),
+   pas des accents décoratifs.
+   ============================================================ */
+
+:root {
+    --bg: var(--color-bg);
+    --s1: var(--color-surface-1);
+    --s2: var(--color-surface-2);
+    --s3: var(--color-surface-3);
+    --elevated: var(--color-surface-1);
+    --sky: var(--color-wash);
+    --border: var(--color-border);
+    --border2: var(--color-border-strong);
+
+    --text: var(--color-text-primary);
+    --text2: var(--color-text-secondary);
+    --text3: var(--color-text-tertiary);
+    --ink: var(--color-ink);
+    --ink-panel: var(--color-ink);
+    --white: var(--color-surface-1);
+    --purple: var(--color-text-tertiary);
+
+    --gold: var(--color-coral);
+    --gold2: var(--color-coral-2);
+    --sand: var(--color-coral-tint);
+    --cyan: var(--color-text-secondary);
+    --cyan2: var(--color-text-secondary);
+    --sea: var(--color-ocean);
+    --sea-light: var(--color-ocean-2);
+    --aegean: var(--color-ocean);
+    --aegean-2: var(--color-ocean-2);
+    --blue: var(--color-ocean);
+    --blue2: var(--color-ocean-2);
+    --red: var(--color-danger);
+    --red2: var(--color-danger-2);
+    --terracotta: var(--color-danger-2);
+    --orange: var(--color-warning);
+    --orange2: var(--color-warning-2);
+    --green: var(--color-success);
+    --green2: var(--color-success-2);
+    --olive: var(--color-success-2);
+
+    --font-mono: var(--font-mono-data);
+    --font-sans: var(--font-body);
+    --font-display: var(--font-heading);
+}
+
+/* ── Shell : sidebar ── */
+.sidebar {
+    border-radius: var(--radius-xl) !important;
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+.sidebar-brand {
+    border-bottom: none !important;
+}
+.sidebar-logo {
+    filter: saturate(1) contrast(1.02) !important;
+}
+.nav-tab {
+    position: relative;
+    border-radius: var(--radius-md) !important;
+    color: var(--color-text-secondary) !important;
+    font-family: var(--font-body) !important;
+    font-weight: 500 !important;
+    transition:
+        background var(--duration-fast) var(--ease-standard),
+        color var(--duration-fast) var(--ease-standard) !important;
+}
+.nav-tab::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    border-radius: var(--radius-full);
+    background: var(--color-coral);
+    transition: height var(--duration-fast) var(--ease-standard);
+}
+.nav-tab:hover {
+    background: var(--color-surface-2) !important;
+    color: var(--color-ink) !important;
+}
+.nav-tab.active {
+    background: var(--color-surface-3) !important;
+    color: var(--color-ink) !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+}
+.nav-tab.active::before {
+    height: 16px;
+}
+.nav-tab .ico {
+    color: inherit !important;
+    opacity: 0.55;
+}
+.nav-tab.active .ico {
+    opacity: 1;
+}
+.nav-tab .tab-badge {
+    font-family: var(--font-mono-data) !important;
+}
+.sidebar-foot {
+    border-top: none !important;
+    margin-top: var(--space-6) !important;
+    padding-top: var(--space-4) !important;
+}
+.sidebar-mode,
+.sidebar-btn {
+    border-radius: var(--radius-md) !important;
+    border: none !important;
+    background: var(--color-surface-2) !important;
+    color: var(--color-text-secondary) !important;
+    font-family: var(--font-mono-data) !important;
+    letter-spacing: 0.06em !important;
+    box-shadow: none !important;
+}
+.mode-btn.on {
+    background: var(--color-ink) !important;
+    border-color: var(--color-ink) !important;
+    color: var(--color-text-on-dark) !important;
+}
+.sidebar-add.btn-gold {
+    border: none !important;
+    background: var(--color-coral) !important;
+    color: var(--color-text-on-dark) !important;
+    box-shadow: var(--shadow-sm) !important;
+    font-weight: 600 !important;
+}
+.sidebar-add.btn-gold:hover {
+    background: var(--color-coral-2) !important;
+}
+
+/* ── Shell : header ── */
+.header {
+    border-radius: var(--radius-xl) !important;
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+.header-right {
+    border-left: none !important;
+}
+.ticker-label {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+.ticker-val {
+    color: var(--color-text-primary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+.ticker-chg.up {
+    color: var(--color-success) !important;
+}
+.ticker-chg.dn {
+    color: var(--color-danger) !important;
+}
+.user-pill {
+    border-radius: var(--radius-md) !important;
+    border: none !important;
+    background: var(--color-surface-2) !important;
+}
+.user-avatar {
+    border-radius: var(--radius-sm) !important;
+    background: var(--color-ink) !important;
+    color: var(--color-text-on-dark) !important;
+}
+.live-badge {
+    border-radius: var(--radius-sm) !important;
+    border: none !important;
+    background: transparent !important;
+    color: var(--color-text-tertiary) !important;
+}
+.live-dot {
+    background: var(--color-success) !important;
+}
+.clock {
+    color: var(--color-text-primary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+
+/* ── Shell : zone principale ── */
+.main {
+    border-radius: var(--radius-xl) !important;
+    border: none !important;
+    background: var(--color-bg) !important;
+    box-shadow: none !important;
+}
+
+/* ── Primitives globales : cartes, sections, alertes, chips ── */
+.panel {
+    border-radius: var(--radius-lg) !important;
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+.kpi {
+    border-radius: var(--radius-lg) !important;
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    box-shadow: var(--shadow-card) !important;
+    padding: var(--space-5) var(--space-5) var(--space-4) !important;
+}
+.kpi::before {
+    content: none !important;
+}
+.kpi-lbl {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.1em !important;
+}
+.kpi-val {
+    font-family: var(--font-heading) !important;
+    font-weight: 400 !important;
+    color: var(--color-ink) !important;
+}
+.kpi-sub {
+    color: var(--color-text-tertiary) !important;
+}
+.kpi-sub.up {
+    color: var(--color-success) !important;
+}
+.kpi-sub.dn {
+    color: var(--color-danger) !important;
+}
+.kpi-sub.warn {
+    color: var(--color-text-tertiary) !important;
+}
+.kpi-row {
+    gap: var(--space-4) !important;
+}
+/* Chiffre héros : uniquement la vue Dashboard, où la 1ère carte est un
+   vrai total (les autres vues réutilisent k-gold/k-red/... comme de
+   simples couleurs de statut, pas comme un ordre "héros puis discret" —
+   généraliser la taille casserait leurs rangées de KPI à 4 égaux). */
+#view-dashboard .kpi.k-gold {
+    box-shadow: var(--shadow-card-hover) !important;
+}
+#view-dashboard .kpi.k-gold .kpi-val {
+    font-size: var(--text-hero) !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: var(--space-2) !important;
+}
+#view-dashboard .kpi.k-gold .kpi-lbl {
+    margin-bottom: var(--space-3) !important;
+}
+#view-dashboard .kpi.k-red .kpi-val,
+#view-dashboard .kpi.k-orange .kpi-val,
+#view-dashboard .kpi.k-blue .kpi-val {
+    font-size: var(--text-xl) !important;
+}
+/* La carte qui porte l'accent corail : celle qui signale un danger —
+   convention "k-red" tenue dans toute l'app (dashboard, barrières...). */
+.kpi.k-red {
+    background: linear-gradient(180deg, rgba(232, 115, 79, 0.07), rgba(232, 115, 79, 0.03)), var(--color-surface-1) !important;
+}
+.kpi.k-red .kpi-val {
+    color: var(--color-coral) !important;
+}
+.kpi.k-red .kpi-lbl {
+    color: var(--color-coral-2) !important;
+}
+/* #view-barriers a ses propres surcharges de couleur/taille sur ces
+   4 KPI, plus spécifiques que les règles ci-dessus : on les rattrape
+   explicitement pour rester sur une seule carte accentuée et une
+   taille uniforme, au lieu d'un rouge/orange/or/vert à 4 tailles. */
+#view-barriers .bar-kpi-row .kpi.k-red .kpi-val {
+    color: var(--color-coral) !important;
+    font-size: var(--text-2xl) !important;
+}
+#view-barriers .bar-kpi-row .kpi.k-orange .kpi-val,
+#view-barriers .bar-kpi-row .kpi.k-gold .kpi-val,
+#view-barriers .bar-kpi-row .kpi.k-green .kpi-val {
+    color: var(--color-ink) !important;
+    font-size: var(--text-2xl) !important;
+}
+
+.sec-hdr {
+    margin-bottom: var(--space-4) !important;
+}
+.sec-title {
+    color: var(--color-ink) !important;
+    font-family: var(--font-body) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+}
+.sec-title::before {
+    content: none !important;
+}
+.sec-meta {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+
+.alert-strip {
+    gap: var(--space-2) !important;
+}
+.al {
+    border-radius: var(--radius-md) !important;
+    border: none !important;
+    background: var(--color-surface-2) !important;
+    padding: var(--space-3) var(--space-4) !important;
+}
+.al-crit {
+    background: rgba(232, 115, 79, 0.08) !important;
+}
+.al-warn,
+.al-info,
+.al-ok {
+    background: var(--color-surface-2) !important;
+}
+.al-txt,
+.al-txt strong {
+    color: var(--color-text-primary) !important;
+}
+.al-crit .al-txt strong {
+    color: var(--color-coral-2) !important;
+}
+.al-time {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+/* Jauge de risque décorative (dashboard) : même code couleur que les
+   jauges de barrière — océan sain, ambre surveillance, corail critique. */
+#view-dashboard .al-txt::after {
+    background-color: var(--color-surface-3) !important;
+    background-image: linear-gradient(90deg, var(--color-coral), var(--color-coral)) !important;
+}
+#view-dashboard .al-warn .al-txt::after {
+    background-image: linear-gradient(90deg, var(--color-warning), var(--color-warning)) !important;
+}
+#view-dashboard .al-ok .al-txt::after {
+    background-image: linear-gradient(90deg, var(--color-ocean), var(--color-ocean)) !important;
+}
+#view-dashboard .al-crit .al-txt::after {
+    animation: barBlink 1.6s ease-in-out infinite;
+}
+
+.filter-chip,
+.compact-toggle,
+.sort-btn,
+.mini-btn {
+    border-radius: var(--radius-full) !important;
+    border: none !important;
+    background: var(--color-surface-2) !important;
+    color: var(--color-text-secondary) !important;
+    font-family: var(--font-mono-data) !important;
+    box-shadow: none !important;
+}
+.filter-chip.on,
+.compact-toggle.on {
+    background: var(--color-ink) !important;
+    border-color: var(--color-ink) !important;
+    color: var(--color-text-on-dark) !important;
+}
+.empty-inline {
+    border: none !important;
+    background: var(--color-surface-2) !important;
+    color: var(--color-text-tertiary) !important;
+}
+
+.btn {
+    border-radius: var(--radius-md) !important;
+    border: none !important;
+    background: var(--color-surface-2) !important;
+    color: var(--color-text-secondary) !important;
+    box-shadow: none !important;
+}
+.btn:hover {
+    background: var(--color-surface-3) !important;
+    color: var(--color-ink) !important;
+}
+.btn-gold {
+    background: var(--color-coral) !important;
+    color: var(--color-text-on-dark) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+.btn-gold:hover {
+    background: var(--color-coral-2) !important;
+}
+
+.badge-red {
+    background: rgba(193, 72, 59, 0.12) !important;
+    color: var(--color-danger) !important;
+}
+.badge-orange {
+    background: rgba(214, 138, 60, 0.12) !important;
+    color: var(--color-warning-2) !important;
+}
+.badge-gold {
+    background: rgba(232, 115, 79, 0.12) !important;
+    color: var(--color-coral-2) !important;
+}
+.up {
+    color: var(--color-success) !important;
+}
+.dn {
+    color: var(--color-danger) !important;
+}
+.neu {
+    color: var(--color-text-tertiary) !important;
+}
+.warn-c {
+    color: var(--color-warning-2) !important;
+}
+
+/* ── Tables — denses, sans grille de bordures ── */
+.tbl-wrap {
+    border-radius: var(--radius-lg) !important;
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+thead th {
+    background: var(--color-surface-1) !important;
+    color: var(--color-text-tertiary) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+    font-family: var(--font-mono-data) !important;
+}
+thead th:hover,
+thead th.sorted {
+    color: var(--color-ocean) !important;
+}
+tbody tr {
+    border-bottom: 1px solid var(--color-border) !important;
+}
+tbody tr:hover {
+    background: var(--color-surface-2) !important;
+}
+tbody tr.selected {
+    background: var(--color-ocean-tint) !important;
+    border-left: 3px solid var(--color-ocean) !important;
+}
+.p-name {
+    color: var(--color-text-primary) !important;
+}
+.p-isin {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+/* Pastilles de type produit : neutres, la distinction vient du libellé,
+   pas d'un arc-en-ciel de fonds colorés par catégorie. */
+.type-pill {
+    color: var(--color-text-secondary) !important;
+    border-color: transparent !important;
+    background: var(--color-surface-2) !important;
+    font-family: var(--font-mono-data) !important;
+}
+
+/* ── Formulaires : recherche, select, champs ── */
+.search,
+.f-inp,
+.f-sel {
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--color-border-strong) !important;
+    background: var(--color-surface-1) !important;
+    color: var(--color-text-primary) !important;
+}
+.search:focus,
+.f-inp:focus,
+.f-sel:focus {
+    border-color: var(--color-ocean) !important;
+    box-shadow: 0 0 0 4px rgba(20, 110, 156, 0.12) !important;
+}
+.search::placeholder {
+    color: var(--color-text-tertiary) !important;
+}
+.f-lbl {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+
+/* ── Modal / drawer ── */
+.modal,
+.drawer {
+    border-radius: var(--radius-xl) !important;
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+.modal-title,
+.dr-name {
+    font-family: var(--font-heading) !important;
+    font-weight: 400 !important;
+    color: var(--color-ink) !important;
+}
+.dr-close {
+    border: none !important;
+    background: var(--color-surface-2) !important;
+    color: var(--color-text-secondary) !important;
+}
+.dr-close:hover {
+    background: var(--color-ocean) !important;
+    color: var(--color-text-on-dark) !important;
+}
+.form-actions {
+    border-top: 1px solid var(--color-border) !important;
+}
+
+/* ── Jauges de barrière — océan (sain) → ambre (surveillance) → corail
+   (critique), avec un pouls doux sur les franchissements. C'est le
+   seul endroit du produit où la couleur porte une vraie donnée en
+   continu, donc le seul qui mérite plus de couleur et de mouvement. ── */
+.bar-track {
+    background: var(--color-surface-3) !important;
+}
+.bar-fill.bf-safe {
+    background: linear-gradient(90deg, var(--color-ocean), var(--color-ocean-2)) !important;
+}
+.bar-fill.bf-warn {
+    background: linear-gradient(90deg, var(--color-warning), var(--color-warning-2)) !important;
+}
+.bar-fill.bf-crit {
+    background: linear-gradient(90deg, var(--color-coral), var(--color-coral-2)) !important;
+}
+.bar-fill.bf-breach {
+    background: linear-gradient(90deg, var(--color-coral), var(--color-danger)) !important;
+    animation: barBlink 1.6s ease-in-out infinite !important;
+}
+#view-barriers .bar-track {
+    background: var(--color-surface-3) !important;
+}
+#view-barriers .bar-fill.bf-safe {
+    background: linear-gradient(90deg, var(--color-ocean), var(--color-ocean-2)) !important;
+}
+#view-barriers .bar-fill.bf-warn {
+    background: linear-gradient(90deg, var(--color-warning), var(--color-warning-2)) !important;
+}
+#view-barriers .bar-fill.bf-crit {
+    background: linear-gradient(90deg, var(--color-coral), var(--color-coral-2)) !important;
+}
+#view-barriers .bar-fill.bf-breach {
+    background: linear-gradient(90deg, var(--color-coral), var(--color-danger)) !important;
+    animation: barBlink 1.6s ease-in-out infinite !important;
+}
+@keyframes barBlink {
+    0%,
+    100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(232, 115, 79, 0.4);
+    }
+    50% {
+        opacity: 0.88;
+        box-shadow: 0 0 8px 2px rgba(232, 115, 79, 0.5);
+    }
+}
+
+/* ── Dashboard : contenu propre à l'écran (hors primitives ci-dessus) ── */
+#view-dashboard .dash-welcome {
+    border-radius: var(--radius-lg) !important;
+    background: transparent !important;
+    border: none !important;
+    padding: var(--space-3) 2px var(--space-5) !important;
+}
+#view-dashboard .dash-welcome-title {
+    font-family: var(--font-heading) !important;
+    color: var(--color-ink) !important;
+    font-weight: 400 !important;
+}
+#view-dashboard .dash-welcome-sub {
+    color: var(--color-text-tertiary) !important;
+}
+#view-dashboard .dash-alerts-block,
+#view-dashboard .dash-perf-section,
+#view-dashboard .dash-vl-section {
+    margin-bottom: var(--space-7) !important;
+}
+#view-dashboard .dash-insights-grid {
+    gap: var(--space-5) !important;
+}
+#view-dashboard .perf-kpi {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+}
+#view-dashboard .perf-kpi-main {
+    background: transparent !important;
+    border-color: transparent !important;
+}
+#view-dashboard .perf-kpi strong {
+    color: var(--color-ink) !important;
+}
+#view-dashboard .perf-kpi-label,
+#view-dashboard .perf-kpi small {
+    color: var(--color-text-tertiary) !important;
+}
+#view-dashboard .perf-chart-area {
+    background: var(--color-surface-2) !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+}
+#view-dashboard .perf-chart-note {
+    color: var(--color-text-tertiary) !important;
+}
+#view-dashboard .vl-top-flop {
+    gap: var(--space-3) !important;
+}
+#view-dashboard .vl-side-title {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+#view-dashboard .vl-row {
+    border-radius: var(--radius-md) !important;
+    background: var(--color-surface-2) !important;
+    margin-bottom: var(--space-2) !important;
+}
+#view-dashboard .vl-row:hover {
+    background: var(--color-surface-3) !important;
+}
+#view-dashboard .vl-main b {
+    color: var(--color-text-primary) !important;
+}
+#view-dashboard .vl-values b.up {
+    color: var(--color-success) !important;
+}
+#view-dashboard .vl-values b.dn {
+    color: var(--color-danger) !important;
+}
+#view-dashboard .issuer-exposure {
+    gap: var(--space-4) !important;
+}
+#view-dashboard .issuer-row {
+    border-radius: var(--radius-md) !important;
+    background: var(--color-surface-2) !important;
+    border: none !important;
+    padding: var(--space-3) var(--space-4) !important;
+}
+#view-dashboard .issuer-name {
+    color: var(--color-text-primary) !important;
+}
+#view-dashboard .issuer-metric {
+    color: var(--color-text-secondary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+#view-dashboard .issuer-bar {
+    background: var(--color-surface-3) !important;
+}
+#view-dashboard .issuer-bar span {
+    background: var(--color-ocean) !important;
+}
+#view-dashboard .dash-timeline {
+    gap: var(--space-3) !important;
+}
+#view-dashboard .timeline-item {
+    border-radius: var(--radius-md) !important;
+    background: var(--color-surface-2) !important;
+    border: none !important;
+}
+#view-dashboard .timeline-date b {
+    font-family: var(--font-heading) !important;
+    color: var(--color-ocean) !important;
+    font-weight: 400 !important;
+}
+#view-dashboard .timeline-main b {
+    color: var(--color-text-primary) !important;
+}
+#view-dashboard .timeline-main small {
+    color: var(--color-text-tertiary) !important;
+}
+#view-dashboard .sec-meta[onclick] {
+    color: var(--color-coral) !important;
+}

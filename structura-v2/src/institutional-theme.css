@@ -1,0 +1,4827 @@
+/* ============================================================
+   STRUCTURA — Cycladic institutional theme
+   Phase 1 refined + Phase 2 (Portfolio · tables · product drawer)
+   Loaded AFTER styles.css. Visual only.
+   ============================================================ */
+
+:root {
+  --bg: #f8f7f2;
+  --s1: #ffffff;
+  --s2: #f3f1eb;
+  --s3: #ebe8e0;
+  --elevated: #f4f7f9;
+  --border: rgba(11, 58, 91, 0.09);
+  --border2: rgba(11, 58, 91, 0.15);
+
+  --text: #07111f;
+  --text2: #5a6570;
+  --text3: #8a939c;
+
+  --aegean: #0b3a5b;
+  --aegean-2: #1c6b8f;
+  --sea: #0b3a5b;
+  --sea-light: #1c6b8f;
+
+  --gold: #c8a64b;
+  --gold2: #a88a3e;
+  --sand: #c8a64b;
+
+  --ink: #07111f;
+  --ink-panel: #0e1b2b;
+
+  --cyan: #1c6b8f;
+  --cyan2: #0b3a5b;
+  --red: #b54a4a;
+  --red2: #8f3a3a;
+  --orange: #b87a3a;
+  --orange2: #94622e;
+  --green: #3d7a5a;
+  --green2: #2f5f46;
+  --blue: #0b3a5b;
+  --blue2: #1c6b8f;
+  --purple: #8a939c;
+  --white: #ffffff;
+  --sky: #f4f7f9;
+  --terracotta: #b87a3a;
+  --olive: #3d7a5a;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-mono: "Inter", system-ui, sans-serif;
+
+  /* —— Design system: one information grammar —— */
+  --type-primary-size: 13px;
+  --type-primary-weight: 500;
+  --type-secondary-size: 12.5px;
+  --type-secondary-weight: 400;
+  --type-meta-size: 10px;
+  --type-meta-weight: 500;
+  --type-figure-size: 12.5px;
+  --type-figure-weight: 500;
+  --type-colhead-size: 9px;
+  --type-colhead-weight: 500;
+  --type-colhead-tracking: 0.12em;
+  --row-pad-y: 14px;
+  --row-pad-x: 14px;
+  --ribbon-h: 44px;
+
+  --radius: 8px;
+  --radius-sm: 6px;
+  --rule: rgba(11, 58, 91, 0.09);
+  --shadow-soft: none;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.011em;
+}
+
+body::before {
+  display: none !important;
+}
+
+.app {
+  padding: 0;
+  gap: 0;
+  background: var(--bg);
+  grid-template-columns: 248px minmax(0, 1fr);
+}
+
+.app-shell {
+  gap: 0;
+  background: var(--bg);
+  min-height: 0;
+}
+
+.sidebar {
+  gap: 0;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid var(--rule);
+  background: var(--s1);
+  box-shadow: none;
+}
+
+.sidebar-brand {
+  min-height: 80px;
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--rule);
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar-logo {
+  display: block;
+  width: min(100%, 168px);
+  margin: 0 auto;
+  filter: none;
+  object-fit: contain;
+  object-position: center center;
+}
+
+.sidebar-client {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sidebar-client-lbl {
+  color: var(--text3);
+  letter-spacing: 0.14em;
+  font-size: 9px;
+}
+
+.link-btn {
+  color: var(--aegean-2);
+  font-weight: 500;
+}
+
+.link-btn:hover {
+  color: var(--aegean);
+  text-decoration: none;
+}
+
+.sidebar-nav {
+  gap: 1px;
+  padding: 10px 14px 20px;
+}
+
+.sidebar-foot {
+  gap: 8px;
+  padding: 16px 14px 20px;
+  border-top: 1px solid var(--rule);
+}
+
+#tab-dashboard::before,
+#tab-barriers::before,
+#tab-calendar::before {
+  display: block;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 0 12px;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text3);
+  pointer-events: none;
+}
+
+#tab-dashboard::before {
+  content: "Portfolio";
+  margin-top: 6px;
+}
+
+#tab-barriers::before {
+  content: "Analytics";
+  margin-top: 28px;
+  padding-top: 4px;
+}
+
+#tab-calendar::before {
+  content: "Operations";
+  margin-top: 28px;
+  padding-top: 4px;
+}
+
+#tab-dashboard,
+#tab-barriers,
+#tab-calendar {
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 38px;
+  align-content: center;
+}
+
+.nav-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 38px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  color: var(--aegean);
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  box-shadow: none;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+.nav-tab:hover {
+  color: var(--aegean);
+  background: rgba(11, 58, 91, 0.035);
+}
+
+.nav-tab.active {
+  color: #fff;
+  background: var(--aegean);
+  box-shadow: none;
+  font-weight: 500;
+}
+
+.nav-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 11px;
+  bottom: 11px;
+  width: 2px;
+  background: var(--gold);
+}
+
+.nav-tab .ico {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important;
+  background: transparent !important;
+  font-size: 0 !important;
+  line-height: 0;
+  opacity: 0.38;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+.nav-tab:hover .ico,
+.nav-tab.active .ico {
+  opacity: 0.7;
+  background: transparent !important;
+  color: currentColor;
+}
+
+.nav-tab .ico::before {
+  font-size: 11px;
+  line-height: 1;
+  color: currentColor;
+}
+
+#tab-dashboard .ico::before { content: "▣"; }
+#tab-clients .ico::before { content: "◯"; }
+#tab-portfolio .ico::before { content: "▤"; }
+#tab-barriers .ico::before { content: "◈"; }
+#tab-calendar .ico::before { content: "▢"; }
+#tab-analytics .ico::before { content: "◫"; }
+#tab-autopitch .ico::before { content: "◉"; }
+#tab-screener .ico::before { content: "◎"; }
+#tab-ingest .ico::before { content: "☰"; }
+
+.nav-tab .tab-badge {
+  margin-left: auto;
+  border-radius: 4px;
+  font-size: 10px;
+  padding: 2px 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-tab.active .tab-badge {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-color: transparent;
+}
+
+.badge-red {
+  background: rgba(181, 74, 74, 0.08);
+  color: var(--red);
+  border: 1px solid rgba(181, 74, 74, 0.2);
+}
+
+.badge-orange {
+  background: rgba(184, 122, 58, 0.08);
+  color: var(--orange);
+  border: 1px solid rgba(184, 122, 58, 0.2);
+}
+
+.badge-gold {
+  background: rgba(200, 166, 75, 0.1);
+  color: var(--gold2);
+  border: 1px solid rgba(200, 166, 75, 0.25);
+}
+
+.header {
+  height: 44px !important;
+  min-height: 44px;
+  padding: 0 28px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  box-shadow: none;
+}
+
+.header-ticker { opacity: 0.72; }
+
+.header-ticker::before,
+.header-ticker::after {
+  background: linear-gradient(90deg, var(--bg), transparent);
+}
+
+.header-ticker::after {
+  background: linear-gradient(270deg, var(--bg), transparent);
+}
+
+.ticker-item {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 10px;
+}
+
+.ticker-label { color: var(--text3); }
+.ticker-val {
+  color: var(--text2);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.header-right {
+  border-left: 1px solid var(--rule);
+  gap: 18px;
+  padding-left: 18px;
+}
+
+.live-badge {
+  color: var(--text3);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.live-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--gold);
+  animation: none;
+}
+
+.clock {
+  color: var(--text2);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.date-str {
+  color: var(--text3);
+  font-size: 9px;
+}
+
+.header-user-pill,
+.user-pill {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: var(--radius-sm);
+  padding: 2px 0;
+}
+
+.user-avatar {
+  background: var(--aegean);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  font-size: 10px;
+}
+
+.user-meta strong {
+  font-weight: 500;
+  color: var(--aegean);
+  font-size: 12px;
+}
+
+.user-meta small { color: var(--text3); }
+
+.main {
+  border-radius: 0;
+  border: none;
+  background: var(--bg);
+  box-shadow: none;
+}
+
+.view { padding: 32px 40px 48px; }
+
+.view::before,
+#view-dashboard::before,
+#view-portfolio::before,
+#view-barriers::before,
+#view-calendar::before,
+#view-analytics::before,
+#view-autopitch::before,
+#view-screener::before,
+#view-ingest::before,
+#view-clients::before {
+  background: none !important;
+}
+
+.btn,
+.search,
+.filter-chip,
+.compact-toggle,
+.count-badge,
+.sort-btn,
+.mini-btn,
+.f-sel {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--s1);
+  color: var(--text2);
+  box-shadow: none;
+}
+
+.btn,
+.filter-chip,
+.compact-toggle,
+.count-badge,
+.sort-btn,
+.mini-btn {
+  min-height: 34px;
+  padding: 7px 12px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  transition: background 0.25s var(--ease), border-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+.btn:hover,
+.sort-btn:hover,
+.mini-btn:hover,
+.compact-toggle:hover,
+.filter-chip:hover {
+  border-color: var(--border2);
+  color: var(--aegean);
+  background: var(--elevated);
+}
+
+.btn-gold {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: #07111f;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.btn-gold:hover {
+  color: #07111f;
+  background: #d4b45c;
+  border-color: #d4b45c;
+}
+
+.search:focus,
+.f-sel:focus {
+  border-color: rgba(28, 107, 143, 0.4);
+  box-shadow: none;
+  outline: none;
+}
+
+.filter-chip.on,
+.compact-toggle.on {
+  border-color: rgba(11, 58, 91, 0.28);
+  background: var(--elevated);
+  color: var(--aegean);
+}
+
+.panel {
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  background: var(--s1);
+  box-shadow: none;
+}
+
+.panel-title {
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  border-bottom: 1px solid var(--rule);
+  font-weight: 500;
+}
+
+.sec-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--aegean);
+  font-size: 17px;
+}
+
+.sec-title::before {
+  width: 2px;
+  height: 14px;
+  border-radius: 0;
+  background: var(--gold);
+}
+
+/* DASHBOARD */
+#view-dashboard {
+  max-width: 1240px;
+  padding: 36px 40px 56px;
+}
+
+.dash-welcome,
+.dash-welcome.panel {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  margin: 0 0 36px;
+  border-radius: 0;
+}
+
+.dash-welcome-copy { max-width: 40rem; }
+
+#view-dashboard .dash-welcome-copy::before {
+  display: none;
+}
+
+.dash-welcome-kicker { display: none !important; }
+
+.dash-welcome-title {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  line-height: 1.35;
+  margin: 0 0 6px;
+}
+
+.dash-welcome-sub {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text2);
+  max-width: 36ch;
+  line-height: 1.55;
+  margin: 0;
+}
+
+#view-dashboard > .kpi-row {
+  display: grid;
+  grid-template-columns: 1.55fr repeat(3, 1fr);
+  gap: 0;
+  margin: 0 0 40px;
+  padding: 8px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  align-items: stretch;
+}
+
+#view-dashboard .kpi {
+  position: relative;
+  min-height: 120px;
+  padding: 22px 28px;
+  border: none;
+  border-radius: 0;
+  border-right: 1px solid var(--rule);
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+#view-dashboard .kpi:last-child { border-right: none; }
+#view-dashboard .kpi::before { display: none; }
+
+#view-dashboard .kpi-lbl {
+  color: var(--text3);
+  letter-spacing: 0.14em;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 10px;
+  min-height: auto;
+  margin-bottom: 18px;
+}
+
+#view-dashboard .kpi-val {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 2.8vw, 2.35rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--aegean);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+#view-dashboard .kpi:first-child .kpi-val {
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+}
+
+#view-dashboard .kpi.k-red .kpi-val { color: var(--red); }
+#view-dashboard .kpi.k-orange .kpi-val { color: var(--orange); }
+
+#view-dashboard .kpi-sub {
+  margin-top: 0;
+  color: var(--text3);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+#view-dashboard .kpi-sub.up { color: var(--green); }
+#view-dashboard .kpi-sub.dn { color: var(--red); }
+#view-dashboard .kpi-sub.warn { color: var(--orange); }
+
+#view-dashboard .dash-alerts-panel,
+#view-dashboard .dash-module-panel,
+#view-dashboard .dash-perf-section .panel,
+#view-dashboard .dash-vl-section .panel,
+#view-dashboard .panel {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--s1);
+  box-shadow: none;
+}
+
+#view-dashboard .dash-alerts-block,
+#view-dashboard .dash-perf-section,
+#view-dashboard .dash-vl-section {
+  margin-bottom: 36px;
+}
+
+#view-dashboard .sec-hdr { margin-bottom: 18px; }
+
+#view-dashboard .chart-box,
+#view-dashboard .perf-chart-wrap {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--elevated);
+  box-shadow: none;
+}
+
+#view-dashboard .perf-range-btn.on {
+  border-color: rgba(11, 58, 91, 0.28);
+  background: var(--elevated);
+  color: var(--aegean);
+}
+
+/* PHASE 2 */
+#view-portfolio,
+#view-clients {
+  padding: 28px 36px 48px;
+}
+
+#view-portfolio .toolbar,
+#view-clients .toolbar,
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+#view-portfolio .search,
+#view-clients .search {
+  min-height: 38px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13px;
+}
+
+#view-portfolio .f-sel,
+#view-clients .f-sel,
+.f-sel {
+  min-height: 38px;
+  background: var(--s1);
+  color: var(--text2);
+}
+
+.portfolio-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+  font-variant-numeric: tabular-nums;
+}
+
+.tbl-wrap {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--s1);
+  box-shadow: none;
+  overflow: auto;
+}
+
+table {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  border-collapse: collapse;
+}
+
+thead th {
+  background: var(--elevated);
+  padding: 12px 14px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-sans);
+}
+
+thead th:hover,
+thead th.sorted { color: var(--aegean); }
+
+tbody tr {
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.2s var(--ease);
+}
+
+tbody tr:hover { background: rgba(11, 58, 91, 0.025); }
+
+tbody tr.selected {
+  background: rgba(11, 58, 91, 0.04);
+  border-left: 2px solid var(--gold);
+}
+
+td {
+  padding: 11px 14px;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.p-name {
+  font-weight: 500;
+  color: var(--aegean);
+  letter-spacing: -0.01em;
+}
+
+.p-isin {
+  color: var(--text3);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.type-pill {
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  background: var(--elevated);
+  border-color: var(--border);
+  color: var(--text2);
+}
+
+.tp-ac,
+.tp-cg,
+.tp-rc,
+.tp-lv {
+  background: var(--elevated);
+  border-color: var(--border);
+  color: var(--text2);
+}
+
+.tp-ac {
+  color: var(--aegean);
+  border-color: rgba(11, 58, 91, 0.2);
+  background: rgba(11, 58, 91, 0.04);
+}
+
+.status {
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.s-dot { width: 6px; height: 6px; }
+
+.bar-track {
+  background: var(--s3);
+  border-radius: 2px;
+  height: 4px;
+}
+
+.bar-fill { border-radius: 2px; }
+.bf-safe { background: var(--aegean-2); }
+.bf-warn { background: var(--orange); }
+.bf-crit,
+.bf-breach { background: var(--red); }
+
+#view-clients .panel,
+#view-clients .client-card,
+.client-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--s1);
+  box-shadow: none;
+}
+
+.drawer-overlay {
+  background: rgba(7, 17, 31, 0.28);
+  backdrop-filter: blur(6px);
+}
+
+.drawer {
+  background: var(--s1);
+  border-left: 1px solid var(--border);
+  box-shadow: -12px 0 40px rgba(7, 17, 31, 0.08);
+  border-radius: 0;
+}
+
+.drawer .panel,
+.drawer-section {
+  border: 1px solid var(--border);
+  background: var(--s1);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+
+.drawer h2,
+.drawer .drawer-title,
+.drawer-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--aegean);
+}
+
+.modal,
+.modal-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--s1);
+  box-shadow: 0 24px 64px rgba(7, 17, 31, 0.12);
+}
+
+@media (max-width: 1100px) {
+  #view-dashboard > .kpi-row { grid-template-columns: 1fr 1fr; }
+  #view-dashboard .kpi:nth-child(2) { border-right: none; }
+  #view-dashboard .kpi:nth-child(1),
+  #view-dashboard .kpi:nth-child(2) { border-bottom: 1px solid var(--rule); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-tab, .btn, .kpi, .panel, tbody tr { transition: none; }
+}
+
+
+/* ============================================================
+   WORLD 1 REFINEMENT PASS — coherent villa product
+   Removes premature Instrument Room. Hierarchy over density.
+   ============================================================ */
+
+/* —— Navigation: investment workspace, not admin menu —— */
+#tab-dashboard::before,
+#tab-barriers::before,
+#tab-calendar::before {
+  content: "";
+  display: block;
+  width: calc(100% - 16px);
+  height: 1px;
+  margin: 18px 8px 12px;
+  padding: 0;
+  background: var(--rule);
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 0;
+  opacity: 1;
+}
+
+#tab-dashboard::before {
+  display: none; /* no rule above first group */
+}
+
+#tab-barriers::before,
+#tab-calendar::before {
+  margin-top: 22px;
+  margin-bottom: 14px;
+}
+
+.nav-tab {
+  min-height: 40px;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.014em;
+  opacity: 1;
+  border-radius: 6px;
+  padding-left: 14px;
+}
+
+.nav-tab:not(.active) {
+  opacity: 0.78;
+  color: var(--aegean);
+}
+
+.nav-tab:not(.active):hover {
+  opacity: 1;
+  background: rgba(11, 58, 91, 0.03);
+}
+
+.nav-tab.active {
+  background: var(--aegean);
+  color: #fff;
+  font-weight: 500;
+}
+
+.nav-tab.active::after {
+  width: 2px;
+  top: 11px;
+  bottom: 11px;
+  background: var(--gold);
+}
+
+.nav-tab .ico {
+  opacity: 0.32;
+  width: 12px;
+}
+
+.nav-tab.active .ico {
+  opacity: 0.65;
+}
+
+.sidebar-brand {
+  /* padding controlled by FINAL LOGO CENTER */
+  min-height: 88px;
+}
+
+.sidebar-nav {
+  padding: 8px 14px 24px;
+}
+
+/* —— Header: almost invisible —— */
+.header {
+  height: 38px !important;
+  min-height: 38px;
+  padding: 0 36px;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.05);
+  background: transparent;
+}
+
+.header-ticker {
+  opacity: 0.35;
+}
+
+.date-str,
+.live-badge,
+.clock {
+  opacity: 0.55;
+  color: var(--text3);
+  font-weight: 400;
+}
+
+.date-str {
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+.clock {
+  font-size: 10px;
+  font-family: var(--font-sans);
+  letter-spacing: 0.02em;
+}
+
+/* —— Dashboard hero: greeting is the entry, not a SaaS product name —— */
+#view-dashboard {
+  padding: 52px 56px 72px;
+  max-width: 1120px;
+}
+
+#view-dashboard .dash-welcome,
+#view-dashboard .dash-welcome.panel {
+  margin: 0 0 40px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+#view-dashboard .dash-welcome-copy::before {
+  display: none !important;
+}
+
+#view-dashboard .dash-welcome-copy::after {
+  display: none !important;
+}
+
+.dash-welcome-kicker {
+  display: block !important;
+  margin: 0 0 14px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+.dash-welcome-title {
+  font-family: var(--font-display) !important;
+  font-size: clamp(2rem, 3.8vw, 2.85rem) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.045em !important;
+  line-height: 1.08 !important;
+  color: var(--aegean) !important;
+  margin: 0 0 12px !important;
+  max-width: 18ch;
+}
+
+.dash-welcome-sub {
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  color: var(--text2) !important;
+  max-width: 34ch;
+  font-weight: 400;
+}
+
+/* —— KPI instruments: air between rules and figures —— */
+#view-dashboard > .kpi-row {
+  display: grid;
+  grid-template-columns: 1.45fr repeat(3, 1fr);
+  gap: 0;
+  margin: 0 0 52px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+#view-dashboard .kpi {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
+  margin: 0;
+  padding: 32px 36px 32px 8px;
+  border: none;
+  border-right: 1px solid var(--rule);
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+#view-dashboard .kpi:first-child {
+  padding-left: 0;
+}
+
+#view-dashboard .kpi:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+#view-dashboard .kpi::before {
+  display: none !important;
+}
+
+#view-dashboard .kpi-lbl {
+  order: 0;
+  margin: 0 0 20px;
+  padding: 0;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--text3);
+  min-height: auto;
+}
+
+#view-dashboard .kpi-val {
+  order: 1;
+  margin: 0;
+  padding: 0 12px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--aegean);
+  font-variant-numeric: tabular-nums;
+}
+
+#view-dashboard .kpi:first-child .kpi-val {
+  font-size: clamp(2.35rem, 4vw, 3.15rem);
+  padding-right: 16px;
+}
+
+#view-dashboard .kpi-sub {
+  order: 2;
+  margin-top: 16px;
+  padding-top: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text3);
+  max-width: 16ch;
+}
+
+/* Dashboard sections: editorial, less card */
+#view-dashboard .dash-alerts-panel,
+#view-dashboard .dash-module-panel,
+#view-dashboard .dash-perf-section .panel,
+#view-dashboard .dash-vl-section .panel,
+#view-dashboard .panel {
+  border: none;
+  border-top: 1px solid var(--rule);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 22px 0 0;
+}
+
+#view-dashboard .dash-alerts-block,
+#view-dashboard .dash-perf-section,
+#view-dashboard .dash-vl-section {
+  margin-bottom: 48px;
+}
+
+#view-dashboard .sec-title {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+#view-dashboard .sec-title::before {
+  background: var(--aegean);
+  opacity: 0.25;
+  width: 1px;
+}
+
+#view-dashboard .chart-box,
+#view-dashboard .perf-chart-wrap {
+  border: 1px solid var(--rule);
+  background: var(--elevated);
+  border-radius: 6px;
+  margin-top: 18px;
+}
+
+/* —— Portfolio table —— */
+#view-portfolio {
+  padding: 36px 44px 56px;
+}
+
+#view-portfolio .toolbar {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+}
+
+#view-portfolio .tbl-wrap {
+  overflow-x: hidden;
+  border: none;
+  border-top: 1px solid var(--rule);
+  border-radius: 0;
+  background: transparent;
+}
+
+#view-portfolio table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+#view-portfolio thead th {
+  background: transparent;
+  padding: 14px 12px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.16);
+}
+
+#view-portfolio td {
+  padding: 13px 12px;
+}
+
+#view-portfolio table th:nth-child(2),
+#view-portfolio table td:nth-child(2),
+#view-portfolio table th:nth-child(5),
+#view-portfolio table td:nth-child(5),
+#view-portfolio table th:nth-child(7),
+#view-portfolio table td:nth-child(7),
+#view-portfolio table th:nth-child(12),
+#view-portfolio table td:nth-child(12) {
+  display: none;
+}
+
+#view-portfolio .num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+#view-portfolio .type-pill,
+#view-portfolio .tp-ac,
+#view-portfolio .tp-cg,
+#view-portfolio .tp-rc,
+#view-portfolio .tp-lv {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: var(--text2) !important;
+}
+
+#view-portfolio .status {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+#view-portfolio .s-dot {
+  width: 6px;
+  height: 6px;
+}
+
+/* —— Clients dossier: hierarchy, not compression —— */
+#view-clients {
+  padding: 40px 48px 56px;
+}
+
+#view-clients .clients-hero.panel {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0 0 28px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+#view-clients .clients-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 3vw, 2.35rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  color: var(--aegean);
+}
+
+#view-clients .clients-kicker {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+
+#view-clients .clients-hero-sub {
+  color: var(--text2);
+  font-size: 14px;
+  max-width: 42ch;
+}
+
+#view-clients .clients-panel.panel,
+#view-clients .clients-detail.panel {
+  border: 1px solid var(--border);
+  background: var(--s1);
+  box-shadow: none;
+  border-radius: 8px;
+}
+
+#view-clients .client-detail-head {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+
+#view-clients .client-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin: 0 0 28px;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+#view-clients .client-kpi {
+  border-right: 1px solid var(--rule);
+  padding: 4px 18px 4px 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+#view-clients .client-kpi:last-child {
+  border-right: none;
+}
+
+#view-clients .client-kpi span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+
+#view-clients .client-kpi b {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--aegean);
+}
+
+#view-clients .client-products-hdr {
+  margin: 8px 0 16px;
+  align-items: baseline;
+}
+
+#view-clients .client-products-hdr h3 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--aegean);
+}
+
+#view-clients .client-products-table {
+  overflow-x: hidden;
+}
+
+#view-clients .client-products-table table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+#view-clients .client-products-table thead th {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.14);
+  background: transparent;
+  text-align: left;
+}
+
+#view-clients .client-products-table td {
+  padding: 16px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.06);
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* Primary: product + nominal + status | Secondary: ISIN, dates, channel hidden */
+#view-clients .client-products-table th:nth-child(2),
+#view-clients .client-products-table td:nth-child(2),
+#view-clients .client-products-table th:nth-child(3),
+#view-clients .client-products-table td:nth-child(3),
+#view-clients .client-products-table th:nth-child(5),
+#view-clients .client-products-table td:nth-child(5) {
+  display: none;
+}
+
+#view-clients .client-products-table td:first-child .linkish {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--aegean);
+  text-align: left;
+}
+
+#view-clients .client-products-table .num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+#view-clients .env-badge,
+#view-clients .channel-tag {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  color: var(--text2) !important;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+#view-clients .bf {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* —— Barriers: World 1 coherent (NO dark room) —— */
+#view-barriers {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  padding: 40px 44px 56px;
+  animation: none;
+}
+
+#view-barriers > .bar-kpi-row::before,
+#view-barriers > .bar-kpi-row::after {
+  display: none !important;
+}
+
+#view-barriers .bar-kpi-row {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin: 0 0 40px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+#view-barriers .bar-kpi-row .kpi {
+  order: initial !important;
+  background: transparent !important;
+  border: none;
+  border-right: 1px solid var(--rule);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 24px 24px 24px 0;
+  min-height: 0;
+}
+
+#view-barriers .bar-kpi-row .kpi:last-child {
+  border-right: none;
+}
+
+#view-barriers .bar-kpi-row .kpi::before {
+  display: none !important;
+}
+
+#view-barriers .bar-kpi-row .kpi-lbl {
+  color: var(--text3);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  margin: 0 0 16px;
+}
+
+#view-barriers .bar-kpi-row .kpi-val {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 3vw, 2.5rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  margin: 0 0 12px;
+  line-height: 1;
+}
+
+#view-barriers .bar-kpi-row .kpi.k-red .kpi-val {
+  color: var(--red) !important;
+  font-size: clamp(2.1rem, 3.4vw, 2.85rem);
+}
+
+#view-barriers .bar-kpi-row .kpi.k-orange .kpi-val {
+  color: var(--orange) !important;
+  font-size: clamp(2.1rem, 3.4vw, 2.85rem);
+}
+
+#view-barriers .bar-kpi-row .kpi.k-gold .kpi-val {
+  color: var(--gold2) !important;
+}
+
+#view-barriers .bar-kpi-row .kpi.k-green .kpi-val {
+  color: var(--aegean) !important;
+}
+
+#view-barriers .bar-kpi-row .kpi-sub {
+  color: var(--text3);
+  font-size: 12px;
+}
+
+#view-barriers .sec-hdr {
+  margin-bottom: 18px;
+}
+
+#view-barriers .sec-title {
+  color: var(--aegean);
+  font-size: 16px;
+}
+
+#view-barriers .sec-title::before {
+  background: var(--aegean);
+  opacity: 0.3;
+  width: 1px;
+}
+
+#view-barriers .sec-meta {
+  color: var(--text3);
+}
+
+#view-barriers .toolbar {
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+}
+
+#view-barriers .search {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+#view-barriers .tbl-wrap {
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--rule);
+  border-radius: 0;
+  overflow-x: hidden;
+}
+
+#view-barriers table {
+  width: 100%;
+  table-layout: fixed;
+  color: var(--text);
+}
+
+#view-barriers thead th {
+  background: transparent;
+  color: var(--text3);
+  border-bottom: 1px solid rgba(11, 58, 91, 0.16);
+  padding: 14px 12px;
+  font-size: 9px;
+}
+
+#view-barriers thead th:hover,
+#view-barriers thead th.sorted {
+  color: var(--aegean);
+}
+
+#view-barriers tbody tr {
+  border-bottom: 1px solid rgba(11, 58, 91, 0.06);
+}
+
+#view-barriers tbody tr:hover {
+  background: rgba(11, 58, 91, 0.02);
+}
+
+#view-barriers tbody tr.selected {
+  background: rgba(11, 58, 91, 0.04);
+  border-left: 2px solid var(--gold);
+}
+
+#view-barriers td {
+  padding: 14px 12px;
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+#view-barriers .p-name {
+  color: var(--aegean);
+  font-weight: 500;
+}
+
+#view-barriers .p-isin {
+  color: var(--text3);
+}
+
+/* Keep secondary cols hidden for fit */
+#view-barriers table th:nth-child(2),
+#view-barriers table td:nth-child(2),
+#view-barriers table th:nth-child(5),
+#view-barriers table td:nth-child(5),
+#view-barriers table th:nth-child(6),
+#view-barriers table td:nth-child(6),
+#view-barriers table th:nth-child(10),
+#view-barriers table td:nth-child(10) {
+  display: none;
+}
+
+/* Distance emphasis */
+#view-barriers table th:nth-child(7),
+#view-barriers table td:nth-child(7) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--aegean);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Progression + status: readable risk states */
+#view-barriers .bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+#view-barriers .bar-track {
+  width: 88px !important;
+  height: 4px;
+  background: var(--s3);
+  border-radius: 2px;
+}
+
+#view-barriers .bar-fill {
+  border-radius: 2px;
+}
+
+#view-barriers .bf-safe {
+  background: var(--green) !important;
+}
+
+#view-barriers .bf-warn {
+  background: var(--gold) !important;
+}
+
+#view-barriers .bf-crit {
+  background: var(--orange) !important;
+}
+
+#view-barriers .bf-breach {
+  background: var(--red) !important;
+}
+
+#view-barriers .bar-wrap > span {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Status classes used as bar-fill AND labels */
+#view-barriers .bf,
+#view-clients .bf {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+#view-barriers .status span[style*="font-size:9px"],
+#view-barriers .bar-wrap span[style*="font-size:9px"] {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em;
+}
+
+#view-barriers .s-dot {
+  width: 7px;
+  height: 7px;
+}
+
+/* Screener / other views: stay World 1 (undo any dark leftovers) */
+#view-screener,
+#view-analytics,
+#view-autopitch,
+#view-ingest,
+#view-calendar {
+  background: var(--bg);
+  color: var(--text);
+}
+
+#view-screener .ingest-hero-copy::before {
+  display: none !important;
+}
+
+#view-screener .ingest-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--aegean);
+  text-transform: none;
+}
+
+#view-screener .dec-sidebar.panel,
+#view-screener .dec-main.panel {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* Typography calm defaults */
+.view {
+  padding: 36px 44px 56px;
+}
+
+.sec-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: var(--aegean);
+}
+
+.panel-title {
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  color: var(--text3);
+}
+
+
+/* Dashboard alerts — list, not card stack */
+#view-dashboard .dash-alerts-panel,
+#view-dashboard .alert-item,
+#view-dashboard .dash-alert,
+#view-dashboard [class*="alert-row"],
+#view-dashboard .prio-alert {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#view-dashboard .dash-alerts-panel > *,
+#view-dashboard .dash-alerts-panel .alert-card,
+#view-dashboard .dash-alerts-panel button {
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--rule) !important;
+  box-shadow: none !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+#view-dashboard .perf-kpi {
+  border: none !important;
+  border-right: 1px solid var(--rule) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 8px 20px 8px 0 !important;
+}
+
+#view-dashboard .perf-kpi:last-child {
+  border-right: none !important;
+}
+
+#view-dashboard .perf-kpi-row {
+  gap: 0 !important;
+  border: none;
+  padding-top: 8px;
+}
+
+#view-dashboard > .kpi-row {
+  column-gap: 0;
+  padding: 8px 0 8px;
+}
+#view-dashboard .kpi:first-child {
+  padding-left: 0 !important;
+  padding-right: 40px !important;
+}
+#view-dashboard .kpi:not(:first-child) {
+  padding-left: 32px !important;
+}
+#view-dashboard .kpi-val {
+  padding-right: 8px !important;
+}
+
+/* Alert rows .al — editorial list */
+#view-dashboard .al {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  gap: 14px;
+  align-items: start;
+  padding: 16px 4px !important;
+  margin: 0 !important;
+  border: none !important;
+  border-bottom: 1px solid var(--rule) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#view-dashboard .al:last-child {
+  border-bottom: none !important;
+}
+
+#view-dashboard .al-ico {
+  font-size: 0 !important;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--red);
+}
+
+#view-dashboard .al-warn .al-ico,
+#view-dashboard .al.al-warn .al-ico {
+  background: var(--orange);
+}
+
+#view-dashboard .al-ok .al-ico {
+  background: var(--green);
+}
+
+#view-dashboard .al-txt strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--aegean);
+  margin-bottom: 4px;
+}
+
+#view-dashboard .al-txt {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.45;
+}
+
+#view-dashboard .al-time {
+  font-size: 11px;
+  color: var(--text3);
+  padding-top: 2px;
+}
+
+
+/* ============================================================
+   WORLD 1 CORRECTIONS — clarity & hierarchy
+   Prefer readability over compression. CSS only.
+   ============================================================ */
+
+/* —— 6+7 Nav: equal rhythm + coherent icon family —— */
+#tab-dashboard::before,
+#tab-barriers::before,
+#tab-calendar::before {
+  content: none !important;
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  background: none !important;
+}
+
+#tab-dashboard,
+#tab-barriers,
+#tab-calendar,
+#tab-clients,
+#tab-portfolio,
+#tab-analytics,
+#tab-autopitch,
+#tab-screener,
+#tab-ingest {
+  flex-wrap: nowrap !important;
+  align-content: center;
+  height: 40px;
+  min-height: 40px !important;
+  max-height: 40px;
+  box-sizing: border-box;
+}
+
+/* Group breaks without changing tab height */
+#tab-barriers,
+#tab-calendar {
+  margin-top: 14px;
+  border-top: 1px solid var(--rule);
+  padding-top: 0;
+  height: 40px;
+  min-height: 40px !important;
+}
+
+.nav-tab {
+  height: 40px;
+  min-height: 40px !important;
+  max-height: 40px;
+  padding: 0 12px 0 12px !important;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+
+.nav-tab.active {
+  font-weight: 500;
+}
+
+.nav-tab .ico {
+  display: inline-flex !important;
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px;
+  opacity: 0.4;
+  position: relative;
+  font-size: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.nav-tab .ico::before {
+  position: absolute;
+  inset: 0;
+  display: block;
+  font-size: 0 !important;
+  content: "" !important;
+  border: 1.25px solid currentColor;
+  box-sizing: border-box;
+  opacity: 1;
+}
+
+/* Distinct but same family — line geometry */
+#tab-dashboard .ico::before {
+  border-radius: 1px;
+  background:
+    linear-gradient(currentColor, currentColor) 3px 9px / 8px 1.25px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 6px / 5px 1.25px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 3px / 3px 1.25px no-repeat;
+  border: 1.25px solid currentColor;
+}
+#tab-clients .ico::before {
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+}
+#tab-portfolio .ico::before {
+  border-radius: 1px;
+  border-width: 1.25px;
+  background: linear-gradient(currentColor, currentColor) center / 8px 1.25px no-repeat;
+}
+#tab-barriers .ico::before {
+  border: none;
+  width: 0;
+  height: 0;
+  inset: 2px auto auto 2px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 9px solid currentColor;
+  opacity: 0.85;
+}
+#tab-calendar .ico::before {
+  border-radius: 1px;
+  background: linear-gradient(currentColor, currentColor) 0 4px / 100% 1.25px no-repeat;
+}
+#tab-analytics .ico::before {
+  border-radius: 1px;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  border: none;
+  background: currentColor;
+  opacity: 0.45;
+  inset: 2px;
+}
+#tab-autopitch .ico::before {
+  border-radius: 1px;
+  border-style: solid;
+  background: transparent;
+}
+#tab-screener .ico::before {
+  border-radius: 50%;
+  border-width: 1.25px;
+  background: radial-gradient(circle at center, currentColor 0 2px, transparent 2.5px);
+}
+#tab-ingest .ico::before {
+  border-radius: 1px;
+  background:
+    linear-gradient(currentColor, currentColor) 3px 4px / 8px 1px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 7px / 8px 1px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 10px / 5px 1px no-repeat;
+}
+
+.nav-tab .tab-badge {
+  height: 18px;
+  line-height: 18px;
+  padding: 0 6px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* —— 1. Priority alerts: urgency without flash —— */
+#view-dashboard .al {
+  display: grid !important;
+  grid-template-columns: 10px minmax(0, 1fr) 108px !important;
+  column-gap: 16px !important;
+  align-items: start !important;
+  padding: 18px 8px 18px 4px !important;
+  margin: 0 !important;
+  border: none !important;
+  border-bottom: 1px solid var(--rule) !important;
+  border-left: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#view-dashboard .al-crit {
+  border-left-color: var(--red) !important;
+  background: rgba(181, 74, 74, 0.04) !important;
+}
+
+#view-dashboard .al-warn {
+  border-left-color: var(--orange) !important;
+  background: rgba(184, 122, 58, 0.04) !important;
+}
+
+#view-dashboard .al-ok {
+  border-left-color: var(--green) !important;
+}
+
+#view-dashboard .al-ico {
+  width: 8px !important;
+  height: 8px !important;
+  margin-top: 7px !important;
+  border-radius: 50% !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  background: var(--red) !important;
+}
+
+#view-dashboard .al-warn .al-ico {
+  background: var(--orange) !important;
+}
+
+#view-dashboard .al-ok .al-ico {
+  background: var(--green) !important;
+}
+
+#view-dashboard .al-txt {
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.45;
+}
+
+#view-dashboard .al-txt strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--aegean);
+  margin-bottom: 4px;
+}
+
+/* Risk proximity gauge — class-based urgency (no invented data) */
+#view-dashboard .al-txt::after {
+  content: "";
+  display: block;
+  margin-top: 12px;
+  height: 3px;
+  max-width: 200px;
+  border-radius: 2px;
+  background: var(--s3);
+  background-image: linear-gradient(90deg, var(--red), var(--red));
+  background-size: 88% 100%;
+  background-repeat: no-repeat;
+}
+
+#view-dashboard .al-warn .al-txt::after {
+  background-image: linear-gradient(90deg, var(--orange), var(--orange));
+  background-size: 58% 100%;
+  background-color: var(--s3);
+}
+
+#view-dashboard .al-ok .al-txt::after {
+  background-image: linear-gradient(90deg, var(--green), var(--green));
+  background-size: 22% 100%;
+  background-color: var(--s3);
+}
+
+#view-dashboard .al-time {
+  font-family: var(--font-display);
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em;
+  color: var(--aegean) !important;
+  text-align: right;
+  padding-top: 2px;
+  white-space: nowrap;
+}
+
+/* —— 5. Portfolio page introduction —— */
+#view-portfolio > .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-bottom: 22px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--rule);
+}
+
+#view-portfolio > .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+
+#view-portfolio > .toolbar::before {
+  content: "Portefeuille";
+  order: -2;
+  display: block;
+  flex: 0 0 100%;
+  width: 100%;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  color: var(--aegean);
+}
+
+#view-portfolio > .toolbar::after {
+  content: "Inventaire, valorisation et statut — recherche et filtres ci-dessous.";
+  order: -1;
+  display: block;
+  flex: 0 0 100%;
+  width: 100%;
+  margin: 8px 0 20px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  color: var(--text2);
+  line-height: 1.45;
+  max-width: 48ch;
+}
+
+/* —— 4. Portfolio columns: no collision —— */
+#view-portfolio .tbl-wrap {
+  overflow-x: auto;
+}
+
+#view-portfolio table {
+  width: 100%;
+  min-width: 920px;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+#view-portfolio thead th,
+#view-portfolio td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Visible: 1 Product, 3 Issuer, 4 Nom, 6 Valo, 8 P&L%, 9 Coupon, 10 Barrier, 11 Maturity, 13 Status */
+#view-portfolio th:nth-child(1),
+#view-portfolio td:nth-child(1) {
+  width: 22%;
+  padding-right: 16px;
+}
+
+#view-portfolio th:nth-child(3),
+#view-portfolio td:nth-child(3) {
+  width: 13%;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+#view-portfolio th:nth-child(4),
+#view-portfolio td:nth-child(4),
+#view-portfolio th:nth-child(6),
+#view-portfolio td:nth-child(6),
+#view-portfolio th:nth-child(8),
+#view-portfolio td:nth-child(8),
+#view-portfolio th:nth-child(9),
+#view-portfolio td:nth-child(9) {
+  width: 9%;
+}
+
+#view-portfolio th:nth-child(10),
+#view-portfolio td:nth-child(10) {
+  width: 11%;
+}
+
+#view-portfolio th:nth-child(11),
+#view-portfolio td:nth-child(11) {
+  width: 9%;
+}
+
+#view-portfolio th:nth-child(13),
+#view-portfolio td:nth-child(13) {
+  width: 9%;
+}
+
+#view-portfolio .p-name {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--aegean);
+}
+
+#view-portfolio .p-isin {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* —— 3. Client dossier: restore clarity —— */
+#view-clients .client-products-table th:nth-child(2),
+#view-clients .client-products-table td:nth-child(2),
+#view-clients .client-products-table th:nth-child(3),
+#view-clients .client-products-table td:nth-child(3),
+#view-clients .client-products-table th:nth-child(5),
+#view-clients .client-products-table td:nth-child(5) {
+  display: table-cell !important; /* undo prior hide — then hide only channel */
+}
+
+#view-clients .client-products-table th:nth-child(5),
+#view-clients .client-products-table td:nth-child(5) {
+  display: none !important; /* Canal secondary */
+}
+
+#view-clients .client-products-table th:nth-child(3),
+#view-clients .client-products-table td:nth-child(3) {
+  display: none !important; /* Souscription secondary vs preferred order */
+}
+
+#view-clients .client-products-table {
+  overflow-x: auto;
+}
+
+#view-clients .client-products-table table {
+  width: 100%;
+  min-width: 640px;
+  table-layout: fixed;
+}
+
+#view-clients .client-products-table thead th {
+  padding: 14px 12px;
+}
+
+#view-clients .client-products-table td {
+  padding: 18px 12px;
+  vertical-align: middle;
+}
+
+#view-clients .client-products-table td:nth-child(1) {
+  width: 32%;
+}
+
+#view-clients .client-products-table td:nth-child(2) {
+  width: 18%;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--text3);
+}
+
+#view-clients .client-products-table td:nth-child(4) {
+  width: 16%;
+}
+
+#view-clients .client-products-table td:nth-child(6) {
+  width: 14%;
+}
+
+#view-clients .client-products-table td:nth-child(7) {
+  width: 14%;
+}
+
+#view-clients .client-products-table .linkish {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--aegean);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+#view-clients .client-products-table .num {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--aegean);
+  font-variant-numeric: tabular-nums;
+}
+
+#view-clients .env-badge {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--text2) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+#view-clients .bf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#view-clients .bf-safe { color: var(--green); }
+#view-clients .bf-warn { color: var(--orange); }
+#view-clients .bf-crit { color: var(--orange); }
+#view-clients .bf-breach { color: var(--red); }
+
+#view-clients .client-kpi b {
+  font-weight: 500;
+}
+
+/* —— 2. Calendar capsules / mode buttons —— */
+#view-calendar .calendar-mode-btn,
+#view-calendar .filter-chip,
+#view-calendar .cal-context-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: fit-content;
+  max-width: none;
+  height: auto;
+  min-height: 34px;
+  padding: 8px 14px;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.25;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+#view-calendar .calendar-mode-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+#view-calendar .cal-context-badge {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  white-space: nowrap;
+}
+
+#view-calendar .ev {
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+#view-calendar .ev-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: -0.015em;
+  color: var(--aegean);
+  line-height: 1.35;
+  white-space: normal;
+  overflow: visible;
+}
+
+#view-calendar .ev-desc {
+  white-space: normal;
+  color: var(--text2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+#view-calendar .ev-amt {
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* —— Barriers status readability (World 1) —— */
+#view-barriers .bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+#view-barriers .bar-track {
+  width: 96px !important;
+  height: 5px !important;
+  background: var(--s3) !important;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#view-barriers .bar-fill.bf-safe { background: var(--green) !important; }
+#view-barriers .bar-fill.bf-warn { background: var(--gold) !important; }
+#view-barriers .bar-fill.bf-crit { background: var(--orange) !important; }
+#view-barriers .bar-fill.bf-breach { background: var(--red) !important; }
+
+#view-barriers .bar-wrap > span {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+#view-portfolio .status,
+#view-barriers .status {
+  gap: 7px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+#view-portfolio .s-dot,
+#view-barriers .s-dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+}
+
+/* —— Typography discipline —— */
+.sec-title,
+.dash-welcome-title,
+.clients-hero-title,
+.cal-context-title,
+.ingest-hero-title {
+  font-weight: 500;
+}
+
+.kpi-val,
+.client-kpi b,
+.num {
+  font-weight: 500;
+}
+
+.kpi-lbl,
+.panel-title,
+.clients-kicker,
+.cal-context-kicker,
+.ingest-kicker {
+  font-weight: 500;
+}
+
+
+/* ============================================================
+   WORLD 1 FINAL ART DIRECTION — finished product polish
+   ============================================================ */
+
+:root {
+  --type-display: clamp(1.7rem, 2.8vw, 2.35rem);
+  --type-title: 15px;
+  --type-body: 13px;
+  --type-meta: 11px;
+  --type-micro: 10px;
+  --type-num: 13px;
+  --row-y: 15px;
+  --col-x: 14px;
+}
+
+/* Global type rhythm */
+.view {
+  font-size: var(--type-body);
+  line-height: 1.45;
+}
+
+.sec-title,
+.clients-hero-title,
+.cal-context-title,
+.ingest-hero-title,
+.dash-welcome-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--aegean);
+}
+
+.kpi-lbl,
+.panel-title,
+.clients-kicker,
+.cal-context-kicker,
+.ingest-kicker,
+.sec-meta,
+.p-isin {
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+.num,
+.kpi-val,
+.client-kpi b {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* —— 1. Priority alerts: composed, not flat —— */
+#view-dashboard .dash-alerts-panel {
+  padding-top: 8px !important;
+}
+
+#view-dashboard .al {
+  display: grid !important;
+  grid-template-columns: 14px minmax(0, 1fr) 120px !important;
+  gap: 14px 18px !important;
+  align-items: start !important;
+  margin: 0 0 10px !important;
+  padding: 18px 18px 16px !important;
+  border: 1px solid var(--border) !important;
+  border-left-width: 3px !important;
+  border-radius: 8px !important;
+  background: var(--s1) !important;
+  box-shadow: none !important;
+}
+
+#view-dashboard .al-crit {
+  border-left-color: var(--red) !important;
+  background: linear-gradient(90deg, rgba(181, 74, 74, 0.06), var(--s1) 42%) !important;
+}
+
+#view-dashboard .al-warn {
+  border-left-color: var(--orange) !important;
+  background: linear-gradient(90deg, rgba(184, 122, 58, 0.06), var(--s1) 42%) !important;
+}
+
+#view-dashboard .al-ok {
+  border-left-color: var(--green) !important;
+}
+
+#view-dashboard .al-ico {
+  width: 9px !important;
+  height: 9px !important;
+  margin-top: 6px !important;
+  border-radius: 50% !important;
+  font-size: 0 !important;
+  box-shadow: 0 0 0 3px rgba(181, 74, 74, 0.12);
+}
+
+#view-dashboard .al-warn .al-ico {
+  box-shadow: 0 0 0 3px rgba(184, 122, 58, 0.14);
+  background: var(--orange) !important;
+}
+
+#view-dashboard .al-crit .al-ico {
+  background: var(--red) !important;
+}
+
+#view-dashboard .al-txt strong {
+  font-size: 15px !important;
+  margin-bottom: 6px !important;
+  line-height: 1.25 !important;
+}
+
+#view-dashboard .al-txt {
+  font-size: 12.5px !important;
+  color: var(--text2) !important;
+}
+
+#view-dashboard .al-txt::after {
+  content: "";
+  display: block;
+  margin-top: 14px;
+  height: 4px;
+  max-width: 220px;
+  border-radius: 999px;
+  background-color: var(--s3);
+  background-image: linear-gradient(90deg, var(--red), #e08a8a);
+  background-size: 90% 100%;
+  background-repeat: no-repeat;
+}
+
+#view-dashboard .al-warn .al-txt::after {
+  background-image: linear-gradient(90deg, var(--orange), #e0b07a);
+  background-size: 62% 100%;
+}
+
+#view-dashboard .al-ok .al-txt::after {
+  background-image: linear-gradient(90deg, var(--green), #8fbf9a);
+  background-size: 28% 100%;
+}
+
+#view-dashboard .al-time {
+  justify-self: end;
+  align-self: start;
+  margin-top: 2px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--elevated);
+  font-family: var(--font-display) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--aegean) !important;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* —— 2. Calendar capsules must contain full text —— */
+#view-calendar .ev {
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  align-items: start !important;
+  gap: 12px 14px !important;
+  padding: 14px 16px !important;
+  background: var(--s1) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  border-left-width: 3px !important;
+  overflow: visible !important;
+}
+
+#view-calendar .ev-name,
+#view-calendar .ev-desc {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+#view-calendar .ev-name {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 4px !important;
+}
+
+#view-calendar .ev-desc {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+#view-calendar .calendar-mode-btn,
+#view-calendar .cal-context-badge,
+#view-calendar .filter-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 36px !important;
+  padding: 8px 16px !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.3 !important;
+  box-sizing: border-box !important;
+}
+
+#view-calendar .calendar-mode-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#view-calendar .timeline-item,
+#view-dashboard .timeline-item {
+  align-items: start !important;
+  padding: 12px 14px !important;
+  border-radius: 8px !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+#view-calendar .timeline-main b,
+#view-dashboard .timeline-main b {
+  white-space: normal !important;
+  overflow: visible !important;
+  display: block;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+/* —— 3. Client dossier typography system —— */
+#view-clients .client-products-table table {
+  min-width: 720px;
+  table-layout: fixed;
+}
+
+#view-clients .client-products-table thead th {
+  font-size: var(--type-micro);
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  color: var(--text3);
+  padding: 12px var(--col-x);
+  border-bottom: 1px solid rgba(11, 58, 91, 0.14);
+}
+
+#view-clients .client-products-table td {
+  padding: var(--row-y) var(--col-x);
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.06);
+}
+
+/* Product primary */
+#view-clients .client-products-table td:nth-child(1) {
+  width: 34%;
+}
+
+#view-clients .client-products-table .linkish {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--aegean);
+  line-height: 1.3;
+  white-space: normal;
+}
+
+/* ISIN secondary — never compete with product */
+#view-clients .client-products-table td:nth-child(2) {
+  width: 18%;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.06em;
+  color: var(--text3) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* Envelope quiet */
+#view-clients .client-products-table td:nth-child(4) {
+  width: 16%;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text2);
+}
+
+#view-clients .env-badge {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--text2) !important;
+}
+
+/* Nominal — same family as other figures, not louder than product */
+#view-clients .client-products-table td:nth-child(6),
+#view-clients .client-products-table .num {
+  width: 14%;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--text) !important;
+  text-align: right;
+}
+
+/* Status */
+#view-clients .client-products-table td:nth-child(7) {
+  width: 14%;
+}
+
+#view-clients .bf {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+#view-clients .client-kpi span {
+  font-size: var(--type-micro);
+  font-weight: 500;
+}
+
+#view-clients .client-kpi b {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--aegean);
+}
+
+/* —— 4. Portfolio typography balance —— */
+#view-portfolio > .toolbar::before {
+  font-size: clamp(1.7rem, 2.8vw, 2.2rem);
+  margin-bottom: 0;
+}
+
+#view-portfolio > .toolbar::after {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text2);
+}
+
+#view-portfolio table {
+  min-width: 980px;
+}
+
+#view-portfolio thead th {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  padding: 14px 12px;
+  vertical-align: bottom;
+}
+
+#view-portfolio td {
+  padding: 14px 12px;
+  font-size: 12.5px;
+  vertical-align: middle;
+}
+
+#view-portfolio .p-name {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+#view-portfolio .p-isin {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+
+#view-portfolio .num {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+#view-portfolio .status {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+#view-portfolio th:nth-child(1),
+#view-portfolio td:nth-child(1) {
+  width: 24%;
+  padding-right: 18px;
+}
+
+#view-portfolio th:nth-child(3),
+#view-portfolio td:nth-child(3) {
+  width: 14%;
+  padding-left: 14px;
+}
+
+/* —— 5. Barriers composition —— */
+#view-barriers .tbl-wrap {
+  overflow-x: auto;
+}
+
+#view-barriers table {
+  width: 100%;
+  min-width: 1000px;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+#view-barriers thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--bg) !important;
+  box-shadow: 0 1px 0 rgba(11, 58, 91, 0.14);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  padding: 14px 12px;
+  text-align: left;
+}
+
+#view-barriers thead th.num,
+#view-barriers td.num {
+  text-align: right;
+}
+
+#view-barriers td {
+  padding: 14px 12px;
+  font-size: 12.5px;
+  vertical-align: top;
+  overflow: hidden;
+}
+
+/* Product vs underlying: dedicated widths, no collision */
+#view-barriers th:nth-child(1),
+#view-barriers td:nth-child(1) {
+  width: 28%;
+  padding-right: 18px;
+}
+
+#view-barriers th:nth-child(3),
+#view-barriers td:nth-child(3) {
+  width: 16%;
+  padding-left: 16px;
+  padding-right: 12px;
+  color: var(--text2);
+  font-weight: 400;
+  white-space: normal;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+#view-barriers .p-name {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--aegean);
+}
+
+#view-barriers .p-isin {
+  margin-top: 4px;
+}
+
+#view-barriers th:nth-child(4),
+#view-barriers td:nth-child(4) {
+  width: 14%;
+}
+
+#view-barriers th:nth-child(7),
+#view-barriers td:nth-child(7) {
+  width: 11%;
+}
+
+#view-barriers th:nth-child(8),
+#view-barriers td:nth-child(8) {
+  width: 16%;
+}
+
+#view-barriers th:nth-child(9),
+#view-barriers td:nth-child(9) {
+  width: 11%;
+}
+
+/* Distance: same instrument language as other nums (no special gold) */
+#view-barriers table th:nth-child(7),
+#view-barriers table td:nth-child(7),
+#view-barriers table td:nth-child(7) .num,
+#view-barriers table td:nth-child(7) span {
+  font-family: var(--font-display) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+#view-barriers table td:nth-child(4),
+#view-barriers table td:nth-child(4).num {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  text-align: right;
+}
+
+#view-barriers .bar-wrap {
+  gap: 8px;
+}
+
+#view-barriers .bar-track {
+  width: 100px !important;
+  height: 4px !important;
+}
+
+#view-barriers .bar-wrap > span {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+}
+
+/* —— 6. Pitch icon — same family, not weaker —— */
+#tab-autopitch .ico::before {
+  content: "" !important;
+  inset: 1px !important;
+  border: 1.25px solid currentColor !important;
+  border-radius: 1px !important;
+  background:
+    linear-gradient(currentColor, currentColor) 3px 4px / 6px 1.15px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 7px / 6px 1.15px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 10px / 4px 1.15px no-repeat !important;
+  clip-path: none !important;
+  width: auto !important;
+  height: auto !important;
+  opacity: 1 !important;
+}
+
+/* Soften analytics clip icon to rectangle family */
+#tab-analytics .ico::before {
+  content: "" !important;
+  inset: 1px !important;
+  border: 1.25px solid currentColor !important;
+  border-radius: 1px !important;
+  background:
+    linear-gradient(currentColor, currentColor) 2px 9px / 2.5px 3px no-repeat,
+    linear-gradient(currentColor, currentColor) 5.5px 6px / 2.5px 6px no-repeat,
+    linear-gradient(currentColor, currentColor) 9px 4px / 2.5px 8px no-repeat !important;
+  clip-path: none !important;
+  opacity: 1 !important;
+}
+
+#tab-barriers .ico::before {
+  content: "" !important;
+  inset: 1px !important;
+  width: auto !important;
+  height: auto !important;
+  border: 1.25px solid currentColor !important;
+  border-radius: 1px !important;
+  border-left: 1.25px solid currentColor !important;
+  border-right: 1.25px solid currentColor !important;
+  border-bottom: 1.25px solid currentColor !important;
+  background:
+    linear-gradient(currentColor, currentColor) center 3px / 1.25px 8px no-repeat,
+    linear-gradient(currentColor, currentColor) center 9px / 5px 1.25px no-repeat !important;
+  opacity: 1 !important;
+}
+
+
+/* ============================================================
+   WORLD 1 FINAL ART — DETAIL PASS
+   Capsules, alignment, icons, dossier/portfolio rhythm
+   ============================================================ */
+
+/* —— Universal chip/capsule containment —— */
+.type-pill,
+.env-badge,
+.filter-chip,
+.count-badge,
+.ob-badge,
+.cal-context-badge,
+.calendar-mode-btn,
+.decision-pill,
+.ing-badge-pill,
+.ing-note-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 28px !important;
+  padding: 6px 12px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.35 !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  border-radius: 6px !important;
+}
+
+/* Short chips can stay single-line when they fit */
+#view-calendar .calendar-mode-btn,
+#view-calendar .cal-context-badge {
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  min-height: 36px !important;
+  padding: 8px 16px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Event rows = white capsules that must fully wrap content */
+.ev,
+#view-calendar .ev,
+#view-dashboard .ev {
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  align-items: start !important;
+  gap: 12px 14px !important;
+  padding: 14px 16px !important;
+  background: var(--s1) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  overflow: visible !important;
+  min-width: 0 !important;
+}
+
+.ev > div:nth-child(2),
+#view-calendar .ev > div:nth-child(2) {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.ev-name,
+.ev-desc,
+#view-calendar .ev-name,
+#view-calendar .ev-desc,
+#view-dashboard .ev-name,
+#view-dashboard .ev-desc {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  max-width: 100% !important;
+}
+
+.timeline-main b,
+.risk-main b,
+.dec-mini-main b,
+.vl-main b,
+.vl-main small {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-word !important;
+  line-height: 1.35 !important;
+}
+
+.timeline-item,
+.risk-row,
+.dec-mini-row {
+  overflow: visible !important;
+  align-items: flex-start !important;
+  padding: 12px 14px !important;
+  border-radius: 8px !important;
+}
+
+/* —— Sticky table headers: no column drift on scroll —— */
+#view-portfolio .tbl-wrap,
+#view-barriers .tbl-wrap,
+#view-clients .client-products-table {
+  overflow: auto;
+}
+
+#view-portfolio thead th,
+#view-barriers thead th,
+#view-clients .client-products-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--bg) !important;
+  background-clip: padding-box;
+  box-shadow: 0 1px 0 rgba(11, 58, 91, 0.14);
+}
+
+#view-portfolio table,
+#view-barriers table,
+#view-clients .client-products-table table {
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  width: 100%;
+}
+
+/* —— Portfolio: balanced instrument table —— */
+#view-portfolio table {
+  min-width: 1040px;
+}
+
+#view-portfolio thead th {
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase;
+  color: var(--text3) !important;
+  padding: 14px 14px !important;
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+
+#view-portfolio tbody td {
+  padding: 15px 14px !important;
+  font-size: 12.5px !important;
+  line-height: 1.35;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.06);
+}
+
+#view-portfolio .p-name {
+  font-family: var(--font-display);
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.015em;
+  color: var(--aegean);
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+#view-portfolio .p-isin {
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.05em;
+  color: var(--text3) !important;
+  margin-top: 4px;
+}
+
+#view-portfolio .num {
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: var(--text) !important;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Product | Issuer | Nominal | Valorisation | … */
+#view-portfolio th:nth-child(1),
+#view-portfolio td:nth-child(1) { width: 22%; padding-right: 20px !important; }
+#view-portfolio th:nth-child(3),
+#view-portfolio td:nth-child(3) { width: 13%; padding-left: 12px !important; color: var(--text2); }
+#view-portfolio th:nth-child(4),
+#view-portfolio td:nth-child(4) { width: 11%; }
+#view-portfolio th:nth-child(6),
+#view-portfolio td:nth-child(6) { width: 12%; }
+#view-portfolio th:nth-child(8),
+#view-portfolio td:nth-child(8) { width: 9%; }
+#view-portfolio th:nth-child(9),
+#view-portfolio td:nth-child(9) { width: 10%; }
+#view-portfolio th:nth-child(10),
+#view-portfolio td:nth-child(10) { width: 11%; }
+#view-portfolio th:nth-child(11),
+#view-portfolio td:nth-child(11) { width: 10%; }
+#view-portfolio th:nth-child(13),
+#view-portfolio td:nth-child(13) { width: 10%; }
+
+#view-portfolio .status {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em;
+}
+
+/* —— Clients dossier: calm banking hierarchy —— */
+#view-clients .client-products-table .linkish {
+  font-family: var(--font-display) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--aegean) !important;
+  line-height: 1.3 !important;
+  white-space: normal !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+#view-clients .client-products-table td:nth-child(2) {
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.07em !important;
+  color: var(--text3) !important;
+  font-family: var(--font-sans) !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  word-break: break-all;
+}
+
+#view-clients .client-products-table td:nth-child(4),
+#view-clients .client-products-table .env-badge {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--text2) !important;
+  letter-spacing: 0 !important;
+}
+
+#view-clients .client-products-table td:nth-child(6),
+#view-clients .client-products-table td:nth-child(6).num,
+#view-clients .client-products-table .num {
+  font-family: var(--font-display) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--text) !important; /* not aegean — product stays primary */
+  letter-spacing: -0.02em !important;
+  text-align: right !important;
+}
+
+#view-clients .client-products-table td {
+  padding: 16px 14px !important;
+}
+
+#view-clients .client-products-table thead th {
+  font-size: 9px !important;
+  letter-spacing: 0.12em !important;
+  font-weight: 500 !important;
+  padding: 12px 14px !important;
+}
+
+/* —— Barriers: one composition, no collisions —— */
+#view-barriers table {
+  min-width: 1080px !important;
+}
+
+#view-barriers thead th {
+  font-size: 9px !important;
+  letter-spacing: 0.11em !important;
+  font-weight: 500 !important;
+  padding: 14px 14px !important;
+  white-space: nowrap;
+  color: var(--text3) !important;
+}
+
+#view-barriers tbody td {
+  padding: 15px 14px !important;
+  vertical-align: top !important;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.06);
+}
+
+/* Product — own column, clamp, never bleed */
+#view-barriers th:nth-child(1),
+#view-barriers td:nth-child(1) {
+  width: 26% !important;
+  padding-right: 22px !important;
+  box-sizing: border-box;
+}
+
+#view-barriers .p-name {
+  font-family: var(--font-display);
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--aegean) !important;
+  line-height: 1.3 !important;
+  white-space: normal !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  max-width: 100%;
+}
+
+#view-barriers .p-isin {
+  font-size: 10px !important;
+  color: var(--text3) !important;
+  margin-top: 4px !important;
+  letter-spacing: 0.05em;
+}
+
+/* Underlying — separated, quieter, wraps cleanly */
+#view-barriers th:nth-child(3),
+#view-barriers td:nth-child(3) {
+  width: 18% !important;
+  padding-left: 18px !important;
+  padding-right: 14px !important;
+  border-left: 1px solid rgba(11, 58, 91, 0.06);
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--text2) !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.4 !important;
+}
+
+/* Barrier level + show valuation (nominal proxy) with shared numeric language */
+#view-barriers table th:nth-child(6),
+#view-barriers table td:nth-child(6) {
+  display: table-cell !important; /* restore valorisation / exposure */
+  width: 12% !important;
+}
+
+#view-barriers th:nth-child(4),
+#view-barriers td:nth-child(4) {
+  width: 14% !important;
+}
+
+#view-barriers th:nth-child(4),
+#view-barriers td:nth-child(4),
+#view-barriers th:nth-child(6),
+#view-barriers td:nth-child(6),
+#view-barriers th:nth-child(7),
+#view-barriers td:nth-child(7) {
+  font-family: var(--font-display) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums !important;
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+#view-barriers table td:nth-child(7) span {
+  font: inherit !important;
+  color: inherit !important;
+  letter-spacing: inherit !important;
+}
+
+#view-barriers th:nth-child(8),
+#view-barriers td:nth-child(8) {
+  width: 15% !important;
+}
+
+#view-barriers th:nth-child(9),
+#view-barriers td:nth-child(9) {
+  width: 11% !important;
+  font-size: 12px !important;
+  color: var(--text2) !important;
+  white-space: nowrap;
+}
+
+/* No-protection / unknown: quiet the progress metaphor */
+#view-barriers .bar-fill.bf-safe {
+  opacity: 0.85;
+}
+
+#view-barriers td:nth-child(4) {
+  /* N/A cells read quieter via inherited weight; long %+M€ can wrap */
+  white-space: normal !important;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+#view-barriers .bar-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+#view-barriers .bar-track {
+  width: 100% !important;
+  max-width: 110px !important;
+  height: 4px !important;
+}
+
+#view-barriers .bar-wrap > span {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase;
+}
+
+/* —— Icon family: same stroke language, Pitch no longer empty —— */
+.nav-tab .ico {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.nav-tab .ico::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  box-sizing: border-box !important;
+  border: 1.25px solid currentColor !important;
+  background-color: transparent !important;
+  opacity: 1 !important;
+  clip-path: none !important;
+  font-size: 0 !important;
+}
+
+#tab-dashboard .ico::before {
+  border-radius: 1px !important;
+  background:
+    linear-gradient(currentColor, currentColor) 3px 3px / 3px 1.2px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 6.5px / 5px 1.2px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 10px / 8px 1.2px no-repeat !important;
+}
+
+#tab-clients .ico::before {
+  border-radius: 50% !important;
+  background: transparent !important;
+}
+
+#tab-portfolio .ico::before {
+  border-radius: 1px !important;
+  background: linear-gradient(currentColor, currentColor) center / 8px 1.2px no-repeat !important;
+}
+
+#tab-barriers .ico::before {
+  border-radius: 1px !important;
+  background:
+    linear-gradient(currentColor, currentColor) 50% 2px / 1.25px 8px no-repeat,
+    linear-gradient(currentColor, currentColor) 50% 10px / 7px 1.25px no-repeat !important;
+}
+
+#tab-calendar .ico::before {
+  border-radius: 1px !important;
+  background: linear-gradient(currentColor, currentColor) 0 4px / 100% 1.2px no-repeat !important;
+}
+
+#tab-analytics .ico::before {
+  border-radius: 1px !important;
+  background:
+    linear-gradient(currentColor, currentColor) 2px 9px / 2.4px 3px no-repeat,
+    linear-gradient(currentColor, currentColor) 5.5px 6px / 2.4px 6px no-repeat,
+    linear-gradient(currentColor, currentColor) 9px 3.5px / 2.4px 8.5px no-repeat !important;
+}
+
+#tab-autopitch .ico::before {
+  border-radius: 1px !important;
+  background:
+    linear-gradient(currentColor, currentColor) 3px 3.5px / 8px 1.15px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 6.5px / 8px 1.15px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 9.5px / 5px 1.15px no-repeat !important;
+}
+
+#tab-screener .ico::before {
+  border-radius: 50% !important;
+  background: radial-gradient(circle at center, currentColor 0 1.6px, transparent 1.8px) !important;
+}
+
+#tab-ingest .ico::before {
+  border-radius: 1px !important;
+  background:
+    linear-gradient(currentColor, currentColor) 3px 3.5px / 8px 1.15px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 6.5px / 8px 1.15px no-repeat,
+    linear-gradient(currentColor, currentColor) 3px 9.5px / 8px 1.15px no-repeat !important;
+}
+
+/* Pitch must feel as dense as Ingest — corner fold accent */
+#tab-autopitch .ico::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 4px;
+  border-left: 1.15px solid currentColor;
+  border-bottom: 1.15px solid currentColor;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   WORLD 1 — ALERT COMPOSITION FIX (flex, not crushed grid)
+   ============================================================ */
+
+#view-dashboard .dash-alerts-panel,
+#view-dashboard .alert-strip {
+  width: 100%;
+  max-width: 100%;
+}
+
+#view-dashboard .al {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 16px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 0 12px !important;
+  padding: 20px 20px 18px !important;
+  border: 1px solid rgba(11, 58, 91, 0.1) !important;
+  border-left: 3px solid var(--red) !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  box-shadow: 0 1px 0 rgba(11, 58, 91, 0.04) !important;
+  grid-template-columns: none !important;
+}
+
+#view-dashboard .al-crit {
+  border-left-color: var(--red) !important;
+  background:
+    linear-gradient(90deg, rgba(181, 74, 74, 0.07) 0%, #fff 38%) !important;
+}
+
+#view-dashboard .al-warn {
+  border-left-color: var(--orange) !important;
+  background:
+    linear-gradient(90deg, rgba(184, 122, 58, 0.07) 0%, #fff 38%) !important;
+}
+
+#view-dashboard .al-ok {
+  border-left-color: var(--green) !important;
+  background: #fff !important;
+}
+
+#view-dashboard .al-ico {
+  flex: 0 0 auto !important;
+  width: 10px !important;
+  height: 10px !important;
+  margin-top: 5px !important;
+  border-radius: 50% !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  box-shadow: 0 0 0 4px rgba(181, 74, 74, 0.12);
+}
+
+#view-dashboard .al-txt {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  color: var(--text2) !important;
+}
+
+#view-dashboard .al-txt strong {
+  display: block !important;
+  font-family: var(--font-display) !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.025em !important;
+  color: var(--aegean) !important;
+  margin-bottom: 6px !important;
+  line-height: 1.25 !important;
+}
+
+#view-dashboard .al-txt::after {
+  content: "" !important;
+  display: block !important;
+  margin-top: 14px !important;
+  height: 4px !important;
+  width: min(240px, 55%) !important;
+  max-width: 240px !important;
+  border-radius: 999px !important;
+  background-color: rgba(11, 58, 91, 0.08) !important;
+  background-image: linear-gradient(90deg, var(--red), rgba(181, 74, 74, 0.35)) !important;
+  background-size: 92% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+#view-dashboard .al-warn .al-txt::after {
+  background-image: linear-gradient(90deg, var(--orange), rgba(184, 122, 58, 0.35)) !important;
+  background-size: 64% 100% !important;
+}
+
+#view-dashboard .al-ok .al-txt::after {
+  background-image: linear-gradient(90deg, var(--green), rgba(74, 140, 90, 0.35)) !important;
+  background-size: 26% 100% !important;
+}
+
+#view-dashboard .al-time {
+  flex: 0 0 auto !important;
+  margin-top: 2px !important;
+  padding: 6px 11px !important;
+  border: 1px solid rgba(11, 58, 91, 0.12) !important;
+  border-radius: 6px !important;
+  background: var(--elevated, #F4F7F9) !important;
+  font-family: var(--font-display) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--aegean) !important;
+  letter-spacing: -0.01em !important;
+  white-space: nowrap !important;
+  align-self: flex-start !important;
+}
+
+/* Differentiate Pitch from Ingest clearly within same family */
+#tab-autopitch .ico::before {
+  background:
+    linear-gradient(currentColor, currentColor) 2.5px 3.5px / 7px 1.15px no-repeat,
+    linear-gradient(currentColor, currentColor) 2.5px 6.5px / 7px 1.15px no-repeat,
+    linear-gradient(currentColor, currentColor) 2.5px 9.5px / 4.5px 1.15px no-repeat,
+    linear-gradient(135deg, transparent 45%, currentColor 45% 55%, transparent 55%) 8px 1px / 5px 5px no-repeat !important;
+}
+
+#tab-autopitch .ico::after {
+  display: none !important;
+}
+
+
+/* ============================================================
+   WORLD 1 — CALENDAR CONTROLS WRAP
+   ============================================================ */
+
+#view-calendar .calendar-controls-panel {
+  overflow: visible !important;
+  min-width: 0 !important;
+}
+
+#view-calendar .calendar-period-workbench {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px 12px !important;
+  align-items: flex-start !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+#view-calendar .calendar-mode-buttons {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+#view-calendar #cal-period-hint,
+#view-calendar .cal-period-hint,
+#view-calendar .calendar-controls-panel p,
+#view-calendar .calendar-controls-panel .sec-meta {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: 100% !important;
+  line-height: 1.45 !important;
+}
+
+
+/* ============================================================
+   WORLD 1 — CLIENT COLUMN WIDTHS
+   ============================================================ */
+
+#view-clients .client-products-table {
+  overflow-x: auto !important;
+}
+
+#view-clients .client-products-table table {
+  min-width: 820px !important;
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+#view-clients .client-products-table th:nth-child(1),
+#view-clients .client-products-table td:nth-child(1) {
+  width: 32% !important;
+  min-width: 220px !important;
+}
+
+#view-clients .client-products-table th:nth-child(2),
+#view-clients .client-products-table td:nth-child(2) {
+  width: 16% !important;
+  min-width: 120px !important;
+}
+
+#view-clients .client-products-table th:nth-child(4),
+#view-clients .client-products-table td:nth-child(4) {
+  width: 16% !important;
+}
+
+#view-clients .client-products-table th:nth-child(6),
+#view-clients .client-products-table td:nth-child(6) {
+  width: 12% !important;
+}
+
+#view-clients .client-products-table th:nth-child(7),
+#view-clients .client-products-table td:nth-child(7) {
+  width: 12% !important;
+}
+
+#view-clients .client-products-table th:nth-child(8),
+#view-clients .client-products-table td:nth-child(8) {
+  width: 10% !important;
+}
+
+#view-clients .client-products-table .linkish {
+  max-width: 100% !important;
+  text-align: left !important;
+}
+
+
+/* ============================================================
+   WORLD 1 — BARRIERS NO CLIP
+   Size columns for longest reasonable case; never mid-word cut
+   ============================================================ */
+
+#view-barriers .tbl-wrap {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  max-width: 100% !important;
+}
+
+#view-barriers table {
+  min-width: 1180px !important;
+  width: max(100%, 1180px) !important;
+  table-layout: fixed !important;
+}
+
+#view-barriers tbody td {
+  overflow: visible !important;
+}
+
+#view-barriers th:nth-child(1),
+#view-barriers td:nth-child(1) {
+  width: 24% !important;
+  min-width: 240px !important;
+  overflow: hidden !important; /* clamp product only */
+}
+
+#view-barriers th:nth-child(3),
+#view-barriers td:nth-child(3) {
+  width: 16% !important;
+  min-width: 160px !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  line-height: 1.4 !important;
+}
+
+#view-barriers th:nth-child(4),
+#view-barriers td:nth-child(4) {
+  width: 15% !important;
+  min-width: 150px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+#view-barriers th:nth-child(6),
+#view-barriers td:nth-child(6) {
+  width: 11% !important;
+  min-width: 110px !important;
+}
+
+#view-barriers th:nth-child(7),
+#view-barriers td:nth-child(7) {
+  width: 10% !important;
+  min-width: 96px !important;
+}
+
+#view-barriers th:nth-child(8),
+#view-barriers td:nth-child(8) {
+  width: 14% !important;
+  min-width: 140px !important;
+  overflow: visible !important;
+}
+
+#view-barriers th:nth-child(9),
+#view-barriers td:nth-child(9) {
+  width: 10% !important;
+  min-width: 110px !important;
+}
+
+
+/* ============================================================
+   WORLD 1 — BARRIERS FIT VIEWPORT
+   Prefer fitting key columns in ~1100px; scroll only if needed
+   ============================================================ */
+
+#view-barriers table {
+  min-width: 1040px !important;
+  width: 100% !important;
+}
+
+#view-barriers th:nth-child(1),
+#view-barriers td:nth-child(1) {
+  width: 22% !important;
+  min-width: 220px !important;
+}
+
+#view-barriers th:nth-child(3),
+#view-barriers td:nth-child(3) {
+  width: 15% !important;
+  min-width: 140px !important;
+}
+
+#view-barriers th:nth-child(4),
+#view-barriers td:nth-child(4) {
+  width: 14% !important;
+  min-width: 130px !important;
+}
+
+#view-barriers th:nth-child(6),
+#view-barriers td:nth-child(6) {
+  width: 11% !important;
+  min-width: 100px !important;
+}
+
+#view-barriers th:nth-child(7),
+#view-barriers td:nth-child(7) {
+  width: 10% !important;
+  min-width: 90px !important;
+}
+
+#view-barriers th:nth-child(8),
+#view-barriers td:nth-child(8) {
+  width: 16% !important;
+  min-width: 130px !important;
+}
+
+#view-barriers th:nth-child(9),
+#view-barriers td:nth-child(9) {
+  width: 12% !important;
+  min-width: 100px !important;
+}
+
+
+/* ============================================================
+   WORLD 1 — DESIGN SYSTEM CONSISTENCY RESET
+   One information grammar. Tables + chrome + dashboard.
+   ============================================================ */
+
+/* —— Semantic type helpers —— */
+.type-primary,
+.p-name,
+#view-clients .client-products-table .linkish,
+#view-portfolio .p-name,
+#view-barriers .p-name {
+  font-family: var(--font-display) !important;
+  font-size: var(--type-primary-size) !important;
+  font-weight: var(--type-primary-weight) !important;
+  letter-spacing: -0.015em !important;
+  color: var(--aegean) !important;
+  line-height: 1.3 !important;
+}
+
+.type-meta,
+.p-isin,
+#view-portfolio .p-isin,
+#view-barriers .p-isin,
+#view-clients .client-products-table td:nth-child(2) {
+  font-family: var(--font-sans) !important;
+  font-size: var(--type-meta-size) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.06em !important;
+  color: var(--text3) !important;
+  line-height: 1.35 !important;
+}
+
+.type-secondary,
+#view-portfolio td:nth-child(3),
+#view-barriers td:nth-child(3),
+#view-clients .client-products-table td:nth-child(4),
+#view-clients .env-badge {
+  font-family: var(--font-sans) !important;
+  font-size: var(--type-secondary-size) !important;
+  font-weight: var(--type-secondary-weight) !important;
+  letter-spacing: 0 !important;
+  color: var(--text2) !important;
+}
+
+.type-figure,
+.num,
+#view-portfolio .num,
+#view-barriers .num,
+#view-clients .client-products-table .num,
+#view-clients .client-products-table td:nth-child(6),
+#view-barriers table td:nth-child(4),
+#view-barriers table td:nth-child(6),
+#view-barriers table td:nth-child(7),
+#view-barriers table td:nth-child(7) span {
+  font-family: var(--font-display) !important;
+  font-size: var(--type-figure-size) !important;
+  font-weight: var(--type-figure-weight) !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.type-colhead,
+#view-portfolio thead th,
+#view-barriers thead th,
+#view-clients .client-products-table thead th {
+  font-family: var(--font-sans) !important;
+  font-size: var(--type-colhead-size) !important;
+  font-weight: var(--type-colhead-weight) !important;
+  letter-spacing: var(--type-colhead-tracking) !important;
+  text-transform: uppercase !important;
+  color: var(--text3) !important;
+  background: var(--bg) !important;
+}
+
+.type-status,
+#view-portfolio .status,
+#view-clients .bf,
+#view-barriers .bar-wrap > span {
+  font-family: var(--font-sans) !important;
+  font-size: var(--type-meta-size) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+.type-date,
+#view-portfolio td:nth-child(11),
+#view-barriers td:nth-child(9),
+#view-dashboard .al-time,
+#view-calendar .ev-day,
+#view-calendar .ev-mon {
+  font-variant-numeric: tabular-nums !important;
+}
+
+#view-portfolio td:nth-child(11),
+#view-barriers td:nth-child(9) {
+  font-family: var(--font-sans) !important;
+  font-size: var(--type-meta-size) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--text2) !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* ============================================================
+   MARKET RIBBON — opaque institutional strip
+   ============================================================ */
+
+.header {
+  display: flex !important;
+  align-items: center !important;
+  height: var(--ribbon-h) !important;
+  min-height: var(--ribbon-h) !important;
+  max-height: var(--ribbon-h) !important;
+  padding: 0 28px !important;
+  gap: 20px !important;
+  background: #fff !important;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.12) !important;
+  box-shadow: 0 1px 0 rgba(11, 58, 91, 0.03) !important;
+  opacity: 1 !important;
+}
+
+.header-ticker {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  opacity: 1 !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+.header-ticker::before,
+.header-ticker::after {
+  display: none !important;
+}
+
+.ticker-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 28px !important;
+  margin-right: 4px !important;
+  padding: 0 12px !important;
+  border: none !important;
+  border-right: 1px solid rgba(11, 58, 91, 0.1) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+}
+
+.ticker-item:last-child {
+  border-right: none !important;
+}
+
+.ticker-label {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--text2) !important;
+  opacity: 1 !important;
+}
+
+.ticker-val {
+  font-family: var(--font-display) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text) !important;
+  opacity: 1 !important;
+}
+
+.ticker-chg,
+.ticker-item .up,
+.ticker-item .dn {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.header-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex: 0 0 auto !important;
+  height: 100% !important;
+  padding-left: 16px !important;
+  border-left: 1px solid rgba(11, 58, 91, 0.12) !important;
+  opacity: 1 !important;
+}
+
+.header-right > div:last-child {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  padding: 4px 10px !important;
+  border: 1px solid rgba(11, 58, 91, 0.1) !important;
+  border-radius: 6px !important;
+  background: var(--elevated) !important;
+}
+
+.live-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 28px !important;
+  padding: 0 10px !important;
+  border: 1px solid rgba(11, 58, 91, 0.1) !important;
+  border-radius: 6px !important;
+  background: var(--elevated) !important;
+  color: var(--aegean) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  opacity: 1 !important;
+}
+
+.live-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: var(--green) !important;
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+.clock {
+  font-family: var(--font-display) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+  color: var(--aegean) !important;
+  line-height: 1.2 !important;
+  opacity: 1 !important;
+}
+
+.date-str {
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em !important;
+  color: var(--text2) !important;
+  line-height: 1.2 !important;
+  opacity: 1 !important;
+}
+
+.header-user-pill,
+.header .user-pill {
+  opacity: 1 !important;
+}
+
+/* ============================================================
+   DASHBOARD — risk narrative: counts → actions list
+   ============================================================ */
+
+#view-dashboard .kpi-row {
+  margin-bottom: 8px !important;
+}
+
+#view-dashboard .kpi-lbl {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: var(--text3) !important;
+}
+
+#view-dashboard .kpi.k-red .kpi-lbl {
+  color: var(--red) !important;
+}
+
+#view-dashboard .kpi.k-orange .kpi-lbl {
+  color: var(--orange) !important;
+}
+
+#view-dashboard .dash-alerts-block {
+  margin-top: 4px !important;
+  padding-top: 20px !important;
+  border-top: none !important;
+  border-left: 3px solid rgba(181, 74, 74, 0.35) !important;
+  padding-left: 18px !important;
+}
+
+#view-dashboard .dash-alerts-block .sec-hdr {
+  margin-bottom: 12px !important;
+  align-items: baseline !important;
+}
+
+#view-dashboard .dash-alerts-block .sec-title {
+  font-family: var(--font-display) !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--aegean) !important;
+}
+
+#view-dashboard .dash-alerts-block .sec-meta {
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  color: var(--text3) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  max-width: 42ch !important;
+  line-height: 1.4 !important;
+}
+
+#view-dashboard .dash-alerts-panel {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* ============================================================
+   SHARED TABLE SYSTEM — Clients · Portfolio · Barriers
+   ============================================================ */
+
+#view-portfolio .tbl-wrap,
+#view-barriers .tbl-wrap,
+#view-clients .client-products-table {
+  overflow-x: auto !important;
+}
+
+#view-portfolio table,
+#view-barriers table,
+#view-clients .client-products-table table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+#view-portfolio thead th,
+#view-barriers thead th,
+#view-clients .client-products-table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 3 !important;
+  padding: 12px var(--row-pad-x) !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.14) !important;
+  box-shadow: none !important;
+}
+
+#view-portfolio tbody td,
+#view-barriers tbody td,
+#view-clients .client-products-table tbody td {
+  padding: var(--row-pad-y) var(--row-pad-x) !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.06) !important;
+  font-size: var(--type-secondary-size) !important;
+  font-weight: 400 !important;
+  color: var(--text) !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Product primary — wrap, never early ellipsis */
+#view-portfolio .p-name,
+#view-barriers .p-name,
+#view-clients .client-products-table .linkish {
+  white-space: normal !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  max-width: 100% !important;
+}
+
+#view-portfolio .p-isin,
+#view-barriers .p-isin {
+  display: block !important;
+  margin-top: 3px !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Figures — never louder than product; never Aegean hero */
+#view-portfolio .num,
+#view-barriers td.num,
+#view-clients .client-products-table .num,
+#view-clients .client-products-table td:nth-child(6).num,
+#view-clients .client-products-table td:nth-child(6) {
+  text-align: right !important;
+  color: var(--text) !important;
+  font-size: var(--type-figure-size) !important;
+  font-weight: var(--type-figure-weight) !important;
+}
+
+#view-clients .client-products-table .linkish {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+#view-clients .env-badge {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  white-space: normal !important;
+  min-height: 0 !important;
+  height: auto !important;
+  display: inline !important;
+  border-radius: 0 !important;
+}
+
+/* —— Clients column composition —— */
+#view-clients .client-products-table table {
+  min-width: 880px !important;
+}
+
+#view-clients .client-products-table th:nth-child(1),
+#view-clients .client-products-table td:nth-child(1) {
+  width: 36% !important;
+  min-width: 260px !important;
+  padding-right: 20px !important;
+}
+
+#view-clients .client-products-table th:nth-child(2),
+#view-clients .client-products-table td:nth-child(2) {
+  width: 16% !important;
+  min-width: 120px !important;
+  word-break: break-all !important;
+}
+
+#view-clients .client-products-table th:nth-child(4),
+#view-clients .client-products-table td:nth-child(4) {
+  width: 16% !important;
+}
+
+#view-clients .client-products-table th:nth-child(6),
+#view-clients .client-products-table td:nth-child(6) {
+  width: 12% !important;
+}
+
+#view-clients .client-products-table th:nth-child(7),
+#view-clients .client-products-table td:nth-child(7) {
+  width: 12% !important;
+}
+
+#view-clients .client-products-table th:nth-child(8),
+#view-clients .client-products-table td:nth-child(8) {
+  width: 8% !important;
+}
+
+/* —— Portfolio column composition — no truncation on key fields —— */
+#view-portfolio table {
+  min-width: 1180px !important;
+}
+
+#view-portfolio th:nth-child(1),
+#view-portfolio td:nth-child(1) {
+  width: 20% !important;
+  min-width: 220px !important;
+  padding-right: 18px !important;
+  overflow: hidden !important; /* clamp product only */
+}
+
+#view-portfolio th:nth-child(3),
+#view-portfolio td:nth-child(3) {
+  width: 12% !important;
+  min-width: 120px !important;
+  white-space: normal !important;
+  color: var(--text2) !important;
+  font-size: var(--type-secondary-size) !important;
+}
+
+#view-portfolio th:nth-child(4),
+#view-portfolio td:nth-child(4),
+#view-portfolio th:nth-child(6),
+#view-portfolio td:nth-child(6),
+#view-portfolio th:nth-child(8),
+#view-portfolio td:nth-child(8),
+#view-portfolio th:nth-child(9),
+#view-portfolio td:nth-child(9),
+#view-portfolio th:nth-child(10),
+#view-portfolio td:nth-child(10) {
+  width: 10% !important;
+  min-width: 100px !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#view-portfolio th:nth-child(6),
+#view-portfolio td:nth-child(6) {
+  width: 11% !important;
+  min-width: 118px !important; /* Valorisation header + values */
+}
+
+#view-portfolio th:nth-child(11),
+#view-portfolio td:nth-child(11) {
+  width: 11% !important;
+  min-width: 112px !important; /* YYYY-MM-DD maturity */
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#view-portfolio th:nth-child(13),
+#view-portfolio td:nth-child(13) {
+  width: 9% !important;
+  min-width: 90px !important;
+}
+
+#view-portfolio thead th {
+  text-overflow: clip !important;
+  overflow: visible !important;
+}
+
+#view-portfolio tbody td.num,
+#view-portfolio tbody td:nth-child(4),
+#view-portfolio tbody td:nth-child(6),
+#view-portfolio tbody td:nth-child(8),
+#view-portfolio tbody td:nth-child(9),
+#view-portfolio tbody td:nth-child(10) {
+  font-size: var(--type-figure-size) !important;
+  font-weight: var(--type-figure-weight) !important;
+  color: var(--text) !important;
+}
+
+/* Coupon / barrier % also figure language when numeric */
+#view-portfolio td:nth-child(9),
+#view-portfolio td:nth-child(10) {
+  font-family: var(--font-display) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* —— Barriers composition —— */
+#view-barriers table {
+  min-width: 1100px !important;
+}
+
+#view-barriers th:nth-child(1),
+#view-barriers td:nth-child(1) {
+  width: 24% !important;
+  min-width: 240px !important;
+  padding-right: 18px !important;
+  overflow: hidden !important;
+}
+
+#view-barriers th:nth-child(3),
+#view-barriers td:nth-child(3) {
+  width: 15% !important;
+  min-width: 140px !important;
+  padding-left: 16px !important;
+  border-left: 1px solid rgba(11, 58, 91, 0.06) !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  word-break: break-word !important;
+  color: var(--text2) !important;
+  font-size: var(--type-secondary-size) !important;
+  font-weight: 400 !important;
+}
+
+#view-barriers th:nth-child(4),
+#view-barriers td:nth-child(4),
+#view-barriers th:nth-child(6),
+#view-barriers td:nth-child(6),
+#view-barriers th:nth-child(7),
+#view-barriers td:nth-child(7) {
+  width: 12% !important;
+  min-width: 110px !important;
+  text-align: right !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  font-size: var(--type-figure-size) !important;
+  font-weight: var(--type-figure-weight) !important;
+  color: var(--text) !important;
+}
+
+#view-barriers table th:nth-child(6),
+#view-barriers table td:nth-child(6) {
+  display: table-cell !important;
+}
+
+#view-barriers th:nth-child(8),
+#view-barriers td:nth-child(8) {
+  width: 14% !important;
+  min-width: 130px !important;
+  overflow: visible !important;
+}
+
+#view-barriers th:nth-child(9),
+#view-barriers td:nth-child(9) {
+  width: 11% !important;
+  min-width: 110px !important;
+}
+
+#view-barriers .bar-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+}
+
+#view-barriers .bar-track {
+  width: 100% !important;
+  max-width: 100px !important;
+  height: 3px !important;
+}
+
+/* Kill prior “distance is special / gold / aegean hero” treatments */
+#view-barriers table td:nth-child(7),
+#view-barriers table td:nth-child(7) span,
+#view-portfolio .num,
+#view-clients .client-products-table .num {
+  color: var(--text) !important;
+}
+
+/* Calendar dates — same meta language */
+#view-calendar .ev-mon,
+#view-calendar .timeline-date small {
+  font-size: var(--type-meta-size) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em !important;
+  color: var(--text3) !important;
+}
+
+#view-calendar .ev-day,
+#view-calendar .timeline-date b {
+  font-family: var(--font-display) !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  color: var(--aegean) !important;
+}
+
+
+/* ============================================================
+   WORLD 1 — LAYOUT CONTAINMENT
+   Ribbon + tables must not expand the app shell
+   ============================================================ */
+
+.app-shell {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.header {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.header-ticker {
+  flex: 1 1 0 !important;
+  width: 0 !important; /* flex item can shrink */
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+}
+
+.header-right {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+}
+
+.main {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.view,
+.view.active {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#view-portfolio .tbl-wrap,
+#view-barriers .tbl-wrap,
+#view-clients .client-products-table {
+  max-width: 100% !important;
+  overflow-x: auto !important;
+}
+
+#view-portfolio table,
+#view-barriers table,
+#view-clients .client-products-table table {
+  width: 100% !important;
+  max-width: none !important; /* allow scroll inside wrap, not expand shell */
+}
+
+
+/* ============================================================
+   WORLD 1 — TABLE ENFORCEMENT (RENDERED)
+   Kill .num / nth-child bleed onto headers.
+   One component. Pixel-level sameness.
+   ============================================================ */
+
+/* —— 1. ALL column headers identical — including th.num —— */
+#view-portfolio thead th,
+#view-portfolio thead th.num,
+#view-barriers thead th,
+#view-barriers thead th.num,
+#view-clients .client-products-table thead th,
+#view-clients .client-products-table thead th.num {
+  font-family: var(--font-sans) !important;
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: var(--text3) !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  line-height: 1.3 !important;
+  padding: 12px 14px !important;
+  background: var(--bg) !important;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.14) !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  box-shadow: none !important;
+}
+
+/* Numeric headers stay colhead language — right-aligned only */
+#view-portfolio thead th.num,
+#view-barriers thead th.num,
+#view-clients .client-products-table thead th.num {
+  text-align: right !important;
+  font-family: var(--font-sans) !important;
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text3) !important;
+}
+
+/* Kill any nth-child header exceptions (issuer/underlying/date bleed) */
+#view-portfolio thead th:nth-child(n),
+#view-barriers thead th:nth-child(n),
+#view-clients .client-products-table thead th:nth-child(n) {
+  font-family: var(--font-sans) !important;
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text3) !important;
+  vertical-align: middle !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+#view-portfolio thead th.num:nth-child(n),
+#view-barriers thead th.num:nth-child(n),
+#view-clients .client-products-table thead th.num:nth-child(n) {
+  text-align: right !important;
+}
+
+/* —— 2. Body cells: one row rhythm —— */
+#view-portfolio tbody td,
+#view-barriers tbody td,
+#view-clients .client-products-table tbody td {
+  font-family: var(--font-sans) !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  color: var(--text) !important;
+  vertical-align: middle !important;
+  padding: 14px !important;
+  line-height: 1.35 !important;
+  border-bottom: 1px solid rgba(11, 58, 91, 0.06) !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* —— 3. Product primary — never quieter than figures —— */
+#view-portfolio tbody .p-name,
+#view-barriers tbody .p-name,
+#view-clients .client-products-table tbody .linkish {
+  font-family: var(--font-display) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--aegean) !important;
+  line-height: 1.3 !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+/* —— 4. ISIN meta —— */
+#view-portfolio tbody .p-isin,
+#view-barriers tbody .p-isin,
+#view-clients .client-products-table tbody td:nth-child(2) {
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.06em !important;
+  color: var(--text3) !important;
+  line-height: 1.35 !important;
+}
+
+/* —— 5. Secondary text (issuer / underlying / envelope) —— */
+#view-portfolio tbody td:nth-child(3),
+#view-barriers tbody td:nth-child(3),
+#view-clients .client-products-table tbody td:nth-child(4),
+#view-clients .client-products-table tbody .env-badge {
+  font-family: var(--font-sans) !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  color: var(--text2) !important;
+}
+
+#view-clients .client-products-table tbody .env-badge {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  display: inline !important;
+  min-height: 0 !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  white-space: normal !important;
+}
+
+/* —— 6. Figures ONLY on tbody — never on thead —— */
+#view-portfolio tbody td.num,
+#view-portfolio tbody td:nth-child(4),
+#view-portfolio tbody td:nth-child(6),
+#view-portfolio tbody td:nth-child(8),
+#view-portfolio tbody td:nth-child(9),
+#view-portfolio tbody td:nth-child(10),
+#view-barriers tbody td.num,
+#view-barriers tbody td:nth-child(4),
+#view-barriers tbody td:nth-child(6),
+#view-barriers tbody td:nth-child(7),
+#view-barriers tbody td:nth-child(7) span,
+#view-clients .client-products-table tbody td.num,
+#view-clients .client-products-table tbody td:nth-child(6) {
+  font-family: var(--font-display) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums !important;
+  text-align: right !important;
+}
+
+/* —— 7. Dates — meta, identical —— */
+#view-portfolio tbody td:nth-child(11),
+#view-barriers tbody td:nth-child(9) {
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--text2) !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* —— 8. Status — meta uppercase —— */
+#view-portfolio tbody .status,
+#view-clients .client-products-table tbody .bf,
+#view-clients .client-products-table tbody td:nth-child(7),
+#view-clients .client-products-table tbody td:nth-child(7) .bf,
+#view-barriers tbody .bar-wrap > span {
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  line-height: 1.3 !important;
+}
+
+#view-clients .client-products-table tbody td:nth-child(7) {
+  color: inherit !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+}
+
+/* Status color via semantic classes only — base ink muted */
+#view-portfolio tbody .status {
+  color: var(--text2) !important;
+}
+
+/* —— 9. Uniform horizontal padding on product/issuer edges —— */
+#view-portfolio tbody td:nth-child(1),
+#view-barriers tbody td:nth-child(1),
+#view-clients .client-products-table tbody td:nth-child(1),
+#view-portfolio thead th:nth-child(1),
+#view-barriers thead th:nth-child(1),
+#view-clients .client-products-table thead th:nth-child(1) {
+  padding-right: 18px !important;
+}
+
+#view-portfolio thead th:nth-child(3),
+#view-portfolio tbody td:nth-child(3),
+#view-barriers thead th:nth-child(3),
+#view-barriers tbody td:nth-child(3) {
+  padding-left: 14px !important;
+  border-left: 1px solid rgba(11, 58, 91, 0.06) !important;
+  color: var(--text2) !important;
+}
+
+#view-barriers thead th:nth-child(3),
+#view-portfolio thead th:nth-child(3) {
+  color: var(--text3) !important; /* header stays colhead color */
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  font-family: var(--font-sans) !important;
+  letter-spacing: 0.12em !important;
+}
+
+
+/* ============================================================
+   WORLD 1 — FINAL LOGO CENTER
+   Optical place: centered in brand band, inset from sidebar edge
+   ============================================================ */
+
+.sidebar-brand {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 28px 36px 24px !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-logo {
+  display: block !important;
+  width: 150px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 0 auto !important;
+  transform: translateX(6px);
+  object-fit: contain !important;
+  object-position: center center !important;
+}
