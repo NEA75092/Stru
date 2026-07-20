@@ -33,6 +33,73 @@
         .replace(/'/g, "&#39;");
     }
 
+    /** Deterministic seeded PRNG (mulberry32) — same seed always gives
+     * the same sequence, so a synthetic series stays stable across
+     * re-renders instead of jittering every repaint. */
+    function seededRng(seedStr) {
+      let h = 1779033703 ^ String(seedStr || "").length;
+      for (let i = 0; i < String(seedStr || "").length; i++) {
+        h = Math.imul(h ^ String(seedStr).charCodeAt(i), 3432918353);
+        h = (h << 13) | (h >>> 19);
+      }
+      let state = h >>> 0;
+      return function rng() {
+        state |= 0;
+        state = (state + 0x6d2b79f5) | 0;
+        let t = Math.imul(state ^ (state >>> 15), 1 | state);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    /**
+     * Synthetic historical level series for a product's underlying, in
+     * the same base-100 scale as its barrier fields (--color-* levels
+     * are all "% of initial", not absolute index points). No real
+     * historical feed is wired up yet (see vl-registry.js) — this is a
+     * deterministic Brownian bridge from 100 (initial fixing) to the
+     * level implied by the product's current barrier/dist, seeded by
+     * ISIN so it's stable across re-renders rather than random noise.
+     * Returns null when there's nothing meaningful to plot (no barrier
+     * concept, e.g. capital-guaranteed products).
+     */
+    function buildSyntheticLevelSeries(product, numPoints = 48) {
+      const barrier = Number(product?.barrier);
+      const dist = Number(product?.dist);
+      if (!Number.isFinite(barrier) || barrier <= 0 || !Number.isFinite(dist)) {
+        return null;
+      }
+      const startLevel = 100;
+      const currentLevel = barrier * (1 + dist / 100);
+      const rng = seededRng(product.isin || product.id);
+      const gauss = () => {
+        // Box-Muller, using the seeded rng instead of Math.random so the
+        // whole path stays deterministic for a given product.
+        const u1 = Math.max(rng(), 1e-6);
+        const u2 = rng();
+        return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      };
+      const volatility = Math.max(2, Math.abs(startLevel - currentLevel) * 0.35);
+      let walk = 0;
+      const raw = [0];
+      for (let i = 1; i <= numPoints; i++) {
+        walk += gauss();
+        raw.push(walk);
+      }
+      const n = numPoints;
+      const points = raw.map((w, i) => {
+        const frac = i / n;
+        // Brownian bridge: pin the random walk to 0 at both ends so the
+        // line still starts at startLevel and ends at currentLevel.
+        const bridge = w - frac * raw[n];
+        const level = startLevel + (currentLevel - startLevel) * frac + bridge * (volatility / Math.max(1, Math.sqrt(n / 4)));
+        return { t: frac, level };
+      });
+      points[0].level = startLevel;
+      points[n].level = currentLevel;
+      return { points, startLevel, currentLevel, barrierLevel: barrier };
+    }
+
     /** "12,3M€" → 12.3 ; "-7.4%" → -7.4 ; non-numeric text → NaN. */
     function parseLooseNumber(text) {
       return parseFloat(String(text).replace(/[^\d.,-]/g, "").replace(",", "."));
@@ -176,6 +243,7 @@
       renderRowsWithGaugeTransition,
       flashText,
       setTextFlash,
+      buildSyntheticLevelSeries,
     };
   },
 );

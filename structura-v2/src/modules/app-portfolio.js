@@ -13,6 +13,7 @@
       escapeHtml,
       setTextFlash,
       renderRowsWithGaugeTransition,
+      buildSyntheticLevelSeries,
     } = root.StructuraUtils;
     const {
       runtime,
@@ -145,6 +146,92 @@
         rows.push(["Spread", formatPct(c.spreadPct)]);
       }
       return rows.filter(([, value]) => value !== "—" && value !== "XX%");
+    }
+
+    /** Smooth line through points via quadratic beziers to consecutive
+     * midpoints — a lightweight, dependency-free line-chart smoothing
+     * that reads far less mechanical than straight segments. */
+    function smoothSvgPath(pts) {
+      if (pts.length < 2) return "";
+      let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+      for (let i = 1; i < pts.length; i++) {
+        const midX = (pts[i - 1].x + pts[i].x) / 2;
+        const midY = (pts[i - 1].y + pts[i].y) / 2;
+        d += ` Q${pts[i - 1].x.toFixed(1)},${pts[i - 1].y.toFixed(1)} ${midX.toFixed(1)},${midY.toFixed(1)}`;
+      }
+      const last = pts[pts.length - 1];
+      d += ` L${last.x.toFixed(1)},${last.y.toFixed(1)}`;
+      return d;
+    }
+
+    /* Graphique historique prix vs barrière — le composant signature du
+       tiroir de détail. Pas de flux de VL historique branché (voir
+       vl-registry.js) : la courbe vient de buildSyntheticLevelSeries,
+       une simulation déterministe ancrée sur le niveau initial (100) et
+       le niveau courant reconstruit depuis dist/barrière — d'où le
+       disclaimer "simulation illustrative" plutôt que de la présenter
+       comme une vraie série de marché. */
+    function buildPriceBarrierChart(p) {
+      if (p.type === "CG") return "";
+      const series = buildSyntheticLevelSeries(p);
+      if (!series) return "";
+      const { points, barrierLevel } = series;
+      const c = p.characteristics || {};
+      const couponBarrier = Number(c.couponBarrier);
+      const recallLevel = Number(c.fixedRecallThreshold) || Number(c.firstCallThreshold);
+      const hasCouponBand = Number.isFinite(couponBarrier) && couponBarrier > barrierLevel;
+      const hasRecallLine = Number.isFinite(recallLevel) && recallLevel > (hasCouponBand ? couponBarrier : barrierLevel);
+
+      const levels = points.map((pt) => pt.level);
+      const topRef = hasRecallLine ? recallLevel : 100;
+      const dataMin = Math.min(...levels, barrierLevel);
+      const dataMax = Math.max(...levels, topRef);
+      const spread = dataMax - dataMin || 1;
+      const min = dataMin - spread * 0.1;
+      const max = dataMax + spread * 0.1;
+
+      const W = 1000;
+      const H = 180;
+      const padT = 10;
+      const padB = 10;
+      const plotH = H - padT - padB;
+      const xAt = (frac) => frac * W;
+      const yAt = (level) => padT + plotH - ((level - min) / (max - min)) * plotH;
+
+      const bandStops = hasCouponBand
+        ? [min, barrierLevel, couponBarrier, max]
+        : [min, barrierLevel, max];
+      const bandColors = hasCouponBand
+        ? ["var(--color-danger)", "var(--color-warning)", "var(--color-ocean)"]
+        : ["var(--color-danger)", "var(--color-ocean)"];
+      let bands = "";
+      for (let i = 0; i < bandColors.length; i++) {
+        const yTop = yAt(bandStops[i + 1]);
+        const yBottom = yAt(bandStops[i]);
+        bands += `<rect x="0" y="${yTop.toFixed(1)}" width="${W}" height="${(yBottom - yTop).toFixed(1)}" fill="${bandColors[i]}" opacity="0.07"/>`;
+      }
+
+      const recallLine = hasRecallLine
+        ? `<line x1="0" y1="${yAt(recallLevel).toFixed(1)}" x2="${W}" y2="${yAt(recallLevel).toFixed(1)}" stroke="var(--color-aegean-2)" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+           <text x="${W - 4}" y="${(yAt(recallLevel) - 5).toFixed(1)}" text-anchor="end" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">AUTOCALL ${recallLevel.toFixed(0)}%</text>`
+        : "";
+
+      const linePts = points.map((pt) => ({ x: xAt(pt.t), y: yAt(pt.level) }));
+      const path = smoothSvgPath(linePts);
+      const last = linePts[linePts.length - 1];
+
+      return `
+        <div class="divider"></div>
+        <div class="dr-section-title">HISTORIQUE SOUS-JACENT VS BARRIÈRE</div>
+        <div class="dr-price-chart-wrap">
+          <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="dr-price-chart-svg">
+            ${bands}
+            ${recallLine}
+            <path d="${path}" fill="none" stroke="var(--color-aegean)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+            <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.5" fill="var(--color-aegean)"/>
+          </svg>
+        </div>
+        <div class="dr-price-chart-note">Simulation illustrative ancrée sur le niveau initial et la distance barrière actuelle — aucun flux de marché historique n'est encore branché.</div>`;
     }
 
     function productSri(product) {
@@ -525,6 +612,8 @@
             .join("")}</div>`
         : "";
       document.getElementById("dr-characteristics").innerHTML = charHtml;
+      const chartEl = document.getElementById("dr-price-chart");
+      if (chartEl) chartEl.innerHTML = buildPriceBarrierChart(p);
       const tl = [
         {
           s: "done",
