@@ -131,6 +131,15 @@
 .kpi-row {
     gap: var(--space-4) !important;
 }
+/* institutional-theme.css laisse padding-left:0 (+ padding-right:40px)
+   sur la 1ère carte KPI — hérité de l'ancien rendu en bandeau sans
+   gap, où ce padding compensait l'absence d'espacement entre cartes.
+   .kpi-row a maintenant un vrai gap entre cartes indépendantes : ce
+   padding-left:0 collait juste le contenu au bord gauche de sa
+   propre carte. Repassé au padding standard de .kpi. */
+#view-dashboard .kpi:first-child {
+    padding: var(--space-6) var(--space-6) var(--space-5) !important;
+}
 /* Règle produit (2026-07-20) : jamais de carte KPI "héros" nulle
    part — toutes les séries de KPI sont à taille égale, y compris la
    1ère carte du Dashboard qui avant seule recevait une taille géante
