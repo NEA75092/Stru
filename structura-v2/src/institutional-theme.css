@@ -3870,9 +3870,32 @@ td {
 .sidebar-logo {
     filter: saturate(1) contrast(1.02) !important;
 }
+.sidebar-nav {
+    position: relative !important;
+}
+/* Pastille qui glisse d'un onglet à l'autre au clic, plutôt qu'un
+   remplissage qui apparaît/disparaît en un cadre — même bleu Égée que
+   l'ancien fond actif, mais porté par un élément séparé (z-index sous
+   le texte) qu'on translateY/anime en --ease-spring au lieu de
+   basculer une classe statique. */
+.nav-indicator {
+    position: absolute !important;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 0;
+    border-radius: var(--radius-md) !important;
+    background: var(--color-aegean) !important;
+    transition:
+        transform var(--duration-base) var(--ease-spring),
+        height var(--duration-base) var(--ease-spring) !important;
+    pointer-events: none;
+}
 .nav-tab {
     position: relative;
+    z-index: 1;
     border-radius: var(--radius-md) !important;
+    background: transparent !important;
     color: var(--color-text-secondary) !important;
     font-family: var(--font-body) !important;
     font-weight: 500 !important;
@@ -3885,10 +3908,13 @@ td {
     color: var(--color-ink) !important;
 }
 .nav-tab.active {
-    background: var(--color-aegean) !important;
+    background: transparent !important;
     color: var(--color-text-on-dark) !important;
     font-weight: 700 !important;
     box-shadow: none !important;
+}
+.nav-tab.active:hover {
+    background: transparent !important;
 }
 /* Icônes de nav : jeu SVG maison (trait fin uniforme), remplace les
    glyphes Unicode d'origine. Plusieurs anciennes règles injectaient

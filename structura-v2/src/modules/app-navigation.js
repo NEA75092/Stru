@@ -8,6 +8,13 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraNavigation(root) {
+    function positionNavIndicator(tab) {
+      const indicator = document.getElementById("nav-indicator");
+      if (!indicator || !tab) return;
+      indicator.style.height = `${tab.offsetHeight}px`;
+      indicator.style.transform = `translateY(${tab.offsetTop}px)`;
+    }
+
     function nav(viewId) {
       if (typeof document === "undefined") return;
       document
@@ -17,7 +24,9 @@
         .querySelectorAll(".view")
         .forEach((view) => view.classList.remove("active"));
 
-      document.getElementById("tab-" + viewId)?.classList.add("active");
+      const activeTab = document.getElementById("tab-" + viewId);
+      activeTab?.classList.add("active");
+      positionNavIndicator(activeTab);
       const targetView = document.getElementById("view-" + viewId);
       targetView?.classList.add("active");
 
@@ -43,6 +52,12 @@
       if (viewId === "screener") root.runScreener?.();
     }
 
-    return { nav };
+    if (typeof document !== "undefined") {
+      // Scripts load with `defer`, so the DOM is already fully parsed
+      // by the time this module runs — no need to wait for an event.
+      positionNavIndicator(document.querySelector(".nav-tab.active"));
+    }
+
+    return { nav, positionNavIndicator };
   },
 );
