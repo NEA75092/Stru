@@ -99,7 +99,7 @@
       <td class="num">${Math.abs(s.annualDrag).toFixed(1)}%/an sacrifié</td>
       <td class="num ${s.capitalLossSeverity < 5 ? "st-ok" : s.capitalLossSeverity < 15 ? "st-warn" : "st-bad"}">+${s.capitalLossSeverity.toFixed(1)} pts</td>
       <td class="num" style="color:var(--gold);font-weight:700;">${s.fitScore}</td>
-      <td><span class="decision-pill ${verdict.cls}">${verdict.label}</span></td>
+      <td><span class="decision-pill pill-status ${verdict.cls}">${verdict.label}</span></td>
     </tr>`;
         })
         .join("");
@@ -186,8 +186,8 @@
 
     function businessVerdict(score) {
       if (score.fitScore >= 80 && score.netCarry >= 0) return { label: "Défendable", cls: "ok" };
-      if (score.fitScore >= 60) return { label: "À justifier", cls: "warn" };
-      return { label: "À éviter", cls: "bad" };
+      if (score.fitScore >= 60) return { label: "À justifier", cls: "warning" };
+      return { label: "À éviter", cls: "danger" };
     }
 
     function miniGraph(item, score) {

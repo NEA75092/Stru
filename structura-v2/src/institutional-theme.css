@@ -249,24 +249,6 @@ body::before {
   border-color: transparent;
 }
 
-.badge-red {
-  background: rgba(181, 74, 74, 0.08);
-  color: var(--red);
-  border: 1px solid rgba(181, 74, 74, 0.2);
-}
-
-.badge-orange {
-  background: rgba(184, 122, 58, 0.08);
-  color: var(--orange);
-  border: 1px solid rgba(184, 122, 58, 0.2);
-}
-
-.badge-gold {
-  background: rgba(200, 166, 75, 0.1);
-  color: var(--gold2);
-  border: 1px solid rgba(200, 166, 75, 0.25);
-}
-
 .header {
   border-radius: 0;
   border: none;
@@ -337,7 +319,6 @@ body::before {
 
 .btn,
 .search,
-.filter-chip,
 .compact-toggle,
 .count-badge,
 .sort-btn,
@@ -351,7 +332,6 @@ body::before {
 }
 
 .btn,
-.filter-chip,
 .compact-toggle,
 .count-badge,
 .sort-btn,
@@ -366,8 +346,7 @@ body::before {
 .btn:hover,
 .sort-btn:hover,
 .mini-btn:hover,
-.compact-toggle:hover,
-.filter-chip:hover {
+.compact-toggle:hover {
   border-color: var(--border2);
   color: var(--aegean);
   background: var(--elevated);
@@ -394,7 +373,6 @@ body::before {
   outline: none;
 }
 
-.filter-chip.on,
 .compact-toggle.on {
   border-color: rgba(11, 58, 91, 0.28);
   background: var(--elevated);
@@ -597,15 +575,6 @@ td {
   font-variant-numeric: tabular-nums;
   font-weight: 500;
   letter-spacing: -0.02em;
-}
-
-.type-pill {
-  border-radius: 4px;
-  font-family: var(--font-sans);
-  font-weight: 500;
-  background: var(--elevated);
-  border-color: var(--border);
-  color: var(--text2);
 }
 
 .tp-ac,
@@ -983,7 +952,7 @@ td {
   font-family: var(--font-display);
 }
 
-#view-portfolio .type-pill,
+#view-portfolio .pill-category,
 #view-portfolio .tp-ac,
 #view-portfolio .tp-cg,
 #view-portfolio .tp-rc,
@@ -2248,14 +2217,11 @@ td {
    ============================================================ */
 
 /* —— Universal chip/capsule containment —— */
-.type-pill,
 .env-badge,
-.filter-chip,
 .count-badge,
 .ob-badge,
 .cal-context-badge,
 .calendar-mode-btn,
-.decision-pill,
 .ing-badge-pill,
 .ing-note-pill {
   display: inline-flex !important;

@@ -219,7 +219,7 @@
                 : Math.max(2, Math.min(98, 100 - Math.max(0, p.dist)));
           return `<tr class="${p.st.s === "breach" ? "row-breach" : p.st.s === "crit" || p.st.s === "warn" ? "row-warn" : ""}" onclick="openDrawer(${p.id})">
       <td><div class="p-name">${escapeHtml(p.name)}</div><div class="p-isin">${escapeHtml(p.isin)}</div></td>
-      <td><span class="type-pill ${TYPE_CLASS[p.type]}">${escapeHtml(TYPE_SHORT[p.type] || p.type)}</span></td>
+      <td><span class="pill-category ${TYPE_CLASS[p.type]}">${escapeHtml(TYPE_SHORT[p.type] || p.type)}</span></td>
       <td style="color:var(--text2);font-size:10px;">${escapeHtml(p.emetteur)}</td>
       <td class="num">${moneyShort(p.nominal)}</td>
       <td class="num" style="color:var(--gold);">${formatIssuerVl(p)}</td>

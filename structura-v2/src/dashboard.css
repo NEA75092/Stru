@@ -224,7 +224,6 @@
     animation: barBlink 1.6s ease-in-out infinite;
 }
 
-.filter-chip,
 .compact-toggle,
 .sort-btn,
 .mini-btn {
@@ -235,11 +234,73 @@
     font-family: var(--font-mono-data) !important;
     box-shadow: none !important;
 }
-.filter-chip.on,
 .compact-toggle.on {
     background: var(--color-aegean) !important;
     border-color: var(--color-aegean) !important;
     color: var(--color-text-on-dark) !important;
+}
+
+/* ── Pastilles — 3 familles génériques (remplace filter-chip, type-pill,
+   seg-pat/pro/retail, badge-red/orange/gold et decision-pill.ok|warn|bad :
+   même recette de taille/rayon/couleur pour toute pastille, au lieu
+   d'une classe par écran qui finissait par déraper — seg-pat/seg-pro et
+   decision-pill.ok/.bad étaient restés sur l'ancienne palette
+   pré-Santorini faute d'override dédié). ── */
+.pill-filter,
+.pill-category,
+.pill-status {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-family: var(--font-mono-data) !important;
+    white-space: nowrap !important;
+}
+.pill-filter {
+    min-height: 28px !important;
+    padding: 6px 12px !important;
+    border-radius: var(--radius-full) !important;
+    border: none !important;
+    background: var(--color-surface-2) !important;
+    color: var(--color-text-secondary) !important;
+    box-shadow: none !important;
+}
+.pill-filter.on {
+    background: var(--color-aegean) !important;
+    border-color: var(--color-aegean) !important;
+    color: var(--color-text-on-dark) !important;
+}
+/* Pastille de catégorie : neutre, la distinction vient du libellé,
+   pas d'un arc-en-ciel de fonds colorés par catégorie. */
+.pill-category {
+    padding: 4px 9px !important;
+    border-radius: var(--radius-xs) !important;
+    color: var(--color-text-secondary) !important;
+    border-color: transparent !important;
+    background: var(--color-surface-2) !important;
+}
+/* Pastille de statut : seule famille à porter une couleur sémantique —
+   danger/warning/ok/info, jamais une couleur par écran. */
+.pill-status {
+    padding: 4px 9px !important;
+    border-radius: var(--radius-xs) !important;
+    border: none !important;
+    font-weight: 600 !important;
+}
+.pill-status.danger {
+    background: rgba(193, 72, 59, 0.12) !important;
+    color: var(--color-danger) !important;
+}
+.pill-status.warning {
+    background: rgba(214, 138, 60, 0.12) !important;
+    color: var(--color-warning-2) !important;
+}
+.pill-status.ok {
+    background: rgba(61, 131, 97, 0.12) !important;
+    color: var(--color-success) !important;
+}
+.pill-status.info {
+    background: rgba(27, 75, 145, 0.1) !important;
+    color: var(--color-aegean) !important;
 }
 .empty-inline {
     border: none !important;
@@ -267,23 +328,6 @@
     background: var(--color-aegean-2) !important;
 }
 
-.badge-red,
-.badge-orange,
-.badge-gold {
-    border-radius: var(--radius-xs) !important;
-}
-.badge-red {
-    background: rgba(193, 72, 59, 0.12) !important;
-    color: var(--color-danger) !important;
-}
-.badge-orange {
-    background: rgba(214, 138, 60, 0.12) !important;
-    color: var(--color-warning-2) !important;
-}
-.badge-gold {
-    background: rgba(27, 75, 115, 0.1) !important;
-    color: var(--color-aegean) !important;
-}
 .up {
     color: var(--color-success) !important;
 }
@@ -370,15 +414,6 @@ tbody tr.selected {
    au sens de la règle #1 — pas besoin de le repasser en encre. */
 .p-isin {
     color: var(--color-text-tertiary) !important;
-    font-family: var(--font-mono-data) !important;
-}
-/* Pastilles de type produit : neutres, la distinction vient du libellé,
-   pas d'un arc-en-ciel de fonds colorés par catégorie. */
-.type-pill {
-    border-radius: var(--radius-xs) !important;
-    color: var(--color-text-secondary) !important;
-    border-color: transparent !important;
-    background: var(--color-surface-2) !important;
     font-family: var(--font-mono-data) !important;
 }
 
@@ -684,21 +719,11 @@ tbody tr.selected {
     background: rgba(214, 138, 60, 0.12) !important;
     color: var(--color-warning-2) !important;
 }
-.decision-pill.warn {
-    color: var(--color-warning-2) !important;
-    background: rgba(214, 138, 60, 0.1) !important;
-    border-color: rgba(214, 138, 60, 0.28) !important;
-}
 /* Onglet actif = état interactif, pas un statut : Égée comme le
    reste de la navigation. */
 .dec-browser-tabs button.on {
     color: var(--color-aegean) !important;
     border-color: var(--color-aegean) !important;
-}
-/* Badge de segment client — catégorie, pas une alerte : neutre. */
-.seg-retail {
-    background: var(--color-surface-3) !important;
-    color: var(--color-text-secondary) !important;
 }
 /* Encart pédagogique "Lecture simple" : information, pas une alerte. */
 .dec-source-panel {
@@ -787,14 +812,14 @@ tbody tr.selected {
 .btn:active,
 .btn-gold:active,
 .nav-tab:active,
-.filter-chip:active,
+.pill-filter:active,
 .sidebar-add:active,
 .mode-btn:active {
     transform: scale(0.97);
 }
 .btn,
 .btn-gold,
-.filter-chip,
+.pill-filter,
 .sidebar-add,
 .mode-btn {
     transition:

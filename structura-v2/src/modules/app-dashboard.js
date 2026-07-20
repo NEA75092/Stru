@@ -553,7 +553,7 @@
 
     function setRange(el, range) {
       perfRange = range || "ytd";
-      document.querySelectorAll(".perf-range-controls .filter-chip").forEach((chip) => {
+      document.querySelectorAll(".perf-range-controls .pill-filter").forEach((chip) => {
         chip.classList.toggle(
           "on",
           chip === el || chip.dataset.perfRange === perfRange,

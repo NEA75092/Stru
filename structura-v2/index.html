@@ -59,7 +59,7 @@
                         id="tab-barriers"
                     >
                         <span class="ico"><svg viewBox="0 0 20 20"><path d="M10 2.3l6.5 2.4v5.1c0 4.3-2.8 7.2-6.5 8.4-3.7-1.2-6.5-4.1-6.5-8.4V4.7L10 2.3z"/><path d="M7.2 10.2l2 2 3.6-4"/></svg></span> Barrières
-                        <span class="tab-badge badge-red" id="cnt-bar">5</span>
+                        <span class="tab-badge pill-status danger" id="cnt-bar">5</span>
                     </div>
                     <div
                         class="nav-tab"
@@ -233,10 +233,10 @@
                                     </div>
                                 </div>
                                 <div class="perf-range-controls">
-                                    <span class="filter-chip on" data-perf-range="ytd" onclick="setRange(this, 'ytd')">YTD</span>
-                                    <span class="filter-chip" data-perf-range="6m" onclick="setRange(this, '6m')">6M</span>
-                                    <span class="filter-chip" data-perf-range="1a" onclick="setRange(this, '1a')">1A</span>
-                                    <span class="filter-chip" data-perf-range="all" onclick="setRange(this, 'all')">Depuis le début</span>
+                                    <span class="pill-filter on" data-perf-range="ytd" onclick="setRange(this, 'ytd')">YTD</span>
+                                    <span class="pill-filter" data-perf-range="6m" onclick="setRange(this, '6m')">6M</span>
+                                    <span class="pill-filter" data-perf-range="1a" onclick="setRange(this, '1a')">1A</span>
+                                    <span class="pill-filter" data-perf-range="all" onclick="setRange(this, 'all')">Depuis le début</span>
                                 </div>
                             </div>
                             <div class="perf-chart-area" id="perf-cgp">
@@ -302,7 +302,7 @@
                             <option value="family:note">Note taux fixe/variable</option>
                         </select>
                         <span
-                            class="filter-chip"
+                            class="pill-filter"
                             id="chip-alerts"
                             onclick="pfAlerts(this)"
                             >⚠ Alertes seules</span
@@ -1067,13 +1067,13 @@
                             </div>
                             <div class="toolbar" style="margin-bottom: 10px">
                                 <span
-                                    class="filter-chip on"
+                                    class="pill-filter on"
                                     id="ap-tab-slides"
                                     onclick="switchPitchTab('slides')"
                                     >Slides</span
                                 >
                                 <span
-                                    class="filter-chip"
+                                    class="pill-filter"
                                     id="ap-tab-raw"
                                     onclick="switchPitchTab('raw')"
                                     >Contenu brut</span

@@ -75,13 +75,6 @@
         .join("") || "C";
     }
 
-    function segmentClass(segment) {
-      const value = String(segment || "").toLowerCase();
-      if (value.includes("profession")) return "seg-pro";
-      if (value.includes("grand")) return "seg-retail";
-      return "seg-pat";
-    }
-
     function updateClientsMeta() {
       const meta = document.getElementById("clients-page-meta");
       if (!meta) return;
@@ -149,7 +142,7 @@
             <div>
               <h2>${escapeHtml(client.name)}</h2>
               <div class="client-detail-sub">
-                <span class="client-seg ${segmentClass(client.segment)}">${escapeHtml(client.segment)}</span>
+                <span class="pill-category">${escapeHtml(client.segment)}</span>
                 ${client.email ? `<span>${escapeHtml(client.email)}</span>` : ""}
               </div>
             </div>
