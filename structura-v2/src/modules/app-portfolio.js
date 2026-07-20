@@ -181,11 +181,21 @@
       const recallLevel = Number(c.fixedRecallThreshold) || Number(c.firstCallThreshold);
       const hasCouponBand = Number.isFinite(couponBarrier) && couponBarrier > barrierLevel;
       const hasRecallLine = Number.isFinite(recallLevel) && recallLevel > (hasCouponBand ? couponBarrier : barrierLevel);
+      // VL émetteur : une seule valeur ponctuelle aujourd'hui (voir
+      // vl-registry.js), pas d'historique — tracée en segment plat
+      // plutôt que de fabriquer un second point de départ inventé.
+      // Superposée sur CE graphique plutôt qu'un chart séparé : une
+      // seule référence visuelle, prête à devenir une vraie série le
+      // jour où le flux VL historique existe.
+      const hasVl =
+        (p.vlStatus === "issuer" || p.vlStatus === "mock") &&
+        Number.isFinite(Number(p.vlPct));
+      const vlLevel = hasVl ? Number(p.vlPct) : null;
 
       const levels = points.map((pt) => pt.level);
       const topRef = hasRecallLine ? recallLevel : 100;
-      const dataMin = Math.min(...levels, barrierLevel);
-      const dataMax = Math.max(...levels, topRef);
+      const dataMin = Math.min(...levels, barrierLevel, hasVl ? vlLevel : Infinity);
+      const dataMax = Math.max(...levels, topRef, hasVl ? vlLevel : -Infinity);
       const spread = dataMax - dataMin || 1;
       const min = dataMin - spread * 0.1;
       const max = dataMax + spread * 0.1;
@@ -216,9 +226,23 @@
            <text x="${W - 4}" y="${(yAt(recallLevel) - 5).toFixed(1)}" text-anchor="end" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">AUTOCALL ${recallLevel.toFixed(0)}%</text>`
         : "";
 
+      // Dash pattern différent de la ligne autocall (mêmes teintes égée
+      // par cohérence, mais un pointillé fin plutôt que des tirets)
+      // pour rester lisible si les deux références coexistent.
+      const vlLine = hasVl
+        ? `<line x1="0" y1="${yAt(vlLevel).toFixed(1)}" x2="${W}" y2="${yAt(vlLevel).toFixed(1)}" stroke="var(--color-aegean-2)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.7"/>
+           <text x="4" y="${(yAt(vlLevel) - 5).toFixed(1)}" text-anchor="start" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">VL ÉMETTEUR ${vlLevel.toFixed(1)}%</text>`
+        : "";
+
       const linePts = points.map((pt) => ({ x: xAt(pt.t), y: yAt(pt.level) }));
       const path = smoothSvgPath(linePts);
       const last = linePts[linePts.length - 1];
+
+      const legend = `
+        <div class="dr-price-chart-legend">
+          <span class="dr-price-chart-legend-item"><span class="dr-price-chart-legend-swatch dr-price-chart-legend-swatch-solid"></span>Sous-jacent (simulé)</span>
+          ${hasVl ? `<span class="dr-price-chart-legend-item"><span class="dr-price-chart-legend-swatch dr-price-chart-legend-swatch-dotted"></span>VL émetteur</span>` : ""}
+        </div>`;
 
       return `
         <div class="divider"></div>
@@ -227,11 +251,13 @@
           <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="dr-price-chart-svg">
             ${bands}
             ${recallLine}
+            ${vlLine}
             <path d="${path}" fill="none" stroke="var(--color-aegean)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
             <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.5" fill="var(--color-aegean)"/>
           </svg>
         </div>
-        <div class="dr-price-chart-note">Simulation illustrative ancrée sur le niveau initial et la distance barrière actuelle — aucun flux de marché historique n'est encore branché.</div>`;
+        ${legend}
+        <div class="dr-price-chart-note">Simulation illustrative ancrée sur le niveau initial et la distance barrière actuelle — aucun flux de marché historique n'est encore branché.${hasVl ? " La VL émetteur est un point unique (pas d'historique disponible), affichée en repère plat." : ""}</div>`;
     }
 
     function productSri(product) {
