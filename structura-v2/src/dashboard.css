@@ -911,17 +911,6 @@ tbody tr.selected {
     align-items: center !important;
     gap: var(--space-2) !important;
 }
-.kpi-spark {
-    display: block;
-    margin-top: var(--space-2) !important;
-    /* institutional-theme.css pose order:0/1/2 sur
-       lbl/val/sub dans #view-dashboard (héritage d'un ancien layout
-       flex) — sans order explicite ici, un .kpi-spark ajouté après
-       .kpi-sub dans le HTML se retrouvait pourtant affiché en 2e
-       position (order:0 par défaut = ex-æquo avec kpi-lbl, départagé
-       par l'ordre DOM). */
-    order: 3;
-}
 .dr-char-grid {
     border: none !important;
     border-radius: var(--radius-lg) !important;

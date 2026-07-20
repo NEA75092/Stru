@@ -14,7 +14,6 @@
       moneyShort,
       escapeHtml,
       buildSparklineSvg,
-      buildSparklineFromValues,
     } = root.StructuraUtils;
     const {
       APP_MODE_KEY,
@@ -145,16 +144,6 @@
           ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(2)}% vs encours initial`
           : "Import portefeuille requis",
       );
-      const sparkEl = document.getElementById("kpi-total-spark");
-      if (sparkEl) {
-        const series = totalNominal ? buildPerfSeries(data, "all") : null;
-        sparkEl.innerHTML =
-          series && series.points.length > 1
-            ? buildSparklineFromValues(series.points.map((pt) => pt.idx), {
-                color: pnlPct >= 0 ? "var(--color-success)" : "var(--color-danger)",
-              })
-            : "";
-      }
       setTextFlash("kpi-breach-val", breach, { invert: true });
       setText(
         "kpi-breach-sub",
