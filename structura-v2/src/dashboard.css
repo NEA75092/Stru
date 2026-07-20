@@ -783,10 +783,15 @@ tbody tr.selected {
    qui donne la sensation "premium" plutôt que mécanique.
    Contrôles : retour tactile bref au clic (scale), cohérent partout.
    ============================================================ */
+/* --view-enter-y est posée par nav() juste avant l'activation : positive
+   quand on descend dans la liste de la sidebar (la vue arrive du bas),
+   négative quand on remonte — direction cohérente avec le clic plutôt
+   qu'un même petit glissement à chaque navigation. 4px par défaut pour
+   la vue active au premier chargement (avant que nav() n'ait tourné). */
 @keyframes viewFadeIn {
     from {
         opacity: 0;
-        transform: translateY(4px);
+        transform: translateY(var(--view-enter-y, 4px));
     }
     to {
         opacity: 1;
