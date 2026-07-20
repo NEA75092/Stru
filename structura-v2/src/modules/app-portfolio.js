@@ -164,38 +164,74 @@
       return d;
     }
 
+    /** [{date, level}] → [{t, level}], t en fraction 0-1 du range de
+     * dates (index régulier si les dates sont absentes/identiques). */
+    function toFractionalSeries(history) {
+      const times = history.map((pt) => new Date(pt.date).getTime());
+      const t0 = Math.min(...times);
+      const t1 = Math.max(...times);
+      return history.map((pt, i) => ({
+        t: t1 > t0 ? (new Date(pt.date).getTime() - t0) / (t1 - t0) : i / Math.max(1, history.length - 1),
+        level: pt.level,
+      }));
+    }
+
     /* Graphique historique prix vs barrière — le composant signature du
-       tiroir de détail. Pas de flux de VL historique branché (voir
-       vl-registry.js) : la courbe vient de buildSyntheticLevelSeries,
-       une simulation déterministe ancrée sur le niveau initial (100) et
-       le niveau courant reconstruit depuis dist/barrière — d'où le
-       disclaimer "simulation illustrative" plutôt que de la présenter
-       comme une vraie série de marché. */
-    function buildPriceBarrierChart(p) {
+       tiroir de détail. Passe TOUJOURS par StructuraLiveData (voir
+       live-data-adapter.js) plutôt que d'appeler vl-registry.js ou
+       buildSyntheticLevelSeries directement : le jour où un vrai flux
+       de marché/VL est branché, seul live-data-adapter.js change, pas
+       ce composant. getUnderlyingHistory/getVLHistory renvoient
+       toujours null aujourd'hui (aucun flux réel) — fallback sur
+       buildSyntheticLevelSeries (avec son disclaimer) pour le
+       sous-jacent ; la VL reste un point unique en repère plat tant
+       que getVLHistory ne renvoie rien. */
+    async function buildPriceBarrierChart(p) {
       if (p.type === "CG") return "";
-      const series = buildSyntheticLevelSeries(p);
-      if (!series) return "";
-      const { points, barrierLevel } = series;
+      const liveHistory = await root.StructuraLiveData.getUnderlyingHistory(p);
+      const isLiveUnderlying = Array.isArray(liveHistory) && liveHistory.length > 1;
+      let points;
+      let barrierLevel;
+      if (isLiveUnderlying) {
+        points = toFractionalSeries(liveHistory);
+        barrierLevel = Number(p.barrier);
+      } else {
+        const synthetic = buildSyntheticLevelSeries(p);
+        if (!synthetic) return "";
+        points = synthetic.points;
+        barrierLevel = synthetic.barrierLevel;
+      }
+      if (!Number.isFinite(barrierLevel) || barrierLevel <= 0) return "";
+
       const c = p.characteristics || {};
       const couponBarrier = Number(c.couponBarrier);
       const recallLevel = Number(c.fixedRecallThreshold) || Number(c.firstCallThreshold);
       const hasCouponBand = Number.isFinite(couponBarrier) && couponBarrier > barrierLevel;
       const hasRecallLine = Number.isFinite(recallLevel) && recallLevel > (hasCouponBand ? couponBarrier : barrierLevel);
-      // VL émetteur : une seule valeur ponctuelle aujourd'hui (voir
-      // vl-registry.js), pas d'historique — tracée en segment plat
-      // plutôt que de fabriquer un second point de départ inventé.
-      // Superposée sur CE graphique plutôt qu'un chart séparé : une
-      // seule référence visuelle, prête à devenir une vraie série le
-      // jour où le flux VL historique existe.
-      const hasVl =
-        (p.vlStatus === "issuer" || p.vlStatus === "mock") &&
-        Number.isFinite(Number(p.vlPct));
-      const vlLevel = hasVl ? Number(p.vlPct) : null;
+
+      // VL émetteur : StructuraLiveData.getVL() délègue à vl-registry.js
+      // en interne aujourd'hui (comportement inchangé) — un vrai flux
+      // remplacerait cette seule fonction. getVLHistory() est toujours
+      // null (pas d'historique VL) : tracée en segment plat plutôt que
+      // de fabriquer un second point de départ inventé — seul le
+      // sous-jacent a le droit à une simulation. Superposée sur CE
+      // graphique plutôt qu'un chart séparé : une seule référence
+      // visuelle, prête à devenir une vraie série le jour où l'historique
+      // VL existe.
+      const [liveVl, liveVlHistory] = await Promise.all([
+        root.StructuraLiveData.getVL(p.isin),
+        root.StructuraLiveData.getVLHistory(p),
+      ]);
+      const vlLevel = liveVl && Number.isFinite(Number(liveVl.vlPct)) ? Number(liveVl.vlPct) : null;
+      const hasVl = vlLevel !== null;
+      const isLiveVlHistory = Array.isArray(liveVlHistory) && liveVlHistory.length > 1;
+      const vlPoints = isLiveVlHistory ? toFractionalSeries(liveVlHistory) : null;
 
       const levels = points.map((pt) => pt.level);
+      const vlLevels = vlPoints ? vlPoints.map((pt) => pt.level) : hasVl ? [vlLevel] : [];
       const topRef = hasRecallLine ? recallLevel : 100;
-      const dataMin = Math.min(...levels, barrierLevel, hasVl ? vlLevel : Infinity);
-      const dataMax = Math.max(...levels, topRef, hasVl ? vlLevel : -Infinity);
+      const dataMin = Math.min(...levels, barrierLevel, ...(vlLevels.length ? vlLevels : [Infinity]));
+      const dataMax = Math.max(...levels, topRef, ...(vlLevels.length ? vlLevels : [-Infinity]));
       const spread = dataMax - dataMin || 1;
       const min = dataMin - spread * 0.1;
       const max = dataMax + spread * 0.1;
@@ -228,11 +264,17 @@
 
       // Dash pattern différent de la ligne autocall (mêmes teintes égée
       // par cohérence, mais un pointillé fin plutôt que des tirets)
-      // pour rester lisible si les deux références coexistent.
-      const vlLine = hasVl
-        ? `<line x1="0" y1="${yAt(vlLevel).toFixed(1)}" x2="${W}" y2="${yAt(vlLevel).toFixed(1)}" stroke="var(--color-aegean-2)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.7"/>
-           <text x="4" y="${(yAt(vlLevel) - 5).toFixed(1)}" text-anchor="start" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">VL ÉMETTEUR ${vlLevel.toFixed(1)}%</text>`
-        : "";
+      // pour rester lisible si les deux références coexistent. Segment
+      // plat tant que getVLHistory() ne renvoie rien ; vraie courbe
+      // lissée dès qu'un historique VL existe.
+      let vlLine = "";
+      if (isLiveVlHistory) {
+        const vlLinePts = vlPoints.map((pt) => ({ x: xAt(pt.t), y: yAt(pt.level) }));
+        vlLine = `<path d="${smoothSvgPath(vlLinePts)}" fill="none" stroke="var(--color-aegean-2)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.8" vector-effect="non-scaling-stroke"/>`;
+      } else if (hasVl) {
+        vlLine = `<line x1="0" y1="${yAt(vlLevel).toFixed(1)}" x2="${W}" y2="${yAt(vlLevel).toFixed(1)}" stroke="var(--color-aegean-2)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.7"/>
+           <text x="4" y="${(yAt(vlLevel) - 5).toFixed(1)}" text-anchor="start" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">VL ÉMETTEUR ${vlLevel.toFixed(1)}%</text>`;
+      }
 
       const linePts = points.map((pt) => ({ x: xAt(pt.t), y: yAt(pt.level) }));
       const path = smoothSvgPath(linePts);
@@ -240,9 +282,21 @@
 
       const legend = `
         <div class="dr-price-chart-legend">
-          <span class="dr-price-chart-legend-item"><span class="dr-price-chart-legend-swatch dr-price-chart-legend-swatch-solid"></span>Sous-jacent (simulé)</span>
+          <span class="dr-price-chart-legend-item"><span class="dr-price-chart-legend-swatch dr-price-chart-legend-swatch-solid"></span>Sous-jacent${isLiveUnderlying ? "" : " (simulé)"}</span>
           ${hasVl ? `<span class="dr-price-chart-legend-item"><span class="dr-price-chart-legend-swatch dr-price-chart-legend-swatch-dotted"></span>VL émetteur</span>` : ""}
         </div>`;
+
+      const noteParts = [];
+      if (!isLiveUnderlying) {
+        noteParts.push(
+          "Simulation illustrative ancrée sur le niveau initial et la distance barrière actuelle — aucun flux de marché historique n'est encore branché.",
+        );
+      }
+      if (hasVl && !isLiveVlHistory) {
+        noteParts.push(
+          "La VL émetteur est un point unique (pas d'historique disponible), affichée en repère plat.",
+        );
+      }
 
       return `
         <div class="divider"></div>
@@ -257,7 +311,7 @@
           </svg>
         </div>
         ${legend}
-        <div class="dr-price-chart-note">Simulation illustrative ancrée sur le niveau initial et la distance barrière actuelle — aucun flux de marché historique n'est encore branché.${hasVl ? " La VL émetteur est un point unique (pas d'historique disponible), affichée en repère plat." : ""}</div>`;
+        ${noteParts.length ? `<div class="dr-price-chart-note">${noteParts.join(" ")}</div>` : ""}`;
     }
 
     function productSri(product) {
@@ -508,7 +562,7 @@
 
     function toggleCompact() {}
 
-    function openDrawer(id) {
+    async function openDrawer(id) {
       const p =
         PRODUCTS.find((x) => Number(x.id) === Number(id)) ||
         productsForScope().find((x) => Number(x.id) === Number(id)) ||
@@ -639,7 +693,7 @@
         : "";
       document.getElementById("dr-characteristics").innerHTML = charHtml;
       const chartEl = document.getElementById("dr-price-chart");
-      if (chartEl) chartEl.innerHTML = buildPriceBarrierChart(p);
+      if (chartEl) chartEl.innerHTML = await buildPriceBarrierChart(p);
       const tl = [
         {
           s: "done",
