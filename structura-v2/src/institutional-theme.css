@@ -2454,7 +2454,7 @@ td {
 
 #view-barriers thead th {
   font-size: 9px !important;
-  letter-spacing: 0.11em !important;
+  letter-spacing: 0.12em !important;
   font-weight: 500 !important;
   padding: 14px 14px !important;
   white-space: nowrap;
@@ -3175,7 +3175,7 @@ td {
 #view-dashboard .kpi-lbl {
   font-size: 10px !important;
   font-weight: 500 !important;
-  letter-spacing: 0.1em !important;
+  letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
   color: var(--text3) !important;
 }

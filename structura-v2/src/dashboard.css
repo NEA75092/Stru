@@ -108,7 +108,7 @@
     color: var(--color-text-tertiary) !important;
     font-family: var(--font-mono-data) !important;
     font-weight: 500 !important;
-    letter-spacing: 0.1em !important;
+    letter-spacing: 0.12em !important;
 }
 .kpi-val {
     font-size: var(--text-2xl) !important;
@@ -213,6 +213,8 @@
     font-size: var(--text-xs) !important;
     color: var(--color-text-tertiary) !important;
     font-family: var(--font-mono-data) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.12em !important;
 }
 
 .alert-strip {
@@ -398,6 +400,8 @@ thead th {
     color: var(--color-text-tertiary) !important;
     border-bottom: 1px solid var(--color-border) !important;
     font-family: var(--font-mono-data) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.12em !important;
 }
 thead th:hover,
 thead th.sorted {
@@ -855,6 +859,9 @@ tbody tr.selected {
    audité jusqu'ici. ── */
 .dr-section-title {
     color: var(--color-text-tertiary) !important;
+}
+.dr-field-val {
+    font-variant-numeric: tabular-nums !important;
 }
 /* Graphique historique prix vs barrière — pas de grille visible, juste
    la courbe et les zones de seuil : c'est la donnée qui doit porter
