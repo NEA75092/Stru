@@ -88,7 +88,10 @@
     --space-7: 32px;
     --space-8: 40px;
 
-    /* ── Rayons — cartes toujours entre 16 et 20px ── */
+    /* ── Rayons — cartes entre 16 et 20px, zones denses (tableaux,
+       pastilles) resserrées à 8-10px : instrument de précision, pas
+       bulle SaaS. ── */
+    --radius-xs: 8px;
     --radius-sm: 10px;
     --radius-md: 16px;
     --radius-lg: 18px;

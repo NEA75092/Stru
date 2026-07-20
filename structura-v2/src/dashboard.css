@@ -456,6 +456,11 @@
     background: var(--color-aegean-2) !important;
 }
 
+.badge-red,
+.badge-orange,
+.badge-gold {
+    border-radius: var(--radius-xs) !important;
+}
 .badge-red {
     background: rgba(193, 72, 59, 0.12) !important;
     color: var(--color-danger) !important;
@@ -481,9 +486,12 @@
     color: var(--color-warning-2) !important;
 }
 
-/* ── Tables — denses, sans grille de bordures ── */
+/* ── Tables — denses, sans grille de bordures ──
+   Rayon resserré (10px) : un tableau dense se lit comme un instrument
+   de précision, pas comme une carte flottante — contraste voulu avec
+   les 18-20px des panels/KPI/modales. */
 .tbl-wrap {
-    border-radius: var(--radius-lg) !important;
+    border-radius: var(--radius-sm) !important;
     border: none !important;
     background: var(--color-surface-1) !important;
     box-shadow: var(--shadow-card) !important;
@@ -555,6 +563,7 @@ tbody tr.selected {
 /* Pastilles de type produit : neutres, la distinction vient du libellé,
    pas d'un arc-en-ciel de fonds colorés par catégorie. */
 .type-pill {
+    border-radius: var(--radius-xs) !important;
     color: var(--color-text-secondary) !important;
     border-color: transparent !important;
     background: var(--color-surface-2) !important;
