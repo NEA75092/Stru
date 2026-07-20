@@ -574,7 +574,7 @@ tbody tr.selected {
 .f-inp:focus,
 .f-sel:focus {
     border-color: var(--color-aegean) !important;
-    box-shadow: 0 0 0 4px rgba(27, 75, 115, 0.12) !important;
+    box-shadow: var(--shadow-focus) !important;
 }
 .search::placeholder {
     color: var(--color-text-tertiary) !important;
