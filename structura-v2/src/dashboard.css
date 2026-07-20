@@ -790,6 +790,14 @@ tbody tr.selected {
 .pilotage-hero-title {
     color: var(--color-ink) !important;
 }
+/* .clients-hero est en align-items:flex-end (styles.css) — pertinent
+   quand la carte avait un padding généreux (22px 24px), plus depuis
+   qu'institutional-theme.css l'a réduit à 0 0 28px : le bouton colle
+   au bord bas au lieu de respirer avec le bloc de texte. Recentré
+   sur le bloc de texte plutôt que de suivre sa ligne de base. */
+#view-clients .clients-hero-actions {
+    align-self: center !important;
+}
 #view-portfolio > .toolbar::before {
     color: var(--color-ink) !important;
 }
