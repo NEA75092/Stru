@@ -361,11 +361,13 @@ thead th {
 thead th:hover,
 thead th.sorted {
     color: var(--color-aegean) !important;
+    transition: color var(--duration-base) var(--ease-standard) !important;
 }
 tbody tr {
     border-bottom: 1px solid var(--color-border) !important;
     border-left: none !important;
     border-right: none !important;
+    transition: background-color var(--duration-base) var(--ease-standard) !important;
 }
 td,
 th {
@@ -408,6 +410,21 @@ tbody tr:hover {
 tbody tr.selected {
     background: var(--color-aegean-tint) !important;
     border-left: 3px solid var(--color-aegean) !important;
+}
+/* Bordure de statut (franchie/surveillée) : toujours réservée à 3px
+   transparent pour que la couleur transitionne au lieu d'apparaître
+   d'un coup — le noeud doit persister d'un rendu à l'autre pour que
+   la transition joue, voir data-flip-border dans
+   renderRowsWithGaugeTransition (app-utils.js). */
+#view-portfolio tbody tr td:first-child {
+    border-left: 3px solid transparent !important;
+    transition: border-left-color var(--duration-base) var(--ease-standard) !important;
+}
+#view-portfolio .row-breach td:first-child {
+    border-left-color: var(--color-danger) !important;
+}
+#view-portfolio .row-warn td:first-child {
+    border-left-color: var(--color-warning) !important;
 }
 /* .p-name porte déjà var(--aegean) depuis institutional-theme.css : un
    nom de produit est cliquable (ouvre le tiroir de détail), donc "lien"

@@ -87,22 +87,30 @@
 
     /**
      * Rebuilds tbody.innerHTML from rowHtml (each row must carry
-     * data-row-key="<key>"). Two things are preserved across the
+     * data-row-key="<key>"). Three things are preserved across the
      * rebuild instead of snapping straight to the new markup:
      *  - any .bar-fill width change FLIPs (jump to the old width with
      *    transitions suppressed, release to the new width next frame)
      *    so the gauge glides instead of jumping;
+     *  - any [data-flip-border] cell whose border-left-color changed
+     *    (e.g. row-warn → row-breach) FLIPs the same way, so a status
+     *    escalation transitions instead of snapping;
      *  - any [data-flash="<key>"] cell whose text changed gets a brief
      *    semantic flash (see flashText) instead of a silent swap.
      */
     function renderRowsWithGaugeTransition(tbody, rowHtml) {
       if (!tbody) return;
       const oldWidths = new Map();
+      const oldBorderColor = new Map();
       const oldFlashText = new Map();
       tbody.querySelectorAll("[data-row-key]").forEach((tr) => {
         const key = tr.dataset.rowKey;
         const fill = tr.querySelector(".bar-fill");
         if (fill) oldWidths.set(key, fill.style.width);
+        const borderCell = tr.querySelector("[data-flip-border]");
+        if (borderCell) {
+          oldBorderColor.set(key, getComputedStyle(borderCell).borderLeftColor);
+        }
         tr.querySelectorAll("[data-flash]").forEach((cell) => {
           oldFlashText.set(`${key}::${cell.dataset.flash}`, cell.textContent);
         });
@@ -121,6 +129,21 @@
               requestAnimationFrame(() => {
                 fill.style.removeProperty("transition");
                 fill.style.width = newWidth;
+              });
+            });
+          }
+        }
+        const borderCell = tr.querySelector("[data-flip-border]");
+        if (borderCell) {
+          const oldColor = oldBorderColor.get(key);
+          const newColor = getComputedStyle(borderCell).borderLeftColor;
+          if (oldColor != null && oldColor !== newColor) {
+            borderCell.style.setProperty("transition", "none", "important");
+            borderCell.style.setProperty("border-left-color", oldColor, "important");
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                borderCell.style.removeProperty("transition");
+                borderCell.style.removeProperty("border-left-color");
               });
             });
           }

@@ -9,6 +9,7 @@ module.exports = [
         PptxGenJS: "readonly",
         console: "readonly",
         document: "readonly",
+        getComputedStyle: "readonly",
         globalThis: "readonly",
         localStorage: "readonly",
         module: "readonly",
