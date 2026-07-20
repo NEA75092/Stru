@@ -8,13 +8,7 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraDashboard(root) {
-    const {
-      setText,
-      setTextFlash,
-      moneyShort,
-      escapeHtml,
-      buildSparklineSvg,
-    } = root.StructuraUtils;
+    const { setText, setTextFlash, moneyShort, escapeHtml } = root.StructuraUtils;
     const {
       APP_MODE_KEY,
       productsForScope,
@@ -494,7 +488,6 @@
         <div class="vl-side-title">${title}</div>
         ${rows.map((p) => `<button class="vl-row" onclick="openDrawer(${p.id})">
           <span class="vl-main"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.underlying || p.emetteur || "—")}</small></span>
-          ${buildSparklineSvg(`${p.isin || p.id}:vl`, 100, p.vlLevel, { color: cls === "up" ? "var(--color-success)" : "var(--color-danger)" })}
           <span class="vl-values">
             <b class="${cls}">${p.vlLevel.toFixed(2)}%</b>
             <small>${moneyShort(p.val)}</small>

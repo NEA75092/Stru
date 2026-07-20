@@ -114,49 +114,6 @@
       return { points, startLevel, currentLevel, barrierLevel: barrier };
     }
 
-    /**
-     * Inline sparkline: a tiny SVG trend line (no axes, no grid) from a
-     * deterministic bridge series — same synthetic-data caveat as
-     * buildSyntheticLevelSeries. seed should be unique per row (e.g. an
-     * ISIN or `${id}:pnl`) so different metrics on the same product
-     * don't draw an identical wiggle.
-     */
-    /** Renders a values array (any real or synthetic series) as a tiny
-     * axis-free SVG trend line — the shared drawing step behind
-     * buildSparklineSvg, also usable directly with real computed data
-     * (e.g. buildPerfSeries) instead of the synthetic bridge. */
-    function buildSparklineFromValues(values, opts = {}) {
-      const {
-        width = 48,
-        height = 20,
-        color = "var(--color-aegean)",
-        strokeWidth = 1.5,
-      } = opts;
-      if (!Array.isArray(values) || values.length < 2) return "";
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const spread = max - min || 1;
-      const pad = strokeWidth;
-      const plotH = height - pad * 2;
-      const xAt = (i) => (i / (values.length - 1)) * width;
-      const yAt = (v) => pad + plotH - ((v - min) / spread) * plotH;
-      const path = values
-        .map((v, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`)
-        .join(" ");
-      return `<svg class="spark" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
-    }
-
-    /** Synthetic sparkline (Brownian bridge from startValue to
-     * endValue) — see buildBridgeSeries for the "no real history yet"
-     * caveat. Use buildSparklineFromValues directly when real computed
-     * data is already available (e.g. buildPerfSeries). */
-    function buildSparklineSvg(seed, startValue, endValue, opts = {}) {
-      if (!Number.isFinite(startValue) || !Number.isFinite(endValue)) return "";
-      const numPoints = opts.numPoints || 20;
-      const series = buildBridgeSeries(seed, startValue, endValue, numPoints);
-      return buildSparklineFromValues(series.map((pt) => pt.value), opts);
-    }
-
     /** "12,3M€" → 12.3 ; "-7.4%" → -7.4 ; non-numeric text → NaN. */
     function parseLooseNumber(text) {
       return parseFloat(String(text).replace(/[^\d.,-]/g, "").replace(",", "."));
@@ -301,8 +258,6 @@
       flashText,
       setTextFlash,
       buildSyntheticLevelSeries,
-      buildSparklineSvg,
-      buildSparklineFromValues,
     };
   },
 );
