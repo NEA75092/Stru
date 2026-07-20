@@ -314,9 +314,10 @@
     background: var(--color-surface-2) !important;
     color: var(--color-text-secondary) !important;
     box-shadow: none !important;
+    transition: background-color 150ms var(--ease-standard), color 150ms var(--ease-standard) !important;
 }
 .btn:hover {
-    background: var(--color-surface-3) !important;
+    background: var(--color-surface-2-hover) !important;
     color: var(--color-ink) !important;
 }
 .btn-gold {
@@ -405,7 +406,7 @@ td:has(.bar-wrap) {
     gap: var(--space-2) !important;
 }
 tbody tr:hover {
-    background: var(--color-surface-2) !important;
+    background: var(--color-surface-2-hover) !important;
 }
 tbody tr.selected {
     background: var(--color-aegean-tint) !important;
@@ -599,9 +600,10 @@ tbody tr.selected {
     border-radius: var(--radius-md) !important;
     background: var(--color-surface-2) !important;
     margin-bottom: var(--space-2) !important;
+    transition: background-color 150ms var(--ease-standard) !important;
 }
 #view-dashboard .vl-row:hover {
-    background: var(--color-surface-3) !important;
+    background: var(--color-surface-2-hover) !important;
 }
 #view-dashboard .vl-main b {
     color: var(--color-text-primary) !important;

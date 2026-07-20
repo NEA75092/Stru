@@ -25,6 +25,13 @@
     --color-surface-1: #f4f3ef;
     --color-surface-2: #eeece4;
     --color-surface-3: #e6e3d9;
+    /* Cible hover/focus/sélection : une légère montée en luminance
+       calculée en oklch (perceptuellement uniforme, contrairement à un
+       mix sRGB) plutôt qu'un saut à plat vers la nuance suivante — la
+       surface "respire" au survol, elle ne change pas de palier. */
+    --color-surface-1-hover: color-mix(in oklch, var(--color-surface-1), white 8%);
+    --color-surface-2-hover: color-mix(in oklch, var(--color-surface-2), white 8%);
+    --color-surface-3-hover: color-mix(in oklch, var(--color-surface-3), white 8%);
     --color-wash: #f2f6fa;
     --color-border: rgba(20, 23, 28, 0.06);
     --color-border-strong: rgba(20, 23, 28, 0.12);
