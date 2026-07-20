@@ -645,16 +645,21 @@ tbody tr.selected {
 }
 
 /* ── Dashboard : contenu propre à l'écran (hors primitives ci-dessus) ── */
-/* Blocs "de narration" — texte, faits, métriques listées — passés en
-   fond transparent + trait bas : un contraste de texture avec les
-   zones denses (tableaux, vl-row) qui gardent leur aplat surface-2,
-   au lieu d'un gris uniforme partout. */
+/* Régression du chantier précédent : "casser l'uniformité des gris"
+   avait fait passer dash-welcome en bandeau plat comme les listes
+   (timeline-item, pilotage-metric, issuer-row) — mais c'est le seul
+   vrai hero de la page, il mérite une présence que les lignes de
+   liste n'ont pas besoin d'avoir. Relief redonné sans revenir à un
+   gris plat : dégradé oklch très léger plutôt qu'un aplat. */
 #view-dashboard .dash-welcome {
-    border-radius: 0 !important;
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 1px solid var(--color-border) !important;
-    box-shadow: none !important;
+    background: linear-gradient(
+        135deg,
+        color-mix(in oklch, var(--color-aegean) 4%, var(--color-surface-1)),
+        var(--color-surface-1)
+    ) !important;
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid var(--color-border) !important;
+    box-shadow: var(--shadow-card) !important;
     padding: var(--space-6) var(--space-7) !important;
 }
 #view-dashboard .dash-welcome-title {
