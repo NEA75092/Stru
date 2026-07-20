@@ -864,39 +864,45 @@ tbody tr.selected {
    baisse ou neutre — pour que la mise à jour se lise comme un signal
    plutôt qu'un remplacement silencieux. Scopé aux KPI et cellules de
    tableau qui portent une vraie donnée mouvante (P&L, distance
-   barrière), pas généralisé à tout le dashboard. */
+   barrière), pas généralisé à tout le dashboard.
+   140ms (fade linéaire immédiat) était sous le seuil de perception
+   consciente — 240ms avec un quart de temps de "hold" au pic avant le
+   fade laisse le temps à l'œil d'enregistrer le signal. */
 @keyframes flashUp {
-    from {
+    0%,
+    25% {
         background-color: rgba(61, 131, 97, 0.22);
     }
-    to {
+    100% {
         background-color: transparent;
     }
 }
 @keyframes flashDown {
-    from {
+    0%,
+    25% {
         background-color: rgba(232, 115, 79, 0.22);
     }
-    to {
+    100% {
         background-color: transparent;
     }
 }
 @keyframes flashNeutral {
-    from {
+    0%,
+    25% {
         background-color: rgba(29, 79, 145, 0.16);
     }
-    to {
+    100% {
         background-color: transparent;
     }
 }
 .flash-up {
-    animation: flashUp 140ms var(--ease-standard) !important;
+    animation: flashUp 240ms var(--ease-standard) !important;
 }
 .flash-down {
-    animation: flashDown 140ms var(--ease-standard) !important;
+    animation: flashDown 240ms var(--ease-standard) !important;
 }
 .flash-neutral {
-    animation: flashNeutral 140ms var(--ease-standard) !important;
+    animation: flashNeutral 240ms var(--ease-standard) !important;
 }
 .modal {
     animation: popIn var(--duration-slow) var(--ease-spring) !important;
