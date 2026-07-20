@@ -43,7 +43,7 @@
 
     /* ── Fonts ── */
     --font-mono: "IBM Plex Mono", monospace;
-    --font-sans: "Manrope", sans-serif;
+    --font-sans: system-ui, sans-serif;
     --font-display: "Unbounded", sans-serif;
 }
 
