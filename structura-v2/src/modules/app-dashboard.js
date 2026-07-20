@@ -8,7 +8,7 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraDashboard(root) {
-    const { setText, moneyShort, escapeHtml } = root.StructuraUtils;
+    const { setText, setTextFlash, moneyShort, escapeHtml } = root.StructuraUtils;
     const {
       APP_MODE_KEY,
       productsForScope,
@@ -131,24 +131,24 @@
       const watch = data.filter((p) => ["crit", "warn"].includes(p.st?.s)).length;
       const types = new Set(data.map((p) => p.type).filter(Boolean)).size;
       const issuers = new Set(data.map((p) => p.emetteur).filter(Boolean)).size;
-      setText("kpi-total-val", totalVal ? moneyShort(totalVal) : "0€");
+      setTextFlash("kpi-total-val", totalVal ? moneyShort(totalVal) : "0€");
       setText(
         "kpi-total-sub",
         totalNominal
           ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(2)}% vs encours initial`
           : "Import portefeuille requis",
       );
-      setText("kpi-breach-val", breach);
+      setTextFlash("kpi-breach-val", breach, { invert: true });
       setText(
         "kpi-breach-sub",
         breach ? "Action immédiate requise" : "Aucun franchissement actif",
       );
-      setText("kpi-watch-val", watch);
+      setTextFlash("kpi-watch-val", watch, { invert: true });
       setText(
         "kpi-watch-sub",
         watch ? "Critique < 5 % · alerte 5–15 %" : "Aucune zone critique",
       );
-      setText("kpi-count-val", data.length);
+      setTextFlash("kpi-count-val", data.length);
       setText(
         "kpi-count-sub",
         data.length

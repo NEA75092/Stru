@@ -65,19 +65,24 @@
     /**
      * Sets el's text to value; if it changed, briefly flashes a semantic
      * background (up/down/neutral) so the update reads as a signal
-     * instead of a silent swap.
+     * instead of a silent swap. Pass invert:true for values where a
+     * rise is bad news (breach/alert counts) so it flashes danger
+     * instead of success.
      */
-    function flashText(el, value) {
+    function flashText(el, value, { invert = false } = {}) {
       if (!el) return;
       const prev = el.textContent;
       const next = String(value);
-      const dir = valueFlashDirection(prev, next);
+      let dir = valueFlashDirection(prev, next);
+      if (invert && (dir === "up" || dir === "down")) {
+        dir = dir === "up" ? "down" : "up";
+      }
       el.textContent = next;
       applyFlash(el, dir);
     }
 
-    function setTextFlash(id, value) {
-      flashText(document.getElementById(id), value);
+    function setTextFlash(id, value, opts) {
+      flashText(document.getElementById(id), value, opts);
     }
 
     /**

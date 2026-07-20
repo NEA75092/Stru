@@ -11,7 +11,7 @@
       moneyShort,
       notify,
       escapeHtml,
-      setText,
+      setTextFlash,
       renderRowsWithGaugeTransition,
     } = root.StructuraUtils;
     const {
@@ -230,8 +230,8 @@
       <td class="num">${moneyShort(p.nominal)}</td>
       <td class="num" style="color:var(--gold);">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
-      <td class="num ${pnlCol}" data-flash="pnl">${pnlStr}</td>
-      <td class="num ${pnlCol}">${pnlPctStr}</td>
+      <td class="num ${pnlCol}">${pnlStr}</td>
+      <td class="num ${pnlCol}" data-flash="pnl">${pnlPctStr}</td>
       <td style="color:var(--gold)">${escapeHtml(p.coupon)}</td>
       <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${barW}%"></div></div>${distPct}</div></td>
       <td style="color:var(--text2);font-size:10px;">${escapeHtml(p.maturity)}</td>
@@ -260,10 +260,10 @@
       const crit = data.filter((p) => p.st?.s === "crit").length;
       const watch = data.filter((p) => p.st?.s === "warn").length;
       const safe = data.filter((p) => p.st?.s === "safe").length;
-      setText("bar-kpi-breach", breach);
-      setText("bar-kpi-crit", crit);
-      setText("bar-kpi-watch", watch);
-      setText("bar-kpi-safe", safe);
+      setTextFlash("bar-kpi-breach", breach, { invert: true });
+      setTextFlash("bar-kpi-crit", crit, { invert: true });
+      setTextFlash("bar-kpi-watch", watch, { invert: true });
+      setTextFlash("bar-kpi-safe", safe);
     }
 
     function renderBarriers() {
