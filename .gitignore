@@ -9,3 +9,6 @@ venv/
 .vscode/
 structura-app/
 structure-app/
+
+# Local Netlify folder
+.netlify
