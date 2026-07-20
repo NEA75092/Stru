@@ -111,6 +111,7 @@
     letter-spacing: 0.1em !important;
 }
 .kpi-val {
+    font-size: var(--text-2xl) !important;
     font-family: var(--font-heading) !important;
     font-weight: 400 !important;
     color: var(--color-ink) !important;
@@ -130,30 +131,15 @@
 .kpi-row {
     gap: var(--space-4) !important;
 }
-/* Chiffre héros : uniquement la vue Dashboard, où la 1ère carte est un
-   vrai total (les autres vues réutilisent k-gold/k-red/... comme de
-   simples couleurs de statut, pas comme un ordre "héros puis discret" —
-   généraliser la taille casserait leurs rangées de KPI à 4 égaux). */
-#view-dashboard .kpi.k-gold {
-    padding: var(--space-7) var(--space-7) var(--space-6) !important;
-    box-shadow: var(--shadow-card-hover) !important;
-}
-#view-dashboard .kpi.k-gold .kpi-val {
-    font-size: var(--text-hero) !important;
-    letter-spacing: -0.02em !important;
-    margin-bottom: var(--space-3) !important;
-}
-#view-dashboard .kpi.k-gold .kpi-lbl {
-    margin-bottom: var(--space-4) !important;
-}
-#view-dashboard .kpi.k-gold .kpi-sub {
-    margin-top: var(--space-1);
-}
-#view-dashboard .kpi.k-red .kpi-val,
-#view-dashboard .kpi.k-orange .kpi-val,
-#view-dashboard .kpi.k-blue .kpi-val {
-    font-size: var(--text-xl) !important;
-}
+/* Règle produit (2026-07-20) : jamais de carte KPI "héros" nulle
+   part — toutes les séries de KPI sont à taille égale, y compris la
+   1ère carte du Dashboard qui avant seule recevait une taille géante
+   et un padding renforcé. La hiérarchie visuelle vient du contenu
+   (le chiffre lui-même) et de la position (1ère carte = total), pas
+   d'un traitement typographique différent qui dérive vue par vue.
+   La taille commune vient de .kpi-val (font-size: var(--text-2xl)) —
+   plus besoin de la répéter ici. */
+
 /* La carte qui porte l'accent corail : celle qui signale un vrai danger.
    Scopé à Dashboard/Barrières où k-red = urgence confirmée — sur
    Calendrier la même classe habille un simple compteur d'événements,
@@ -170,19 +156,10 @@
 #view-barriers .kpi.k-red .kpi-lbl {
     color: var(--color-coral-2) !important;
 }
-/* #view-barriers a ses propres surcharges de couleur/taille sur ces
-   4 KPI, plus spécifiques que les règles ci-dessus : on les rattrape
-   explicitement pour rester sur une seule carte accentuée et une
-   taille uniforme, au lieu d'un rouge/orange/or/vert à 4 tailles. */
-#view-barriers .bar-kpi-row .kpi.k-red .kpi-val {
-    color: var(--color-coral) !important;
-    font-size: var(--text-2xl) !important;
-}
 #view-barriers .bar-kpi-row .kpi.k-orange .kpi-val,
 #view-barriers .bar-kpi-row .kpi.k-gold .kpi-val,
 #view-barriers .bar-kpi-row .kpi.k-green .kpi-val {
     color: var(--color-ink) !important;
-    font-size: var(--text-2xl) !important;
 }
 
 .sec-hdr {
