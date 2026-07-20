@@ -612,7 +612,7 @@
             : "—",
         ],
         [
-          "Distance barrière",
+          "Distance protection",
           p.type === "CG"
             ? "N/A"
             : Number.isFinite(Number(p.dist))

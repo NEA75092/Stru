@@ -70,7 +70,7 @@
           lvl: p.st.s === "breach" || p.st.s === "crit" ? "crit" : "warn",
           ico: p.st.s === "breach" ? "🔴" : "🟡",
           name: p.name,
-          desc: `${p.underlying || "—"} · Distance barrière : ${
+          desc: `${p.underlying || "—"} · Distance protection : ${
             Number.isFinite(Number(p.dist))
               ? `${Number(p.dist).toFixed(1)}%`
               : "à confirmer"
