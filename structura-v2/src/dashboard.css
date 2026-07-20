@@ -162,6 +162,32 @@
     color: var(--color-ink) !important;
 }
 
+/* La carte "Valeur totale portefeuille" (1ère du Dashboard) est le
+   chiffre le plus important de la page mais n'avait aucun accent —
+   --gold pointe vers le corail (urgence), donc lui donner ce
+   traitement aurait fait doublon avec k-red. Fond + libellé en Égée
+   (le seul accent légitime du système) à intensité nettement plus
+   faible que k-red : l'urgence doit rester visuellement plus forte
+   que la vedette neutre. .kpi-val reste en encre (règle titres) —
+   le fond et le libellé suffisent à distinguer la carte. */
+#view-dashboard .kpi.k-gold {
+    /* La recette corail (rgba(...) en alpha sur fond chaud) tire l'égée
+       vers un gris terne au lieu d'un bleu perceptible — l'égée est une
+       teinte froide, son canal rouge est loin sous celui du fond crème,
+       ce qui désature plus qu'il ne teinte. color-mix(in oklch, ...)
+       préserve la teinte au lieu de désaturer ; validé visuellement à
+       côté de k-red avant ce réglage — 2% reste nettement plus discret
+       que le corail. */
+    background: linear-gradient(
+        180deg,
+        color-mix(in oklch, var(--color-aegean) 2%, var(--color-surface-1)),
+        color-mix(in oklch, var(--color-aegean) 0.8%, var(--color-surface-1))
+    ) !important;
+}
+#view-dashboard .kpi.k-gold .kpi-lbl {
+    color: var(--color-aegean-2) !important;
+}
+
 .sec-hdr {
     margin-bottom: var(--space-4) !important;
 }
