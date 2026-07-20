@@ -937,10 +937,15 @@ td {
 }
 
 
-#view-portfolio table th:nth-child(2),
-#view-portfolio table td:nth-child(2),
-#view-portfolio table th:nth-child(5),
-#view-portfolio table td:nth-child(5),
+/* col2 TYPE et col5 VL réintégrées (2026-07-20) : ni l'une ni l'autre
+   n'est redondante avec une colonne visible (le nom produit contient
+   le type en texte libre, pas un repère de tri rapide ; la VL n'a
+   littéralement aucun autre affichage dans ce tableau — elle était
+   invisible partout, pas juste ici). col7 P&L absolu reste masquée :
+   redondante avec col8 P&L% déjà visible. col12 prochain événement
+   reste masquée aussi — pas strictement redondante (différente de
+   col11 Maturité), mais hors du périmètre audité cette fois ; laissée
+   telle quelle plutôt que d'élargir encore un tableau déjà dense. */
 #view-portfolio table th:nth-child(7),
 #view-portfolio table td:nth-child(7),
 #view-portfolio table th:nth-child(12),
@@ -1262,13 +1267,17 @@ td {
 
 
 
-/* Keep secondary cols hidden for fit */
+/* col5 VL et col6 Valorisation réintégrées (2026-07-20) : aucune des
+   deux n'est redondante avec une colonne visible (col4 Niveau
+   barrière montre le seuil en €, pas la valorisation courante du
+   produit ; la VL n'a aucun autre affichage). col2 Type barrière et
+   col10 SRI restent masquées : sur les 54 produits de démo, ces deux
+   champs sont systématiquement vides (jamais renseignés par le
+   générateur de données) — les cacher évite une colonne à tirets sur
+   toute la table plutôt qu'une vraie redondance ; à reconsidérer
+   quand des produits ingérés réels renseignent ces champs. */
 #view-barriers table th:nth-child(2),
 #view-barriers table td:nth-child(2),
-#view-barriers table th:nth-child(5),
-#view-barriers table td:nth-child(5),
-#view-barriers table th:nth-child(6),
-#view-barriers table td:nth-child(6),
 #view-barriers table th:nth-child(10),
 #view-barriers table td:nth-child(10) {
   display: none;

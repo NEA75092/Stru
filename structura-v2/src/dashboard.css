@@ -438,8 +438,23 @@ td:has(.bar-wrap) {
    l'accueillir sans resserrer les autres colonnes. Même technique
    que #view-barriers, qui n'a jamais eu ce problème car sa colonne
    "PROGRESSION" a déjà un width:120px en dur dans le HTML. */
+/* +180px de min-width : col2 TYPE et col5 VL réintégrées (2026-07-20,
+   elles étaient masquées par erreur — voir institutional-theme.css)
+   n'avaient aucune largeur définie dans ce table-layout:fixed conçu
+   pour 9 colonnes visibles sur 13 ; sans width explicite, elles se
+   chevauchaient avec les colonnes voisines. Même technique que
+   col10 ci-dessous : largeur fixe en px, table élargie d'autant pour
+   ne resserrer aucune autre colonne. */
 #view-portfolio table {
-    min-width: 1260px !important;
+    min-width: 1440px !important;
+}
+#view-portfolio th:nth-child(2),
+#view-portfolio td:nth-child(2) {
+    width: 90px !important;
+}
+#view-portfolio th:nth-child(5),
+#view-portfolio td:nth-child(5) {
+    width: 90px !important;
 }
 #view-portfolio th:nth-child(10),
 #view-portfolio td:nth-child(10) {
@@ -448,6 +463,18 @@ td:has(.bar-wrap) {
 }
 #view-portfolio .bar-wrap {
     gap: var(--space-2) !important;
+}
+/* Même collision, même correctif que #view-portfolio ci-dessus : col5
+   VL réintégrée (institutional-theme.css) n'avait aucune largeur dans
+   ce table-layout:fixed — table élargie d'autant pour ne resserrer
+   aucune autre colonne (col6 Valorisation avait déjà sa largeur
+   réservée, elle n'a besoin de rien de plus ici). */
+#view-barriers table {
+    min-width: 1190px !important;
+}
+#view-barriers th:nth-child(5),
+#view-barriers td:nth-child(5) {
+    width: 90px !important;
 }
 tbody tr:hover {
     background: var(--color-surface-2-hover) !important;
