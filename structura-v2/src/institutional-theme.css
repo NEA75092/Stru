@@ -3872,3 +3872,187 @@ td {
   object-fit: contain !important;
   object-position: center center !important;
 }
+
+/* ============================================================
+   MODULE SHELL — fusionné depuis dashboard.css le 2026-07-20
+   1er module de la consolidation des 4 couches CSS (styles.css +
+   institutional-theme.css + design-tokens.css + dashboard.css) vers
+   une seule : dashboard.css chargeait ces règles en dernier "juste
+   pour" gagner sur celles définies plus haut dans CE fichier — les
+   voilà rapatriées ici, la 4e couche physique en moins.
+
+   !important gardé partout pour l'instant : une première tentative
+   de le retirer sélectivement (en ne le gardant que sur les
+   propriétés où une règle plus haut dans ce fichier posait déjà
+   !important) a cassé la couleur des onglets inactifs — la vraie
+   cause était .nav-tab:not(.active) plus haut, plus spécifique que
+   .nav-tab tout court, invisible à une vérification "même sélecteur
+   uniquement". Retirer !important correctement demande de vérifier
+   aussi les sélecteurs différents qui touchent la même propriété,
+   pas seulement les doublons exacts — remis à plus tard, module par
+   module, plutôt que de risquer une régression de couleur silencieuse.
+   ============================================================ */
+.sidebar {
+    border-radius: var(--radius-xl) !important;
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+.sidebar-brand {
+    border-bottom: none !important;
+}
+.sidebar-logo {
+    filter: saturate(1) contrast(1.02) !important;
+}
+.nav-tab {
+    position: relative;
+    border-radius: var(--radius-md) !important;
+    color: var(--color-text-secondary) !important;
+    font-family: var(--font-body) !important;
+    font-weight: 500 !important;
+    transition:
+        background var(--duration-fast) var(--ease-standard),
+        color var(--duration-fast) var(--ease-standard) !important;
+}
+.nav-tab:hover {
+    background: var(--color-surface-2) !important;
+    color: var(--color-ink) !important;
+}
+.nav-tab.active {
+    background: var(--color-aegean) !important;
+    color: var(--color-text-on-dark) !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+}
+/* Icônes de nav : jeu SVG maison (trait fin uniforme), remplace les
+   glyphes Unicode d'origine. Plusieurs anciennes règles injectaient
+   un autre symbole via ::before (jusqu'à un simple carré en dur) —
+   neutralisées pour laisser le SVG du HTML s'afficher. */
+.nav-tab .ico {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    color: inherit !important;
+    opacity: 0.55;
+}
+.nav-tab .ico::before {
+    content: none !important;
+    border: none !important;
+}
+#tab-dashboard .ico::before,
+#tab-clients .ico::before,
+#tab-portfolio .ico::before,
+#tab-barriers .ico::before,
+#tab-calendar .ico::before,
+#tab-analytics .ico::before,
+#tab-autopitch .ico::before,
+#tab-screener .ico::before,
+#tab-ingest .ico::before {
+    content: none !important;
+    border: none !important;
+    background: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+.nav-tab .ico svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.nav-tab.active .ico {
+    opacity: 1;
+}
+.nav-tab .tab-badge {
+    font-family: var(--font-mono-data) !important;
+}
+.sidebar-foot {
+    border-top: none !important;
+    margin-top: var(--space-6) !important;
+    padding-top: var(--space-4) !important;
+}
+.sidebar-mode,
+.sidebar-btn {
+    border-radius: var(--radius-md) !important;
+    border: none !important;
+    background: var(--color-surface-2) !important;
+    color: var(--color-text-secondary) !important;
+    font-family: var(--font-mono-data) !important;
+    letter-spacing: 0.06em !important;
+    box-shadow: none !important;
+}
+.mode-btn.on {
+    background: var(--color-aegean) !important;
+    border-color: var(--color-aegean) !important;
+    color: var(--color-text-on-dark) !important;
+}
+.sidebar-add.btn-gold {
+    border: none !important;
+    background: var(--color-aegean) !important;
+    color: var(--color-text-on-dark) !important;
+    box-shadow: var(--shadow-sm) !important;
+    font-weight: 600 !important;
+}
+.sidebar-add.btn-gold:hover {
+    background: var(--color-aegean-2) !important;
+}
+
+.header {
+    border-radius: var(--radius-xl) !important;
+    border: none !important;
+    background: var(--color-surface-1) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+.header-right {
+    border-left: none !important;
+}
+.ticker-label {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+.ticker-val {
+    color: var(--color-text-primary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+.ticker-chg.up {
+    color: var(--color-success) !important;
+}
+.ticker-chg.dn {
+    color: var(--color-danger) !important;
+}
+.user-pill {
+    border-radius: var(--radius-md) !important;
+    border: none !important;
+    background: var(--color-surface-2) !important;
+}
+.user-avatar {
+    border-radius: var(--radius-sm) !important;
+    background: var(--color-ink) !important;
+    color: var(--color-text-on-dark) !important;
+}
+.live-badge {
+    border-radius: var(--radius-sm) !important;
+    border: none !important;
+    background: transparent !important;
+    color: var(--color-text-tertiary) !important;
+}
+.live-dot {
+    background: var(--color-success) !important;
+}
+.clock {
+    color: var(--color-text-primary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+.main {
+    border-radius: var(--radius-xl) !important;
+    border: none !important;
+    background: var(--color-bg) !important;
+    box-shadow: none !important;
+}
