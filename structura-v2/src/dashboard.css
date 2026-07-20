@@ -618,11 +618,16 @@ tbody tr.selected {
 }
 
 /* ── Dashboard : contenu propre à l'écran (hors primitives ci-dessus) ── */
+/* Blocs "de narration" — texte, faits, métriques listées — passés en
+   fond transparent + trait bas : un contraste de texture avec les
+   zones denses (tableaux, vl-row) qui gardent leur aplat surface-2,
+   au lieu d'un gris uniforme partout. */
 #view-dashboard .dash-welcome {
-    border-radius: var(--radius-lg) !important;
-    background: var(--color-surface-1) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
     border: none !important;
-    box-shadow: var(--shadow-card) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+    box-shadow: none !important;
     padding: var(--space-6) var(--space-7) !important;
 }
 #view-dashboard .dash-welcome-title {
@@ -695,10 +700,14 @@ tbody tr.selected {
     gap: var(--space-4) !important;
 }
 #view-dashboard .issuer-row {
-    border-radius: var(--radius-md) !important;
-    background: var(--color-surface-2) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
     border: none !important;
+    border-bottom: 1px solid var(--color-border) !important;
     padding: var(--space-3) var(--space-4) !important;
+}
+#view-dashboard .issuer-row:last-child {
+    border-bottom: none !important;
 }
 #view-dashboard .issuer-name {
     color: var(--color-text-primary) !important;
@@ -717,9 +726,13 @@ tbody tr.selected {
     gap: var(--space-3) !important;
 }
 #view-dashboard .timeline-item {
-    border-radius: var(--radius-md) !important;
-    background: var(--color-surface-2) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
     border: none !important;
+    border-bottom: 1px solid var(--color-border) !important;
+}
+#view-dashboard .timeline-item:last-child {
+    border-bottom: none !important;
 }
 #view-dashboard .timeline-date b {
     font-family: var(--font-heading) !important;
@@ -757,8 +770,9 @@ tbody tr.selected {
 }
 .pilotage-metric {
     border: none !important;
-    border-radius: var(--radius-md) !important;
-    background: var(--color-surface-2) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
     box-shadow: none !important;
 }
 .pilotage-metric-warn,
