@@ -525,47 +525,80 @@ tbody tr.selected {
     border-top: 1px solid var(--color-border) !important;
 }
 
-/* ── Jauges de barrière — océan (sain) → ambre (surveillance) → corail
-   (critique), avec un pouls doux sur les franchissements. C'est le
-   seul endroit du produit où la couleur porte une vraie donnée en
-   continu, donc le seul qui mérite plus de couleur et de mouvement. ── */
+/* ── Jauges de barrière — la signature visuelle du produit. Seul
+   composant de l'app à porter ce traitement (dégradé directionnel +
+   marqueur triangulaire) — ne pas le répliquer sur d'autres barres de
+   progression, c'est ce qui le rend reconnaissable. Océan (sain) →
+   ambre (surveillance) → corail (critique), avec un pouls doux sur les
+   franchissements. C'est le seul endroit du produit où la couleur
+   porte une vraie donnée en continu, donc le seul qui mérite plus de
+   couleur et de mouvement. */
 .bar-track {
     background: var(--color-surface-3) !important;
+    overflow: visible !important;
 }
 /* La jauge est un signal continu (distance à la barrière) : sa largeur
    doit glisser vers la nouvelle valeur, jamais sauter — transitionnée
    via FLIP côté JS (renderPf/renderBarriers) puisque la table entière
-   est reconstruite à chaque rendu. */
+   est reconstruite à chaque rendu. Le dégradé va du transparent (la
+   jauge "émerge" du track) au ton le plus saturé à l'endroit exact de
+   la position courante ; le marqueur est un ::after ancré au bord
+   droit du fill lui-même, donc il glisse avec le même FLIP sans code
+   séparé — jamais de position calculée à part. */
 .bar-fill {
+    position: relative;
     transition: width var(--duration-slow) var(--ease-standard) !important;
 }
+.bar-fill::after {
+    content: "" !important;
+    position: absolute !important;
+    right: -4px;
+    top: -6px;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: right var(--duration-slow) var(--ease-standard) !important;
+}
 .bar-fill.bf-safe {
-    background: linear-gradient(90deg, var(--color-ocean), var(--color-ocean-2)) !important;
+    background: linear-gradient(90deg, transparent, var(--color-ocean) 60%, var(--color-ocean-2)) !important;
+    color: var(--color-ocean-2);
 }
 .bar-fill.bf-warn {
-    background: linear-gradient(90deg, var(--color-warning), var(--color-warning-2)) !important;
+    background: linear-gradient(90deg, transparent, var(--color-warning) 60%, var(--color-warning-2)) !important;
+    color: var(--color-warning-2);
 }
 .bar-fill.bf-crit {
-    background: linear-gradient(90deg, var(--color-coral), var(--color-coral-2)) !important;
+    background: linear-gradient(90deg, transparent, var(--color-coral) 60%, var(--color-coral-2)) !important;
+    color: var(--color-coral-2);
 }
 .bar-fill.bf-breach {
-    background: linear-gradient(90deg, var(--color-coral), var(--color-danger)) !important;
+    background: linear-gradient(90deg, transparent, var(--color-coral) 55%, var(--color-danger)) !important;
+    color: var(--color-danger);
     animation: barBlink 1.6s ease-in-out infinite !important;
 }
-#view-barriers .bar-track {
-    background: var(--color-surface-3) !important;
-}
+/* institutional-theme.css a un vieux #view-barriers .bar-fill.bf-*
+   {background: var(--green/--gold/--orange/--red) !important} — même
+   spécificité que la règle ci-dessus + !important des deux côtés, donc
+   c'est la spécificité (id) qui tranche, pas l'ordre des fichiers :
+   sans ce doublon scopé, le tableau Barrières restait sur l'ancien
+   aplat uni au lieu du nouveau dégradé. */
 #view-barriers .bar-fill.bf-safe {
-    background: linear-gradient(90deg, var(--color-ocean), var(--color-ocean-2)) !important;
+    background: linear-gradient(90deg, transparent, var(--color-ocean) 60%, var(--color-ocean-2)) !important;
+    color: var(--color-ocean-2);
 }
 #view-barriers .bar-fill.bf-warn {
-    background: linear-gradient(90deg, var(--color-warning), var(--color-warning-2)) !important;
+    background: linear-gradient(90deg, transparent, var(--color-warning) 60%, var(--color-warning-2)) !important;
+    color: var(--color-warning-2);
 }
 #view-barriers .bar-fill.bf-crit {
-    background: linear-gradient(90deg, var(--color-coral), var(--color-coral-2)) !important;
+    background: linear-gradient(90deg, transparent, var(--color-coral) 60%, var(--color-coral-2)) !important;
+    color: var(--color-coral-2);
 }
 #view-barriers .bar-fill.bf-breach {
-    background: linear-gradient(90deg, var(--color-coral), var(--color-danger)) !important;
+    background: linear-gradient(90deg, transparent, var(--color-coral) 55%, var(--color-danger)) !important;
+    color: var(--color-danger);
     animation: barBlink 1.6s ease-in-out infinite !important;
 }
 @keyframes barBlink {
