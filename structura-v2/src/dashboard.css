@@ -841,11 +841,11 @@ tbody tr.selected {
 @keyframes viewFadeIn {
     from {
         opacity: 0;
-        transform: translateY(var(--view-enter-y, 4px));
+        transform: translateY(var(--view-enter-y, 4px)) scale(0.985);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 .view.active {
