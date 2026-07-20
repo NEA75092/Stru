@@ -14,6 +14,7 @@
       setTextFlash,
       renderRowsWithGaugeTransition,
       buildSyntheticLevelSeries,
+      buildSparklineSvg,
     } = root.StructuraUtils;
     const {
       runtime,
@@ -318,7 +319,7 @@
       <td class="num" style="color:var(--gold);">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
       <td class="num ${pnlCol}">${pnlStr}</td>
-      <td class="num ${pnlCol}" data-flash="pnl">${pnlPctStr}</td>
+      <td class="num ${pnlCol}" data-flash="pnl"><span class="td-spark-wrap">${buildSparklineSvg(`${p.id}:pnl`, 0, p.pnlPct, { color: p.pnl >= 0 ? "var(--color-success)" : "var(--color-danger)" })}${pnlPctStr}</span></td>
       <td style="color:var(--gold)">${escapeHtml(p.coupon)}</td>
       <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${barW}%"></div></div>${distPct}</div></td>
       <td style="color:var(--text2);font-size:10px;">${escapeHtml(p.maturity)}</td>
@@ -398,7 +399,16 @@
       <td class="num">${barrierAmt}</td>
       <td class="num" style="color:var(--gold);">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
-      <td class="num" data-flash="dist"><span style="color:${ST_COLOR[p.st.s] || "var(--text3)"};">${hasDist ? (p.dist < 0 ? p.dist.toFixed(1) + "%" : "+" + p.dist.toFixed(1) + "%") : "À confirmer"}</span></td>
+      <td class="num" data-flash="dist"><span class="td-spark-wrap">${
+        hasDist && p.barrier
+          ? buildSparklineSvg(
+              `${p.isin || p.id}:dist`,
+              (100 / p.barrier - 1) * 100,
+              p.dist,
+              { color: ST_COLOR[p.st.s] || "var(--color-aegean)" },
+            )
+          : ""
+      }<span style="color:${ST_COLOR[p.st.s] || "var(--text3)"};">${hasDist ? (p.dist < 0 ? p.dist.toFixed(1) + "%" : "+" + p.dist.toFixed(1) + "%") : "À confirmer"}</span></span></td>
       <td><div class="bar-wrap"><div class="bar-track" style="width:80px;"><div class="bar-fill ${p.st.cls}" style="width:${barW}%"></div></div><span style="font-size:9px;color:${ST_COLOR[p.st.s]};">${escapeHtml(p.st.label)}</span></div></td>
       <td style="font-size:10px;color:var(--text2);">${escapeHtml(p.nextEvtDate)}</td>
       <td><span style="font-size:12px;font-weight:600;color:${sriCol};">${sriLabel}</span></td>

@@ -52,6 +52,44 @@
       };
     }
 
+/**
+     * Deterministic Brownian bridge between startValue and endValue,
+     * seeded so the same seed always retraces the same path (stable
+     * across re-renders instead of random noise on every repaint).
+     * Shared primitive behind buildSyntheticLevelSeries (drawer chart)
+     * and sparkline series (table/KPI trend previews) — same "no real
+     * history yet" caveat applies to every caller.
+     */
+    function buildBridgeSeries(seed, startValue, endValue, numPoints = 24) {
+      const rng = seededRng(seed);
+      const gauss = () => {
+        // Box-Muller, using the seeded rng instead of Math.random so the
+        // whole path stays deterministic for a given seed.
+        const u1 = Math.max(rng(), 1e-6);
+        const u2 = rng();
+        return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      };
+      const volatility = Math.max(2, Math.abs(startValue - endValue) * 0.35);
+      let walk = 0;
+      const raw = [0];
+      for (let i = 1; i <= numPoints; i++) {
+        walk += gauss();
+        raw.push(walk);
+      }
+      const n = numPoints;
+      const points = raw.map((w, i) => {
+        const frac = i / n;
+        // Brownian bridge: pin the random walk to 0 at both ends so the
+        // line still starts at startValue and ends at endValue.
+        const bridge = w - frac * raw[n];
+        const value = startValue + (endValue - startValue) * frac + bridge * (volatility / Math.max(1, Math.sqrt(n / 4)));
+        return { t: frac, value };
+      });
+      points[0].value = startValue;
+      points[n].value = endValue;
+      return points;
+    }
+
     /**
      * Synthetic historical level series for a product's underlying, in
      * the same base-100 scale as its barrier fields (--color-* levels
@@ -71,33 +109,52 @@
       }
       const startLevel = 100;
       const currentLevel = barrier * (1 + dist / 100);
-      const rng = seededRng(product.isin || product.id);
-      const gauss = () => {
-        // Box-Muller, using the seeded rng instead of Math.random so the
-        // whole path stays deterministic for a given product.
-        const u1 = Math.max(rng(), 1e-6);
-        const u2 = rng();
-        return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-      };
-      const volatility = Math.max(2, Math.abs(startLevel - currentLevel) * 0.35);
-      let walk = 0;
-      const raw = [0];
-      for (let i = 1; i <= numPoints; i++) {
-        walk += gauss();
-        raw.push(walk);
-      }
-      const n = numPoints;
-      const points = raw.map((w, i) => {
-        const frac = i / n;
-        // Brownian bridge: pin the random walk to 0 at both ends so the
-        // line still starts at startLevel and ends at currentLevel.
-        const bridge = w - frac * raw[n];
-        const level = startLevel + (currentLevel - startLevel) * frac + bridge * (volatility / Math.max(1, Math.sqrt(n / 4)));
-        return { t: frac, level };
-      });
-      points[0].level = startLevel;
-      points[n].level = currentLevel;
+      const bridge = buildBridgeSeries(product.isin || product.id, startLevel, currentLevel, numPoints);
+      const points = bridge.map((pt) => ({ t: pt.t, level: pt.value }));
       return { points, startLevel, currentLevel, barrierLevel: barrier };
+    }
+
+    /**
+     * Inline sparkline: a tiny SVG trend line (no axes, no grid) from a
+     * deterministic bridge series — same synthetic-data caveat as
+     * buildSyntheticLevelSeries. seed should be unique per row (e.g. an
+     * ISIN or `${id}:pnl`) so different metrics on the same product
+     * don't draw an identical wiggle.
+     */
+    /** Renders a values array (any real or synthetic series) as a tiny
+     * axis-free SVG trend line — the shared drawing step behind
+     * buildSparklineSvg, also usable directly with real computed data
+     * (e.g. buildPerfSeries) instead of the synthetic bridge. */
+    function buildSparklineFromValues(values, opts = {}) {
+      const {
+        width = 48,
+        height = 20,
+        color = "var(--color-aegean)",
+        strokeWidth = 1.5,
+      } = opts;
+      if (!Array.isArray(values) || values.length < 2) return "";
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const spread = max - min || 1;
+      const pad = strokeWidth;
+      const plotH = height - pad * 2;
+      const xAt = (i) => (i / (values.length - 1)) * width;
+      const yAt = (v) => pad + plotH - ((v - min) / spread) * plotH;
+      const path = values
+        .map((v, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`)
+        .join(" ");
+      return `<svg class="spark" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
+    }
+
+    /** Synthetic sparkline (Brownian bridge from startValue to
+     * endValue) — see buildBridgeSeries for the "no real history yet"
+     * caveat. Use buildSparklineFromValues directly when real computed
+     * data is already available (e.g. buildPerfSeries). */
+    function buildSparklineSvg(seed, startValue, endValue, opts = {}) {
+      if (!Number.isFinite(startValue) || !Number.isFinite(endValue)) return "";
+      const numPoints = opts.numPoints || 20;
+      const series = buildBridgeSeries(seed, startValue, endValue, numPoints);
+      return buildSparklineFromValues(series.map((pt) => pt.value), opts);
     }
 
     /** "12,3M€" → 12.3 ; "-7.4%" → -7.4 ; non-numeric text → NaN. */
@@ -244,6 +301,8 @@
       flashText,
       setTextFlash,
       buildSyntheticLevelSeries,
+      buildSparklineSvg,
+      buildSparklineFromValues,
     };
   },
 );
