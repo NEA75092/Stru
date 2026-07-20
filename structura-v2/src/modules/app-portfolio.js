@@ -7,7 +7,13 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraPortfolio(root) {
-    const { moneyShort, notify, escapeHtml, setText } = root.StructuraUtils;
+    const {
+      moneyShort,
+      notify,
+      escapeHtml,
+      setText,
+      renderRowsWithGaugeTransition,
+    } = root.StructuraUtils;
     const {
       runtime,
       productsForScope,
@@ -194,7 +200,7 @@
         tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;color:var(--text3);padding:28px;">Aucun produit reel en mode production. Importez un CSV ou ajoutez un produit depuis l'ingestion docs.</td></tr>`;
         return;
       }
-      tbody.innerHTML = data
+      const rowHtml = data
         .map((p) => {
           const pnlCol = p.pnl >= 0 ? "up" : "dn";
           const pnlStr =
@@ -217,14 +223,14 @@
               : !hasDist
                 ? 8
                 : Math.max(2, Math.min(98, 100 - Math.max(0, p.dist)));
-          return `<tr class="${p.st.s === "breach" ? "row-breach" : p.st.s === "crit" || p.st.s === "warn" ? "row-warn" : ""}" onclick="openDrawer(${p.id})">
+          return `<tr data-row-key="${p.id}" class="${p.st.s === "breach" ? "row-breach" : p.st.s === "crit" || p.st.s === "warn" ? "row-warn" : ""}" onclick="openDrawer(${p.id})">
       <td><div class="p-name">${escapeHtml(p.name)}</div><div class="p-isin">${escapeHtml(p.isin)}</div></td>
       <td><span class="pill-category ${TYPE_CLASS[p.type]}">${escapeHtml(TYPE_SHORT[p.type] || p.type)}</span></td>
       <td style="color:var(--text2);font-size:10px;">${escapeHtml(p.emetteur)}</td>
       <td class="num">${moneyShort(p.nominal)}</td>
       <td class="num" style="color:var(--gold);">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
-      <td class="num ${pnlCol}">${pnlStr}</td>
+      <td class="num ${pnlCol}" data-flash="pnl">${pnlStr}</td>
       <td class="num ${pnlCol}">${pnlPctStr}</td>
       <td style="color:var(--gold)">${escapeHtml(p.coupon)}</td>
       <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${barW}%"></div></div>${distPct}</div></td>
@@ -234,6 +240,7 @@
     </tr>`;
         })
         .join("");
+      renderRowsWithGaugeTransition(tbody, rowHtml);
     }
 
     function portfolioSortValue(product, col) {
@@ -278,7 +285,7 @@
         tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px;">Aucune barrière à suivre en mode production.</td></tr>`;
         return;
       }
-      tbody.innerHTML = data
+      const rowHtml = data
         .map((p) => {
           const hasDist = Number.isFinite(Number(p.dist));
           const barW = hasDist
@@ -297,20 +304,21 @@
           const barrierAmt = p.barrier
             ? `${p.barrier}% (${((p.nominal * p.barrier) / 100 / 1e6).toFixed(2)}M€)`
             : "N/A";
-          return `<tr onclick="openDrawer(${p.id})">
+          return `<tr data-row-key="${p.id}" onclick="openDrawer(${p.id})">
       <td><div class="p-name">${escapeHtml(p.name)}</div><div class="p-isin">${escapeHtml(p.isin)}</div></td>
       <td style="font-size:10px;color:var(--text2);">${escapeHtml(p.barrierType)}</td>
       <td style="color:var(--text2);">${escapeHtml(p.underlying)}</td>
       <td class="num">${barrierAmt}</td>
       <td class="num" style="color:var(--gold);">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
-      <td class="num"><span style="color:${ST_COLOR[p.st.s] || "var(--text3)"};">${hasDist ? (p.dist < 0 ? p.dist.toFixed(1) + "%" : "+" + p.dist.toFixed(1) + "%") : "À confirmer"}</span></td>
+      <td class="num" data-flash="dist"><span style="color:${ST_COLOR[p.st.s] || "var(--text3)"};">${hasDist ? (p.dist < 0 ? p.dist.toFixed(1) + "%" : "+" + p.dist.toFixed(1) + "%") : "À confirmer"}</span></td>
       <td><div class="bar-wrap"><div class="bar-track" style="width:80px;"><div class="bar-fill ${p.st.cls}" style="width:${barW}%"></div></div><span style="font-size:9px;color:${ST_COLOR[p.st.s]};">${escapeHtml(p.st.label)}</span></div></td>
       <td style="font-size:10px;color:var(--text2);">${escapeHtml(p.nextEvtDate)}</td>
       <td><span style="font-size:12px;font-weight:600;color:${sriCol};">${sriLabel}</span></td>
     </tr>`;
         })
         .join("");
+      renderRowsWithGaugeTransition(tbody, rowHtml);
     }
 
     function filterBarriers(value) {

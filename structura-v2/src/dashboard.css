@@ -474,6 +474,13 @@ tbody tr.selected {
 .bar-track {
     background: var(--color-surface-3) !important;
 }
+/* La jauge est un signal continu (distance à la barrière) : sa largeur
+   doit glisser vers la nouvelle valeur, jamais sauter — transitionnée
+   via FLIP côté JS (renderPf/renderBarriers) puisque la table entière
+   est reconstruite à chaque rendu. */
+.bar-fill {
+    transition: width var(--duration-slow) var(--ease-standard) !important;
+}
 .bar-fill.bf-safe {
     background: linear-gradient(90deg, var(--color-ocean), var(--color-ocean-2)) !important;
 }
@@ -801,6 +808,45 @@ tbody tr.selected {
 .modal-ov.open,
 .drawer-overlay.open {
     animation: overlayFadeIn var(--duration-base) var(--ease-standard);
+}
+
+/* Flash sémantique bref quand une valeur affichée change — hausse,
+   baisse ou neutre — pour que la mise à jour se lise comme un signal
+   plutôt qu'un remplacement silencieux. Scopé aux KPI et cellules de
+   tableau qui portent une vraie donnée mouvante (P&L, distance
+   barrière), pas généralisé à tout le dashboard. */
+@keyframes flashUp {
+    from {
+        background-color: rgba(61, 131, 97, 0.22);
+    }
+    to {
+        background-color: transparent;
+    }
+}
+@keyframes flashDown {
+    from {
+        background-color: rgba(232, 115, 79, 0.22);
+    }
+    to {
+        background-color: transparent;
+    }
+}
+@keyframes flashNeutral {
+    from {
+        background-color: rgba(29, 79, 145, 0.16);
+    }
+    to {
+        background-color: transparent;
+    }
+}
+.flash-up {
+    animation: flashUp 140ms var(--ease-standard) !important;
+}
+.flash-down {
+    animation: flashDown 140ms var(--ease-standard) !important;
+}
+.flash-neutral {
+    animation: flashNeutral 140ms var(--ease-standard) !important;
 }
 .modal {
     animation: popIn var(--duration-slow) var(--ease-spring) !important;

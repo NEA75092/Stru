@@ -33,6 +33,100 @@
         .replace(/'/g, "&#39;");
     }
 
+    /** "12,3M€" → 12.3 ; "-7.4%" → -7.4 ; non-numeric text → NaN. */
+    function parseLooseNumber(text) {
+      return parseFloat(String(text).replace(/[^\d.,-]/g, "").replace(",", "."));
+    }
+
+    /** null = unchanged, else "up" | "down" | "neutral". */
+    function valueFlashDirection(prevText, nextText) {
+      if (prevText == null || prevText === nextText) return null;
+      const pn = parseLooseNumber(prevText);
+      const nn = parseLooseNumber(nextText);
+      if (Number.isFinite(pn) && Number.isFinite(nn) && nn !== pn) {
+        return nn > pn ? "up" : "down";
+      }
+      return "neutral";
+    }
+
+    function applyFlash(el, dir) {
+      if (!el || !dir) return;
+      el.classList.remove("flash-up", "flash-down", "flash-neutral");
+      // Re-trigger the animation even if the same class was applied moments ago.
+      void el.offsetWidth;
+      el.classList.add(`flash-${dir}`);
+      el.addEventListener(
+        "animationend",
+        () => el.classList.remove(`flash-${dir}`),
+        { once: true },
+      );
+    }
+
+    /**
+     * Sets el's text to value; if it changed, briefly flashes a semantic
+     * background (up/down/neutral) so the update reads as a signal
+     * instead of a silent swap.
+     */
+    function flashText(el, value) {
+      if (!el) return;
+      const prev = el.textContent;
+      const next = String(value);
+      const dir = valueFlashDirection(prev, next);
+      el.textContent = next;
+      applyFlash(el, dir);
+    }
+
+    function setTextFlash(id, value) {
+      flashText(document.getElementById(id), value);
+    }
+
+    /**
+     * Rebuilds tbody.innerHTML from rowHtml (each row must carry
+     * data-row-key="<key>"). Two things are preserved across the
+     * rebuild instead of snapping straight to the new markup:
+     *  - any .bar-fill width change FLIPs (jump to the old width with
+     *    transitions suppressed, release to the new width next frame)
+     *    so the gauge glides instead of jumping;
+     *  - any [data-flash="<key>"] cell whose text changed gets a brief
+     *    semantic flash (see flashText) instead of a silent swap.
+     */
+    function renderRowsWithGaugeTransition(tbody, rowHtml) {
+      if (!tbody) return;
+      const oldWidths = new Map();
+      const oldFlashText = new Map();
+      tbody.querySelectorAll("[data-row-key]").forEach((tr) => {
+        const key = tr.dataset.rowKey;
+        const fill = tr.querySelector(".bar-fill");
+        if (fill) oldWidths.set(key, fill.style.width);
+        tr.querySelectorAll("[data-flash]").forEach((cell) => {
+          oldFlashText.set(`${key}::${cell.dataset.flash}`, cell.textContent);
+        });
+      });
+      tbody.innerHTML = rowHtml;
+      tbody.querySelectorAll("[data-row-key]").forEach((tr) => {
+        const key = tr.dataset.rowKey;
+        const fill = tr.querySelector(".bar-fill");
+        if (fill) {
+          const oldWidth = oldWidths.get(key);
+          const newWidth = fill.style.width;
+          if (oldWidth != null && oldWidth !== newWidth) {
+            fill.style.setProperty("transition", "none", "important");
+            fill.style.width = oldWidth;
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                fill.style.removeProperty("transition");
+                fill.style.width = newWidth;
+              });
+            });
+          }
+        }
+        tr.querySelectorAll("[data-flash]").forEach((cell) => {
+          const prev = oldFlashText.get(`${key}::${cell.dataset.flash}`);
+          applyFlash(cell, valueFlashDirection(prev, cell.textContent));
+        });
+      });
+    }
+
     function notify(msg, type = "ok") {
       if (typeof document === "undefined") return;
       const d = document.createElement("div");
@@ -46,6 +140,14 @@
       }, 2800);
     }
 
-    return { setText, moneyShort, escapeHtml, notify };
+    return {
+      setText,
+      moneyShort,
+      escapeHtml,
+      notify,
+      renderRowsWithGaugeTransition,
+      flashText,
+      setTextFlash,
+    };
   },
 );

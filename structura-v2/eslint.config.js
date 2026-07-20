@@ -13,6 +13,7 @@ module.exports = [
         localStorage: "readonly",
         module: "readonly",
         require: "readonly",
+        requestAnimationFrame: "readonly",
         setInterval: "readonly",
         setTimeout: "readonly",
         window: "readonly",
