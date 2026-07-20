@@ -246,8 +246,13 @@
 #view-dashboard .al-ok .al-txt::after {
     background-image: linear-gradient(90deg, var(--color-ocean), var(--color-ocean)) !important;
 }
+/* Sur un dashboard ouvert toute la journée, un clignotement infini
+   devient une irritation, pas une alerte — 5 cycles suffisent à capter
+   l'attention, puis ça se stabilise. forwards pour rester sur l'état
+   final du keyframe (opacity:1) plutôt que de geler à mi-pulse. */
 #view-dashboard .al-crit .al-txt::after {
-    animation: barBlink 1.6s ease-in-out infinite;
+    animation: barBlink 1.6s ease-in-out 5;
+    animation-fill-mode: forwards;
 }
 
 .compact-toggle,
