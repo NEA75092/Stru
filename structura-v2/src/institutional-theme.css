@@ -74,10 +74,6 @@ body::before {
   border-bottom: 1px solid var(--rule);
 }
 
-.sidebar-logo {
-  filter: none;
-}
-
 .sidebar-client {
   padding: 16px 24px;
   border-bottom: 1px solid var(--rule);
@@ -3763,23 +3759,34 @@ td {
    Optical place: centered in brand band, inset from sidebar edge
    ============================================================ */
 
+/* Premier repère de marque, pas un élément qui se fond dans la nav en
+   dessous (retour utilisateur 2026-07-24) : halo très subtil
+   corail/océan derrière le wordmark + taille remontée (150px → 170px,
+   la colonne sidebar fait 248px de large, 36px de padding de chaque
+   côté laissent 176px de marge utile). */
 .sidebar-brand {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-  padding: 28px 36px 24px !important;
+  padding: 30px 36px 26px !important;
   box-sizing: border-box !important;
+  position: relative !important;
+  background:
+    radial-gradient(circle at 28% 22%, rgba(232, 115, 79, 0.09), transparent 55%),
+    radial-gradient(circle at 76% 82%, rgba(20, 110, 156, 0.07), transparent 55%) !important;
 }
 
 .sidebar-logo {
   display: block !important;
-  width: 150px !important;
+  width: 170px !important;
   max-width: 100% !important;
   height: auto !important;
   margin: 0 auto !important;
   transform: translateX(6px);
   object-fit: contain !important;
   object-position: center center !important;
+  position: relative !important;
+  z-index: 1;
 }
 
 /* ============================================================
@@ -3811,7 +3818,7 @@ td {
     border-bottom: none !important;
 }
 .sidebar-logo {
-    filter: saturate(1) contrast(1.02) !important;
+    filter: saturate(1.12) contrast(1.04) drop-shadow(0 2px 10px rgba(20, 79, 145, 0.14)) !important;
 }
 .sidebar-nav {
     position: relative !important;
