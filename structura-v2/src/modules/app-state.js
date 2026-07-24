@@ -354,6 +354,18 @@
           dataQuality: "demo",
         });
       }
+      // "Coupon conditionnel" n'est qu'1 des 5 types d'évènement possibles,
+      // réparti au hasard sur ~5 mois : sur un tirage donné, la fenêtre des
+      // 30 prochains jours du Calendrier tombe à 0 versement attendu dans
+      // ~10% des cas (mode démo qui se montre vide au lieu de vivant).
+      // On force un plancher de coupons à venir dans les 3 semaines.
+      const guaranteedCouponIdx = [3, 14, 27, 41];
+      guaranteedCouponIdx.forEach((idx, n) => {
+        const product = products[idx];
+        if (!product) return;
+        product.nextEvt = "Coupon conditionnel";
+        product.nextEvtDate = genDate(addDays(today, 2 + n * 5), addDays(today, 21));
+      });
       products.sort((a, b) => {
         const sc = { breach: -3, crit: -2, warn: -1, safe: 0 };
         return (sc[a.st.s] || 0) - (sc[b.st.s] || 0);
