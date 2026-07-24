@@ -515,7 +515,8 @@ tbody tr.selected {
 #view-portfolio .num,
 #view-barriers .num,
 #view-barriers td.num,
-#view-clients .client-products-table .num {
+#view-clients .client-products-table .num,
+#view-screener .num {
     font-family: var(--font-mono-data) !important;
 }
 
