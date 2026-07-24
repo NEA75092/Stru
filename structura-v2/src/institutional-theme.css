@@ -3948,6 +3948,35 @@ td {
 .header-right {
     border-left: none !important;
 }
+.theme-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 30px !important;
+    height: 30px !important;
+    border: none !important;
+    border-radius: var(--radius-full) !important;
+    background: var(--color-surface-2) !important;
+    color: var(--color-text-secondary) !important;
+    cursor: pointer;
+    transition:
+        background var(--duration-fast) var(--ease-standard) !important,
+        color var(--duration-fast) var(--ease-standard) !important;
+}
+.theme-toggle:hover {
+    background: var(--color-surface-3) !important;
+    color: var(--color-text-primary) !important;
+}
+.theme-toggle.is-dark {
+    background: var(--color-aegean-tint) !important;
+    color: var(--color-aegean) !important;
+}
+.theme-toggle svg {
+    width: 15px;
+    height: 15px;
+    fill: currentColor;
+    stroke: none;
+}
 .ticker-label {
     color: var(--color-text-tertiary) !important;
     font-family: var(--font-mono-data) !important;

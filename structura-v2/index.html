@@ -4,6 +4,15 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>STRUCTURA PRO</title>
+        <script>
+            (function () {
+                try {
+                    if (localStorage.getItem("structura.v2.theme") === "dark") {
+                        document.documentElement.setAttribute("data-theme", "dark");
+                    }
+                } catch (e) {}
+            })();
+        </script>
         <link
             href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Unbounded:wght@200;400;700&display=swap"
             rel="stylesheet"
@@ -14,10 +23,10 @@
             href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="./src/styles.css?v=20260720" />
-        <link rel="stylesheet" href="./src/institutional-theme.css?v=20260720" />
-        <link rel="stylesheet" href="./src/design-tokens.css?v=20260720" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260720" />
+        <link rel="stylesheet" href="./src/styles.css?v=20260724" />
+        <link rel="stylesheet" href="./src/institutional-theme.css?v=20260724" />
+        <link rel="stylesheet" href="./src/design-tokens.css?v=20260724" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260724" />
     </head>
     <body>
         <div class="app">
@@ -116,6 +125,15 @@
             <div class="header">
                 <div class="header-ticker" id="ticker"></div>
                 <div class="header-right">
+                    <button
+                        class="theme-toggle"
+                        id="theme-toggle"
+                        onclick="toggleTheme()"
+                        aria-label="Activer le thème sombre"
+                        title="Thème sombre"
+                    >
+                        <svg viewBox="0 0 20 20"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"/></svg>
+                    </button>
                     <div class="user-pill header-user-pill" id="session-user-pill">
                         <span class="user-avatar" id="session-avatar">CG</span>
                         <span class="user-meta">

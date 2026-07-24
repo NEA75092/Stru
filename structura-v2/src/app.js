@@ -1958,6 +1958,48 @@ function hydratePitchFromLastExtraction() {
   updatePitchProductFields();
 }
 
+const THEME_STORAGE_KEY = "structura.v2.theme";
+
+function getTheme() {
+  try {
+    return typeof localStorage !== "undefined" &&
+      localStorage.getItem(THEME_STORAGE_KEY) === "dark"
+      ? "dark"
+      : "light";
+  } catch (e) {
+    return "light";
+  }
+}
+
+function applyTheme(theme) {
+  if (typeof document === "undefined") return;
+  const isDark = theme === "dark";
+  if (isDark) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+  const btn = document.getElementById("theme-toggle");
+  if (btn) {
+    btn.classList.toggle("is-dark", isDark);
+    btn.setAttribute(
+      "aria-label",
+      isDark ? "Revenir au thème clair" : "Activer le thème sombre",
+    );
+    btn.title = isDark ? "Thème clair" : "Thème sombre";
+  }
+}
+
+function toggleTheme() {
+  const next = getTheme() === "dark" ? "light" : "dark";
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    }
+  } catch (e) {}
+  applyTheme(next);
+}
+
 const PITCH_WIZARD_STEP_COUNT = 4;
 let pitchWizardCurrentStep = 1;
 
@@ -6229,6 +6271,7 @@ if (typeof document !== "undefined") {
   updateIngestionLearningUI();
   updatePitchProductFields();
   pitchWizardRender();
+  applyTheme(getTheme());
   ["ap-recall-type", "ap-put-leveraged", "ap-rate-type"].forEach((id) => {
     document.getElementById(id)?.addEventListener("change", updatePitchProductFields);
   });
@@ -6268,4 +6311,5 @@ if (typeof module !== "undefined" && module.exports) {
 if (typeof globalThis !== "undefined") {
   globalThis.hydratePitchFromLastExtraction = hydratePitchFromLastExtraction;
   globalThis.updatePitchProductFields = updatePitchProductFields;
+  globalThis.toggleTheme = toggleTheme;
 }

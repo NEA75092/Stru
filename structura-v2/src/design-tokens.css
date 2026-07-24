@@ -132,3 +132,46 @@
     --duration-base: 200ms;
     --duration-slow: 320ms;
 }
+
+/* ============================================================
+   DARK MODE (2026-07-24) — option via toggle, jamais par défaut.
+   Ne redéfinit QUE les tokens neutres (surface/texte/bordure/ombre/
+   tints) qui dépendent du sens clair/sombre du fond. Les couleurs de
+   marque et de statut (aegean/coral/sky/ocean/success/warning/danger)
+   restent identiques : ce sont des teintes catégorielles qui lisent
+   correctement sur les deux fonds, pas des neutres à inverser.
+
+   Couverture "best effort" : la majorité des règles consomment déjà
+   ces tokens (c'est ce qui permet le remap Santorini actuel), mais
+   institutional-theme.css contient des centaines de rgba(11,58,91,…)
+   et quelques #fff en dur, hors de portée d'une seule passe sans
+   vérification visuelle. Attendre une passe de QA visuelle dédiée
+   avant de considérer le dark mode complet.
+   ============================================================ */
+:root[data-theme="dark"] {
+    --color-bg: #12161f;
+    --color-surface-1: #1a2029;
+    --color-surface-2: #212836;
+    --color-surface-3: #2b3444;
+    --color-surface-1-hover: color-mix(in oklch, var(--color-surface-1), white 10%);
+    --color-surface-2-hover: color-mix(in oklch, var(--color-surface-2), white 10%);
+    --color-surface-3-hover: color-mix(in oklch, var(--color-surface-3), white 10%);
+    --color-wash: #182430;
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-border-strong: rgba(255, 255, 255, 0.16);
+
+    --color-ink: #f2f4f7;
+    --color-text-primary: #f2f4f7;
+    --color-text-secondary: #aab0bb;
+    --color-text-tertiary: #757c88;
+
+    --color-aegean-tint: rgba(91, 155, 213, 0.16);
+    --color-coral-tint: rgba(232, 115, 79, 0.18);
+    --color-ocean-tint: rgba(20, 110, 156, 0.18);
+
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 16px 36px rgba(0, 0, 0, 0.35);
+    --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.32), 0 22px 44px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.32);
+    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.35);
+}
