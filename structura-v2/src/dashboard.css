@@ -202,9 +202,9 @@
 }
 .sec-title {
     color: var(--color-ink) !important;
-    font-family: var(--font-body) !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.01em !important;
+    font-family: var(--font-heading) !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.02em !important;
 }
 .sec-title::before {
     content: none !important;
@@ -503,6 +503,19 @@ tbody tr.selected {
    au sens de la règle #1 — pas besoin de le repasser en encre. */
 .p-isin {
     color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+}
+
+/* Colonnes chiffrées des tableaux denses : IBM Plex Mono plutôt
+   qu'Unbounded (institutional-theme.css) — les chiffres tabulaires d'une
+   police mono s'alignent verticalement colonne par colonne, ce
+   qu'Unbounded (display, pas mono) ne garantit pas sur une liste de
+   lignes. Unbounded reste réservé aux chiffres "héros" isolés (KPI,
+   valeur de ticker unique). */
+#view-portfolio .num,
+#view-barriers .num,
+#view-barriers td.num,
+#view-clients .client-products-table .num {
     font-family: var(--font-mono-data) !important;
 }
 

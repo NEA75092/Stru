@@ -1808,7 +1808,8 @@ td {
 .dash-welcome-title,
 .clients-hero-title,
 .cal-context-title,
-.ingest-hero-title {
+.ingest-hero-title,
+.pilotage-hero-title {
   font-weight: 500;
 }
 
@@ -1852,7 +1853,8 @@ td {
 .clients-hero-title,
 .cal-context-title,
 .ingest-hero-title,
-.dash-welcome-title {
+.dash-welcome-title,
+.pilotage-hero-title {
   font-family: var(--font-display);
   font-weight: 500;
   letter-spacing: -0.03em;
