@@ -538,6 +538,21 @@ tbody tr.selected {
 .search::placeholder {
     color: var(--color-text-tertiary) !important;
 }
+/* Validation inline (2026-07-24) : erreur visible au blur du champ,
+   pas seulement au clic Suivant — le champ ET son message d'erreur
+   restent visibles jusqu'à correction. */
+.f-inp-error {
+    border-color: var(--color-danger) !important;
+}
+.f-inp-error:focus {
+    box-shadow: 0 0 0 3px rgba(193, 72, 59, 0.22) !important;
+}
+.pitch-field-error {
+    margin-top: var(--space-1);
+    font-size: var(--text-2xs);
+    font-weight: 500;
+    color: var(--color-danger);
+}
 .f-lbl {
     color: var(--color-text-tertiary) !important;
     font-family: var(--font-mono-data) !important;

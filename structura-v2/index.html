@@ -697,6 +697,7 @@
                                         class="f-inp"
                                         id="ap-client"
                                         value="Client Professionnel"
+                                        required
                                     />
                                 </div>
                                 <div>
@@ -718,6 +719,7 @@
                                         id="ap-under"
                                         value="CAC 40"
                                         placeholder="Séparer plusieurs sous-jacents par ;"
+                                        required
                                     />
                                 </div>
                                 <div>
@@ -726,6 +728,7 @@
                                         class="f-inp"
                                         id="ap-dur"
                                         value="2 ans"
+                                        required
                                     />
                                 </div>
                             </div>
@@ -737,6 +740,8 @@
                                         id="ap-coupon"
                                         type="number"
                                         step="0.1"
+                                        min="0"
+                                        max="50"
                                         value="9.5"
                                     />
                                 </div>
@@ -747,6 +752,8 @@
                                         id="ap-barrier"
                                         type="number"
                                         step="1"
+                                        min="0"
+                                        max="100"
                                         value="60"
                                     />
                                 </div>
@@ -757,6 +764,8 @@
                                         id="ap-recall"
                                         type="number"
                                         step="1"
+                                        min="0"
+                                        max="300"
                                         value="100"
                                     />
                                 </div>
@@ -847,7 +856,7 @@
                                 <div class="form-row triple">
                                     <div class="pitch-field pitch-bearish-phoenix-field" data-families="phoenix bearish_taux">
                                         <label class="f-lbl">Barrière coupon (%)</label>
-                                        <input class="f-inp" id="ap-coupon-barrier" type="number" step="1" value="60" />
+                                        <input class="f-inp" id="ap-coupon-barrier" type="number" step="1" min="0" max="100" value="60" />
                                     </div>
                                     <div class="pitch-field" data-families="phoenix athena">
                                         <label class="f-lbl">Décrément (pts)</label>
@@ -870,11 +879,11 @@
                                     </div>
                                     <div class="pitch-field pitch-degressive-field" data-families="phoenix athena">
                                         <label class="f-lbl">Dégressivité / obs. (%)</label>
-                                        <input class="f-inp" id="ap-degressivity" type="number" step="0.5" placeholder="ex: 1" />
+                                        <input class="f-inp" id="ap-degressivity" type="number" step="0.5" min="0" max="20" placeholder="ex: 1" />
                                     </div>
                                     <div class="pitch-field pitch-degressive-field" data-families="phoenix athena">
                                         <label class="f-lbl">Floor rappel (%)</label>
-                                        <input class="f-inp" id="ap-floor" type="number" step="1" placeholder="ex: 80" />
+                                        <input class="f-inp" id="ap-floor" type="number" step="1" min="0" max="100" placeholder="ex: 80" />
                                     </div>
                                 </div>
                                 <div class="pitch-substep-title">Mécanismes optionnels</div>
@@ -888,11 +897,11 @@
                                     </div>
                                     <div class="pitch-field pitch-put-field" data-families="phoenix">
                                         <label class="f-lbl">PDI Put Leveraged (%)</label>
-                                        <input class="f-inp" id="ap-put-pdi" type="number" step="1" placeholder="ex: 50" />
+                                        <input class="f-inp" id="ap-put-pdi" type="number" step="1" min="0" max="100" placeholder="ex: 50" />
                                     </div>
                                     <div class="pitch-field pitch-put-field" data-families="phoenix">
                                         <label class="f-lbl">Multiplicateur perte</label>
-                                        <input class="f-inp" id="ap-put-multiplier" type="number" step="0.1" placeholder="ex: 2" />
+                                        <input class="f-inp" id="ap-put-multiplier" type="number" step="0.1" min="1" max="10" placeholder="ex: 2" />
                                     </div>
                                 </div>
                                 <div class="form-row triple">
@@ -906,7 +915,7 @@
                                     </div>
                                     <div class="pitch-field" data-families="athena">
                                         <label class="f-lbl">Barrière oxygène (%)</label>
-                                        <input class="f-inp" id="ap-oxygen-barrier" type="number" step="1" placeholder="ex: 60" />
+                                        <input class="f-inp" id="ap-oxygen-barrier" type="number" step="1" min="0" max="100" placeholder="ex: 60" />
                                     </div>
                                     <div class="pitch-field pitch-bearish-phoenix-field" data-families="bearish_taux">
                                         <label class="f-lbl">Coupon garanti</label>
@@ -928,11 +937,11 @@
                                 <div class="form-row triple">
                                     <div class="pitch-field" data-families="bearish_taux">
                                         <label class="f-lbl">Barrière rappel bearish (%)</label>
-                                        <input class="f-inp" id="ap-bearish-recall-barrier" type="number" step="1" placeholder="ex: 100" />
+                                        <input class="f-inp" id="ap-bearish-recall-barrier" type="number" step="1" min="0" max="300" placeholder="ex: 100" />
                                     </div>
                                     <div class="pitch-field" data-families="bearish_taux">
                                         <label class="f-lbl">Barrière coupon bearish (%)</label>
-                                        <input class="f-inp" id="ap-bearish-coupon-barrier" type="number" step="1" placeholder="ex: 95" />
+                                        <input class="f-inp" id="ap-bearish-coupon-barrier" type="number" step="1" min="0" max="100" placeholder="ex: 95" />
                                     </div>
                                 </div>
                                 <div class="pitch-substep-title">Taux, callable &amp; référence (CLN / Note)</div>
@@ -1045,6 +1054,7 @@
                                         class="f-inp"
                                         id="ap-issuer"
                                         value="BNP Paribas"
+                                        required
                                     />
                                 </div>
                                 <div>

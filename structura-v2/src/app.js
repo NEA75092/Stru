@@ -2103,7 +2103,61 @@ function pitchWizardGoTo(step) {
   pitchWizardRender();
 }
 
+function pitchFieldErrorMessage(el) {
+  if (el.validity.valueMissing) return "Champ requis";
+  if (el.validity.rangeUnderflow) return `Minimum ${el.min}`;
+  if (el.validity.rangeOverflow) return `Maximum ${el.max}`;
+  if (el.validity.badInput || el.validity.typeMismatch) return "Valeur invalide";
+  return "Valeur invalide";
+}
+
+function pitchValidateField(el) {
+  if (!el || typeof el.checkValidity !== "function") return true;
+  const valid = el.checkValidity();
+  el.classList.toggle("f-inp-error", !valid);
+  const host = el.parentElement;
+  let msg = host?.querySelector(".pitch-field-error");
+  if (!valid) {
+    if (!msg && host) {
+      msg = document.createElement("div");
+      msg.className = "pitch-field-error";
+      el.insertAdjacentElement("afterend", msg);
+    }
+    if (msg) msg.textContent = pitchFieldErrorMessage(el);
+  } else if (msg) {
+    msg.remove();
+  }
+  return valid;
+}
+
+function pitchWizardValidateStep(step) {
+  if (typeof document === "undefined") return true;
+  const stepEl = document.querySelector(
+    `#view-autopitch .pitch-step[data-step="${step}"]`,
+  );
+  if (!stepEl) return true;
+  let firstInvalid = null;
+  stepEl.querySelectorAll(".f-inp, .f-sel").forEach((el) => {
+    if (el.offsetParent === null) return;
+    const valid = pitchValidateField(el);
+    if (!valid && !firstInvalid) firstInvalid = el;
+  });
+  if (firstInvalid) {
+    firstInvalid.focus();
+    return false;
+  }
+  return true;
+}
+
+function pitchWizardSetupInlineValidation() {
+  if (typeof document === "undefined") return;
+  document.querySelectorAll("#view-autopitch .f-inp, #view-autopitch .f-sel").forEach((el) => {
+    el.addEventListener("blur", () => pitchValidateField(el));
+  });
+}
+
 function pitchWizardNext() {
+  if (!pitchWizardValidateStep(pitchWizardCurrentStep)) return;
   pitchWizardGoTo(pitchWizardCurrentStep + 1);
 }
 
@@ -6342,6 +6396,7 @@ if (typeof document !== "undefined") {
   updateIngestionLearningUI();
   updatePitchProductFields();
   pitchWizardRender();
+  pitchWizardSetupInlineValidation();
   applyTheme(getTheme());
   ["ap-recall-type", "ap-put-leveraged", "ap-rate-type"].forEach((id) => {
     document.getElementById(id)?.addEventListener("change", updatePitchProductFields);
