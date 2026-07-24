@@ -3,49 +3,10 @@
    Palette : azur, terracotta, sable doré, olivier, blanc crémeux
    ============================================================ */
 
-:root {
-    /* ── Méditerranée : terre, mer, soleil ── */
-    --bg: #faf7f2;
-    --s1: #f5efe6;
-    --s2: #ede6db;
-    --s3: #e2d9cb;
-    --border: #d5cbb9;
-    --border2: #c4b7a1;
-
-    /* ── Textes ── */
-    --text: #2c2c2c;
-    --text2: #5a5a5a;
-    --text3: #8a8580;
-
-    /* ── Couleurs signature ── */
-    --gold: #d4a24e;
-    --gold2: #b5863a;
-    --cyan: #2a9d8f;
-    --cyan2: #21867a;
-    --red: #d45a5a;
-    --red2: #a33e3e;
-    --orange: #e07a5f;
-    --orange2: #c0654d;
-    --green: #6a994e;
-    --green2: #4e7a36;
-    --blue: #1e6091;
-    --blue2: #154a72;
-    --purple: #7a5ea7;
-    --white: #1a1a1a;
-
-    /* ── Mer et ciel ── */
-    --sea: #0077b6;
-    --sea-light: #00b4d8;
-    --sky: #caf0f8;
-    --sand: #e9c46a;
-    --terracotta: #d4856c;
-    --olive: #606c38;
-
-    /* ── Fonts ── */
-    --font-mono: "IBM Plex Mono", monospace;
-    --font-sans: system-ui, sans-serif;
-    --font-display: "Unbounded", sans-serif;
-}
+/* Les tokens couleur/typo Méditerranée d'origine sont remplacés par le
+   remap Santorini de dashboard.css (voir design-tokens.css + dashboard.css
+   :root) — ce bloc ne définissait plus que des valeurs shadowées, jamais
+   lues, retiré le 2026-07-24 pour ne garder qu'une seule source de vérité. */
 
 /* ── RESET ── */
 * {
@@ -1421,11 +1382,11 @@ body::before {
 }
 .header-ticker::before {
     left: 0;
-    background: linear-gradient(90deg, rgba(248, 250, 250, 0.95), rgba(248, 250, 250, 0));
+    background: linear-gradient(90deg, var(--color-surface-1, #f8fafa), transparent);
 }
 .header-ticker::after {
     right: 0;
-    background: linear-gradient(270deg, rgba(248, 250, 250, 0.95), rgba(248, 250, 250, 0));
+    background: linear-gradient(270deg, var(--color-surface-1, #f8fafa), transparent);
 }
 .ticker-track {
     display: flex;

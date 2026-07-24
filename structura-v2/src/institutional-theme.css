@@ -5,49 +5,11 @@
    ============================================================ */
 
 :root {
-  --bg: #f8f7f2;
-  --s1: #ffffff;
-  --s2: #f3f1eb;
-  --s3: #ebe8e0;
-  --elevated: #f4f7f9;
-  --border: rgba(11, 58, 91, 0.09);
-  --border2: rgba(11, 58, 91, 0.15);
-
-  --text: #07111f;
-  --text2: #5a6570;
-  --text3: #8a939c;
-
-  --aegean: #0b3a5b;
-  --aegean-2: #1c6b8f;
-  --sea: #0b3a5b;
-  --sea-light: #1c6b8f;
-
-  --gold: #c8a64b;
-  --gold2: #a88a3e;
-  --sand: #c8a64b;
-
-  --ink: #07111f;
-  --ink-panel: #0e1b2b;
-
-  --cyan: #1c6b8f;
-  --cyan2: #0b3a5b;
-  --red: #b54a4a;
-  --red2: #8f3a3a;
-  --orange: #b87a3a;
-  --orange2: #94622e;
-  --green: #3d7a5a;
-  --green2: #2f5f46;
-  --blue: #0b3a5b;
-  --blue2: #1c6b8f;
-  --purple: #8a939c;
-  --white: #ffffff;
-  --sky: #f4f7f9;
-  --terracotta: #b87a3a;
-  --olive: #3d7a5a;
-
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
-  --font-mono: "Inter", system-ui, sans-serif;
+  /* Les tokens couleur/typo (--bg, --text, --aegean, --gold, --font-*...)
+     vivaient ici à l'origine ; ils sont shadowés par le remap Santorini de
+     dashboard.css depuis le 2026-07-20 et ont été retirés le 2026-07-24
+     pour éviter les 3 définitions concurrentes. Seuls les tokens de rythme
+     ci-dessous (sans équivalent dans dashboard.css) restent vivants ici. */
 
   /* —— Design system: one information grammar —— */
   --type-primary-size: 13px;
@@ -257,11 +219,11 @@ body::before {
 
 .header-ticker::before,
 .header-ticker::after {
-  background: linear-gradient(90deg, var(--bg), transparent);
+  background: linear-gradient(90deg, var(--color-surface-1), transparent);
 }
 
 .header-ticker::after {
-  background: linear-gradient(270deg, var(--bg), transparent);
+  background: linear-gradient(270deg, var(--color-surface-1), transparent);
 }
 
 
@@ -3046,13 +3008,6 @@ td {
   display: flex !important;
   align-items: center !important;
   gap: 0 !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-}
-
-.header-ticker::before,
-.header-ticker::after {
-  display: none !important;
 }
 
 .ticker-item {

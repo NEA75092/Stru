@@ -8,12 +8,14 @@
    Aucun nom existant (--gold, --text, --font-display, ...) n'est
    redéfini ici : ces noms sont consommés par des dizaines de règles
    dans styles.css / institutional-theme.css sur TOUTES les vues, et
-   par du JS qui injecte `style="color:var(--gold)"` en dur. Les
-   redéfinir sur :root republierait l'app entière d'un coup.
+   par du JS qui injecte `style="color:var(--gold)"` en dur.
 
-   Le remappage des anciens noms vers cette palette se fait de façon
-   SCOPÉE (sidebar + header + #view-dashboard) dans dashboard.css,
-   le temps de juger le rendu avant propagation aux 8 autres vues.
+   Le remappage des anciens noms vers cette palette se fait sur un
+   :root global dans dashboard.css (chargé en dernier) — déployé à
+   toute l'app (shell + les 9 vues) depuis le 2026-07-20, pas juste
+   scopé au dashboard. Les vieux :root de styles.css et
+   institutional-theme.css ont été vidés de leurs tokens couleur/typo
+   le 2026-07-24 pour ne garder qu'une seule source de vérité.
    ============================================================ */
 
 :root {
