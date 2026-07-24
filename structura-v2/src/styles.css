@@ -3223,6 +3223,10 @@ td {
 
 /* ── AUTO PITCH ── */
 .pitch-preview-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
     font-size: 11px;
     color: var(--text3);
     padding: 18px;
@@ -3707,11 +3711,24 @@ td {
     margin-bottom: 12px;
 }
 .ing-story.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
     text-align: center;
     color: var(--text3);
     padding: 56px 20px;
     font-size: 13px;
     background: rgba(250, 247, 242, 0.55);
+}
+.ing-story-empty-ico {
+    width: 34px;
+    height: 34px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 .ing-compare {
     max-height: 260px;

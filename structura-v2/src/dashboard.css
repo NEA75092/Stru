@@ -707,10 +707,15 @@ tbody tr.selected {
    vrai hero de la page, il mérite une présence que les lignes de
    liste n'ont pas besoin d'avoir. Relief redonné sans revenir à un
    gris plat : dégradé oklch très léger plutôt qu'un aplat. */
+/* Moment signature (2026-07-24) : seul hero non fonctionnel de l'app,
+   un endroit où la palette Santorini complète peut se montrer sans
+   concurrencer l'accent Égée fonctionnel (nav/CTA/liens) — dégradé
+   corail → Égée très léger, pas un aplat d'une seule teinte. */
 #view-dashboard .dash-welcome {
     background: linear-gradient(
         135deg,
-        color-mix(in oklch, var(--color-aegean) 4%, var(--color-surface-1)),
+        color-mix(in oklch, var(--color-coral) 5%, var(--color-surface-1)),
+        color-mix(in oklch, var(--color-aegean) 5%, var(--color-surface-1)) 65%,
         var(--color-surface-1)
     ) !important;
     border-radius: var(--radius-lg) !important;
@@ -1054,6 +1059,24 @@ tbody tr.selected {
 .pitch-loading {
     color: var(--color-aegean) !important;
     background: var(--color-aegean-tint) !important;
+}
+/* Moment signature : état vide illustré plutôt qu'un texte gris posé
+   seul — icône dans le ton corail/océan (import documentaire = un
+   des rares écrans du produit sans donnée chiffrée en jeu, donc sans
+   risque de concurrencer l'accent Égée fonctionnel ailleurs). */
+.ing-story-empty-ico {
+    color: var(--color-coral) !important;
+    opacity: 0.55;
+}
+.pitch-preview-empty-ico {
+    width: 30px;
+    height: 30px;
+    fill: none;
+    stroke: var(--color-coral) !important;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.55;
 }
 
 /* ── Tiroir de détail produit : mêmes corrections que Pilotage/Pitch —
