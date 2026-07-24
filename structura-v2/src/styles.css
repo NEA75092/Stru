@@ -1376,17 +1376,33 @@ body::before {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 34px;
+    width: 68px;
     z-index: 2;
     pointer-events: none;
 }
+/* Un fondu linéaire simple (opaque -> transparent) laisse le texte se
+   lire en transparence sur toute la zone : à 50% du dégradé, le fond
+   n'est qu'à 50% d'opacité, donc du texte gras en dessous reste
+   lisible. Palier à pleine opacité sur ~55% de la largeur avant de
+   fondre : le texte est vraiment masqué, pas juste estompé (bug
+   confirmé par capture, 2026-07-24 — le 1er fondu ne se voyait pas). */
 .header-ticker::before {
     left: 0;
-    background: linear-gradient(90deg, var(--color-surface-1, #f8fafa), transparent);
+    background: linear-gradient(
+        90deg,
+        var(--color-surface-1, #f8fafa) 0%,
+        var(--color-surface-1, #f8fafa) 55%,
+        transparent 100%
+    );
 }
 .header-ticker::after {
     right: 0;
-    background: linear-gradient(270deg, var(--color-surface-1, #f8fafa), transparent);
+    background: linear-gradient(
+        270deg,
+        var(--color-surface-1, #f8fafa) 0%,
+        var(--color-surface-1, #f8fafa) 55%,
+        transparent 100%
+    );
 }
 .ticker-track {
     display: flex;

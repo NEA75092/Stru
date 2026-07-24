@@ -1142,6 +1142,25 @@ tbody tr.selected {
    seul — icône dans le ton corail/océan (import documentaire = un
    des rares écrans du produit sans donnée chiffrée en jeu, donc sans
    risque de concurrencer l'accent Égée fonctionnel ailleurs). */
+/* .ingest-dropzone et .ing-story.empty (styles.css) sont en
+   rgba(250,247,242,…) en dur — un blanc cassé jamais repris par ce
+   fichier, donc jamais réécrit par le remap Santorini : sur fond
+   sombre ça reste un bloc gris clair opaque, illisible (bug confirmé
+   par capture, 2026-07-24). Basculé sur les tokens de surface, qui
+   s'inversent correctement avec le thème. */
+.ingest-dropzone {
+    background: var(--color-surface-2) !important;
+    border-color: var(--color-border-strong) !important;
+}
+.ing-story.empty {
+    background: var(--color-surface-2) !important;
+}
+#view-ingest .f-inp,
+#view-ingest .f-sel {
+    background: var(--color-surface-1) !important;
+    border-color: var(--color-border-strong) !important;
+    color: var(--color-text-primary) !important;
+}
 .ing-story-empty-ico {
     color: var(--color-coral) !important;
     opacity: 0.55;

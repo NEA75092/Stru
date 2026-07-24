@@ -215,11 +215,21 @@ body::before {
 
 .header-ticker::before,
 .header-ticker::after {
-  background: linear-gradient(90deg, var(--color-surface-1), transparent);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-1) 0%,
+    var(--color-surface-1) 55%,
+    transparent 100%
+  );
 }
 
 .header-ticker::after {
-  background: linear-gradient(270deg, var(--color-surface-1), transparent);
+  background: linear-gradient(
+    270deg,
+    var(--color-surface-1) 0%,
+    var(--color-surface-1) 55%,
+    transparent 100%
+  );
 }
 
 
@@ -4003,9 +4013,16 @@ td {
     border: none !important;
     background: var(--color-surface-2) !important;
 }
+/* --color-ink est un token de TEXTE (inversé en dark mode : #14171c en
+   clair -> #f2f4f7 en sombre). Utilisé ici comme fond d'avatar, il
+   virait blanc en dark mode -> initiale blanche sur fond blanc,
+   invisible (bug confirmé par capture, 2026-07-24). --color-aegean
+   est catégoriel, identique dans les deux thèmes : fond bleu stable,
+   jamais de collision avec --color-text-on-dark (blanc, lui aussi
+   volontairement stable). */
 .user-avatar {
     border-radius: var(--radius-sm) !important;
-    background: var(--color-ink) !important;
+    background: var(--color-aegean) !important;
     color: var(--color-text-on-dark) !important;
 }
 .live-badge {
