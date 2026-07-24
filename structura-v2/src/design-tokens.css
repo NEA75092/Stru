@@ -141,12 +141,22 @@
    restent identiques : ce sont des teintes catégorielles qui lisent
    correctement sur les deux fonds, pas des neutres à inverser.
 
-   Couverture "best effort" : la majorité des règles consomment déjà
-   ces tokens (c'est ce qui permet le remap Santorini actuel), mais
-   institutional-theme.css contient des centaines de rgba(11,58,91,…)
-   et quelques #fff en dur, hors de portée d'une seule passe sans
-   vérification visuelle. Attendre une passe de QA visuelle dédiée
-   avant de considérer le dark mode complet.
+   Audit du 2026-07-24 (grep ciblé, pas de rendu visuel disponible) :
+   les ~30 rgba(11,58,91,…) d'institutional-theme.css sont quasi
+   tous des lavis translucides à faible alpha (0.02-0.08) sur des
+   éléments interactifs (hover, sélection) — ils teintent la surface
+   sombre au lieu de casser dessus, pas idéal mais pas cassé. Aucun
+   fond opaque en dur trouvé qui gagne réellement la cascade (le seul
+   cas identifié, .header{background:#fff}, est déjà shadowé par une
+   règle plus tardive qui consomme le token). Le graphique de
+   performance Dashboard (drawPerfHistory, app-dashboard.js) dessinait
+   ses grilles/labels en hex fixe hors CSS — corrigé pour lire
+   getTheme(). Le graphique du tiroir produit (app-portfolio.js)
+   utilisait déjà var(--color-*) en attribut SVG, donc déjà correct.
+   Reste "best effort" au sens où aucune vérification visuelle n'a eu
+   lieu — mais l'audit textuel ne trouve pas de cas de rupture nette,
+   contrairement à l'hypothèse initiale ("centaines de cas hors de
+   portée").
    ============================================================ */
 :root[data-theme="dark"] {
     --color-bg: #12161f;

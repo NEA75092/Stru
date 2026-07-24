@@ -317,6 +317,15 @@
       const pad = { l: 44, r: 24, t: 22, b: 34 };
       const currentIdx = points[points.length - 1]?.idx || 100;
       const positive = periodPct >= 0;
+      // Ce chart est dessiné en SVG via des attributs stroke/fill en dur
+      // (pas de CSS, donc pas de var(--color-*)) : les recolorer à la
+      // main selon le thème est le seul moyen de les faire suivre le
+      // dark mode (2026-07-24).
+      const isDarkTheme =
+        typeof globalThis.getTheme === "function" && globalThis.getTheme() === "dark";
+      const gridColor = isDarkTheme ? "rgba(255,255,255,0.10)" : "#e8eef4";
+      const labelColor = isDarkTheme ? "#8b93a6" : "#8fa0b3";
+      const refLineColor = isDarkTheme ? "rgba(255,255,255,0.22)" : "#c5d2df";
       const vals = points.map((p) => p.idx);
       const minV = Math.min(98, ...vals, currentIdx) - 1.2;
       const maxV = Math.max(102, ...vals, currentIdx) + 1.2;
@@ -334,26 +343,27 @@
       for (let i = 0; i <= 4; i += 1) {
         const v = minV + gridStep * i;
         const y = yAt(v);
-        grid += `<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W - pad.r}" y2="${y.toFixed(1)}" stroke="#e8eef4" stroke-width="1"/>`;
+        grid += `<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W - pad.r}" y2="${y.toFixed(1)}" stroke="${gridColor}" stroke-width="1"/>`;
       }
-      grid += `<text x="${pad.l - 6}" y="${refY.toFixed(1)}" text-anchor="end" dominant-baseline="middle" fill="#8fa0b3" font-size="9" font-family="IBM Plex Mono">100</text>`;
+      grid += `<text x="${pad.l - 6}" y="${refY.toFixed(1)}" text-anchor="end" dominant-baseline="middle" fill="${labelColor}" font-size="9" font-family="IBM Plex Mono">100</text>`;
       const labelEvery = Math.max(1, Math.ceil(points.length / 5));
       const labels = points
         .filter((_, i) => i === 0 || i === points.length - 1 || i % labelEvery === 0)
         .map((p) => {
           const i = points.indexOf(p);
           const lbl = p.date.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
-          return `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="#8fa0b3" font-size="10" font-family="IBM Plex Mono">${escapeHtml(lbl)}</text>`;
+          return `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${labelColor}" font-size="10" font-family="IBM Plex Mono">${escapeHtml(lbl)}</text>`;
         })
         .join("");
       const stroke = positive ? "#2d9f6a" : "#d45a5a";
       const fill = positive ? "rgba(45,159,106,0.1)" : "rgba(212,90,90,0.08)";
+      const markerRing = isDarkTheme ? "#1a2029" : "#fff";
       svg.innerHTML = `
         ${grid}
-        <line x1="${pad.l}" y1="${refY.toFixed(1)}" x2="${W - pad.r}" y2="${refY.toFixed(1)}" stroke="#c5d2df" stroke-dasharray="5 4"/>
+        <line x1="${pad.l}" y1="${refY.toFixed(1)}" x2="${W - pad.r}" y2="${refY.toFixed(1)}" stroke="${refLineColor}" stroke-dasharray="5 4"/>
         <path d="${area}" fill="${fill}"/>
         <path d="${line}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="${xAt(points.length - 1).toFixed(1)}" cy="${yAt(currentIdx).toFixed(1)}" r="4.5" fill="${stroke}" stroke="#fff" stroke-width="2"/>
+        <circle cx="${xAt(points.length - 1).toFixed(1)}" cy="${yAt(currentIdx).toFixed(1)}" r="4.5" fill="${stroke}" stroke="${markerRing}" stroke-width="2"/>
         <text x="${W - pad.r}" y="${pad.t}" text-anchor="end" fill="${stroke}" font-size="12" font-weight="600" font-family="IBM Plex Mono">${currentIdx.toFixed(1)}</text>
         ${labels}`;
 
