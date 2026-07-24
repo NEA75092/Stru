@@ -184,13 +184,17 @@
        vers un gris terne au lieu d'un bleu perceptible — l'égée est une
        teinte froide, son canal rouge est loin sous celui du fond crème,
        ce qui désature plus qu'il ne teinte. color-mix(in oklch, ...)
-       préserve la teinte au lieu de désaturer ; validé visuellement à
-       côté de k-red avant ce réglage — 2% reste nettement plus discret
-       que le corail. */
+       préserve la teinte au lieu de désaturer. Remonté de 2%/0.8% à
+       9%/4% le 2026-07-24 : la version précédente, "validée
+       visuellement", ne l'était en fait pas — capture d'écran à
+       l'appui, la carte était indiscernable du blanc. Garde une
+       marge sous k-red (7%/3%) pour que l'urgence reste plus forte
+       que la vedette neutre, mais doit maintenant se voir au premier
+       coup d'oeil, pas seulement en lisant la valeur hex. */
     background: linear-gradient(
         180deg,
-        color-mix(in oklch, var(--color-aegean) 2%, var(--color-surface-1)),
-        color-mix(in oklch, var(--color-aegean) 0.8%, var(--color-surface-1))
+        color-mix(in oklch, var(--color-aegean) 9%, var(--color-surface-1)),
+        color-mix(in oklch, var(--color-aegean) 4%, var(--color-surface-1))
     ) !important;
 }
 #view-dashboard .kpi.k-gold .kpi-lbl {
@@ -246,16 +250,27 @@
     font-family: var(--font-mono-data) !important;
 }
 /* Jauge de risque décorative (dashboard) : même code couleur que les
-   jauges de barrière — océan sain, ambre surveillance, corail critique. */
+   jauges de barrière — océan sain, ambre surveillance, corail critique.
+   Bug confirmé par capture (2026-07-24) : linear-gradient(coral, coral)
+   — deux fois la même couleur, donc un aplat plat malgré le nom de la
+   propriété. institutional-theme.css avait déjà un vrai dégradé
+   2 tons + un background-size variable (92/64/26% selon la sévérité,
+   conservé, pas touché ici) ; cette règle l'écrasait sans le savoir.
+   Hauteur remontée 4px -> 8px + relief via box-shadow interne (pas
+   juste un trait). */
 #view-dashboard .al-txt::after {
+    height: 8px !important;
     background-color: var(--color-surface-3) !important;
-    background-image: linear-gradient(90deg, var(--color-coral), var(--color-coral)) !important;
+    background-image: linear-gradient(90deg, var(--color-coral), var(--color-coral-2)) !important;
+    box-shadow:
+        inset 0 1px 2px rgba(0, 0, 0, 0.18),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 #view-dashboard .al-warn .al-txt::after {
-    background-image: linear-gradient(90deg, var(--color-warning), var(--color-warning)) !important;
+    background-image: linear-gradient(90deg, var(--color-warning), var(--color-warning-2)) !important;
 }
 #view-dashboard .al-ok .al-txt::after {
-    background-image: linear-gradient(90deg, var(--color-ocean), var(--color-ocean)) !important;
+    background-image: linear-gradient(90deg, var(--color-ocean), var(--color-ocean-2)) !important;
 }
 /* Sur un dashboard ouvert toute la journée, un clignotement infini
    devient une irritation, pas une alerte — 5 cycles suffisent à capter
@@ -722,16 +737,18 @@ tbody tr.selected {
    vrai hero de la page, il mérite une présence que les lignes de
    liste n'ont pas besoin d'avoir. Relief redonné sans revenir à un
    gris plat : dégradé oklch très léger plutôt qu'un aplat. */
-/* Moment signature (2026-07-24) : seul hero non fonctionnel de l'app,
-   un endroit où la palette Santorini complète peut se montrer sans
-   concurrencer l'accent Égée fonctionnel (nav/CTA/liens) — dégradé
-   corail → Égée très léger, pas un aplat d'une seule teinte. */
+/* Moment signature (2026-07-24, renforcé le même jour après retour
+   "invisible à l'écran" — un mix à 5% ne se voit tout simplement pas) :
+   seul hero non fonctionnel de l'app, un endroit où la palette
+   Santorini complète peut se montrer sans concurrencer l'accent Égée
+   fonctionnel (nav/CTA/liens). Dégradé net corail -> Égée, assez
+   marqué pour se voir au premier coup d'oeil, avec le titre encre qui
+   reste lisible dessus (testé en capture, pas juste en valeur CSS). */
 #view-dashboard .dash-welcome {
     background: linear-gradient(
-        135deg,
-        color-mix(in oklch, var(--color-coral) 5%, var(--color-surface-1)),
-        color-mix(in oklch, var(--color-aegean) 5%, var(--color-surface-1)) 65%,
-        var(--color-surface-1)
+        120deg,
+        color-mix(in oklch, var(--color-coral) 20%, var(--color-surface-1)),
+        color-mix(in oklch, var(--color-aegean) 22%, var(--color-surface-1)) 100%
     ) !important;
     border-radius: var(--radius-lg) !important;
     border: 1px solid var(--color-border) !important;
