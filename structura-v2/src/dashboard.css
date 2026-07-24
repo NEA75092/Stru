@@ -964,6 +964,19 @@ tbody tr.selected {
 .pitch-advanced-title {
     color: var(--color-text-tertiary) !important;
 }
+/* Sous-titres à l'intérieur d'une étape du wizard : un mur découpé
+   en 4 reste un mur si les ~10 champs de chaque étape ne sont pas
+   eux-mêmes regroupés visuellement. */
+.pitch-substep-title {
+    margin: var(--space-5) 0 var(--space-2) !important;
+    font-family: var(--font-mono-data) !important;
+    font-size: var(--text-2xs) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: var(--color-text-tertiary) !important;
+    opacity: 0.75;
+}
 /* ── Pitch Engine : wizard 4 étapes (2026-07-24) — remplace le mur de
    ~50 champs en scroll continu. Chaque étape reprend le même
    traitement carte teintée que l'ancien .pitch-advanced-block, y
