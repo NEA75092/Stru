@@ -3871,7 +3871,7 @@ td {
     height: 18px !important;
     min-width: 18px !important;
     color: inherit !important;
-    opacity: 0.55;
+    opacity: 0.68;
 }
 .nav-tab .ico::before {
     content: none !important;
