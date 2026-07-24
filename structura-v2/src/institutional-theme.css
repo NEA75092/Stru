@@ -212,25 +212,8 @@ body::before {
   border: none;
 }
 
-
-.header-ticker::before,
-.header-ticker::after {
-  background: linear-gradient(
-    90deg,
-    var(--color-surface-1) 0%,
-    var(--color-surface-1) 55%,
-    transparent 100%
-  );
-}
-
-.header-ticker::after {
-  background: linear-gradient(
-    270deg,
-    var(--color-surface-1) 0%,
-    var(--color-surface-1) 55%,
-    transparent 100%
-  );
-}
+/* Fondu de bord géré via mask-image sur .header-ticker (styles.css) —
+   plus de ::before/::after ici, voir le commentaire là-bas. */
 
 
 
