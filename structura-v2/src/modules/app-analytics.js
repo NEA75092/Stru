@@ -98,12 +98,13 @@
 
     function renderMetricCard(label, value, sub, pct, level) {
       const width = Math.min(100, Math.max(0, Number(pct) || 0));
+      const tooltip = `${label} : ${value}${sub ? ` — ${sub}` : ""}`;
       return `<div class="pilotage-metric pilotage-metric-${level}">
         <div class="pilotage-metric-top">
           <span class="pilotage-metric-label">${escapeHtml(label)}</span>
           <span class="pilotage-metric-value">${escapeHtml(value)}</span>
         </div>
-        <div class="pilotage-metric-bar"><span style="width:${width}%"></span></div>
+        <div class="pilotage-metric-bar" data-tooltip="${escapeHtml(tooltip)}"><span style="width:${width}%"></span></div>
         <div class="pilotage-metric-sub">${escapeHtml(sub)}</div>
       </div>`;
     }
