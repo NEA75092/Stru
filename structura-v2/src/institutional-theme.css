@@ -1884,13 +1884,6 @@ td {
   padding-top: 8px !important;
 }
 
-#view-dashboard .al {
-  border-left-width: 3px !important;
-}
-
-
-
-
 
 #view-dashboard .al-warn .al-ico {
   box-shadow: 0 0 0 3px rgba(184, 122, 58, 0.14);
@@ -2638,30 +2631,14 @@ td {
   box-sizing: border-box !important;
   margin: 0 0 12px !important;
   padding: 20px 20px 18px !important;
-  border: 1px solid rgba(11, 58, 91, 0.1) !important;
-  border-left: 3px solid var(--red) !important;
   border-radius: 8px !important;
-  background: #fff !important;
   box-shadow: 0 1px 0 rgba(11, 58, 91, 0.04) !important;
   grid-template-columns: none !important;
 }
 
-#view-dashboard .al-crit {
-  border-left-color: var(--red) !important;
-  background:
-    linear-gradient(90deg, rgba(181, 74, 74, 0.07) 0%, #fff 38%) !important;
-}
-
-#view-dashboard .al-warn {
-  border-left-color: var(--orange) !important;
-  background:
-    linear-gradient(90deg, rgba(184, 122, 58, 0.07) 0%, #fff 38%) !important;
-}
-
-#view-dashboard .al-ok {
-  border-left-color: var(--green) !important;
-  background: #fff !important;
-}
+/* Sévérité portée par le fond teinté + la pastille de dashboard.css
+   (.al-crit/.al-warn/.al-ok, .al-txt::after) — plus de bordure gauche
+   colorée ici (retiré le 2026-07-24). */
 
 #view-dashboard .al-ico {
   flex: 0 0 auto !important;
