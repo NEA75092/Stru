@@ -1958,6 +1958,46 @@ function hydratePitchFromLastExtraction() {
   updatePitchProductFields();
 }
 
+const PITCH_WIZARD_STEP_COUNT = 4;
+let pitchWizardCurrentStep = 1;
+
+function pitchWizardRender() {
+  if (typeof document === "undefined") return;
+  document.querySelectorAll("#view-autopitch .pitch-step").forEach((el) => {
+    const step = Number(el.dataset.step) || 1;
+    el.classList.toggle("active", step === pitchWizardCurrentStep);
+  });
+  document.querySelectorAll("#view-autopitch .pitch-wizard-step").forEach((btn) => {
+    const step = Number(btn.dataset.stepBtn) || 1;
+    btn.classList.toggle("active", step === pitchWizardCurrentStep);
+    btn.classList.toggle("done", step < pitchWizardCurrentStep);
+  });
+  const prevBtn = document.getElementById("pitch-wizard-prev");
+  const nextBtn = document.getElementById("pitch-wizard-next");
+  const status = document.getElementById("pitch-wizard-status");
+  if (prevBtn) prevBtn.disabled = pitchWizardCurrentStep === 1;
+  if (nextBtn) nextBtn.hidden = pitchWizardCurrentStep === PITCH_WIZARD_STEP_COUNT;
+  if (status) {
+    status.textContent = `Étape ${pitchWizardCurrentStep} sur ${PITCH_WIZARD_STEP_COUNT}`;
+  }
+}
+
+function pitchWizardGoTo(step) {
+  pitchWizardCurrentStep = Math.min(
+    PITCH_WIZARD_STEP_COUNT,
+    Math.max(1, Number(step) || 1),
+  );
+  pitchWizardRender();
+}
+
+function pitchWizardNext() {
+  pitchWizardGoTo(pitchWizardCurrentStep + 1);
+}
+
+function pitchWizardPrev() {
+  pitchWizardGoTo(pitchWizardCurrentStep - 1);
+}
+
 function updatePitchProductFields() {
   if (typeof document === "undefined") return;
   const family =
@@ -6188,6 +6228,7 @@ if (typeof document !== "undefined") {
   renderDashboardSummary();
   updateIngestionLearningUI();
   updatePitchProductFields();
+  pitchWizardRender();
   ["ap-recall-type", "ap-put-leveraged", "ap-rate-type"].forEach((id) => {
     document.getElementById(id)?.addEventListener("change", updatePitchProductFields);
   });

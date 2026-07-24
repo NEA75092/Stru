@@ -649,6 +649,25 @@
                             <div class="panel-title">
                                 Pitch Engine
                             </div>
+                            <div class="pitch-wizard-progress" id="pitch-wizard-progress">
+                                <button type="button" class="pitch-wizard-step active" data-step-btn="1" onclick="pitchWizardGoTo(1)">
+                                    <span class="pitch-wizard-step-num">1</span>
+                                    <span class="pitch-wizard-step-label">Identité produit</span>
+                                </button>
+                                <button type="button" class="pitch-wizard-step" data-step-btn="2" onclick="pitchWizardGoTo(2)">
+                                    <span class="pitch-wizard-step-num">2</span>
+                                    <span class="pitch-wizard-step-label">Paramètres produit</span>
+                                </button>
+                                <button type="button" class="pitch-wizard-step" data-step-btn="3" onclick="pitchWizardGoTo(3)">
+                                    <span class="pitch-wizard-step-num">3</span>
+                                    <span class="pitch-wizard-step-label">Barrières &amp; rappel</span>
+                                </button>
+                                <button type="button" class="pitch-wizard-step" data-step-btn="4" onclick="pitchWizardGoTo(4)">
+                                    <span class="pitch-wizard-step-num">4</span>
+                                    <span class="pitch-wizard-step-label">Émetteur &amp; génération</span>
+                                </button>
+                            </div>
+                            <div class="pitch-step active" data-step="1">
                             <div class="form-row">
                                 <div>
                                     <label class="f-lbl">Nom client</label
@@ -720,7 +739,8 @@
                                     />
                                 </div>
                             </div>
-                            <div class="pitch-advanced-block">
+                            </div>
+                            <div class="pitch-step" data-step="2">
                                 <div class="pitch-advanced-title">
                                     Paramètres produit
                                 </div>
@@ -808,6 +828,11 @@
                                         <label class="f-lbl">Décrément (pts)</label>
                                         <input class="f-inp" id="ap-decrement" type="number" step="5" placeholder="ex: 50" />
                                     </div>
+                                </div>
+                            </div>
+                            <div class="pitch-step" data-step="3">
+                                <div class="pitch-advanced-title">
+                                    Barrières &amp; rappel
                                 </div>
                                 <div class="form-row triple">
                                     <div class="pitch-field" data-families="phoenix athena">
@@ -981,6 +1006,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="pitch-step" data-step="4">
                             <div class="form-row triple">
                                 <div>
                                     <label class="f-lbl">Émetteur</label
@@ -1056,6 +1082,12 @@
                                 >
                                     Exporter PDF
                                 </button>
+                            </div>
+                            </div>
+                            <div class="pitch-wizard-nav">
+                                <button type="button" class="btn" id="pitch-wizard-prev" onclick="pitchWizardPrev()" disabled>← Précédent</button>
+                                <span class="pitch-wizard-status" id="pitch-wizard-status">Étape 1 sur 4</span>
+                                <button type="button" class="btn btn-gold" id="pitch-wizard-next" onclick="pitchWizardNext()">Suivant →</button>
                             </div>
                         </div>
                         <div class="panel">
