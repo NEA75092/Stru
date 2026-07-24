@@ -484,7 +484,13 @@
       }, new Map()).values()].sort((a, b) => b.nominal - a.nominal);
       const total = rows.reduce((sum, row) => sum + row.nominal, 0) || 1;
       const donut = buildIssuerDonutSvg(rows, total);
-      c.innerHTML = donut + rows.slice(0, 8).map((row) => {
+      // Liste complète (plus de plafond à 8) : le donut au-dessus reste
+      // lisible à 4 segments max quel que soit le nombre d'émetteurs
+      // réels, mais la liste détaillée doit montrer TOUTES les banques
+      // du portefeuille (5 comme 30) — un conteneur scrollable à
+      // hauteur fixe absorbe la longueur au lieu de tronquer les
+      // données ou de pousser la hauteur de la carte indéfiniment.
+      const rowsHtml = rows.map((row) => {
         const weight = (row.nominal / total) * 100;
         const pnl = row.nominal ? ((row.val - row.nominal) / row.nominal) * 100 : 0;
         return `<div class="issuer-row">
@@ -500,6 +506,7 @@
           </div>
         </div>`;
       }).join("");
+      c.innerHTML = `${donut}<div class="issuer-list-scroll">${rowsHtml}</div>`;
     }
 
     function renderDashboardTimeline() {

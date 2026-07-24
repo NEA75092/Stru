@@ -980,6 +980,14 @@ tbody tr.selected {
     font-weight: 700;
     color: var(--color-text-secondary);
 }
+/* Liste détaillée complète (2026-07-25) : plus de plafond à 8 lignes —
+   toutes les banques du portefeuille (5 comme 30) sont listées, mais
+   dans un conteneur à hauteur fixe qui scrolle au lieu de pousser la
+   hauteur de la carte indéfiniment au-delà de ~6-7 lignes visibles. */
+.issuer-list-scroll {
+    max-height: 460px;
+    overflow-y: auto;
+}
 #view-dashboard .issuer-row {
     border-radius: 0 !important;
     background: transparent !important;
