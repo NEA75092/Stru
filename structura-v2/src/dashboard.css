@@ -335,7 +335,7 @@
     padding: 4px 9px !important;
     border-radius: var(--radius-xs) !important;
     color: var(--color-text-secondary) !important;
-    border-color: transparent !important;
+    border: 1px solid var(--color-border) !important;
     background: var(--color-surface-2) !important;
 }
 /* Pastille de statut : seule famille à porter une couleur sémantique —
@@ -1338,6 +1338,20 @@ tbody tr.selected {
 .ing-story-empty-ico {
     color: var(--color-coral) !important;
     opacity: 0.55;
+}
+/* .ingest-metric (badge "Mémoire locale") et .notif (toast) restaient
+   en rgba(255,255,255,…) en dur — délavés/quasi illisibles sur fond
+   sombre (audit dark mode, 2026-07-25). Basculés sur les tokens de
+   surface qui s'inversent correctement avec le thème. */
+.ingest-metric {
+    background: var(--color-surface-2) !important;
+    border-color: var(--color-border) !important;
+}
+.notif {
+    background: var(--color-surface-1) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text-primary) !important;
+    box-shadow: var(--shadow-lg) !important;
 }
 .pitch-preview-empty-ico {
     width: 30px;

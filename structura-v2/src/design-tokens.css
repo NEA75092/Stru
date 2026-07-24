@@ -176,29 +176,38 @@
    portée").
    ============================================================ */
 :root[data-theme="dark"] {
-    --color-bg: #12161f;
-    --color-surface-1: #1a2029;
-    --color-surface-2: #212836;
-    --color-surface-3: #2b3444;
-    --color-surface-1-hover: color-mix(in oklch, var(--color-surface-1), white 10%);
+    /* Neutres chauds (2026-07-25, refonte) — l'ancienne échelle sombre
+       (#12161f, bleu-nuit froid) datait de la palette Santorini
+       précédente et ne correspondait plus à la direction "blanc chaux"
+       du light mode : les cards viraient à un bleu-gris disparate au
+       lieu d'un sombre de la même famille chromatique. Repris sur la
+       même teinte que --color-bg clair (#f7f3ea) inversée, pas une
+       teinte froide importée d'ailleurs. */
+    --color-bg: #1b1811;
+    --color-surface-1: #242019;
+    --color-surface-2: #2d2820;
+    --color-surface-3: #383024;
+    --color-surface-1-hover: color-mix(in oklch, var(--color-surface-1), white 8%);
     --color-surface-2-hover: color-mix(in oklch, var(--color-surface-2), white 10%);
     --color-surface-3-hover: color-mix(in oklch, var(--color-surface-3), white 10%);
-    --color-wash: #182430;
-    --color-border: rgba(255, 255, 255, 0.08);
-    --color-border-strong: rgba(255, 255, 255, 0.16);
-    --color-divider: rgba(255, 255, 255, 0.08);
+    --color-wash: #201c15;
+    --color-border: rgba(232, 223, 205, 0.12);
+    --color-border-strong: rgba(232, 223, 205, 0.2);
+    --color-divider: rgba(232, 223, 205, 0.09);
 
-    --color-ink: #f2f4f7;
-    --color-text-primary: #f2f4f7;
-    --color-text-secondary: #aab0bb;
-    --color-text-tertiary: #757c88;
+    --color-ink: #f3efe2;
+    --color-text-primary: #f3efe2;
+    --color-text-secondary: #a89a86;
+    --color-text-tertiary: #7c7364;
 
-    --color-aegean-tint: rgba(91, 155, 213, 0.16);
-    --color-coral-tint: rgba(232, 115, 79, 0.18);
-    --color-ocean-tint: rgba(20, 110, 156, 0.18);
+    --color-aegean-tint: rgba(31, 111, 178, 0.2);
+    --color-coral-tint: rgba(240, 145, 111, 0.2);
+    --color-ocean-tint: rgba(20, 110, 156, 0.2);
 
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 16px 36px rgba(0, 0, 0, 0.35);
-    --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.32), 0 22px 44px rgba(0, 0, 0, 0.4);
+    /* Cards toujours sans ombre en dark mode aussi (règle "bordure +
+       2 blocs pleins = seul relief", pas d'ombre grise classique). */
+    --shadow-card: none;
+    --shadow-card-hover: 0 4px 14px rgba(0, 0, 0, 0.35);
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.32);
     --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.35);
