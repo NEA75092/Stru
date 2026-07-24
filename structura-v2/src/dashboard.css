@@ -1044,8 +1044,26 @@ tbody tr.selected {
 .clients-hero-title,
 .cal-context-title,
 .ingest-hero-title,
-.pilotage-hero-title {
+.pilotage-hero-title,
+#view-portfolio > .toolbar::before {
     color: var(--color-ink) !important;
+}
+/* Même taille pour tous les titres de page (rôle "H1" par vue) — audité
+   le 2026-07-25 : chaque vue avait sa propre déclaration indépendante
+   (.cal-context-title à 22px fixe, .pilotage-hero-title à 28px fixe,
+   .clients-hero-title/.ingest-hero-title/portfolio sur 3 formules
+   clamp() légèrement différentes) au lieu de partager une seule règle
+   — d'où des titres visiblement plus petits sur Calendrier/Pilotage
+   que sur Clients/Portefeuille/Decrement Score/Doc Reader pour le même
+   rôle. Dashboard (.dash-welcome-title) reste à part : hero sur bloc
+   dégradé, pas un titre de page plat. */
+.clients-hero-title,
+.cal-context-title,
+.ingest-hero-title,
+.pilotage-hero-title,
+#view-portfolio > .toolbar::before {
+    font-size: clamp(1.75rem, 3vw, 2.25rem) !important;
+    font-weight: 500 !important;
 }
 /* .clients-hero est en align-items:flex-end (styles.css) — pertinent
    quand la carte avait un padding généreux (22px 24px), plus depuis
