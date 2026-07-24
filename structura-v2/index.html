@@ -682,7 +682,11 @@
                                 </button>
                                 <button type="button" class="pitch-wizard-step" data-step-btn="4" onclick="pitchWizardGoTo(4)">
                                     <span class="pitch-wizard-step-num">4</span>
-                                    <span class="pitch-wizard-step-label">Émetteur &amp; génération</span>
+                                    <span class="pitch-wizard-step-label">Émetteur &amp; contexte</span>
+                                </button>
+                                <button type="button" class="pitch-wizard-step" data-step-btn="5" onclick="pitchWizardGoTo(5)">
+                                    <span class="pitch-wizard-step-num">5</span>
+                                    <span class="pitch-wizard-step-label">Résumé &amp; génération</span>
                                 </button>
                             </div>
                             <div class="pitch-step active" data-step="1">
@@ -1085,36 +1089,40 @@
                                     />
                                 </div>
                             </div>
-                            <div class="form-actions">
-                                <button
-                                    class="btn"
-                                    onclick="hydratePitchFromLastExtraction()"
-                                >
-                                    Utiliser dernier document lu
-                                </button>
-                                <button
-                                    class="btn btn-gold"
-                                    onclick="generatePitchLocal()"
-                                >
-                                    Générer pitch
-                                </button>
-                                <button
-                                    class="btn"
-                                    onclick="downloadPitchPPTX()"
-                                >
-                                    Exporter PPTX
-                                </button>
-                                <button
-                                    class="btn"
-                                    onclick="downloadPitchPDF()"
-                                >
-                                    Exporter PDF
-                                </button>
                             </div>
+                            <div class="pitch-step" data-step="5">
+                                <div class="pitch-substep-title">Résumé avant génération</div>
+                                <div id="pitch-wizard-summary" class="pitch-wizard-summary"></div>
+                                <div class="form-actions">
+                                    <button
+                                        class="btn"
+                                        onclick="hydratePitchFromLastExtraction()"
+                                    >
+                                        Utiliser dernier document lu
+                                    </button>
+                                    <button
+                                        class="btn btn-gold"
+                                        onclick="generatePitchLocal()"
+                                    >
+                                        Générer pitch
+                                    </button>
+                                    <button
+                                        class="btn"
+                                        onclick="downloadPitchPPTX()"
+                                    >
+                                        Exporter PPTX
+                                    </button>
+                                    <button
+                                        class="btn"
+                                        onclick="downloadPitchPDF()"
+                                    >
+                                        Exporter PDF
+                                    </button>
+                                </div>
                             </div>
                             <div class="pitch-wizard-nav">
                                 <button type="button" class="btn" id="pitch-wizard-prev" onclick="pitchWizardPrev()" disabled>← Précédent</button>
-                                <span class="pitch-wizard-status" id="pitch-wizard-status">Étape 1 sur 4</span>
+                                <span class="pitch-wizard-status" id="pitch-wizard-status">Étape 1 sur 5</span>
                                 <button type="button" class="btn btn-gold" id="pitch-wizard-next" onclick="pitchWizardNext()">Suivant →</button>
                             </div>
                         </div>

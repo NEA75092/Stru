@@ -977,6 +977,56 @@ tbody tr.selected {
     color: var(--color-text-tertiary) !important;
     opacity: 0.75;
 }
+/* Étape 5 : récap avant génération, chaque ligne éditable en 1 clic
+   vers l'étape concernée (pitchWizardGoTo) plutôt qu'un mur de champs
+   qu'il faudrait re-parcourir pour vérifier une valeur. */
+.pitch-wizard-summary {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-md) !important;
+    background: var(--color-surface-1) !important;
+    overflow: hidden;
+    margin-bottom: var(--space-4) !important;
+}
+.pitch-summary-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3) !important;
+    padding: var(--space-3) var(--space-4) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+}
+.pitch-summary-row:last-child {
+    border-bottom: none !important;
+}
+.pitch-summary-label {
+    flex: 0 0 40%;
+    font-family: var(--font-mono-data) !important;
+    font-size: var(--text-2xs) !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: var(--color-text-tertiary) !important;
+}
+.pitch-summary-value {
+    flex: 1 1 auto;
+    font-size: var(--text-base) !important;
+    color: var(--color-text-primary) !important;
+    font-weight: 500 !important;
+}
+.pitch-summary-edit {
+    flex: 0 0 auto;
+    border: none !important;
+    background: none !important;
+    color: var(--color-aegean) !important;
+    font-size: var(--text-xs) !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2) !important;
+    border-radius: var(--radius-xs) !important;
+    transition: background var(--duration-fast) var(--ease-standard) !important;
+}
+.pitch-summary-edit:hover {
+    background: var(--color-aegean-tint) !important;
+}
 /* ── Pitch Engine : wizard 4 étapes (2026-07-24) — remplace le mur de
    ~50 champs en scroll continu. Chaque étape reprend le même
    traitement carte teintée que l'ancien .pitch-advanced-block, y

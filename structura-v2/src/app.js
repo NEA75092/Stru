@@ -2000,8 +2000,76 @@ function toggleTheme() {
   applyTheme(next);
 }
 
-const PITCH_WIZARD_STEP_COUNT = 4;
+const PITCH_WIZARD_STEP_COUNT = 5;
 let pitchWizardCurrentStep = 1;
+
+const PITCH_TYPE_LABELS = {
+  phoenix: "Phoenix Autocall",
+  athena: "Athena Autocall",
+  bearish_taux: "Bearish Taux",
+  cln: "CLN (Credit Linked Note)",
+  note: "Note taux fixe/variable",
+};
+const PITCH_FREQUENCY_LABELS = {
+  annuel: "Annuelle",
+  semestriel: "Semestrielle",
+  trimestriel: "Trimestrielle",
+  mensuel: "Mensuelle",
+};
+
+function pitchWizardSummaryRow(step, label, value) {
+  return `<div class="pitch-summary-row">
+    <span class="pitch-summary-label">${escapeHtml(label)}</span>
+    <span class="pitch-summary-value">${escapeHtml(value)}</span>
+    <button type="button" class="pitch-summary-edit" onclick="pitchWizardGoTo(${step})">Modifier</button>
+  </div>`;
+}
+
+function pitchWizardBuildSummary() {
+  if (typeof document === "undefined") return;
+  const el = document.getElementById("pitch-wizard-summary");
+  if (!el) return;
+  const val = (id) => document.getElementById(id)?.value || "";
+  const family = val("ap-type") || "phoenix";
+  const showsBarrier = ["phoenix", "athena", "bearish_taux"].includes(family);
+  const rows = [
+    pitchWizardSummaryRow(1, "Client", val("ap-client") || "—"),
+    pitchWizardSummaryRow(1, "Type produit", PITCH_TYPE_LABELS[family] || family),
+    pitchWizardSummaryRow(1, "Sous-jacent(s)", val("ap-under") || "—"),
+    pitchWizardSummaryRow(1, "Durée", val("ap-dur") || "—"),
+    pitchWizardSummaryRow(
+      1,
+      "Coupon",
+      val("ap-coupon") ? `${val("ap-coupon")}%/an` : "—",
+    ),
+  ];
+  if (showsBarrier) {
+    rows.push(
+      pitchWizardSummaryRow(
+        1,
+        "PDI / barrière protection",
+        val("ap-barrier") ? `${val("ap-barrier")}%` : "—",
+      ),
+      pitchWizardSummaryRow(
+        1,
+        "Rappel",
+        val("ap-recall") ? `${val("ap-recall")}%` : "—",
+      ),
+    );
+  }
+  rows.push(
+    pitchWizardSummaryRow(
+      2,
+      "Fréquence",
+      PITCH_FREQUENCY_LABELS[val("ap-frequency")] || "—",
+    ),
+    pitchWizardSummaryRow(2, "Date de maturité", val("ap-maturity-date") || "—"),
+    pitchWizardSummaryRow(4, "Émetteur", val("ap-issuer") || "—"),
+    pitchWizardSummaryRow(4, "Notation", val("ap-rating") || "—"),
+    pitchWizardSummaryRow(4, "SRI (KID)", val("ap-sri") || "—"),
+  );
+  el.innerHTML = rows.join("");
+}
 
 function pitchWizardRender() {
   if (typeof document === "undefined") return;
@@ -2021,6 +2089,9 @@ function pitchWizardRender() {
   if (nextBtn) nextBtn.hidden = pitchWizardCurrentStep === PITCH_WIZARD_STEP_COUNT;
   if (status) {
     status.textContent = `Étape ${pitchWizardCurrentStep} sur ${PITCH_WIZARD_STEP_COUNT}`;
+  }
+  if (pitchWizardCurrentStep === PITCH_WIZARD_STEP_COUNT) {
+    pitchWizardBuildSummary();
   }
 }
 
