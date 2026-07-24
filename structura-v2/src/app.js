@@ -2165,6 +2165,49 @@ function pitchWizardPrev() {
   pitchWizardGoTo(pitchWizardCurrentStep - 1);
 }
 
+const PITCH_FAMILY_DEFAULTS = {
+  phoenix: {
+    "ap-decrement": "50",
+    "ap-degressivity": "1",
+    "ap-floor": "80",
+    "ap-put-pdi": "50",
+    "ap-put-multiplier": "2",
+  },
+  athena: {
+    "ap-decrement": "50",
+    "ap-degressivity": "1",
+    "ap-floor": "80",
+    "ap-oxygen-barrier": "60",
+  },
+  bearish_taux: {
+    "ap-bearish-guaranteed-amount": "2.0",
+    "ap-bearish-guaranteed-period": "1ère année écoulée",
+    "ap-bearish-recall-barrier": "100",
+    "ap-bearish-coupon-barrier": "95",
+  },
+  cln: {
+    "ap-note-underlying": "Entité de référence à préciser",
+    "ap-call-dates": "01/06/2027; 01/06/2028",
+  },
+  note: {
+    "ap-note-underlying": "EURIBOR 12M",
+    "ap-spread": "1.5",
+    "ap-cap-floor": "8 / 2",
+  },
+};
+
+// N'écrase jamais une valeur déjà saisie : ne remplit que les champs
+// encore vides au moment du choix de famille, pour réduire le nombre
+// de champs vides sans jamais effacer une saisie utilisateur.
+function pitchApplyFamilyDefaults(family) {
+  if (typeof document === "undefined") return;
+  const defaults = PITCH_FAMILY_DEFAULTS[family] || {};
+  Object.entries(defaults).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = value;
+  });
+}
+
 function updatePitchProductFields() {
   if (typeof document === "undefined") return;
   const family =
@@ -6394,6 +6437,7 @@ if (typeof document !== "undefined") {
   renderDashboardModules();
   renderDashboardSummary();
   updateIngestionLearningUI();
+  pitchApplyFamilyDefaults(document.getElementById("ap-type")?.value || "phoenix");
   updatePitchProductFields();
   pitchWizardRender();
   pitchWizardSetupInlineValidation();

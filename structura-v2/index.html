@@ -702,7 +702,7 @@
                                 </div>
                                 <div>
                                     <label class="f-lbl">Type produit</label>
-                                    <select class="f-sel" id="ap-type" onchange="updatePitchProductFields()">
+                                    <select class="f-sel" id="ap-type" onchange="pitchApplyFamilyDefaults(this.value); updatePitchProductFields()">
                                         <option value="phoenix">Phoenix Autocall</option>
                                         <option value="athena">Athena Autocall</option>
                                         <option value="bearish_taux">Bearish Taux</option>
