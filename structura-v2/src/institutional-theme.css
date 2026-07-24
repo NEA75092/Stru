@@ -3942,19 +3942,19 @@ td {
     box-shadow: none !important;
 }
 .mode-btn.on {
-    background: var(--color-aegean) !important;
-    border-color: var(--color-aegean) !important;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
+    border-color: transparent !important;
     color: var(--color-text-on-dark) !important;
 }
 .sidebar-add.btn-gold {
     border: none !important;
-    background: var(--color-aegean) !important;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
     color: var(--color-text-on-dark) !important;
     box-shadow: var(--shadow-sm) !important;
     font-weight: 600 !important;
 }
 .sidebar-add.btn-gold:hover {
-    background: var(--color-aegean-2) !important;
+    background: linear-gradient(135deg, var(--color-aegean-deep-1), var(--color-aegean-deep-2)) !important;
 }
 
 .header {

@@ -295,8 +295,8 @@
     box-shadow: none !important;
 }
 .compact-toggle.on {
-    background: var(--color-aegean) !important;
-    border-color: var(--color-aegean) !important;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
+    border-color: transparent !important;
     color: var(--color-text-on-dark) !important;
 }
 
@@ -381,12 +381,12 @@
     color: var(--color-ink) !important;
 }
 .btn-gold {
-    background: var(--color-aegean) !important;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
     color: var(--color-text-on-dark) !important;
     box-shadow: var(--shadow-sm) !important;
 }
 .btn-gold:hover {
-    background: var(--color-aegean-2) !important;
+    background: linear-gradient(135deg, var(--color-aegean-deep-1), var(--color-aegean-deep-2)) !important;
 }
 
 .up {
@@ -1093,14 +1093,14 @@ tbody tr.selected {
     box-shadow: none !important;
 }
 .calendar-mode-btn {
-    border: none !important;
+    border: 1px solid var(--color-border) !important;
     background: var(--color-surface-1) !important;
     color: var(--color-text-secondary) !important;
 }
 .calendar-mode-btn.on {
-    background: var(--color-aegean) !important;
-    border-color: var(--color-aegean) !important;
-    color: var(--color-text-on-dark) !important;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
 }
 .calendar-home-btn {
     color: var(--color-aegean) !important;
