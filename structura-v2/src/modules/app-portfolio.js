@@ -36,6 +36,16 @@
       ST_LABEL_SHORT,
       TYPE_NAMES,
     } = root.StructuraPortfolioConstants;
+    // Statut en pastille pleine (refonte Dolce Vita Fintech, 2026-07-25) —
+    // même mapping sémantique que ST_COLOR, juste la classe .pill-status
+    // à appliquer au lieu d'un texte coloré en style inline.
+    const ST_PILL_CLASS = {
+      breach: "danger",
+      crit: "danger",
+      warn: "warning",
+      safe: "ok",
+      unknown: "info",
+    };
 
     const pfFilter = runtime.pfFilter;
     const pfSort = runtime.pfSort;
@@ -409,7 +419,7 @@
       <td><div class="bar-wrap" data-tooltip="${escapeHtml(barTooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${barW}%"></div></div>${distPct}</div></td>
       <td style="color:var(--text2);font-size:10px;">${escapeHtml(p.maturity)}</td>
       <td style="font-size:10px;color:var(--text3);">${escapeHtml(p.nextEvtDate)}</td>
-      <td><span class="status"><span class="s-dot" style="background:${ST_COLOR[p.st.s]};"></span><span style="font-size:9px;color:${ST_COLOR[p.st.s]};">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></span></td>
+      <td><span class="pill-status ${ST_PILL_CLASS[p.st.s] || "info"}">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></td>
     </tr>`;
         })
         .join("");

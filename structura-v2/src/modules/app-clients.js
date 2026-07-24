@@ -154,7 +154,7 @@
         <div class="client-kpi-row">
           <div class="client-kpi"><span>Produits</span><b>${stats.count}</b></div>
           <div class="client-kpi"><span>Encours nominal</span><b>${moneyShort(stats.nominal)}</b></div>
-          <div class="client-kpi"><span>Valorisation</span><b>${moneyShort(stats.val)}</b></div>
+          <div class="client-kpi client-kpi-featured"><span>Valorisation</span><b>${moneyShort(stats.val)}</b></div>
           <div class="client-kpi warn"><span>Alertes</span><b>${stats.breach + stats.watch}</b></div>
         </div>
         ${client.notes ? `<div class="client-notes">${escapeHtml(client.notes)}</div>` : ""}

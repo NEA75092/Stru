@@ -224,49 +224,50 @@
 }
 
 .alert-strip {
-    gap: var(--space-2) !important;
+    gap: var(--space-3) !important;
 }
+/* Card d'alerte/ligne de risque (refonte Dolce Vita Fintech,
+   2026-07-25) : fond blanc + bordure, plus de fond teinté par
+   sévérité — la sévérité se lit sur le titre + la barre, pas sur un
+   lavis de fond, pour rester dans la logique "cards blanches +
+   2 blocs pleins par écran max" (celui-ci n'est pas un des 2). */
 .al {
-    border-radius: var(--radius-md) !important;
-    border: none !important;
-    background: var(--color-surface-2) !important;
-    padding: var(--space-3) var(--space-4) !important;
+    border-radius: 18px !important;
+    border: 1px solid var(--color-border) !important;
+    background: var(--color-surface-1) !important;
+    padding: 22px 24px !important;
 }
-.al-crit {
-    background: rgba(232, 115, 79, 0.08) !important;
-}
+.al-crit,
 .al-warn,
 .al-info,
 .al-ok {
-    background: var(--color-surface-2) !important;
+    background: var(--color-surface-1) !important;
 }
 .al-txt,
 .al-txt strong {
     color: var(--color-text-primary) !important;
 }
+.al-txt strong {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+}
 .al-crit .al-txt strong {
-    color: var(--color-coral-2) !important;
+    color: var(--color-coral-deep) !important;
 }
 .al-time {
-    color: var(--color-text-tertiary) !important;
+    color: var(--color-text-secondary) !important;
     font-family: var(--font-mono-data) !important;
+    font-size: 11.5px !important;
 }
-/* Jauge de risque décorative (dashboard) : même code couleur que les
-   jauges de barrière — océan sain, ambre surveillance, corail critique.
-   Bug confirmé par capture (2026-07-24) : linear-gradient(coral, coral)
-   — deux fois la même couleur, donc un aplat plat malgré le nom de la
-   propriété. institutional-theme.css avait déjà un vrai dégradé
-   2 tons + un background-size variable (92/64/26% selon la sévérité,
-   conservé, pas touché ici) ; cette règle l'écrasait sans le savoir.
-   Hauteur remontée 4px -> 8px + relief via box-shadow interne (pas
-   juste un trait). */
+/* Jauge de risque décorative : dégradé corail plein -> corail profond,
+   fond de piste en filet neutre (--color-divider), 6px/radius 3px
+   exactement comme la barre de progression des cards de risque. */
 #view-dashboard .al-txt::after {
-    height: 8px !important;
-    background-color: var(--color-surface-3) !important;
-    background-image: linear-gradient(90deg, var(--color-coral), var(--color-coral-2)) !important;
-    box-shadow:
-        inset 0 1px 2px rgba(0, 0, 0, 0.18),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.2) !important;
+    height: 6px !important;
+    border-radius: 3px !important;
+    background-color: var(--color-divider) !important;
+    background-image: linear-gradient(90deg, var(--color-coral), var(--color-coral-deep)) !important;
+    box-shadow: none !important;
 }
 #view-dashboard .al-warn .al-txt::after {
     background-image: linear-gradient(90deg, var(--color-warning), var(--color-warning-2)) !important;
@@ -319,12 +320,12 @@
     padding: 6px 12px !important;
     border-radius: var(--radius-full) !important;
     border: none !important;
-    background: var(--color-surface-2) !important;
+    background: var(--color-bg) !important;
     color: var(--color-text-secondary) !important;
     box-shadow: none !important;
 }
 .pill-filter.on {
-    background: var(--color-aegean) !important;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
     border-color: var(--color-aegean) !important;
     color: var(--color-text-on-dark) !important;
 }
@@ -426,7 +427,7 @@ thead th.sorted {
     transition: color var(--duration-base) var(--ease-standard) !important;
 }
 tbody tr {
-    border-bottom: 1px solid var(--color-border) !important;
+    border-bottom: 1px solid var(--color-divider) !important;
     border-left: none !important;
     border-right: none !important;
     transition: background-color var(--duration-base) var(--ease-standard) !important;
@@ -730,6 +731,88 @@ tbody tr.selected {
 }
 .pilotage-metric-bar[data-tooltip]:hover {
     filter: brightness(1.08);
+}
+
+/* Clients : 1 bloc plein bleu pour le KPI dossier sélectionné
+   (refonte Dolce Vita Fintech, 2026-07-25) — "Valorisation" plutôt
+   que les 4 chiffres à égalité, cohérent avec la règle 1 bloc par
+   écran (Barrières a déjà son bloc corail via .kpi.k-red). */
+.client-kpi {
+    border-radius: 16px !important;
+    background: var(--color-surface-1) !important;
+    border: 1px solid var(--color-border) !important;
+    padding: 16px !important;
+}
+.client-kpi span {
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-mono-data) !important;
+    font-size: 10px !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+.client-kpi b {
+    color: var(--color-ink) !important;
+    font-family: var(--font-heading) !important;
+    font-weight: 800 !important;
+}
+.client-kpi.warn b {
+    color: var(--color-coral-deep) !important;
+}
+.client-kpi-featured {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
+    border: none !important;
+}
+.client-kpi-featured span {
+    color: var(--color-sky-tint) !important;
+}
+.client-kpi-featured b {
+    color: #ffffff !important;
+}
+
+/* Calendrier : 1 bloc plein bleu sur "Coupons attendus" (flux de
+   trésorerie à venir = le chiffre le plus actionnable de l'écran). */
+#view-calendar .kpi.k-cyan {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+#view-calendar .kpi.k-cyan .kpi-lbl,
+#view-calendar .kpi.k-cyan .kpi-sub {
+    color: var(--color-sky-tint) !important;
+}
+#view-calendar .kpi.k-cyan .kpi-val {
+    color: #ffffff !important;
+}
+
+/* Pilotage : pas de KPI en carte sur cette vue (jauges + classement) —
+   1 bloc plein bleu sur le 1er dossier du classement "Top 5", son
+   metric le plus concentré. */
+#ana-client-preview .pilotage-preview-row {
+    border-radius: 16px !important;
+    border: 1px solid var(--color-border) !important;
+    background: var(--color-surface-1) !important;
+}
+#ana-client-preview .pilotage-preview-row:hover {
+    border-color: var(--color-border-strong) !important;
+    background: var(--color-surface-2-hover) !important;
+}
+#ana-client-preview .pilotage-preview-row:first-child {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
+    border: none !important;
+    padding: 16px !important;
+}
+#ana-client-preview .pilotage-preview-row:first-child .pilotage-preview-name,
+#ana-client-preview .pilotage-preview-row:first-child .pilotage-preview-metric {
+    color: #ffffff !important;
+}
+#ana-client-preview .pilotage-preview-row:first-child small {
+    color: var(--color-sky-tint) !important;
 }
 
 /* ── Dashboard : contenu propre à l'écran (hors primitives ci-dessus) ── */
@@ -1160,10 +1243,10 @@ tbody tr.selected {
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-3) !important;
-    border: none;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
-    background: var(--color-surface-2);
-    color: var(--color-text-tertiary);
+    background: transparent;
+    color: var(--color-text-secondary);
     font-family: var(--font-body);
     font-size: var(--text-xs);
     font-weight: 500;
@@ -1185,16 +1268,17 @@ tbody tr.selected {
     font-size: 10px;
 }
 .pitch-wizard-step:hover {
-    background: var(--color-surface-3);
+    background: var(--color-surface-2);
     color: var(--color-text-primary);
 }
 .pitch-wizard-step.active {
-    background: var(--color-aegean-tint);
-    color: var(--color-aegean);
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1));
+    border-color: transparent;
+    color: #ffffff;
 }
 .pitch-wizard-step.active .pitch-wizard-step-num {
-    background: var(--color-aegean);
-    color: var(--color-text-on-dark);
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
 }
 .pitch-wizard-step.done .pitch-wizard-step-num {
     background: var(--color-success);
