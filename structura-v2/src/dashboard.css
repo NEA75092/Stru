@@ -416,7 +416,7 @@ tbody tr {
 }
 td,
 th {
-    padding: var(--space-4) var(--space-3) !important;
+    padding: var(--space-5) var(--space-3) !important;
     border-left: none !important;
     border-right: none !important;
 }
