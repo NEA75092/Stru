@@ -3818,7 +3818,7 @@ td {
    ============================================================ */
 .sidebar {
     border-radius: var(--radius-xl) !important;
-    border: none !important;
+    border: 1px solid var(--color-border) !important;
     background: var(--color-surface-1) !important;
     box-shadow: var(--shadow-card) !important;
 }
@@ -3836,14 +3836,17 @@ td {
    l'ancien fond actif, mais porté par un élément séparé (z-index sous
    le texte) qu'on translateY/anime en --ease-spring au lieu de
    basculer une classe statique. */
+/* Nav en "pilules" (refonte Dolce Vita Fintech, 2026-07-25) : structure
+   verticale conservée (largeur d'écran/sidebar existante), mais logique
+   de pilule pleine sur l'item actif — dégradé Égée, radius plein. */
 .nav-indicator {
     position: absolute !important;
     left: 0;
     right: 0;
     top: 0;
     z-index: 0;
-    border-radius: var(--radius-md) !important;
-    background: var(--color-aegean) !important;
+    border-radius: var(--radius-full) !important;
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
     transition:
         transform var(--duration-base) var(--ease-spring),
         height var(--duration-base) var(--ease-spring) !important;
@@ -3852,7 +3855,7 @@ td {
 .nav-tab {
     position: relative;
     z-index: 1;
-    border-radius: var(--radius-md) !important;
+    border-radius: var(--radius-full) !important;
     background: transparent !important;
     color: var(--color-text-secondary) !important;
     font-family: var(--font-body) !important;

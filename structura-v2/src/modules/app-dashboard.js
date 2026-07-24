@@ -320,12 +320,16 @@
       // Ce chart est dessiné en SVG via des attributs stroke/fill en dur
       // (pas de CSS, donc pas de var(--color-*)) : les recolorer à la
       // main selon le thème est le seul moyen de les faire suivre le
-      // dark mode (2026-07-24).
+      // dark mode (2026-07-24). Refonte Dolce Vita Fintech (2026-07-25) :
+      // la ligne est toujours bleue (plus de rouge/vert conditionnel sur
+      // le tracé — la direction reste lisible via le %/montant textuels
+      // à côté, en couleur sémantique, eux inchangés).
       const isDarkTheme =
         typeof globalThis.getTheme === "function" && globalThis.getTheme() === "dark";
-      const gridColor = isDarkTheme ? "rgba(255,255,255,0.10)" : "#e8eef4";
-      const labelColor = isDarkTheme ? "#8b93a6" : "#8fa0b3";
-      const refLineColor = isDarkTheme ? "rgba(255,255,255,0.22)" : "#c5d2df";
+      const gridColor = isDarkTheme ? "rgba(255,255,255,0.10)" : "#f0ece0";
+      const labelColor = isDarkTheme ? "#8b93a6" : "#a89a86";
+      const refLineColor = isDarkTheme ? "rgba(255,255,255,0.22)" : "#d9cba9";
+      const lineColor = "#1f6fb2";
       const vals = points.map((p) => p.idx);
       const minV = Math.min(98, ...vals, currentIdx) - 1.2;
       const maxV = Math.max(102, ...vals, currentIdx) + 1.2;
@@ -355,16 +359,23 @@
           return `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${labelColor}" font-size="10" font-family="IBM Plex Mono">${escapeHtml(lbl)}</text>`;
         })
         .join("");
-      const stroke = positive ? "#2d9f6a" : "#d45a5a";
-      const fill = positive ? "rgba(45,159,106,0.1)" : "rgba(212,90,90,0.08)";
       const markerRing = isDarkTheme ? "#1a2029" : "#fff";
+      const endX = xAt(points.length - 1).toFixed(1);
+      const endY = yAt(currentIdx).toFixed(1);
       svg.innerHTML = `
+        <defs>
+          <linearGradient id="perfAreaFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${lineColor}" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="${lineColor}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
         ${grid}
         <line x1="${pad.l}" y1="${refY.toFixed(1)}" x2="${W - pad.r}" y2="${refY.toFixed(1)}" stroke="${refLineColor}" stroke-dasharray="5 4"/>
-        <path d="${area}" fill="${fill}"/>
-        <path d="${line}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="${xAt(points.length - 1).toFixed(1)}" cy="${yAt(currentIdx).toFixed(1)}" r="4.5" fill="${stroke}" stroke="${markerRing}" stroke-width="2"/>
-        <text x="${W - pad.r}" y="${pad.t}" text-anchor="end" fill="${stroke}" font-size="12" font-weight="600" font-family="IBM Plex Mono">${currentIdx.toFixed(1)}</text>
+        <path d="${area}" fill="url(#perfAreaFill)"/>
+        <path d="${line}" fill="none" stroke="${lineColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="${endX}" cy="${endY}" r="10" fill="${lineColor}" opacity="0.2"/>
+        <circle cx="${endX}" cy="${endY}" r="6" fill="${lineColor}" stroke="${markerRing}" stroke-width="2"/>
+        <text x="${W - pad.r}" y="${pad.t}" text-anchor="end" fill="${lineColor}" font-size="13" font-weight="700" font-family="IBM Plex Mono">${currentIdx.toFixed(1)}</text>
         ${labels}`;
 
       const rangeLabel = PERF_RANGE_LABELS[perfRange] || perfRange;
@@ -404,6 +415,55 @@
       drawPerfHistory(totalNom, totalVal);
     }
 
+    // Donut de répartition (refonte Dolce Vita Fintech, 2026-07-25) :
+    // regroupe les lignes déjà calculées par renderIssuerExposure en
+    // top 3 + "Autres" (4 segments max, comme spécifié) — pure
+    // présentation, aucun recalcul de nominal/poids, juste un regroupement
+    // d'affichage des mêmes valeurs "rows"/"total" déjà agrégées.
+    function buildIssuerDonutSvg(rows, total) {
+      const top = rows.slice(0, 3);
+      const restNominal = rows.slice(3).reduce((sum, row) => sum + row.nominal, 0);
+      const segments = [
+        ...top.map((row, i) => ({
+          label: row.issuer,
+          value: row.nominal,
+          color: ["#1f6fb2", "#f0916f", "#9dc2e2"][i],
+        })),
+        ...(restNominal > 0
+          ? [{ label: "Autres émetteurs", value: restNominal, color: "#d8cdb6" }]
+          : []),
+      ].filter((s) => s.value > 0);
+      const r = 48;
+      const cx = 60;
+      const cy = 60;
+      const circumference = 2 * Math.PI * r;
+      let offset = 0;
+      const arcs = segments
+        .map((seg) => {
+          const frac = seg.value / total;
+          const len = frac * circumference;
+          const dasharray = `${len.toFixed(2)} ${(circumference - len).toFixed(2)}`;
+          const dashoffset = (-offset).toFixed(2);
+          offset += len;
+          return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="16" stroke-dasharray="${dasharray}" stroke-dashoffset="${dashoffset}" stroke-linecap="round"/>`;
+        })
+        .join("");
+      const legend = segments
+        .map((seg) => {
+          const pct = ((seg.value / total) * 100).toFixed(1);
+          return `<div class="donut-legend-item">
+            <span class="donut-legend-dot" style="background:${seg.color}"></span>
+            <span class="donut-legend-label">${escapeHtml(seg.label)}</span>
+            <span class="donut-legend-value">${pct}%</span>
+          </div>`;
+        })
+        .join("");
+      return `<div class="donut-wrap">
+        <svg viewBox="0 0 120 120" class="donut-svg" transform="rotate(-90)" style="transform:rotate(-90deg)">${arcs}</svg>
+        <div class="donut-legend">${legend}</div>
+      </div>`;
+    }
+
     function renderIssuerExposure() {
       const c = document.getElementById("issuer-exposure");
       if (!c) return;
@@ -423,7 +483,8 @@
         return map;
       }, new Map()).values()].sort((a, b) => b.nominal - a.nominal);
       const total = rows.reduce((sum, row) => sum + row.nominal, 0) || 1;
-      c.innerHTML = rows.slice(0, 8).map((row) => {
+      const donut = buildIssuerDonutSvg(rows, total);
+      c.innerHTML = donut + rows.slice(0, 8).map((row) => {
         const weight = (row.nominal / total) * 100;
         const pnl = row.nominal ? ((row.val - row.nominal) / row.nominal) * 100 : 0;
         return `<div class="issuer-row">

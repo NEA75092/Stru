@@ -85,13 +85,13 @@
 }
 .panel {
     border-radius: var(--radius-lg) !important;
-    border: none !important;
+    border: 1px solid var(--color-border) !important;
     background: var(--color-surface-1) !important;
     box-shadow: var(--shadow-card) !important;
 }
 .kpi {
     border-radius: var(--radius-lg) !important;
-    border: none !important;
+    border: 1px solid var(--color-border) !important;
     background: var(--color-surface-1) !important;
     box-shadow: var(--shadow-card) !important;
     padding: var(--space-6) var(--space-6) var(--space-5) !important;
@@ -111,9 +111,10 @@
     letter-spacing: 0.12em !important;
 }
 .kpi-val {
-    font-size: var(--text-2xl) !important;
+    font-size: 34px !important;
     font-family: var(--font-heading) !important;
-    font-weight: 400 !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.025em !important;
     color: var(--color-ink) !important;
 }
 .kpi-sub {
@@ -149,21 +150,43 @@
    La taille commune vient de .kpi-val (font-size: var(--text-2xl)) —
    plus besoin de la répéter ici. */
 
-/* La carte qui porte l'accent corail : celle qui signale un vrai danger.
+/* Bloc "alerte/highlight" (refonte Dolce Vita Fintech, 2026-07-25) : le
+   2e des 2 blocs pleins par écran-clé, réservé à LA métrique la plus
+   critique — ici "Barrières franchies"/"Critique". Dégradé corail plein,
+   texte brun-noir chaud (jamais blanc sur corail), 1 cercle décoratif.
    Scopé à Dashboard/Barrières où k-red = urgence confirmée — sur
    Calendrier la même classe habille un simple compteur d'événements,
    pas une alerte, donc elle reste neutre comme les 3 autres. */
 #view-dashboard .kpi.k-red,
 #view-barriers .kpi.k-red {
-    background: linear-gradient(180deg, rgba(232, 115, 79, 0.07), rgba(232, 115, 79, 0.03)), var(--color-surface-1) !important;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--color-coral), var(--color-coral-deep)) !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 32px !important;
 }
-#view-dashboard .kpi.k-red .kpi-val,
-#view-barriers .kpi.k-red .kpi-val {
-    color: var(--color-coral) !important;
+#view-dashboard .kpi.k-red::after,
+#view-barriers .kpi.k-red::after {
+    content: "";
+    position: absolute;
+    bottom: -40px;
+    left: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 70%);
+    pointer-events: none;
 }
 #view-dashboard .kpi.k-red .kpi-lbl,
-#view-barriers .kpi.k-red .kpi-lbl {
-    color: var(--color-coral-2) !important;
+#view-barriers .kpi.k-red .kpi-lbl,
+#view-dashboard .kpi.k-red .kpi-val,
+#view-barriers .kpi.k-red .kpi-val,
+#view-dashboard .kpi.k-red .kpi-sub,
+#view-barriers .kpi.k-red .kpi-sub {
+    position: relative;
+    z-index: 1;
+    color: var(--color-ink-on-coral) !important;
 }
 #view-barriers .bar-kpi-row .kpi.k-orange .kpi-val,
 #view-barriers .bar-kpi-row .kpi.k-gold .kpi-val,
@@ -171,32 +194,11 @@
     color: var(--color-ink) !important;
 }
 
-/* La carte "Valeur totale portefeuille" (1ère du Dashboard) est le
-   chiffre le plus important de la page mais n'avait aucun accent —
-   --gold pointe vers le corail (urgence), donc lui donner ce
-   traitement aurait fait doublon avec k-red. Fond + libellé en Égée
-   (le seul accent légitime du système) à intensité nettement plus
-   faible que k-red : l'urgence doit rester visuellement plus forte
-   que la vedette neutre. .kpi-val reste en encre (règle titres) —
-   le fond et le libellé suffisent à distinguer la carte. */
-#view-dashboard .kpi.k-gold {
-    /* La recette corail (rgba(...) en alpha sur fond chaud) tire l'égée
-       vers un gris terne au lieu d'un bleu perceptible — l'égée est une
-       teinte froide, son canal rouge est loin sous celui du fond crème,
-       ce qui désature plus qu'il ne teinte. color-mix(in oklch, ...)
-       préserve la teinte au lieu de désaturer. Remonté de 2%/0.8% à
-       9%/4% le 2026-07-24 : la version précédente, "validée
-       visuellement", ne l'était en fait pas — capture d'écran à
-       l'appui, la carte était indiscernable du blanc. Garde une
-       marge sous k-red (7%/3%) pour que l'urgence reste plus forte
-       que la vedette neutre, mais doit maintenant se voir au premier
-       coup d'oeil, pas seulement en lisant la valeur hex. */
-    background: linear-gradient(
-        180deg,
-        color-mix(in oklch, var(--color-aegean) 9%, var(--color-surface-1)),
-        color-mix(in oklch, var(--color-aegean) 4%, var(--color-surface-1))
-    ) !important;
-}
+/* "Valeur totale portefeuille" (1ère carte Dashboard) : plus de fond
+   teinté — la règle des 2 blocs pleins maximum par écran (hero +
+   k-red ci-dessus) ne laisse pas de place à un 3e traitement, aussi
+   discret soit-il. Redevient une card blanche standard, distinguée
+   par son libellé Égée et sa position, pas par une couleur de fond. */
 #view-dashboard .kpi.k-gold .kpi-lbl {
     color: var(--color-aegean-2) !important;
 }
@@ -207,7 +209,7 @@
 .sec-title {
     color: var(--color-ink) !important;
     font-family: var(--font-heading) !important;
-    font-weight: 500 !important;
+    font-weight: 700 !important;
     letter-spacing: -0.02em !important;
 }
 .sec-title::before {
@@ -584,7 +586,7 @@ tbody tr.selected {
 .modal-title,
 .dr-name {
     font-family: var(--font-heading) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     color: var(--color-ink) !important;
 }
 .dr-close {
@@ -737,31 +739,58 @@ tbody tr.selected {
    vrai hero de la page, il mérite une présence que les lignes de
    liste n'ont pas besoin d'avoir. Relief redonné sans revenir à un
    gris plat : dégradé oklch très léger plutôt qu'un aplat. */
-/* Moment signature (2026-07-24, renforcé le même jour après retour
-   "invisible à l'écran" — un mix à 5% ne se voit tout simplement pas) :
-   seul hero non fonctionnel de l'app, un endroit où la palette
-   Santorini complète peut se montrer sans concurrencer l'accent Égée
-   fonctionnel (nav/CTA/liens). Dégradé net corail -> Égée, assez
-   marqué pour se voir au premier coup d'oeil, avec le titre encre qui
-   reste lisible dessus (testé en capture, pas juste en valeur CSS). */
+/* Bloc "hero/contexte" (refonte Dolce Vita Fintech, 2026-07-25) : un
+   des 2 blocs pleins par écran-clé — dégradé bleu profond Sidi Bou
+   Said, 2 cercles décoratifs en fond (clippés par overflow:hidden),
+   texte blanc/sky-tint. Jamais de bordure ni d'ombre : la couleur
+   pleine EST le relief. */
 #view-dashboard .dash-welcome {
-    background: linear-gradient(
-        120deg,
-        color-mix(in oklch, var(--color-coral) 20%, var(--color-surface-1)),
-        color-mix(in oklch, var(--color-aegean) 22%, var(--color-surface-1)) 100%
-    ) !important;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--color-aegean-deep-1), var(--color-aegean-deep-2) 65%) !important;
+    border: none !important;
     border-radius: var(--radius-lg) !important;
-    border: 1px solid var(--color-border) !important;
-    box-shadow: var(--shadow-card) !important;
-    padding: var(--space-6) var(--space-7) !important;
+    box-shadow: none !important;
+    padding: 40px 38px !important;
+}
+#view-dashboard .dash-welcome::before {
+    content: "";
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 70%);
+    pointer-events: none;
+}
+#view-dashboard .dash-welcome::after {
+    content: "";
+    position: absolute;
+    bottom: -70px;
+    right: 120px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217, 106, 58, 0.28), transparent 70%);
+    pointer-events: none;
+}
+#view-dashboard .dash-welcome-copy {
+    position: relative;
+    z-index: 1;
+}
+#view-dashboard .dash-welcome-kicker {
+    color: var(--color-sky-tint) !important;
+    opacity: 0.85;
 }
 #view-dashboard .dash-welcome-title {
     font-family: var(--font-heading) !important;
-    color: var(--color-ink) !important;
-    font-weight: 400 !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
 }
 #view-dashboard .dash-welcome-sub {
-    color: var(--color-text-tertiary) !important;
+    color: var(--color-sky-tint) !important;
 }
 #view-dashboard .dash-alerts-block,
 #view-dashboard .dash-perf-section,
@@ -823,6 +852,50 @@ tbody tr.selected {
 }
 #view-dashboard .issuer-exposure {
     gap: var(--space-4) !important;
+}
+/* Donut de répartition (refonte Dolce Vita Fintech, 2026-07-25) — la
+   liste détaillée par émetteur reste en dessous (mêmes données, plus
+   de granularité que les 4 segments du donut) plutôt que d'être
+   supprimée. */
+.donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding-bottom: var(--space-5);
+    margin-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+}
+.donut-svg {
+    width: 132px;
+    height: 132px;
+    flex-shrink: 0;
+}
+.donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1 1 auto;
+}
+.donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-base);
+}
+.donut-legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.donut-legend-label {
+    color: var(--color-text-primary);
+    flex: 1 1 auto;
+}
+.donut-legend-value {
+    font-family: var(--font-mono-data);
+    font-weight: 700;
+    color: var(--color-text-secondary);
 }
 #view-dashboard .issuer-row {
     border-radius: 0 !important;
