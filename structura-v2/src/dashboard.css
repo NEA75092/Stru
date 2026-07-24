@@ -1139,10 +1139,12 @@ tbody tr.selected {
     color: var(--color-aegean) !important;
     border-color: var(--color-aegean) !important;
 }
-/* Encart pédagogique "Lecture simple" : information, pas une alerte. */
+/* Encart pédagogique "Lecture simple" : information, pas une alerte,
+   ni l'un des 2 blocs pleins volontaires — même ton de card que ses
+   voisines (voir .dr-client-card ci-dessus pour le détail du bug). */
 .dec-source-panel {
     border: none !important;
-    background: var(--color-aegean-tint) !important;
+    background: var(--color-surface-2) !important;
     box-shadow: none !important;
 }
 .dec-source-title,
@@ -1433,9 +1435,18 @@ tbody tr.selected {
     border-radius: var(--radius-lg) !important;
     background: var(--color-surface-2) !important;
 }
+/* Ni .dec-source-panel ni .dr-client-card ne sont l'un des 2 blocs
+   pleins volontaires de l'écran (hero bleu, alerte corail) — ce sont
+   des cards d'info secondaires qui doivent rester au même ton neutre
+   que leurs voisines. --color-aegean-tint en fond plein cassait cette
+   règle en dark mode : ce token vaut un lavis pâle en clair (#e1ecf7)
+   mais un bleu saturé à 20% d'alpha en sombre (calibré pour un survol/
+   accent ponctuel, pas un fond de card entier) — un carré qui détonait
+   parmi des cards par ailleurs neutres (audit dark mode, 2026-07-25).
+   L'accent reste porté par le texte (titre, chiffres), pas le fond. */
 .dr-client-card {
     border: none !important;
-    background: var(--color-aegean-tint) !important;
+    background: var(--color-surface-2) !important;
 }
 
 /* ============================================================
