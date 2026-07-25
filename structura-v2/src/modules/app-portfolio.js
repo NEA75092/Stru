@@ -614,7 +614,7 @@
                 <span class="channel-tag">${escapeHtml(channelLabel(alloc.channel))}</span>
               </span>
             </div>
-            <button type="button" class="btn btn-gold" onclick="openClientWorkspace(${client.id})">Ouvrir le dossier →</button>
+            <button type="button" class="btn btn-primary" onclick="openClientWorkspace(${client.id})">Ouvrir le dossier →</button>
           </div>`;
         })
         .join("");
@@ -637,7 +637,7 @@
               <strong>Non assigné</strong>
               <small>Rattachez ce produit à un ou plusieurs clients pour suivre l'encours par dossier.</small>
             </div>
-            <button type="button" class="btn btn-gold" onclick="nav('clients')">Gérer les clients</button>
+            <button type="button" class="btn btn-primary" onclick="nav('clients')">Gérer les clients</button>
           </div>
           <label for="dr-client-select">Rattacher à</label>
           <select class="f-sel" id="dr-client-select" onchange="assignProductClientFromDrawer(${p.id}, this.value)">

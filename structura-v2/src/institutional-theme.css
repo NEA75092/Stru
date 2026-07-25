@@ -47,33 +47,6 @@ body::before {
   display: none !important;
 }
 
-.app {
-  padding: 0;
-  gap: 0;
-  background: var(--bg);
-  grid-template-columns: 248px minmax(0, 1fr);
-}
-
-.app-shell {
-  gap: 0;
-  background: var(--bg);
-  min-height: 0;
-}
-
-.sidebar {
-  gap: 0;
-  padding: 0;
-  border-radius: 0;
-  border: none;
-  border-right: 1px solid var(--rule);
-  background: var(--s1);
-  box-shadow: none;
-}
-
-.sidebar-brand {
-  border-bottom: 1px solid var(--rule);
-}
-
 .sidebar-client {
   padding: 16px 24px;
   border-bottom: 1px solid var(--rule);
@@ -93,16 +66,6 @@ body::before {
 .link-btn:hover {
   color: var(--aegean);
   text-decoration: none;
-}
-
-.sidebar-nav {
-  gap: 1px;
-}
-
-.sidebar-foot {
-  gap: 8px;
-  padding: 16px 14px 20px;
-  border-top: 1px solid var(--rule);
 }
 
 #tab-dashboard::before,
@@ -139,41 +102,10 @@ body::before {
   align-content: center;
 }
 
-.nav-tab {
-  position: relative;
-  display: flex;
-  width: 100%;
-  margin: 0;
-  color: var(--aegean);
-  background: transparent;
-  font-family: var(--font-sans);
-  box-shadow: none;
-  transition: background 0.25s var(--ease), color 0.25s var(--ease);
-}
-
-.nav-tab:hover {
-  color: var(--aegean);
-  background: rgba(11, 58, 91, 0.035);
-}
-
-.nav-tab.active {
-  box-shadow: none;
-}
-
 .nav-tab.active::after {
   content: "";
   position: absolute;
   left: 0;
-}
-
-.nav-tab .ico {
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 0;
-  line-height: 0;
-  color: currentColor;
-  flex-shrink: 0;
 }
 
 .nav-tab:hover .ico,
@@ -195,65 +127,17 @@ body::before {
 #tab-screener .ico::before { content: "◎"; }
 #tab-ingest .ico::before { content: "☰"; }
 
-.nav-tab .tab-badge {
-  margin-left: auto;
-  border-radius: 4px;
-  font-variant-numeric: tabular-nums;
-}
-
-.nav-tab.active .tab-badge {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  border-color: transparent;
-}
-
-.header {
-  border-radius: 0;
-  border: none;
-}
-
-/* Fondu de bord géré via mask-image sur .header-ticker (styles.css) —
-   plus de ::before/::after ici, voir le commentaire là-bas. */
 
 
 
 
-
-
-
-
-.header-user-pill,
-.user-pill {
+.header-user-pill {
   border: none;
   background: transparent;
   box-shadow: none;
   border-radius: var(--radius-sm);
   padding: 2px 0;
 }
-
-.user-avatar {
-  background: var(--aegean);
-  color: #fff;
-  width: 28px;
-  height: 28px;
-  font-size: 10px;
-}
-
-.user-meta strong {
-  font-weight: 500;
-  color: var(--aegean);
-  font-size: 12px;
-}
-
-.user-meta small { color: var(--text3); }
-
-.main {
-  border-radius: 0;
-  border: none;
-  background: var(--bg);
-  box-shadow: none;
-}
-
 
 .view::before,
 #view-dashboard::before,
@@ -268,7 +152,6 @@ body::before {
   background: none !important;
 }
 
-.btn,
 .search,
 .compact-toggle,
 .count-badge,
@@ -282,7 +165,6 @@ body::before {
   box-shadow: none;
 }
 
-.btn,
 .compact-toggle,
 .count-badge,
 .sort-btn,
@@ -294,27 +176,12 @@ body::before {
   transition: background 0.25s var(--ease), border-color 0.25s var(--ease), color 0.25s var(--ease);
 }
 
-.btn:hover,
 .sort-btn:hover,
 .mini-btn:hover,
 .compact-toggle:hover {
   border-color: var(--border2);
   color: var(--aegean);
   background: var(--elevated);
-}
-
-.btn-gold {
-  border-color: var(--gold);
-  background: var(--gold);
-  color: #07111f;
-  box-shadow: none;
-  font-weight: 600;
-}
-
-.btn-gold:hover {
-  color: #07111f;
-  background: #d4b45c;
-  border-color: #d4b45c;
 }
 
 .search:focus,
@@ -350,7 +217,7 @@ body::before {
   width: 2px;
   height: 14px;
   border-radius: 0;
-  background: var(--gold);
+  background: var(--color-coral);
 }
 
 /* DASHBOARD */
@@ -500,7 +367,7 @@ tbody tr:hover { background: rgba(11, 58, 91, 0.025); }
 
 tbody tr.selected {
   background: rgba(11, 58, 91, 0.04);
-  border-left: 2px solid var(--gold);
+  border-left: 2px solid var(--color-coral);
 }
 
 td {
@@ -646,12 +513,6 @@ td {
   margin-bottom: 14px;
 }
 
-.nav-tab {
-  opacity: 1;
-  border-radius: 6px;
-  padding-left: 14px;
-}
-
 .nav-tab:not(.active) {
   opacity: 0.78;
   color: var(--aegean);
@@ -662,44 +523,17 @@ td {
   background: rgba(11, 58, 91, 0.03);
 }
 
-.nav-tab.active {
-  background: var(--aegean);
-  color: #fff;
-}
-
 .nav-tab.active::after {
   width: 2px;
   top: 11px;
   bottom: 11px;
-  background: var(--gold);
+  background: var(--color-coral);
 }
 
 
 .nav-tab.active .ico {
   opacity: 0.65;
 }
-
-.sidebar-brand {
-  /* padding controlled by FINAL LOGO CENTER */
-  min-height: 88px;
-}
-
-.sidebar-nav {
-  padding: 8px 14px 24px;
-}
-
-/* —— Header: almost invisible —— */
-
-
-.date-str,
-.live-badge,
-.clock {
-  opacity: 0.55;
-  color: var(--text3);
-  font-weight: 400;
-}
-
-
 
 /* —— Dashboard hero: greeting is the entry, not a SaaS product name —— */
 #view-dashboard {
@@ -1136,7 +970,7 @@ td {
 }
 
 #view-barriers .bar-kpi-row .kpi.k-gold .kpi-val {
-  color: var(--gold2) !important;
+  color: var(--color-coral-2) !important;
 }
 
 #view-barriers .bar-kpi-row .kpi.k-green .kpi-val {
@@ -1209,7 +1043,7 @@ td {
 
 #view-barriers tbody tr.selected {
   background: rgba(11, 58, 91, 0.04);
-  border-left: 2px solid var(--gold);
+  border-left: 2px solid var(--color-coral);
 }
 
 #view-barriers td {
@@ -1256,7 +1090,7 @@ td {
 }
 
 #view-barriers .bf-warn {
-  background: var(--gold) !important;
+  background: var(--color-coral) !important;
 }
 
 #view-barriers .bf-crit {
@@ -1321,11 +1155,6 @@ td {
   background: var(--s1);
   border: 1px solid var(--border);
   color: var(--text);
-}
-
-/* Typography calm defaults */
-.view {
-  padding: 36px 44px 56px;
 }
 
 .sec-title {
@@ -1460,32 +1289,6 @@ td {
   min-height: 40px !important;
 }
 
-.nav-tab {
-  height: 40px;
-  min-height: 40px !important;
-  max-height: 40px;
-  padding: 0 12px 0 12px !important;
-  gap: 10px;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: -0.012em;
-}
-
-.nav-tab.active {
-  font-weight: 500;
-}
-
-.nav-tab .ico {
-  display: inline-flex !important;
-  min-width: 14px;
-  opacity: 0.4;
-  position: relative;
-  font-size: 0 !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-}
-
 .nav-tab .ico::before {
   display: block;
 }
@@ -1509,14 +1312,6 @@ td {
 }
 #tab-screener .ico::before {
   border-width: 1.25px;
-}
-
-.nav-tab .tab-badge {
-  height: 18px;
-  line-height: 18px;
-  padding: 0 6px;
-  font-size: 10px;
-  font-weight: 500;
 }
 
 /* —— 1. Priority alerts: urgency without flash —— */
@@ -1770,7 +1565,7 @@ td {
 }
 
 #view-barriers .bar-fill.bf-safe { background: var(--green) !important; }
-#view-barriers .bar-fill.bf-warn { background: var(--gold) !important; }
+#view-barriers .bar-fill.bf-warn { background: var(--color-coral) !important; }
 #view-barriers .bar-fill.bf-crit { background: var(--orange) !important; }
 #view-barriers .bar-fill.bf-breach { background: var(--red) !important; }
 
@@ -1830,12 +1625,6 @@ td {
   --type-num: 13px;
   --row-y: 15px;
   --col-x: 14px;
-}
-
-/* Global type rhythm */
-.view {
-  font-size: var(--type-body);
-  line-height: 1.45;
 }
 
 .sec-title,
@@ -2512,11 +2301,6 @@ td {
 }
 
 /* —— Icon family: same stroke language, Pitch no longer empty —— */
-.nav-tab .ico {
-  width: 14px !important;
-  height: 14px !important;
-}
-
 .nav-tab .ico::before {
   content: "" !important;
   position: absolute !important;
@@ -2957,27 +2741,6 @@ td {
    MARKET RIBBON — opaque institutional strip
    ============================================================ */
 
-.header {
-  display: flex !important;
-  align-items: center !important;
-  height: var(--ribbon-h) !important;
-  min-height: var(--ribbon-h) !important;
-  max-height: var(--ribbon-h) !important;
-  padding: 0 28px !important;
-  gap: 20px !important;
-  background: #fff !important;
-  border-bottom: 1px solid rgba(11, 58, 91, 0.12) !important;
-  box-shadow: 0 1px 0 rgba(11, 58, 91, 0.03) !important;
-  opacity: 1 !important;
-}
-
-.header-ticker {
-  height: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0 !important;
-}
-
 .ticker-item {
   display: inline-flex !important;
   align-items: center !important;
@@ -3025,16 +2788,6 @@ td {
   font-variant-numeric: tabular-nums !important;
 }
 
-.header-right {
-  display: flex !important;
-  align-items: center !important;
-  gap: 14px !important;
-  height: 100% !important;
-  padding-left: 16px !important;
-  border-left: 1px solid rgba(11, 58, 91, 0.12) !important;
-  opacity: 1 !important;
-}
-
 .header-right > div:last-child {
   display: flex !important;
   flex-direction: column !important;
@@ -3044,51 +2797,6 @@ td {
   border: 1px solid rgba(11, 58, 91, 0.1) !important;
   border-radius: 6px !important;
   background: var(--elevated) !important;
-}
-
-.live-badge {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  height: 28px !important;
-  padding: 0 10px !important;
-  border: 1px solid rgba(11, 58, 91, 0.1) !important;
-  border-radius: 6px !important;
-  background: var(--elevated) !important;
-  color: var(--aegean) !important;
-  font-size: 10px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.14em !important;
-  opacity: 1 !important;
-}
-
-.live-dot {
-  width: 6px !important;
-  height: 6px !important;
-  border-radius: 50% !important;
-  background: var(--green) !important;
-  opacity: 1 !important;
-  animation: none !important;
-}
-
-.clock {
-  font-family: var(--font-display) !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  font-variant-numeric: tabular-nums !important;
-  letter-spacing: -0.01em !important;
-  color: var(--aegean) !important;
-  line-height: 1.2 !important;
-  opacity: 1 !important;
-}
-
-.date-str {
-  font-size: 9px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.04em !important;
-  color: var(--text2) !important;
-  line-height: 1.2 !important;
-  opacity: 1 !important;
 }
 
 .header-user-pill,
@@ -3467,48 +3175,6 @@ td {
    Ribbon + tables must not expand the app shell
    ============================================================ */
 
-.app-shell {
-  min-width: 0 !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
-}
-
-.header {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
-}
-
-.header-ticker {
-  flex: 1 1 0 !important;
-  width: 0 !important; /* flex item can shrink */
-  min-width: 0 !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
-  opacity: 1 !important;
-}
-
-.header-right {
-  flex: 0 0 auto !important;
-  min-width: 0 !important;
-}
-
-.main {
-  min-width: 0 !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-}
-
-.view,
-.view.active {
-  max-width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-
 #view-portfolio .tbl-wrap,
 #view-barriers .tbl-wrap,
 #view-clients .client-products-table {
@@ -3752,34 +3418,6 @@ td {
    Optical place: centered in brand band, inset from sidebar edge
    ============================================================ */
 
-/* Premier repère de marque, pas un élément qui se fond dans la nav en
-   dessous (retour utilisateur 2026-07-24) : halo très subtil
-   corail/océan derrière le wordmark + taille remontée (150px → 170px,
-   la colonne sidebar fait 248px de large, 36px de padding de chaque
-   côté laissent 176px de marge utile). */
-.sidebar-brand {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  padding: 30px 36px 26px !important;
-  box-sizing: border-box !important;
-  position: relative !important;
-  background: linear-gradient(135deg, var(--color-aegean-tint), var(--color-coral-tint) 145%) !important;
-}
-
-.sidebar-logo {
-  display: block !important;
-  width: 170px !important;
-  max-width: 100% !important;
-  height: auto !important;
-  margin: 0 auto !important;
-  transform: translateX(6px);
-  object-fit: contain !important;
-  object-position: center center !important;
-  position: relative !important;
-  z-index: 1;
-}
-
 /* ============================================================
    MODULE SHELL — fusionné depuis dashboard.css le 2026-07-20
    1er module de la consolidation des 4 couches CSS (styles.css +
@@ -3799,64 +3437,6 @@ td {
    pas seulement les doublons exacts — remis à plus tard, module par
    module, plutôt que de risquer une régression de couleur silencieuse.
    ============================================================ */
-.sidebar {
-    border-radius: var(--radius-xl) !important;
-    border: 1px solid var(--color-border) !important;
-    background: var(--color-surface-1) !important;
-    box-shadow: var(--shadow-card) !important;
-}
-.sidebar-brand {
-    border-bottom: 2px solid var(--color-aegean) !important;
-}
-.sidebar-logo {
-    filter: saturate(1.12) contrast(1.04) drop-shadow(0 2px 10px rgba(20, 79, 145, 0.14)) !important;
-}
-.sidebar-nav {
-    position: relative !important;
-}
-/* Pastille qui glisse d'un onglet à l'autre au clic, plutôt qu'un
-   remplissage qui apparaît/disparaît en un cadre — même bleu Égée que
-   l'ancien fond actif, mais porté par un élément séparé (z-index sous
-   le texte) qu'on translateY/anime en --ease-spring au lieu de
-   basculer une classe statique. */
-/* Nav en "pilules" (refonte Dolce Vita Fintech, 2026-07-25) : structure
-   verticale conservée (largeur d'écran/sidebar existante), mais logique
-   de pilule pleine sur l'item actif — dégradé Égée, radius plein. */
-.nav-indicator {
-    position: absolute !important;
-    left: 0;
-    right: 0;
-    top: 0;
-    z-index: 0;
-    border-radius: var(--radius-full) !important;
-    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
-    transition:
-        transform var(--duration-base) var(--ease-spring),
-        height var(--duration-base) var(--ease-spring) !important;
-    pointer-events: none;
-}
-.nav-tab {
-    position: relative;
-    z-index: 1;
-    border-radius: var(--radius-full) !important;
-    background: transparent !important;
-    color: var(--color-text-secondary) !important;
-    font-family: var(--font-body) !important;
-    font-weight: 500 !important;
-    transition:
-        background var(--duration-fast) var(--ease-standard),
-        color var(--duration-fast) var(--ease-standard) !important;
-}
-.nav-tab:hover {
-    background: var(--color-surface-2) !important;
-    color: var(--color-ink) !important;
-}
-.nav-tab.active {
-    background: transparent !important;
-    color: var(--color-text-on-dark) !important;
-    font-weight: 700 !important;
-    box-shadow: none !important;
-}
 .nav-tab.active:hover {
     background: transparent !important;
 }
@@ -3864,16 +3444,6 @@ td {
    glyphes Unicode d'origine. Plusieurs anciennes règles injectaient
    un autre symbole via ::before (jusqu'à un simple carré en dur) —
    neutralisées pour laisser le SVG du HTML s'afficher. */
-.nav-tab .ico {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    color: inherit !important;
-    opacity: 0.68;
-}
 .nav-tab .ico::before {
     content: none !important;
     border: none !important;
@@ -3893,29 +3463,10 @@ td {
     width: 0 !important;
     height: 0 !important;
 }
-.nav-tab .ico svg {
-    width: 18px;
-    height: 18px;
-    display: block;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
 .nav-tab.active .ico {
     opacity: 1;
 }
-.nav-tab .tab-badge {
-    font-family: var(--font-mono-data) !important;
-}
-.sidebar-foot {
-    border-top: none !important;
-    margin-top: var(--space-6) !important;
-    padding-top: var(--space-4) !important;
-}
-.sidebar-mode,
-.sidebar-btn {
+.sidebar-mode {
     border-radius: var(--radius-md) !important;
     border: none !important;
     background: var(--color-surface-2) !important;
@@ -3929,54 +3480,20 @@ td {
     border-color: transparent !important;
     color: var(--color-text-on-dark) !important;
 }
-.sidebar-add.btn-gold {
+.sidebar-add.btn-primary {
     border: none !important;
     background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
     color: var(--color-text-on-dark) !important;
     box-shadow: var(--shadow-sm) !important;
     font-weight: 600 !important;
 }
-.sidebar-add.btn-gold:hover {
+.sidebar-add.btn-primary:hover {
     background: linear-gradient(135deg, var(--color-aegean-deep-1), var(--color-aegean-deep-2)) !important;
 }
 
-.header {
-    border-radius: var(--radius-xl) !important;
-    border: none !important;
-    background: var(--color-surface-1) !important;
-    box-shadow: var(--shadow-sm) !important;
-}
-.header-right {
-    border-left: none !important;
-}
-.theme-toggle {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 30px !important;
-    height: 30px !important;
-    border: none !important;
-    border-radius: var(--radius-full) !important;
-    background: var(--color-surface-2) !important;
-    color: var(--color-text-secondary) !important;
-    cursor: pointer;
-    transition:
-        background var(--duration-fast) var(--ease-standard) !important,
-        color var(--duration-fast) var(--ease-standard) !important;
-}
-.theme-toggle:hover {
-    background: var(--color-surface-3) !important;
-    color: var(--color-text-primary) !important;
-}
 .theme-toggle.is-dark {
     background: var(--color-aegean-tint) !important;
     color: var(--color-aegean) !important;
-}
-.theme-toggle svg {
-    width: 15px;
-    height: 15px;
-    fill: currentColor;
-    stroke: none;
 }
 .ticker-label {
     color: var(--color-text-tertiary) !important;
@@ -3991,40 +3508,4 @@ td {
 }
 .ticker-chg.dn {
     color: var(--color-danger) !important;
-}
-.user-pill {
-    border-radius: var(--radius-md) !important;
-    border: none !important;
-    background: var(--color-surface-2) !important;
-}
-/* --color-ink est un token de TEXTE (inversé en dark mode : #14171c en
-   clair -> #f2f4f7 en sombre). Utilisé ici comme fond d'avatar, il
-   virait blanc en dark mode -> initiale blanche sur fond blanc,
-   invisible (bug confirmé par capture, 2026-07-24). --color-aegean
-   est catégoriel, identique dans les deux thèmes : fond bleu stable,
-   jamais de collision avec --color-text-on-dark (blanc, lui aussi
-   volontairement stable). */
-.user-avatar {
-    border-radius: var(--radius-sm) !important;
-    background: var(--color-aegean) !important;
-    color: var(--color-text-on-dark) !important;
-}
-.live-badge {
-    border-radius: var(--radius-sm) !important;
-    border: none !important;
-    background: transparent !important;
-    color: var(--color-text-tertiary) !important;
-}
-.live-dot {
-    background: var(--color-success) !important;
-}
-.clock {
-    color: var(--color-text-primary) !important;
-    font-family: var(--font-mono-data) !important;
-}
-.main {
-    border-radius: var(--radius-xl) !important;
-    border: none !important;
-    background: var(--color-bg) !important;
-    box-shadow: none !important;
 }

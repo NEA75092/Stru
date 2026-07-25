@@ -441,25 +441,30 @@
     color: var(--color-text-tertiary) !important;
 }
 
-.btn {
-    border-radius: var(--radius-md) !important;
-    border: none !important;
-    background: var(--color-surface-2) !important;
-    color: var(--color-text-secondary) !important;
-    box-shadow: none !important;
-    transition: background-color 150ms var(--ease-standard), color 150ms var(--ease-standard) !important;
+/* Passe 1 (2026-07-26) : couleur sortie des attributs style= d'index.html
+   (règle #3 CLAUDE.md) — portée par classe, sans !important (ces règles
+   appartiennent à la passe 2, posées ici en attendant). */
+.dec-sidebar-note {
+    font-size: 10px;
+    color: var(--color-text-tertiary);
+    margin-bottom: 14px;
+    line-height: 1.5;
 }
-.btn:hover {
-    background: var(--color-surface-2-hover) !important;
-    color: var(--color-ink) !important;
+.empty-note {
+    color: var(--color-text-tertiary);
+    font-size: 11px;
+    padding: 20px;
+    text-align: center;
 }
-.btn-gold {
-    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1)) !important;
-    color: var(--color-text-on-dark) !important;
-    box-shadow: var(--shadow-sm) !important;
+.empty-note-td {
+    padding: 24px;
 }
-.btn-gold:hover {
-    background: linear-gradient(135deg, var(--color-aegean-deep-1), var(--color-aegean-deep-2)) !important;
+.dr-section-label {
+    font-size: 9px;
+    color: var(--color-text-tertiary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
 }
 
 .up {
@@ -1161,6 +1166,7 @@ tbody tr.selected {
 }
 #view-dashboard .sec-meta[onclick] {
     color: var(--color-aegean) !important;
+    cursor: pointer;
 }
 
 /* ── Titres de page : toujours en encre, jamais en couleur (règle #1) ── */
@@ -1205,7 +1211,7 @@ tbody tr.selected {
 /* ── Pilotage : cartes de métriques — mêmes règles que les KPI/panels
    (pas de bordure colorée pleine longueur, statut porté par la barre
    de progression et le chiffre, pas par le contour de la carte) ── */
-.pilotage-hero-actions .btn-gold {
+.pilotage-hero-actions .btn-primary {
     background: var(--color-aegean) !important;
 }
 .pilotage-metric {
@@ -1611,28 +1617,6 @@ body {
     background-size: 22px 22px !important;
 }
 
-/* Live badge : le point ne pulsait plus du tout (institutional-theme.css
-   forçait `animation: none !important` sur .live-dot, hérité d'un
-   ancien nettoyage). Anneau qui se dilate en s'estompant plutôt que
-   l'ancien clignotement en opacité — se lit comme un vrai pouls "live". */
-@keyframes pulse-dot {
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgba(47, 143, 95, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 0 5px rgba(47, 143, 95, 0);
-    }
-}
-.live-dot {
-    animation: pulse-dot 2s ease-in-out infinite !important;
-}
-/* Badge : même palier que les autres pastilles (8px, --radius-xs) —
-   --radius-sm (10px) était hors de l'échelle à 3 paliers du produit. */
-.live-badge {
-    border-radius: var(--radius-xs) !important;
-}
-
 /* Header : le groupe ticker flottait sans séparation visuelle claire
    avec le groupe live/horloge/avatar à sa droite — un filet fin des
    deux côtés le borne au lieu de le laisser fondre dans le vide. */
@@ -1659,25 +1643,6 @@ body {
    qui donne la sensation "premium" plutôt que mécanique.
    Contrôles : retour tactile bref au clic (scale), cohérent partout.
    ============================================================ */
-/* --view-enter-y est posée par nav() juste avant l'activation : positive
-   quand on descend dans la liste de la sidebar (la vue arrive du bas),
-   négative quand on remonte — direction cohérente avec le clic plutôt
-   qu'un même petit glissement à chaque navigation. 4px par défaut pour
-   la vue active au premier chargement (avant que nav() n'ait tourné). */
-@keyframes viewFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(var(--view-enter-y, 4px)) scale(0.985);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-.view.active {
-    animation: viewFadeIn var(--duration-slow) var(--ease-out);
-}
-
 @keyframes overlayFadeIn {
     from {
         opacity: 0;
@@ -1743,18 +1708,15 @@ body {
 }
 
 .btn:active,
-.btn-gold:active,
+.btn-primary:active,
 .nav-tab:active,
 .pill-filter:active,
 .sidebar-add:active,
 .mode-btn:active {
     transform: scale(0.97);
 }
-.btn,
-.btn-gold,
 .pill-filter,
-.sidebar-add,
-.mode-btn {
+.sidebar-add {
     transition:
         transform var(--duration-fast) var(--ease-standard),
         background var(--duration-fast) var(--ease-standard),

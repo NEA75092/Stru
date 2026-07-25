@@ -148,7 +148,7 @@
             </div>
           </div>
           <div class="client-detail-actions">
-            <button class="btn btn-gold" type="button" onclick="openClientModal(${client.id})">Modifier</button>
+            <button class="btn btn-primary" type="button" onclick="openClientModal(${client.id})">Modifier</button>
           </div>
         </div>
         <div class="client-kpi-row">

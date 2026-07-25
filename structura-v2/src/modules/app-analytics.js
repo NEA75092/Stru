@@ -115,13 +115,6 @@
       if (metricsEl) {
         metricsEl.innerHTML = [
           renderMetricCard(
-            "Exposition émetteur max",
-            m.maxIssuerPct ? `${m.maxIssuerPct.toFixed(1)}%` : "—",
-            m.maxIssuer || "Aucun émetteur identifié",
-            m.maxIssuerPct,
-            concentrationLevel(m.maxIssuerPct),
-          ),
-          renderMetricCard(
             "Concentration produit max",
             m.maxProductPct ? `${m.maxProductPct.toFixed(1)}%` : "—",
             m.maxProductName || "—",
