@@ -151,64 +151,112 @@
 }
 
 /* ============================================================
-   DARK MODE (2026-07-24) — option via toggle, jamais par défaut.
-   Ne redéfinit QUE les tokens neutres (surface/texte/bordure/ombre/
-   tints) qui dépendent du sens clair/sombre du fond. Les couleurs de
-   marque et de statut (aegean/coral/sky/ocean/success/warning/danger)
-   restent identiques : ce sont des teintes catégorielles qui lisent
-   correctement sur les deux fonds, pas des neutres à inverser.
+   ALIAS LEGACY — pont vers styles.css / institutional-theme.css
+   Ce bloc vivait dans dashboard.css (:root, avant la passe 2). Le
+   dashboard.css fourni pour la passe 2 ne le reprend pas — normal, ce
+   n'est plus son rôle — mais styles.css et institutional-theme.css
+   (vues Portfolio, Barrières, Calendrier, Clients, Pilotage...,
+   non migrées avant la passe 3) en dépendent encore massivement
+   (300+ usages). Sans lui, body et la quasi-totalité des vues non
+   migrées perdent couleur/fond (constat : body { color } tombait à
+   rgb(0,0,0), background à transparent). Relogé ici tel quel, pas
+   réécrit — design-tokens.css est déjà la seule source de vérité pour
+   les tokens. À supprimer à la fin de la passe 3, quand plus aucune
+   feuille ne les consomme.
+   ============================================================ */
+:root {
+    --bg: var(--color-bg);
+    --s1: var(--color-surface-1);
+    --s2: var(--color-surface-2);
+    --s3: var(--color-surface-3);
+    --elevated: var(--color-surface-1);
+    --sky: var(--color-wash);
+    --border: var(--color-border);
+    --border2: var(--color-border-strong);
 
-   Audit du 2026-07-24 (grep ciblé, pas de rendu visuel disponible) :
-   les ~30 rgba(11,58,91,…) d'institutional-theme.css sont quasi
-   tous des lavis translucides à faible alpha (0.02-0.08) sur des
-   éléments interactifs (hover, sélection) — ils teintent la surface
-   sombre au lieu de casser dessus, pas idéal mais pas cassé. Aucun
-   fond opaque en dur trouvé qui gagne réellement la cascade (le seul
-   cas identifié, .header{background:#fff}, est déjà shadowé par une
-   règle plus tardive qui consomme le token). Le graphique de
-   performance Dashboard (drawPerfHistory, app-dashboard.js) dessinait
-   ses grilles/labels en hex fixe hors CSS — corrigé pour lire
-   getTheme(). Le graphique du tiroir produit (app-portfolio.js)
-   utilisait déjà var(--color-*) en attribut SVG, donc déjà correct.
-   Reste "best effort" au sens où aucune vérification visuelle n'a eu
-   lieu — mais l'audit textuel ne trouve pas de cas de rupture nette,
-   contrairement à l'hypothèse initiale ("centaines de cas hors de
-   portée").
+    --text: var(--color-text-primary);
+    --text2: var(--color-text-secondary);
+    --text3: var(--color-text-tertiary);
+    --ink: var(--color-ink);
+    --ink-panel: var(--color-ink);
+    --white: var(--color-surface-1);
+    --purple: var(--color-text-tertiary);
+
+    --gold: var(--color-coral);
+    --gold2: var(--color-coral-2);
+    --sand: var(--color-coral-tint);
+    --cyan: var(--color-text-secondary);
+    --cyan2: var(--color-text-secondary);
+    --sea: var(--color-aegean);
+    --sea-light: var(--color-aegean-2);
+    --aegean: var(--color-aegean);
+    --aegean-2: var(--color-aegean-2);
+    --blue: var(--color-aegean);
+    --blue2: var(--color-aegean-2);
+    --red: var(--color-danger);
+    --red2: var(--color-danger-2);
+    --terracotta: var(--color-danger-2);
+    --orange: var(--color-warning);
+    --orange2: var(--color-warning-2);
+    --green: var(--color-success);
+    --green2: var(--color-success-2);
+    --olive: var(--color-success-2);
+
+    --font-mono: var(--font-mono-data);
+    --font-sans: var(--font-body);
+    --font-display: var(--font-heading);
+}
+
+/* ============================================================
+   DARK MODE (2026-07-26, refonte passe 2) — option via toggle, jamais
+   par défaut. L'échelle précédente (bg #1b1811 / surface-1 #242019,
+   ~4% d'écart de luminance, bordure à 12% d'opacité) ne détachait pas
+   les cartes du fond — constat direct sur capture, pas un bug de règle
+   CSS mais une échelle de neutres trop resserrée. Reprise ici avec un
+   fond nettement plus sombre que les surfaces (3 marches distinctes,
+   écart minimum de 8% de luminance entre chacune), même famille chaude
+   qu'en clair. Le corail et l'aegean sont aussi désaturés/éclaircis
+   pour rester lisibles sur fond sombre au lieu de garder leurs valeurs
+   clair — ce ne sont donc plus des teintes catégorielles identiques
+   dans les deux thèmes, contrairement à l'ancienne direction.
    ============================================================ */
 :root[data-theme="dark"] {
-    /* Neutres chauds (2026-07-25, refonte) — l'ancienne échelle sombre
-       (#12161f, bleu-nuit froid) datait de la palette Santorini
-       précédente et ne correspondait plus à la direction "blanc chaux"
-       du light mode : les cards viraient à un bleu-gris disparate au
-       lieu d'un sombre de la même famille chromatique. Repris sur la
-       même teinte que --color-bg clair (#f7f3ea) inversée, pas une
-       teinte froide importée d'ailleurs. */
-    --color-bg: #1b1811;
-    --color-surface-1: #242019;
-    --color-surface-2: #2d2820;
+    /* Fond nettement plus sombre que les surfaces : 3 marches
+       distinctes (bg → surface-1 → surface-2), écart minimum de 8 %
+       de luminance entre chacune, sinon les cartes disparaissent
+       (constat capture 25/07). Même famille chaude que le clair. */
+    --color-bg: #14110b;
+    --color-surface-1: #211d15;
+    --color-surface-2: #2b261c;
     --color-surface-3: #383024;
-    --color-surface-1-hover: color-mix(in oklch, var(--color-surface-1), white 8%);
-    --color-surface-2-hover: color-mix(in oklch, var(--color-surface-2), white 10%);
-    --color-surface-3-hover: color-mix(in oklch, var(--color-surface-3), white 10%);
-    --color-wash: #201c15;
-    --color-border: rgba(232, 223, 205, 0.12);
-    --color-border-strong: rgba(232, 223, 205, 0.2);
-    --color-divider: rgba(232, 223, 205, 0.09);
+    --color-surface-1-hover: #29241a;
+    --color-surface-2-hover: #332d21;
+    --color-surface-3-hover: #423928;
+    --color-wash: #1a170f;
+    --color-border: rgb(238 228 206 / 0.16);
+    --color-border-strong: rgb(238 228 206 / 0.26);
+    --color-divider: rgb(238 228 206 / 0.1);
 
     --color-ink: #f3efe2;
     --color-text-primary: #f3efe2;
-    --color-text-secondary: #a89a86;
-    --color-text-tertiary: #7c7364;
+    --color-text-secondary: #b3a795;
+    --color-text-tertiary: #8a7f6e;
 
-    --color-aegean-tint: rgba(31, 111, 178, 0.2);
-    --color-coral-tint: rgba(240, 145, 111, 0.2);
-    --color-ocean-tint: rgba(20, 110, 156, 0.2);
+    /* Le corail pur brûle sur fond sombre : version désaturée pour le
+       texte et les tints, le corail plein reste réservé au bloc
+       d'alerte du mode clair. */
+    --color-coral: #e59274;
+    --color-aegean: #4a97d6;
+    --color-aegean-tint: rgb(74 151 214 / 0.18);
+    --color-coral-tint: rgb(229 146 116 / 0.16);
+    --color-ocean-tint: rgb(20 110 156 / 0.22);
+    --color-success: #4caf7d;
+    --color-warning: #e0a25c;
+    --color-danger: #e06a5b;
 
-    /* Cards toujours sans ombre en dark mode aussi (règle "bordure +
-       2 blocs pleins = seul relief", pas d'ombre grise classique). */
     --shadow-card: none;
-    --shadow-card-hover: 0 4px 14px rgba(0, 0, 0, 0.35);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.32);
-    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.35);
+    --shadow-card-hover: 0 4px 14px rgb(0 0 0 / 0.4);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
+    --shadow-md: 0 6px 16px rgb(0 0 0 / 0.38);
+    --shadow-lg: 0 16px 32px rgb(0 0 0 / 0.45);
 }

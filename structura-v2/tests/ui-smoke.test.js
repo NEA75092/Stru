@@ -9,6 +9,7 @@ function installDom(html) {
   global.navigator = dom.window.navigator;
   global.HTMLElement = dom.window.HTMLElement;
   global.Node = dom.window.Node;
+  global.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
   global.setInterval = () => 0;
   global.setTimeout = () => 0;
   global.clearInterval = () => {};
@@ -23,6 +24,7 @@ function resetGlobals() {
   delete global.navigator;
   delete global.HTMLElement;
   delete global.Node;
+  delete global.getComputedStyle;
   delete global.StructuraAppState;
   delete global.StructuraNavigation;
   delete global.StructuraExports;

@@ -18,13 +18,13 @@ const SRC = path.join(ROOT, "src");
 /* Feuilles réécrites depuis design-tokens.css. Y ajouter un fichier
    signifie : il ne contient aucun !important, aucune couleur
    littérale, aucun sélecteur en doublon. */
-const MIGRATED = ["shell.css"];
+const MIGRATED = ["shell.css", "dashboard.css"];
 
 /* Passe validée = ses règles héritées ont été SUPPRIMÉES des
    anciennes feuilles, pas surchargées. */
 const STAGES = {
   shell: true, // passe 1 — sidebar, header, nav, profil, boutons
-  dashboard: false, // passe 2 — KPI, perf, Top/Flop, exposition
+  dashboard: true, // passe 2 — KPI, perf, Top/Flop, exposition
   views: false, // passe 3 — clients, pilotage, 6 autres vues
 };
 

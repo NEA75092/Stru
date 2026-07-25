@@ -197,83 +197,11 @@ body::before {
   color: var(--aegean);
 }
 
-.panel {
-  border-radius: var(--radius);
-  padding: 22px 24px;
-  border: 1px solid var(--border);
-  background: var(--s1);
-  box-shadow: none;
-}
-
 .panel-title {
   border-bottom: 1px solid var(--rule);
 }
 
-.sec-title {
-  font-size: 17px;
-}
-
-.sec-title::before {
-  width: 2px;
-  height: 14px;
-  border-radius: 0;
-  background: var(--color-coral);
-}
-
 /* DASHBOARD */
-
-.dash-welcome,
-.dash-welcome.panel {
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
-  margin: 0 0 36px;
-  border-radius: 0;
-}
-
-.dash-welcome-copy { max-width: 40rem; }
-
-
-
-
-.dash-welcome-sub {
-  margin: 0;
-}
-
-#view-dashboard > .kpi-row {
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  align-items: stretch;
-}
-
-#view-dashboard .kpi {
-  position: relative;
-  overflow: visible;
-}
-
-
-#view-dashboard .kpi-lbl {
-  font-family: var(--font-sans);
-  margin-bottom: 18px;
-}
-
-#view-dashboard .kpi-val {
-  margin-bottom: 12px;
-}
-
-
-#view-dashboard .kpi.k-red .kpi-val { color: var(--red); }
-#view-dashboard .kpi.k-orange .kpi-val { color: var(--orange); }
-
-
-#view-dashboard .kpi-sub.up { color: var(--green); }
-#view-dashboard .kpi-sub.dn { color: var(--red); }
-#view-dashboard .kpi-sub.warn { color: var(--orange); }
-
-
-
-#view-dashboard .sec-hdr { margin-bottom: 18px; }
 
 #view-dashboard .chart-box,
 #view-dashboard .perf-chart-wrap {
@@ -476,13 +404,6 @@ td {
   box-shadow: 0 24px 64px rgba(7, 17, 31, 0.12);
 }
 
-@media (max-width: 1100px) {
-  #view-dashboard > .kpi-row { grid-template-columns: 1fr 1fr; }
-  #view-dashboard .kpi:nth-child(2) { border-right: none; }
-  #view-dashboard .kpi:nth-child(1),
-  #view-dashboard .kpi:nth-child(2) { border-bottom: 1px solid var(--rule); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .nav-tab, .btn, .kpi, .panel, tbody tr { transition: none; }
 }
@@ -541,152 +462,10 @@ td {
   max-width: 1120px;
 }
 
-#view-dashboard .dash-welcome,
-#view-dashboard .dash-welcome.panel {
-  margin: 0 0 40px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-
-#view-dashboard .dash-welcome-copy::before {
-  display: none !important;
-}
-
-#view-dashboard .dash-welcome-copy::after {
-  display: none !important;
-}
-
-.dash-welcome-kicker {
-  display: block !important;
-  margin: 0 0 14px;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text3);
-}
-
-.dash-welcome-title {
-  font-family: var(--font-display) !important;
-  font-size: clamp(2rem, 3.8vw, 2.85rem) !important;
-  font-weight: 500 !important;
-  letter-spacing: -0.045em !important;
-  line-height: 1.08 !important;
-  color: var(--aegean) !important;
-  margin: 0 0 12px !important;
-  max-width: 18ch;
-}
-
-.dash-welcome-sub {
-  font-size: 14px !important;
-  line-height: 1.55 !important;
-  color: var(--text2) !important;
-  max-width: 34ch;
-  font-weight: 400;
-}
-
-/* —— KPI instruments: air between rules and figures —— */
-#view-dashboard > .kpi-row {
-  display: grid;
-  grid-template-columns: 1.45fr repeat(3, 1fr);
-  gap: 0;
-  margin: 0 0 52px;
-  border: none;
-  background: transparent;
-}
-
-#view-dashboard .kpi {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  min-height: 0;
-  margin: 0;
-  padding: 32px 36px 32px 8px;
-  border: none;
-  border-right: 1px solid var(--rule);
-  border-radius: 0;
-  background: transparent !important;
-  box-shadow: none;
-  box-sizing: border-box;
-}
-
-
-#view-dashboard .kpi:last-child {
-  border-right: none;
-  padding-right: 0;
-}
-
-#view-dashboard .kpi::before {
-  display: none !important;
-}
-
-#view-dashboard .kpi-lbl {
-  order: 0;
-  margin: 0 0 20px;
-  padding: 0;
-  min-height: auto;
-}
-
-#view-dashboard .kpi-val {
-  order: 1;
-  margin: 0;
-  padding: 0 12px 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 3.4vw, 2.75rem);
-  font-weight: 500;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  color: var(--aegean);
-  font-variant-numeric: tabular-nums;
-}
-
-#view-dashboard .kpi:first-child .kpi-val {
-  font-size: clamp(2.35rem, 4vw, 3.15rem);
-  padding-right: 16px;
-}
-
-#view-dashboard .kpi-sub {
-  order: 2;
-  margin-top: 16px;
-  padding-top: 0;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--text3);
-  max-width: 16ch;
-}
-
-/* Dashboard sections: editorial, less card */
-#view-dashboard .dash-alerts-panel,
-#view-dashboard .dash-module-panel,
-#view-dashboard .dash-perf-section .panel,
-#view-dashboard .dash-vl-section .panel,
-#view-dashboard .panel {
-  border: none;
-  border-top: 1px solid var(--rule);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  padding: 22px 0 0;
-}
-
 #view-dashboard .dash-alerts-block,
 #view-dashboard .dash-perf-section,
 #view-dashboard .dash-vl-section {
   margin-bottom: 48px;
-}
-
-#view-dashboard .sec-title {
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-}
-
-#view-dashboard .sec-title::before {
-  background: var(--aegean);
-  opacity: 0.25;
-  width: 1px;
 }
 
 #view-dashboard .chart-box,
@@ -1157,13 +936,6 @@ td {
   color: var(--text);
 }
 
-.sec-title {
-  font-family: var(--font-display);
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  color: var(--aegean);
-}
-
 .panel-title {
   letter-spacing: 0.12em;
   font-weight: 500;
@@ -1172,7 +944,6 @@ td {
 
 
 /* Dashboard alerts — list, not card stack */
-#view-dashboard .dash-alerts-panel,
 #view-dashboard .alert-item,
 #view-dashboard .dash-alert,
 #view-dashboard [class*="alert-row"],
@@ -1181,58 +952,7 @@ td {
   box-shadow: none !important;
 }
 
-#view-dashboard .dash-alerts-panel > *,
-#view-dashboard .dash-alerts-panel .alert-card,
-#view-dashboard .dash-alerts-panel button {
-  border-radius: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 1px solid var(--rule) !important;
-  box-shadow: none !important;
-  padding-top: 14px !important;
-  padding-bottom: 14px !important;
-}
-
-#view-dashboard .perf-kpi {
-  border: none !important;
-  border-right: 1px solid var(--rule) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  padding: 8px 20px 8px 0 !important;
-}
-
-#view-dashboard .perf-kpi:last-child {
-  border-right: none !important;
-}
-
-#view-dashboard .perf-kpi-row {
-  gap: 0 !important;
-  border: none;
-  padding-top: 8px;
-}
-
-#view-dashboard > .kpi-row {
-  column-gap: 0;
-  padding: 8px 0 8px;
-}
-#view-dashboard .kpi:first-child {
-  padding-left: 0 !important;
-  padding-right: 40px !important;
-}
-#view-dashboard .kpi:not(:first-child) {
-  padding-left: 32px !important;
-}
-#view-dashboard .kpi-val {
-  padding-right: 8px !important;
-}
-
 /* Alert rows .al — editorial list */
-
-#view-dashboard .al:last-child {
-  border-bottom: none !important;
-}
-
 
 #view-dashboard .al-warn .al-ico,
 #view-dashboard .al.al-warn .al-ico {
@@ -1315,14 +1035,6 @@ td {
 }
 
 /* —— 1. Priority alerts: urgency without flash —— */
-#view-dashboard .al {
-  column-gap: 16px !important;
-  border-bottom: 1px solid var(--rule) !important;
-}
-
-
-
-
 #view-dashboard .al-ico {
   background: var(--red) !important;
 }
@@ -1333,24 +1045,6 @@ td {
 }
 
 
-
-/* Risk proximity gauge — class-based urgency (no invented data) */
-#view-dashboard .al-txt::after {
-  background: var(--s3);
-}
-
-#view-dashboard .al-warn .al-txt::after {
-  background-color: var(--s3);
-}
-
-#view-dashboard .al-ok .al-txt::after {
-  background-color: var(--s3);
-}
-
-#view-dashboard .al-time {
-  text-align: right;
-  padding-top: 2px;
-}
 
 /* —— 5. Portfolio page introduction —— */
 #view-portfolio > .toolbar {
@@ -1588,8 +1282,6 @@ td {
 }
 
 /* —— Typography discipline —— */
-.sec-title,
-.dash-welcome-title,
 .clients-hero-title,
 .cal-context-title,
 .ingest-hero-title,
@@ -1597,13 +1289,11 @@ td {
   font-weight: 500;
 }
 
-.kpi-val,
 .client-kpi b,
 .num {
   font-weight: 500;
 }
 
-.kpi-lbl,
 .panel-title,
 .clients-kicker,
 .cal-context-kicker,
@@ -1627,11 +1317,9 @@ td {
   --col-x: 14px;
 }
 
-.sec-title,
 .clients-hero-title,
 .cal-context-title,
 .ingest-hero-title,
-.dash-welcome-title,
 .pilotage-hero-title {
   font-family: var(--font-display);
   font-weight: 500;
@@ -1639,19 +1327,16 @@ td {
   color: var(--aegean);
 }
 
-.kpi-lbl,
 .panel-title,
 .clients-kicker,
 .cal-context-kicker,
 .ingest-kicker,
-.sec-meta,
 .p-isin {
   font-weight: 500;
   letter-spacing: 0.06em;
 }
 
 .num,
-.kpi-val,
 .client-kpi b {
   font-family: var(--font-display);
   font-weight: 500;
@@ -1660,11 +1345,6 @@ td {
 }
 
 /* —— 1. Priority alerts: composed, not flat —— */
-#view-dashboard .dash-alerts-panel {
-  padding-top: 8px !important;
-}
-
-
 #view-dashboard .al-warn .al-ico {
   box-shadow: 0 0 0 3px rgba(184, 122, 58, 0.14);
   background: var(--orange) !important;
@@ -1678,10 +1358,6 @@ td {
 
 
 
-
-#view-dashboard .al-time {
-  justify-self: end;
-}
 
 /* —— 2. Calendar capsules must contain full text —— */
 #view-calendar .ev {
@@ -1739,8 +1415,7 @@ td {
 }
 
 
-#view-calendar .timeline-item,
-#view-dashboard .timeline-item {
+#view-calendar .timeline-item {
   align-items: start !important;
   padding: 12px 14px !important;
   border-radius: 8px !important;
@@ -1748,8 +1423,7 @@ td {
   white-space: normal !important;
 }
 
-#view-calendar .timeline-main b,
-#view-dashboard .timeline-main b {
+#view-calendar .timeline-main b {
   white-space: normal !important;
   overflow: visible !important;
   display: block;
@@ -2011,6 +1685,7 @@ td {
   border-radius: 8px !important;
   overflow: visible !important;
   min-width: 0 !important;
+  cursor: pointer !important;
 }
 
 .ev > div:nth-child(2),
@@ -2033,11 +1708,8 @@ td {
   max-width: 100% !important;
 }
 
-.timeline-main b,
 .risk-main b,
-.dec-mini-main b,
-.vl-main b,
-.vl-main small {
+.dec-mini-main b {
   white-space: normal !important;
   overflow: visible !important;
   text-overflow: clip !important;
@@ -2045,7 +1717,6 @@ td {
   line-height: 1.35 !important;
 }
 
-.timeline-item,
 .risk-row,
 .dec-mini-row {
   overflow: visible !important;
@@ -2390,31 +2061,6 @@ td {
    WORLD 1 — ALERT COMPOSITION FIX (flex, not crushed grid)
    ============================================================ */
 
-#view-dashboard .dash-alerts-panel,
-#view-dashboard .alert-strip {
-  width: 100%;
-  max-width: 100%;
-}
-
-#view-dashboard .al {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: flex-start !important;
-  gap: 16px !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-  margin: 0 0 12px !important;
-  padding: 20px 20px 18px !important;
-  border-radius: 8px !important;
-  box-shadow: 0 1px 0 rgba(11, 58, 91, 0.04) !important;
-  grid-template-columns: none !important;
-}
-
-/* Sévérité portée par le fond teinté + la pastille de dashboard.css
-   (.al-crit/.al-warn/.al-ok, .al-txt::after) — plus de bordure gauche
-   colorée ici (retiré le 2026-07-24). */
-
 #view-dashboard .al-ico {
   flex: 0 0 auto !important;
   width: 10px !important;
@@ -2424,65 +2070,6 @@ td {
   font-size: 0 !important;
   line-height: 0 !important;
   box-shadow: 0 0 0 4px rgba(181, 74, 74, 0.12);
-}
-
-#view-dashboard .al-txt {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  font-size: 13px !important;
-  line-height: 1.45 !important;
-  color: var(--text2) !important;
-}
-
-#view-dashboard .al-txt strong {
-  display: block !important;
-  font-family: var(--font-display) !important;
-  font-size: 16px !important;
-  font-weight: 500 !important;
-  letter-spacing: -0.025em !important;
-  color: var(--aegean) !important;
-  margin-bottom: 6px !important;
-  line-height: 1.25 !important;
-}
-
-#view-dashboard .al-txt::after {
-  content: "" !important;
-  display: block !important;
-  margin-top: 14px !important;
-  height: 4px !important;
-  width: min(240px, 55%) !important;
-  max-width: 240px !important;
-  border-radius: 999px !important;
-  background-color: rgba(11, 58, 91, 0.08) !important;
-  background-image: linear-gradient(90deg, var(--red), rgba(181, 74, 74, 0.35)) !important;
-  background-size: 92% 100% !important;
-  background-repeat: no-repeat !important;
-}
-
-#view-dashboard .al-warn .al-txt::after {
-  background-image: linear-gradient(90deg, var(--orange), rgba(184, 122, 58, 0.35)) !important;
-  background-size: 64% 100% !important;
-}
-
-#view-dashboard .al-ok .al-txt::after {
-  background-image: linear-gradient(90deg, var(--green), rgba(74, 140, 90, 0.35)) !important;
-  background-size: 26% 100% !important;
-}
-
-#view-dashboard .al-time {
-  flex: 0 0 auto !important;
-  margin-top: 2px !important;
-  padding: 6px 11px !important;
-  border: 1px solid rgba(11, 58, 91, 0.12) !important;
-  border-radius: 6px !important;
-  background: var(--elevated, #F4F7F9) !important;
-  font-family: var(--font-display) !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  color: var(--aegean) !important;
-  letter-spacing: -0.01em !important;
-  white-space: nowrap !important;
-  align-self: flex-start !important;
 }
 
 /* Differentiate Pitch from Ingest clearly within same family */
@@ -2719,7 +2306,6 @@ td {
 .type-date,
 #view-portfolio td:nth-child(11),
 #view-barriers td:nth-child(9),
-#view-dashboard .al-time,
 #view-calendar .ev-day,
 #view-calendar .ev-mon {
   font-variant-numeric: tabular-nums !important;
@@ -2741,46 +2327,6 @@ td {
    MARKET RIBBON — opaque institutional strip
    ============================================================ */
 
-.ticker-item {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  height: 28px !important;
-  margin-right: 4px !important;
-  padding: 0 12px !important;
-  border: none !important;
-  border-right: 1px solid rgba(11, 58, 91, 0.1) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  font-size: 11px !important;
-  line-height: 1 !important;
-  opacity: 1 !important;
-}
-
-.ticker-item:last-child {
-  border-right: none !important;
-}
-
-.ticker-label {
-  font-size: 10px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.08em !important;
-  text-transform: uppercase !important;
-  color: var(--text2) !important;
-  opacity: 1 !important;
-}
-
-.ticker-val {
-  font-family: var(--font-display) !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  font-variant-numeric: tabular-nums !important;
-  letter-spacing: -0.02em !important;
-  color: var(--text) !important;
-  opacity: 1 !important;
-}
-
-.ticker-chg,
 .ticker-item .up,
 .ticker-item .dn {
   font-size: 10px !important;
@@ -2808,63 +2354,6 @@ td {
    DASHBOARD — risk narrative: counts → actions list
    ============================================================ */
 
-#view-dashboard .kpi-row {
-  margin-bottom: 8px !important;
-}
-
-#view-dashboard .kpi-lbl {
-  font-size: 10px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.12em !important;
-  text-transform: uppercase !important;
-  color: var(--text3) !important;
-}
-
-#view-dashboard .kpi.k-red .kpi-lbl {
-  color: var(--red) !important;
-}
-
-#view-dashboard .kpi.k-orange .kpi-lbl {
-  color: var(--orange) !important;
-}
-
-#view-dashboard .dash-alerts-block {
-  margin-top: 4px !important;
-  padding-top: 20px !important;
-  border-top: none !important;
-  border-left: 3px solid rgba(181, 74, 74, 0.35) !important;
-  padding-left: 18px !important;
-}
-
-#view-dashboard .dash-alerts-block .sec-hdr {
-  margin-bottom: 12px !important;
-  align-items: baseline !important;
-}
-
-#view-dashboard .dash-alerts-block .sec-title {
-  font-family: var(--font-display) !important;
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  letter-spacing: -0.02em !important;
-  color: var(--aegean) !important;
-}
-
-#view-dashboard .dash-alerts-block .sec-meta {
-  font-size: 11px !important;
-  font-weight: 400 !important;
-  color: var(--text3) !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  max-width: 42ch !important;
-  line-height: 1.4 !important;
-}
-
-#view-dashboard .dash-alerts-panel {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
 
 /* ============================================================
    SHARED TABLE SYSTEM — Clients · Portfolio · Barriers
@@ -3494,18 +2983,4 @@ td {
 .theme-toggle.is-dark {
     background: var(--color-aegean-tint) !important;
     color: var(--color-aegean) !important;
-}
-.ticker-label {
-    color: var(--color-text-tertiary) !important;
-    font-family: var(--font-mono-data) !important;
-}
-.ticker-val {
-    color: var(--color-text-primary) !important;
-    font-family: var(--font-mono-data) !important;
-}
-.ticker-chg.up {
-    color: var(--color-success) !important;
-}
-.ticker-chg.dn {
-    color: var(--color-danger) !important;
 }

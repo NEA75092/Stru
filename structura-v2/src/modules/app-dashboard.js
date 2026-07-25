@@ -68,7 +68,6 @@
         .map((p) => ({
           productId: p.id,
           lvl: p.st.s === "breach" || p.st.s === "crit" ? "crit" : "warn",
-          ico: p.st.s === "breach" ? "🔴" : "🟡",
           name: p.name,
           desc: `${p.underlying || "—"} · Distance protection : ${
             Number.isFinite(Number(p.dist))
@@ -139,6 +138,11 @@
           ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(2)}% vs encours initial`
           : "Import portefeuille requis",
       );
+      const totalSub = document.getElementById("kpi-total-sub");
+      if (totalSub) {
+        totalSub.classList.toggle("up", totalNominal > 0 && pnlPct >= 0);
+        totalSub.classList.toggle("dn", totalNominal > 0 && pnlPct < 0);
+      }
       setTextFlash("kpi-breach-val", breach, { invert: true });
       setText(
         "kpi-breach-sub",
@@ -352,10 +356,12 @@
       // à côté, en couleur sémantique, eux inchangés).
       const isDarkTheme =
         typeof globalThis.getTheme === "function" && globalThis.getTheme() === "dark";
+      const css = getComputedStyle(document.documentElement);
+      const token = (name) => css.getPropertyValue(name).trim();
       const gridColor = isDarkTheme ? "rgba(255,255,255,0.10)" : "#f0ece0";
-      const labelColor = isDarkTheme ? "#8b93a6" : "#a89a86";
+      const labelColor = token("--color-text-tertiary");
       const refLineColor = isDarkTheme ? "rgba(255,255,255,0.22)" : "#d9cba9";
-      const lineColor = "#1f6fb2";
+      const lineColor = token("--color-aegean");
       const vals = points.map((p) => p.idx);
       const minV = Math.min(98, ...vals, currentIdx) - 1.2;
       const maxV = Math.max(102, ...vals, currentIdx) + 1.2;
@@ -385,7 +391,7 @@
           return `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${labelColor}" font-size="10" font-family="IBM Plex Mono">${escapeHtml(lbl)}</text>`;
         })
         .join("");
-      const markerRing = isDarkTheme ? "#1a2029" : "#fff";
+      const markerRing = token("--color-surface-1");
       const endX = xAt(points.length - 1).toFixed(1);
       const endY = yAt(currentIdx).toFixed(1);
       svg.innerHTML = `
@@ -447,16 +453,20 @@
     // présentation, aucun recalcul de nominal/poids, juste un regroupement
     // d'affichage des mêmes valeurs "rows"/"total" déjà agrégées.
     function buildIssuerDonutSvg(rows, total) {
+      const css = getComputedStyle(document.documentElement);
+      const token = (name) => css.getPropertyValue(name).trim();
+      const PALETTE = [token("--color-aegean"), token("--color-coral"), token("--color-sky")];
+      const REST_COLOR = token("--color-neutral-warm");
       const top = rows.slice(0, 3);
       const restNominal = rows.slice(3).reduce((sum, row) => sum + row.nominal, 0);
       const segments = [
         ...top.map((row, i) => ({
           label: row.issuer,
           value: row.nominal,
-          color: ["#1f6fb2", "#f0916f", "#9dc2e2"][i],
+          color: PALETTE[i],
         })),
         ...(restNominal > 0
-          ? [{ label: "Autres émetteurs", value: restNominal, color: "#d8cdb6" }]
+          ? [{ label: "Autres émetteurs", value: restNominal, color: REST_COLOR }]
           : []),
       ].filter((s) => s.value > 0);
       const r = 48;
@@ -625,13 +635,13 @@
       }
       if (!list.length) {
         c.innerHTML =
-          '<div class="al al-ok"><span class="al-ico">✅</span><div class="al-txt"><strong>Rien d\'urgent</strong>Aucune alerte barrière ou surveillance sur le portefeuille.</div><span class="al-time">—</span></div>';
+          '<div class="al al-ok"><span class="al-dot"></span><div class="al-txt"><strong>Rien d\'urgent</strong>Aucune alerte barrière ou surveillance sur le portefeuille.</div><span class="al-time">—</span></div>';
         return;
       }
       c.innerHTML = list
         .map(
           (a) =>
-            `<div class="al al-${a.lvl}" onclick="openDrawer(${a.productId})" style="cursor:pointer"><span class="al-ico">${escapeHtml(a.ico)}</span><div class="al-txt"><strong>${escapeHtml(a.name)}</strong>${escapeHtml(a.desc)}</div><span class="al-time">${escapeHtml(a.time)}</span></div>`,
+            `<div class="al al-${a.lvl}" onclick="openDrawer(${a.productId})"><span class="al-dot"></span><div class="al-txt"><strong>${escapeHtml(a.name)}</strong>${escapeHtml(a.desc)}</div><span class="al-time">${escapeHtml(a.time)}</span></div>`,
         )
         .join("");
     }
@@ -646,7 +656,7 @@
     function evHtml(evs) {
       return evs
         .map(
-          (e) => `<div class="ev ev-${e.type}" ${e.productId ? `onclick="openDrawer(${e.productId})" style="cursor:pointer"` : ""}>
+          (e) => `<div class="ev ev-${e.type}" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
     <div class="ev-date-box"><div class="ev-day">${escapeHtml(e.d)}</div><div class="ev-mon">${escapeHtml(e.m)}</div></div>
     <div><div class="ev-name">${escapeHtml(e.name)}</div><div class="ev-desc">${escapeHtml(e.desc)}</div></div>
     <div class="ev-amt ${e.type === "coupon" ? "up" : ""}">${escapeHtml(e.amt || "—")}</div>
