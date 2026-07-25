@@ -78,6 +78,7 @@
 /* ── Primitives globales : cartes, sections, alertes, chips ── */
 .panel,
 .kpi,
+.al,
 #view-dashboard .dash-welcome {
     transition:
         transform var(--duration-base) var(--ease-standard),
@@ -88,6 +89,10 @@
     border: 1px solid var(--color-border) !important;
     background: var(--color-surface-1) !important;
     box-shadow: var(--shadow-card) !important;
+}
+.panel:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover) !important;
 }
 .kpi {
     border-radius: var(--radius-lg) !important;
@@ -116,6 +121,25 @@
     font-weight: 800 !important;
     letter-spacing: -0.025em !important;
     color: var(--color-ink) !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    gap: 10px !important;
+}
+/* Sparkline miniature (1ère carte Dashboard uniquement) : tendance de
+   valorisation sur 6 mois, dérivée de la même série que le graphique de
+   performance (buildPerfSeries) — pas un décor statique déconnecté des
+   données réelles du portefeuille. */
+.kpi-spark {
+    width: 52px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.kpi-spark polyline {
+    fill: none;
+    stroke: var(--color-success-glow);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 .kpi-sub {
     color: var(--color-text-tertiary) !important;
@@ -161,10 +185,19 @@
 #view-barriers .kpi.k-red {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(160deg, var(--color-coral), var(--color-coral-deep)) !important;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+        linear-gradient(160deg, var(--color-coral), var(--color-coral-deep)) !important;
+    background-repeat: repeat, no-repeat !important;
     border: none !important;
-    box-shadow: none !important;
+    /* Ombre colorée corail, même logique que .dash-welcome ci-dessus. */
+    box-shadow: 0 16px 40px -12px rgba(193, 82, 47, 0.5) !important;
     padding: 32px !important;
+}
+#view-dashboard .kpi.k-red:hover,
+#view-barriers .kpi.k-red:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 46px -12px rgba(193, 82, 47, 0.58) !important;
 }
 #view-dashboard .kpi.k-red::after,
 #view-barriers .kpi.k-red::after {
@@ -232,16 +265,56 @@
    lavis de fond, pour rester dans la logique "cards blanches +
    2 blocs pleins par écran max" (celui-ci n'est pas un des 2). */
 .al {
-    border-radius: 18px !important;
     border: 1px solid var(--color-border) !important;
     background: var(--color-surface-1) !important;
     padding: 22px 24px !important;
+}
+/* Rescopé #view-dashboard : institutional-theme.css a un
+   "#view-dashboard .al" (border-radius: 8px, box-shadow plat) à
+   spécificité ID qui gagnait sur la règle .al ci-dessus malgré
+   !important des deux côtés — même préfixe requis pour l'emporter. */
+#view-dashboard .al {
+    /* Carte secondaire/imbriquée dans l'échelle de rayons à 3 paliers
+       (8/16/24) : 8px puis 18px (Santorini) n'y appartenaient pas. */
+    border-radius: var(--radius-md) !important;
+}
+#view-dashboard .al:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover) !important;
 }
 .al-crit,
 .al-warn,
 .al-info,
 .al-ok {
     background: var(--color-surface-1) !important;
+}
+/* Icône ronde avant le nom du produit — dégradé corail pour les lignes
+   qui demandent une action (crit/warn), vert pour "rien d'urgent", au
+   lieu d'un simple caractère nu flottant au milieu de la ligne.
+   Scopé #view-dashboard : institutional-theme.css a un vieux
+   "#view-dashboard .al-ico" (width/height:10px, font-size:0, ring en
+   box-shadow) à spécificité ID — même préfixe requis ici pour gagner
+   la cascade, sinon ce reste plat malgré !important des deux côtés. */
+#view-dashboard .al-ico {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 26px !important;
+    height: 26px !important;
+    margin-top: 0 !important;
+    border-radius: 50% !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    background: var(--color-surface-3) !important;
+    box-shadow: none !important;
+}
+#view-dashboard .al-crit .al-ico,
+#view-dashboard .al-warn .al-ico {
+    background: linear-gradient(135deg, var(--color-coral), var(--color-coral-2)) !important;
+}
+#view-dashboard .al-ok .al-ico {
+    background: linear-gradient(135deg, var(--color-success), var(--color-success-2)) !important;
 }
 .al-txt,
 .al-txt strong {
@@ -827,14 +900,29 @@ tbody tr.selected {
    Said, 2 cercles décoratifs en fond (clippés par overflow:hidden),
    texte blanc/sky-tint. Jamais de bordure ni d'ombre : la couleur
    pleine EST le relief. */
+/* Grain fractal tuilé sur tout le bloc (opacité 0.05 encodée dans le SVG)
+   posé comme 1er calque de fond de l'élément lui-même — les 2 pseudo-
+   éléments ::before/::after sont déjà pris par les cercles décoratifs
+   ci-dessous, donc le grain ne peut pas y aller sans en perdre un. */
 #view-dashboard .dash-welcome {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, var(--color-aegean-deep-1), var(--color-aegean-deep-2) 65%) !important;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+        linear-gradient(135deg, var(--color-aegean-deep-1), var(--color-aegean-deep-2) 65%) !important;
+    background-repeat: repeat, no-repeat !important;
     border: none !important;
     border-radius: var(--radius-lg) !important;
-    box-shadow: none !important;
+    /* Ombre colorée (pas grise) : les 2 blocs pleins de l'écran (celui-ci
+       + .kpi.k-red) sont l'exception documentée à --shadow-card: none —
+       la couleur de l'ombre reprend leur propre teinte plutôt qu'un gris
+       neutre, pour que le relief lise comme une extension du bloc. */
+    box-shadow: 0 16px 40px -12px rgba(13, 63, 107, 0.45) !important;
     padding: 40px 38px !important;
+}
+#view-dashboard .dash-welcome:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 46px -12px rgba(13, 63, 107, 0.52) !important;
 }
 #view-dashboard .dash-welcome::before {
     content: "";
@@ -952,6 +1040,43 @@ tbody tr.selected {
     width: 132px;
     height: 132px;
     flex-shrink: 0;
+}
+/* Wrapper de positionnement pour le total au centre du donut — le SVG
+   seul (juste les arcs) ne donnait aucune lecture globale à côté du
+   détail par segment. */
+.donut-figure {
+    position: relative;
+    width: 132px;
+    height: 132px;
+    flex-shrink: 0;
+}
+.donut-figure .donut-svg {
+    width: 100%;
+    height: 100%;
+}
+.donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+}
+.donut-center strong {
+    font-size: var(--text-xl);
+    font-family: var(--font-heading);
+    font-weight: 800;
+    color: var(--color-ink);
+    line-height: 1.1;
+}
+.donut-center span {
+    font-size: var(--text-2xs);
+    font-family: var(--font-mono-data);
+    color: var(--color-text-tertiary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 .donut-legend {
     display: flex;
@@ -1465,6 +1590,64 @@ tbody tr.selected {
 .dr-client-card {
     border: none !important;
     background: var(--color-surface-2) !important;
+}
+
+/* ============================================================
+   POLISH — Dolce Vita Fintech, session 2 (2026-07-25)
+   Détails de composition du chrome global (fond, header, live badge)
+   qui restaient plats — aucun changement fonctionnel, uniquement
+   visuel, sur des sélecteurs déjà en place.
+   ============================================================ */
+
+/* Micro-grille de points au lieu d'un fond uni : --color-border est déjà
+   translucide en dark mode (rgba(...,0.12)), donc le motif reste discret
+   sans variante dédiée. Posé directement sur body plutôt que via
+   .view::before, dont le fond est déjà neutralisé (background: none
+   !important) par sélecteur #view-xxx::before à spécificité ID —
+   plus forte que .view::before, donc pas de point d'ancrage exploitable
+   là sans dupliquer toute la liste de sélecteurs. */
+body {
+    background-image: radial-gradient(var(--color-border) 1px, transparent 1px) !important;
+    background-size: 22px 22px !important;
+}
+
+/* Live badge : le point ne pulsait plus du tout (institutional-theme.css
+   forçait `animation: none !important` sur .live-dot, hérité d'un
+   ancien nettoyage). Anneau qui se dilate en s'estompant plutôt que
+   l'ancien clignotement en opacité — se lit comme un vrai pouls "live". */
+@keyframes pulse-dot {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(47, 143, 95, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 5px rgba(47, 143, 95, 0);
+    }
+}
+.live-dot {
+    animation: pulse-dot 2s ease-in-out infinite !important;
+}
+/* Badge : même palier que les autres pastilles (8px, --radius-xs) —
+   --radius-sm (10px) était hors de l'échelle à 3 paliers du produit. */
+.live-badge {
+    border-radius: var(--radius-xs) !important;
+}
+
+/* Header : le groupe ticker flottait sans séparation visuelle claire
+   avec le groupe live/horloge/avatar à sa droite — un filet fin des
+   deux côtés le borne au lieu de le laisser fondre dans le vide. */
+.header-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--color-divider);
+    flex-shrink: 0;
+}
+.header-right::before {
+    content: "";
+    width: 1px;
+    height: 20px;
+    background: var(--color-divider);
+    flex-shrink: 0;
 }
 
 /* ============================================================

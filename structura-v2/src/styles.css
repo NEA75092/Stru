@@ -1303,7 +1303,7 @@ body::before {
     height: 52px !important;
     min-height: 52px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 12px;
     padding: 0 14px;
@@ -4306,7 +4306,8 @@ td {
         width: 220px;
         height: 46px;
     }
-    .header-ticker {
+    .header-ticker,
+    .header-divider {
         display: none;
     }
     .header-right {

@@ -132,6 +132,7 @@
       const types = new Set(data.map((p) => p.type).filter(Boolean)).size;
       const issuers = new Set(data.map((p) => p.emetteur).filter(Boolean)).size;
       setTextFlash("kpi-total-val", totalVal ? moneyShort(totalVal) : "0€");
+      renderKpiSparkline(data);
       setText(
         "kpi-total-sub",
         totalNominal
@@ -306,6 +307,31 @@
       return { points, startSnap, endSnap, periodPct, periodAbs, startDate, endDate };
     }
 
+    // Sparkline miniature à côté de "Valeur totale portefeuille" — même
+    // série que le graphique de performance (base 100, 6 mois), pas un
+    // tracé décoratif déconnecté des données réelles.
+    function renderKpiSparkline(data) {
+      const svg = document.getElementById("kpi-total-spark");
+      if (!svg) return;
+      if (!data.length) {
+        svg.innerHTML = "";
+        return;
+      }
+      const { points } = buildPerfSeries(data, "6m");
+      const vals = points.map((p) => p.idx);
+      const w = 52;
+      const h = 20;
+      const pad = 2;
+      const min = Math.min(...vals);
+      const max = Math.max(...vals);
+      const xAt = (i) => pad + (i / (vals.length - 1 || 1)) * (w - pad * 2);
+      const yAt = (v) => h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2);
+      const pts = vals
+        .map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`)
+        .join(" ");
+      svg.innerHTML = `<polyline points="${pts}"/>`;
+    }
+
     function drawPerfHistory(totalNom, _totalVal) {
       const svg = document.getElementById("perf-history-svg");
       if (!svg) return;
@@ -458,8 +484,12 @@
           </div>`;
         })
         .join("");
+      const bankCount = rows.length;
       return `<div class="donut-wrap">
-        <svg viewBox="0 0 120 120" class="donut-svg" transform="rotate(-90)" style="transform:rotate(-90deg)">${arcs}</svg>
+        <div class="donut-figure">
+          <svg viewBox="0 0 120 120" class="donut-svg" transform="rotate(-90)" style="transform:rotate(-90deg)">${arcs}</svg>
+          <div class="donut-center"><strong>${bankCount}</strong><span>banque${bankCount > 1 ? "s" : ""}</span></div>
+        </div>
         <div class="donut-legend">${legend}</div>
       </div>`;
     }
