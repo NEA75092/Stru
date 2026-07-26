@@ -24,11 +24,13 @@
             href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="./src/design-tokens.css?v=20260727" />
+        <link rel="stylesheet" href="./src/design-tokens.css?v=20260728" />
         <link rel="stylesheet" href="./src/shell.css?v=20260727" />
+        <link rel="stylesheet" href="./src/controls.css?v=20260728" />
+        <link rel="stylesheet" href="./src/overlays.css?v=20260728" />
         <link rel="stylesheet" href="./src/dashboard.css?v=20260727" />
         <link rel="stylesheet" href="./src/tables.css?v=20260727" />
-        <link rel="stylesheet" href="./src/views.css?v=20260727" />
+        <link rel="stylesheet" href="./src/views.css?v=20260728" />
         <link rel="stylesheet" href="./src/relief.css?v=20260727" />
     </head>
     <body>
@@ -403,6 +405,19 @@
                         </div>
                     </div>
 
+                    <div class="panel dist-strip-panel">
+                        <div class="dist-strip-hdr">
+                            <span class="dist-strip-title">Distribution du risque</span>
+                            <div class="status-filter-row" id="bar-status-filters"></div>
+                        </div>
+                        <div class="dist-strip">
+                            <div class="dist-strip-track" id="bar-dist-track"></div>
+                            <div class="dist-strip-scale">
+                                <span>−20 %</span><span>0 %</span><span>+20 %</span><span>+40 %</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="sec-hdr">
                         <div class="sec-title">Suivi des barrières</div>
                         <span class="sec-meta">Suivi de la distance aux seuils de tous les produits à barrière</span>
@@ -458,6 +473,11 @@
                             oninput="filterCalendar(this.value)"
                             id="cal-search"
                         />
+                        <div class="toolbar-spacer"></div>
+                        <div class="calendar-month-view-toggle" id="cal-month-view-toggle" hidden>
+                            <span class="pill-filter on" data-month-view="grid" onclick="setCalendarMonthView('grid')">Grille</span>
+                            <span class="pill-filter" data-month-view="list" onclick="setCalendarMonthView('list')">Liste</span>
+                        </div>
                     </div>
                     <div class="calendar-controls-panel">
                         <div class="calendar-control calendar-day-control">
@@ -506,7 +526,7 @@
                         <span class="sec-meta">Indicateurs à venir, indépendants de la période affichée</span>
                     </div>
                     <div class="g4 cal-kpi-row">
-                        <div class="kpi k-cyan">
+                        <div class="kpi k-blue">
                             <div class="kpi-lbl">Coupons attendus</div>
                             <div
                                 class="kpi-val"
@@ -552,7 +572,31 @@
                         </div>
                     </div>
 
-                    <div class="sec-hdr cal-events-hdr">
+                    <div id="cal-month-section">
+                        <div class="cal-legend">
+                            <span class="cal-legend-item"><span class="cal-legend-dot ev-obs"></span>Observation</span>
+                            <span class="cal-legend-item"><span class="cal-legend-dot ev-coupon"></span>Coupon</span>
+                            <span class="cal-legend-item"><span class="cal-legend-dot ev-rappel"></span>Rappel</span>
+                            <span class="cal-legend-item"><span class="cal-legend-dot ev-mat"></span>Maturité</span>
+                        </div>
+                        <div class="cal-month-grid" id="cal-month-grid"></div>
+                        <div class="tbl-wrap" id="cal-month-list-wrap" hidden>
+                            <table id="cal-month-table">
+                                <thead>
+                                    <tr>
+                                        <th>DATE</th>
+                                        <th>PRODUIT</th>
+                                        <th>TYPE</th>
+                                        <th>ÉMETTEUR</th>
+                                        <th class="num">MONTANT</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cal-month-list-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="sec-hdr cal-events-hdr" id="cal-events-hdr">
                         <div class="sec-title">Événements produits</div>
                         <span class="sec-meta" id="cal-events-meta">—</span>
                     </div>
@@ -577,7 +621,7 @@
                         </div>
                     </div>
 
-                    <div class="panel cal-flux-panel">
+                    <div class="panel cal-flux-panel" id="cal-flux-panel">
                         <div class="sec-hdr" style="margin-bottom: 10px">
                             <div class="sec-title" id="cal-flux-title">Flux de coupons</div>
                             <span class="sec-meta" id="cal-flux-meta">Sur la période sélectionnée</span>
@@ -656,25 +700,18 @@
                                 <button class="btn btn-primary" type="button" onclick="openClientModal()">+ Nouveau client</button>
                             </div>
                         </div>
-                        <div class="clients-layout clients-layout-page">
-                            <div class="clients-panel panel">
-                                <div class="clients-panel-hdr">
-                                    <div>
-                                        <div class="sec-title">Vos clients</div>
-                                        <div class="sec-meta" id="clients-page-meta">—</div>
-                                    </div>
-                                </div>
-                                <input
-                                    class="search clients-search"
-                                    id="clients-search"
-                                    type="text"
-                                    placeholder="Rechercher par nom, prénom ou les deux..."
-                                    oninput="filterClients(this.value)"
-                                />
-                                <div class="clients-list" id="clients-list"></div>
-                            </div>
-                            <div class="clients-detail panel" id="clients-detail"></div>
+                        <div class="toolbar">
+                            <input
+                                class="search"
+                                id="clients-search"
+                                type="text"
+                                placeholder="Rechercher par nom, prénom ou les deux..."
+                                oninput="filterClients(this.value)"
+                            />
+                            <div class="toolbar-spacer"></div>
+                            <span class="sec-meta" id="clients-page-meta">—</span>
                         </div>
+                        <div class="clients-grid" id="clients-list"></div>
                     </div>
                 </div>
 
@@ -1401,32 +1438,38 @@ En attente de génération...</pre
 
         <!-- DETAIL DRAWER -->
         <div
-            class="drawer-overlay"
+            class="overlay-scrim"
             id="drawer-ov"
             onclick="closeDrawerIfOut(event)"
         >
-            <div class="drawer" style="position: relative">
+            <div class="drawer">
                 <button class="dr-close" onclick="closeDrawer()">✕</button>
-                <div class="dr-name" id="dr-name">—</div>
-                <div class="dr-isin" id="dr-isin">ISIN —</div>
-                <div class="dr-client" id="dr-client"></div>
-                <div class="dr-grid" id="dr-grid"></div>
-                <div id="dr-characteristics"></div>
-                <div id="dr-price-chart"></div>
-                <div class="divider"></div>
-                <div class="dr-section-label">
-                    CALENDRIER DES ÉVÉNEMENTS
+                <div id="dr-product-content">
+                    <div class="dr-name" id="dr-name">—</div>
+                    <div class="dr-isin" id="dr-isin">ISIN —</div>
+                    <div class="dr-client" id="dr-client"></div>
+                    <div class="dr-grid" id="dr-grid"></div>
+                    <div id="dr-characteristics"></div>
+                    <div id="dr-price-chart"></div>
+                    <div class="divider"></div>
+                    <div class="dr-section-title">
+                        CALENDRIER DES ÉVÉNEMENTS
+                    </div>
+                    <div class="timeline" id="dr-timeline"></div>
                 </div>
-                <div class="timeline" id="dr-timeline"></div>
+                <div id="dr-client-content"></div>
             </div>
         </div>
 
         <!-- ADD MODAL -->
-        <div class="modal-ov" id="modal-ov" onclick="closeModalOut(event)">
+        <div class="overlay-scrim" id="modal-ov" onclick="closeModalOut(event)">
             <div class="modal">
-                <h2 class="modal-title">Nouveau produit structuré</h2>
-                <div class="form-row">
-                    <div>
+                <div class="modal-header">
+                    <h2 class="modal-title">Nouveau produit structuré</h2>
+                    <button type="button" class="modal-close" onclick="closeModal()" aria-label="Fermer">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="field field-wide">
                         <label class="f-lbl">Nom du produit *</label
                         ><input
                             class="f-inp"
@@ -1434,7 +1477,7 @@ En attente de génération...</pre
                             placeholder="Phoenix CAC40 – Avr 2024"
                         />
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">ISIN</label
                         ><input
                             class="f-inp"
@@ -1442,9 +1485,7 @@ En attente de génération...</pre
                             placeholder="FR0014XXXXXX"
                         />
                     </div>
-                </div>
-                <div class="form-row">
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Type *</label>
                         <select class="f-sel" id="f-type">
                             <option value="AC">Autocall / Phoenix</option>
@@ -1455,7 +1496,7 @@ En attente de génération...</pre
                             </option>
                         </select>
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Émetteur *</label>
                         <select class="f-sel" id="f-emit">
                             <option>BNP Paribas</option>
@@ -1470,9 +1511,7 @@ En attente de génération...</pre
                             <option>Natixis</option>
                         </select>
                     </div>
-                </div>
-                <div class="form-row triple">
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Nominal (€) *</label
                         ><input
                             class="f-inp"
@@ -1481,21 +1520,19 @@ En attente de génération...</pre
                             placeholder="1000000"
                         />
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Date d'émission</label
                         ><input class="f-inp" id="f-emit-d" type="date" />
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Date de maturité</label
                         ><input class="f-inp" id="f-mat" type="date" />
                     </div>
-                </div>
-                <div class="form-row triple">
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Sous-jacent</label
                         ><input class="f-inp" id="f-und" placeholder="CAC 40" />
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Barrière protection (%)</label
                         ><input
                             class="f-inp"
@@ -1506,7 +1543,7 @@ En attente de génération...</pre
                             max="100"
                         />
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Coupon (%/an)</label
                         ><input
                             class="f-inp"
@@ -1516,15 +1553,11 @@ En attente de génération...</pre
                             step="0.01"
                         />
                     </div>
-                </div>
-                <div class="form-row">
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Client</label>
                         <select class="f-sel" id="f-client"></select>
                     </div>
-                </div>
-                <div class="form-row triple">
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Niveau de rappel (%)</label
                         ><input
                             class="f-inp"
@@ -1533,7 +1566,7 @@ En attente de génération...</pre
                             placeholder="100"
                         />
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Notation émetteur</label>
                         <select class="f-sel" id="f-rat">
                             <option>AAA</option>
@@ -1546,7 +1579,7 @@ En attente de génération...</pre
                             <option>BBB+</option>
                         </select>
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Valorisation actuelle (€)</label
                         ><input
                             class="f-inp"
@@ -1555,9 +1588,7 @@ En attente de génération...</pre
                             placeholder="1000000"
                         />
                     </div>
-                </div>
-                <div class="form-row full">
-                    <div>
+                    <div class="field field-wide">
                         <label class="f-lbl"
                             >Notes / Conditions particulières</label
                         ><input
@@ -1567,7 +1598,7 @@ En attente de génération...</pre
                         />
                     </div>
                 </div>
-                <div class="form-actions">
+                <div class="modal-footer form-actions">
                     <button class="btn" onclick="closeModal()">Annuler</button>
                     <button class="btn btn-primary" onclick="addProduct()">
                         Enregistrer le produit
@@ -1576,22 +1607,23 @@ En attente de génération...</pre
             </div>
         </div>
 
-        <div class="modal-ov" id="client-modal-ov" onclick="closeClientModalOut(event)">
+        <div class="overlay-scrim" id="client-modal-ov" onclick="closeClientModalOut(event)">
             <div class="modal modal-sm">
-                <h2 class="modal-title" id="client-modal-title">Nouveau client</h2>
+                <div class="modal-header">
+                    <h2 class="modal-title" id="client-modal-title">Nouveau client</h2>
+                    <button type="button" class="modal-close" onclick="closeClientModal()" aria-label="Fermer">✕</button>
+                </div>
                 <input type="hidden" id="c-id" />
-                <div class="form-row full">
-                    <div>
+                <div class="modal-body">
+                    <div class="field field-wide">
                         <label class="f-lbl">Nom du client *</label>
                         <input class="f-inp" id="c-name" placeholder="Famille Dupont" />
                     </div>
-                </div>
-                <div class="form-row">
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Email</label>
                         <input class="f-inp" id="c-email" placeholder="client@email.fr" />
                     </div>
-                    <div>
+                    <div class="field">
                         <label class="f-lbl">Segment</label>
                         <select class="f-sel" id="c-segment">
                             <option>Patrimonial</option>
@@ -1599,14 +1631,12 @@ En attente de génération...</pre
                             <option>Grand public</option>
                         </select>
                     </div>
-                </div>
-                <div class="form-row full">
-                    <div>
+                    <div class="field field-wide">
                         <label class="f-lbl">Notes dossier</label>
                         <input class="f-inp" id="c-notes" placeholder="Profil, objectifs, sensibilité au risque..." />
                     </div>
                 </div>
-                <div class="form-actions">
+                <div class="modal-footer form-actions">
                     <button class="btn" type="button" onclick="closeClientModal()">Annuler</button>
                     <button class="btn btn-primary" type="button" onclick="saveClient()">Enregistrer</button>
                 </div>

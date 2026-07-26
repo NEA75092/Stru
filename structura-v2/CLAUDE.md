@@ -81,8 +81,9 @@ Le test progresse par passe. À la fin d'une passe :
    `institutional-theme.css` supprimés, alias legacy supprimés, thème sombre
    complété, système de tableau unique (portefeuille, barrières, clients),
    KPI barrières, accueil.
-5. **Passe 5 — les vues restantes** : calendrier, pitch engine, decrement
-   score. Spec dédiée, à écrire après captures.
+5. **Passe 5 — primitives partagées et vues restantes** : overlays (modale,
+   tiroir, menus), boutons/champs/toolbars, clients, calendrier, analytics,
+   ingestion, pitch engine, decrement score.
 
 À la fin de la passe 4 : `styles.css` et `institutional-theme.css` sont
 supprimés, le bloc d'alias `dashboard.css:40-64` est supprimé, et il ne reste
@@ -121,6 +122,22 @@ permis, tous deux fermés en passe 4 :
 Règle qui en découle : **un drapeau `STAGES` ne passe à `true` que si la vue
 a été ouverte dans les deux thèmes.** « Le test est vert » n'a jamais voulu
 dire « la vue est faite ».
+
+## Périmètre : ce que la passe 5 a appris (26/07)
+
+La passe 4 a supprimé les deux feuilles héritées. L'audit préalable a
+correctement signalé que le tiroir, la modale, les boutons/formulaires et deux
+vues jamais mentionnées ne tenaient que grâce à elles. La réponse reçue a été
+« suis la lettre du document » — et la lettre ne couvrait que trois vues.
+Résultat en production : le formulaire de 18 champs empilé en bas de chaque
+page, le calendrier en liste nue, six vues sans mise en forme.
+
+> **Quand un audit révèle qu'une suppression casse des éléments hors périmètre,
+> le périmètre est faux — pas l'audit.** Remonter la liste et attendre un
+> arbitrage explicite sur chaque élément, plutôt qu'un « suis la lettre du
+> document » qui laisse des vues non stylées en production.
+
+Le signalement était le bon. C'est la décision de périmètre qui était mauvaise.
 
 ## Ce qu'il ne faut pas faire
 

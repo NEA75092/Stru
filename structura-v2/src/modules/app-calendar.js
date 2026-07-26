@@ -43,6 +43,14 @@
       start: null,
       end: null,
       rollingDays: 30,
+      monthView: "grid",
+    };
+
+    const CAL_EVENT_TYPE_LABELS = {
+      obs: "Observation",
+      coupon: "Coupon",
+      rappel: "Rappel",
+      mat: "Maturité",
     };
 
     const CALENDAR_MODE_LABELS = {
@@ -92,9 +100,9 @@
     function classifyEventType(label = "") {
       const t = label.toLowerCase();
       if (t.includes("matur")) return "mat";
-      if (t.includes("rappel") || t.includes("obs") || t.includes("constat"))
-        return "obs";
+      if (t.includes("rappel")) return "rappel";
       if (t.includes("coupon")) return "coupon";
+      if (t.includes("obs") || t.includes("constat")) return "obs";
       return "obs";
     }
 
@@ -522,6 +530,102 @@
       }
     }
 
+    // Grille mensuelle (section F) : un point par événement, coloré par
+    // type, dans une vraie grille de calendrier — remplace la colonne
+    // "période affichée" quand le mode est "mois", où elle fait double
+    // emploi. Les autres modes (jour/semaine/année/plage/glissant)
+    // gardent leur rendu en liste, inchangé.
+    function renderMonthGrid(monthEvents, selectedRange) {
+      const grid = document.getElementById("cal-month-grid");
+      if (!grid) return;
+      const start = parseIsoDate(selectedRange.start);
+      const end = parseIsoDate(selectedRange.end);
+      const firstWeekday = (start.getDay() + 6) % 7;
+      const lastWeekday = (end.getDay() + 6) % 7;
+      const gridStart = addDays(start, -firstWeekday);
+      const gridEnd = addDays(end, 6 - lastWeekday);
+      const todayIso = isoDate(new Date());
+      const eventsByDay = new Map();
+      monthEvents.forEach((e) => {
+        if (!eventsByDay.has(e._dateIso)) eventsByDay.set(e._dateIso, []);
+        eventsByDay.get(e._dateIso).push(e);
+      });
+      const WEEKDAY_LABELS = ["LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM"];
+      let html = WEEKDAY_LABELS.map(
+        (l) => `<div class="cal-grid-weekday">${l}</div>`,
+      ).join("");
+      let cursor = new Date(gridStart);
+      while (cursor <= gridEnd) {
+        const iso = isoDate(cursor);
+        const inMonth = iso >= selectedRange.start && iso <= selectedRange.end;
+        const isToday = iso === todayIso;
+        const dow = (cursor.getDay() + 6) % 7;
+        const isWeekend = dow >= 5;
+        const dayEvents = (eventsByDay.get(iso) || []).slice().sort((a, b) =>
+          a._dateIso.localeCompare(b._dateIso),
+        );
+        const shown = dayEvents.slice(0, 3);
+        const overflow = dayEvents.length - shown.length;
+        html += `<div class="cal-grid-cell${inMonth ? "" : " cal-grid-cell-out"}${isToday ? " cal-grid-cell-today" : ""}${isWeekend ? " cal-grid-cell-weekend" : ""}">
+          <div class="cal-grid-daynum">${cursor.getDate()}</div>
+          <div class="cal-grid-events">
+            ${shown
+              .map(
+                (e) =>
+                  `<button type="button" class="cal-grid-ev ev-${e.type}" title="${escapeHtml(e.name)}" onclick="openDrawer(${e.productId})"><span class="cal-grid-ev-dot"></span><span class="cal-grid-ev-name">${escapeHtml(e.name.split(" — ")[0])}</span></button>`,
+              )
+              .join("")}
+            ${overflow > 0 ? `<button type="button" class="cal-grid-ev-more" onclick="filterCalendar(document.getElementById('cal-search').value)">+${overflow}</button>` : ""}
+          </div>
+        </div>`;
+        cursor = addDays(cursor, 1);
+      }
+      grid.innerHTML = html;
+    }
+
+    // Vue liste du mois (section F) : un tableau tables.css, pas les
+    // cartes .ev — Date, Produit, Type, Émetteur, Montant.
+    function renderMonthList(monthEvents) {
+      const tbody = document.getElementById("cal-month-list-body");
+      if (!tbody) return;
+      if (!monthEvents.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="tbl-empty">Aucun événement produit sur cette période</td></tr>`;
+        return;
+      }
+      const sorted = [...monthEvents].sort((a, b) => a._dateIso.localeCompare(b._dateIso));
+      tbody.innerHTML = sorted
+        .map((e) => {
+          const p = productsForScope().find((x) => x.id === e.productId);
+          return `<tr onclick="openDrawer(${e.productId})">
+          <td class="cell-muted">${escapeHtml(parseIsoDate(e._dateIso).toLocaleDateString("fr-FR"))}</td>
+          <td>${escapeHtml(p?.name || e.name.split(" — ")[0])}</td>
+          <td class="cell-faint">${escapeHtml(CAL_EVENT_TYPE_LABELS[e.type] || "Observation")}</td>
+          <td class="cell-muted">${escapeHtml(p?.emetteur || "—")}</td>
+          <td class="num">${escapeHtml(e.amt || "—")}</td>
+        </tr>`;
+        })
+        .join("");
+    }
+
+    function renderMonthView(allEvents, selectedRange) {
+      const monthEvents = filterEventsByRange(allEvents, selectedRange.start, selectedRange.end);
+      const gridEl = document.getElementById("cal-month-grid");
+      const listEl = document.getElementById("cal-month-list-wrap");
+      const isList = calendarState.monthView === "list";
+      if (gridEl) gridEl.hidden = isList;
+      if (listEl) listEl.hidden = !isList;
+      if (isList) renderMonthList(monthEvents);
+      else renderMonthGrid(monthEvents, selectedRange);
+    }
+
+    function setCalendarMonthView(value) {
+      calendarState.monthView = value === "list" ? "list" : "grid";
+      document.querySelectorAll("[data-month-view]").forEach((btn) => {
+        btn.classList.toggle("on", btn.dataset.monthView === calendarState.monthView);
+      });
+      renderCalendar();
+    }
+
     function renderCalendar() {
       const productMatches = findProductsMatchingSearch(calendarSearch);
       const isProductSearch = Boolean(calendarSearch.trim() && productMatches.length);
@@ -553,8 +657,21 @@
         );
       }
       syncCalendarControls();
+
+      const isMonthMode = calendarState.mode === "month";
+      const monthToggle = document.getElementById("cal-month-view-toggle");
+      const monthSection = document.getElementById("cal-month-section");
+      const eventsHdr = document.getElementById("cal-events-hdr");
+      const fluxPanel = document.getElementById("cal-flux-panel");
+      if (monthToggle) monthToggle.hidden = !isMonthMode;
+      if (monthSection) monthSection.hidden = !isMonthMode;
+      if (eventsHdr) eventsHdr.hidden = isMonthMode;
+      if (fluxPanel) fluxPanel.hidden = isMonthMode;
+      if (isMonthMode) renderMonthView(allEvents, selectedRange);
+
       const isDayMode = calendarState.mode === "day";
       const eventsGrid = document.getElementById("cal-events-grid");
+      if (eventsGrid) eventsGrid.hidden = isMonthMode;
       const dayCol = document.getElementById("cal-day-col");
       if (eventsGrid) eventsGrid.classList.toggle("cal-events-day", isDayMode);
       if (dayCol) dayCol.style.display = isDayMode ? "none" : "";
@@ -711,6 +828,7 @@
       setCalendarRange,
       setCalendarRolling,
       resetCalendarView,
+      setCalendarMonthView,
     };
   },
 );

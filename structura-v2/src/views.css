@@ -24,6 +24,10 @@
     background: var(--tone);
 }
 
+.tone-border {
+    border-color: var(--tone);
+}
+
 /* ── Decrement Score (Screener) — mécanique uniquement ──────
    Vue hors périmètre passe 4 (pas de refonte), mais ses trois
    couleurs littérales (nutri-score, courbes du graphique) devaient
@@ -59,6 +63,399 @@
 
 .crit-bar-neutral {
     background: var(--color-border-strong);
+}
+
+/* ── Petites pastilles partagées (tiroir produit, tableau clients) ── */
+.env-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-3);
+    color: var(--color-text-secondary);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.channel-tag {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+}
+
+/* ── Vue Clients (section D) ──────────────────────────────────
+   Liste en cartes ; la fiche complète vit dans le tiroir (section A),
+   pas ici — cette grille ne montre que ce qui aide à choisir. */
+.clients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-4);
+}
+
+.client-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    text-align: left;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--gradient-card-lit);
+    box-shadow: var(--lit-top), var(--shadow-card);
+    cursor: pointer;
+    transition:
+        transform var(--duration-slow) var(--ease-spring),
+        box-shadow var(--duration-slow) var(--ease-spring);
+}
+
+.client-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--lit-top), var(--shadow-card-hover);
+}
+
+/* Seul usage du corail de la vue : un dossier avec une barrière
+   franchie le porte sur son ombre, pas sur un aplat. */
+.client-card-breach {
+    box-shadow: var(--lit-top), var(--shadow-card-coral);
+}
+
+.client-card-breach:hover {
+    box-shadow: var(--lit-top), var(--shadow-card-coral-hover);
+}
+
+.client-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.client-card-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.client-card-aum {
+    font-family: var(--font-mono-data);
+    font-size: 18px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.client-card-foot {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+/* ── Vue Barrières — frise de distance (section E) ────────────
+   La distribution du risque en un coup d'œil : aucun tableau trié ne
+   la montre aussi vite. Indépendante des filtres, elle reste la
+   référence stable pendant qu'on filtre le tableau en dessous. */
+.dist-strip-panel {
+    margin-bottom: var(--space-4);
+}
+
+.dist-strip-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+}
+
+.dist-strip-title {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.status-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.status-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border: none;
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.status-filter b {
+    font-family: var(--font-mono-data);
+}
+
+.status-filter:hover,
+.status-filter.on {
+    opacity: 1;
+}
+
+.status-filter.st-breach,
+.status-filter.st-crit {
+    color: var(--color-danger);
+    background: color-mix(in oklch, var(--color-danger), transparent 84%);
+}
+
+.status-filter.st-warn,
+.status-filter.st-unknown {
+    color: var(--color-warning);
+    background: color-mix(in oklch, var(--color-warning), transparent 84%);
+}
+
+.status-filter.st-safe {
+    color: var(--color-success);
+    background: color-mix(in oklch, var(--color-success), transparent 84%);
+}
+
+.dist-strip-track {
+    position: relative;
+    height: 28px;
+    border-radius: var(--radius-full);
+    background: var(--color-divider);
+}
+
+.dist-strip-zone-danger {
+    position: absolute;
+    inset-block: 2px;
+    left: 2px;
+    border-radius: var(--radius-full) 0 0 var(--radius-full);
+    background: color-mix(in oklch, var(--color-danger), transparent 92%);
+}
+
+.dist-strip-dot {
+    position: absolute;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border: 2px solid var(--color-surface-1);
+    border-radius: var(--radius-full);
+    background: var(--color-border-strong);
+    transform: translate(-50%, -50%);
+}
+
+.dist-strip-dot.st-breach,
+.dist-strip-dot.st-crit {
+    background: var(--color-danger);
+}
+
+.dist-strip-dot.st-warn,
+.dist-strip-dot.st-unknown {
+    background: var(--color-warning);
+}
+
+.dist-strip-dot.st-safe {
+    background: var(--color-success);
+}
+
+.dist-strip-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-2);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+}
+
+/* Grilles génériques 2/4 colonnes — Calendrier, Pitch Engine,
+   Ingestion. Jamais stylées : leurs enfants s'empilaient en colonne
+   simple faute de grid-template-columns. */
+.g2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.g4 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+
+    @media (max-width: 1100px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ── Vue Calendrier — grille mensuelle (section F) ────────────
+   Nouveau mode par défaut, à côté des vues jour/semaine/année/plage/
+   glissant existantes, inchangées. */
+.calendar-month-view-toggle {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.cal-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.cal-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.cal-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+}
+
+.cal-legend-dot.ev-obs {
+    background: var(--color-text-tertiary);
+}
+
+.cal-legend-dot.ev-coupon {
+    background: var(--color-success);
+}
+
+.cal-legend-dot.ev-rappel {
+    background: var(--color-aegean);
+}
+
+.cal-legend-dot.ev-mat {
+    background: var(--color-warning);
+}
+
+.cal-month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.cal-grid-weekday {
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface-2);
+    font-family: var(--font-mono-data);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.cal-grid-cell {
+    display: flex;
+    flex-direction: column;
+    min-height: 96px;
+    padding: var(--space-2);
+    background: var(--color-surface-1);
+}
+
+.cal-grid-cell-out {
+    background: var(--color-surface-1);
+    color: var(--color-text-tertiary);
+    opacity: 0.5;
+}
+
+.cal-grid-cell-weekend {
+    background: var(--color-surface-sunk);
+}
+
+.cal-grid-cell-today {
+    background: color-mix(in oklch, var(--color-aegean), transparent 94%);
+}
+
+.cal-grid-daynum {
+    align-self: flex-end;
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.cal-grid-cell-today .cal-grid-daynum {
+    font-weight: 700;
+    color: var(--color-aegean);
+}
+
+.cal-grid-events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: var(--space-1);
+}
+
+.cal-grid-ev {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 0;
+    border: none;
+    background: none;
+    font-family: var(--font-body);
+    font-size: var(--text-2xs);
+    color: var(--color-text-secondary);
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.cal-grid-ev-dot {
+    width: 5px;
+    height: 5px;
+    flex: none;
+    border-radius: var(--radius-full);
+    background: var(--color-text-tertiary);
+}
+
+.cal-grid-ev.ev-coupon .cal-grid-ev-dot {
+    background: var(--color-success);
+}
+
+.cal-grid-ev.ev-rappel .cal-grid-ev-dot {
+    background: var(--color-aegean);
+}
+
+.cal-grid-ev.ev-mat .cal-grid-ev-dot {
+    background: var(--color-warning);
+}
+
+.cal-grid-ev-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cal-grid-ev-more {
+    border: none;
+    background: none;
+    padding: 0;
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    color: var(--color-aegean);
+    cursor: pointer;
+    text-align: left;
 }
 
 /* ── KPI de la vue Barrières (section D) ─────────────────────
@@ -131,4 +528,894 @@
 .bar-kpi-row .kpi-tint-coral .kpi-proportion,
 .bar-kpi-row .kpi-tint-aegean .kpi-proportion {
     background: color-mix(in oklch, var(--color-text-on-dark), transparent 75%);
+}
+
+/* ── Vue Analytics / Pilotage (section G) ─────────────────────
+   Vocabulaire déjà en place (gradient-card-lit + shadow-card via
+   .panel/.dash-module-panel, .sec-hdr/.sec-title déjà migrés) —
+   seules les classes pilotage-* propres à cette vue manquaient. */
+.pilotage-hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.pilotage-kicker {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.pilotage-hero-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+}
+
+.pilotage-hero-sub {
+    margin: 0;
+    max-width: 640px;
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+}
+
+.pilotage-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: var(--space-4);
+}
+
+.pilotage-hero-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex: none;
+}
+
+.pilotage-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.pilotage-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.pilotage-metric {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.pilotage-metric-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.pilotage-metric-label {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.pilotage-metric-value {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-md);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.pilotage-metric-bar {
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--color-divider);
+    overflow: hidden;
+}
+
+.pilotage-metric-bar span {
+    display: block;
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--color-aegean);
+}
+
+.pilotage-metric-crit .pilotage-metric-bar span {
+    background: var(--color-danger);
+}
+
+.pilotage-metric-warn .pilotage-metric-bar span {
+    background: var(--color-warning);
+}
+
+.pilotage-metric-safe .pilotage-metric-bar span {
+    background: var(--color-success);
+}
+
+.pilotage-metric-sub {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.pilotage-type-hdr {
+    margin-top: var(--space-5);
+}
+
+.pilotage-type-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.pilotage-type-row {
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr) 32px;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.pilotage-type-name {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.pilotage-type-bar {
+    display: block;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-divider);
+    overflow: hidden;
+}
+
+.pilotage-type-bar span {
+    display: block;
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--color-aegean);
+}
+
+.pilotage-type-count {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.pilotage-preview-empty {
+    padding: var(--space-5);
+    text-align: center;
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.pilotage-preview-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-3) 0;
+    border: none;
+    border-bottom: 1px solid var(--color-divider);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pilotage-preview-row:last-of-type {
+    border-bottom: none;
+}
+
+.pilotage-preview-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pilotage-preview-name {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.pilotage-preview-main small {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.pilotage-preview-metric {
+    flex: none;
+    font-family: var(--font-mono-data);
+    font-size: var(--text-base);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.pilotage-preview-all {
+    width: 100%;
+    margin-top: var(--space-3);
+}
+
+/* ── Vue Ingestion (section G) ────────────────────────────────
+   Reprend le markup existant tel quel — carte gradient-card-lit,
+   titres mono capitales, tableaux dans le vocabulaire de tables.css. */
+.ingest-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: var(--space-4);
+}
+
+.ingest-hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.ingest-kicker {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.ingest-hero-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+}
+
+.ingest-hero-sub {
+    margin: 0;
+    max-width: 560px;
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+}
+
+.ingest-hero-metrics {
+    display: flex;
+    gap: var(--space-3);
+    flex: none;
+}
+
+.ingest-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-2);
+}
+
+.ingest-metric-label {
+    font-family: var(--font-mono-data);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.ingest-metric-value {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.panel-title {
+    margin-bottom: var(--space-4);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.ingest-dropzone {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+}
+
+.ingest-dropzone-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.ingest-dropzone-sub {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.ing-ai-note {
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-aegean-tint);
+}
+
+.ing-ai-note-title {
+    margin-bottom: var(--space-1);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-aegean);
+}
+
+.ing-ai-note-body {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.ing-story.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-8) var(--space-5);
+    text-align: center;
+    color: var(--color-text-tertiary);
+}
+
+/* L'icône n'avait ni largeur ni hauteur : un SVG sans dimensions
+   explicites retombe sur la taille par défaut du navigateur (300×150)
+   et un remplissage noir — c'était le grand aplat noir constaté. */
+.ing-story-empty-ico {
+    width: 40px;
+    height: 40px;
+    fill: none;
+    stroke: var(--color-text-tertiary);
+    stroke-width: 1.3;
+}
+
+.ing-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.ing-card-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.ing-card-meta {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.ing-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    flex: none;
+}
+
+.ing-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border: 1px solid var(--tone, var(--color-border));
+    border-radius: var(--radius-full);
+    background: color-mix(in oklch, var(--tone, var(--color-text-tertiary)), transparent 85%);
+    color: var(--tone, var(--color-text-secondary));
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.ing-metrics-band {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: var(--space-4);
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
+}
+
+.ing-metrics-band-sm {
+    border-top: none;
+    padding-top: 0;
+}
+
+.ing-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ing-metric-val {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.ing-metrics-band-sm .ing-metric-val {
+    font-size: 13px;
+}
+
+.ing-metric-lbl {
+    font-family: var(--font-mono-data);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.ing-notes-strip {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: var(--space-4) 0;
+}
+
+.ing-note-pill {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.ing-story-tabs {
+    display: flex;
+    gap: var(--space-5);
+    margin-top: var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.ing-story-tab {
+    padding: var(--space-3) 0;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.ing-story-tab.active {
+    border-bottom-color: var(--color-aegean);
+    color: var(--color-ink);
+}
+
+.ing-story-pane {
+    display: none;
+    padding-top: var(--space-4);
+}
+
+.ing-story-pane.active {
+    display: block;
+}
+
+.ing-narrative {
+    font-size: var(--text-base);
+    line-height: 1.6;
+    color: var(--color-text-primary);
+}
+
+.ing-narrative-lit {
+    font-family: var(--font-heading);
+    font-style: italic;
+    color: var(--color-text-secondary);
+}
+
+.ing-tech-grid {
+    display: flex;
+    flex-direction: column;
+}
+
+.ing-tech-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-divider);
+}
+
+.ing-tech-lbl {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.ing-tech-val {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    text-align: right;
+}
+
+.ing-evidence-details,
+.ing-schedule-details {
+    margin-top: var(--space-5);
+}
+
+.ing-evidence-details summary,
+.ing-schedule-details summary {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.ing-evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.ing-evidence-item {
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-2);
+}
+
+.ing-evidence-hdr {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.ing-evidence-val {
+    margin-top: var(--space-1);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-base);
+    color: var(--color-ink);
+}
+
+.ing-evidence-snippet {
+    margin-top: 2px;
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+}
+
+.ing-schedule-table {
+    width: 100%;
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    border-collapse: collapse;
+}
+
+.ing-schedule-table th {
+    padding: var(--space-2);
+    text-align: left;
+    font-family: var(--font-mono-data);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.ing-schedule-table td {
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--color-divider);
+}
+
+.ing-source-badge {
+    display: inline-block;
+    margin-right: 4px;
+    padding: 2px 6px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-xs);
+    background: var(--color-surface-3);
+    font-size: 9px;
+    color: var(--color-text-secondary);
+}
+
+.ing-consensus-hdr {
+    margin: var(--space-3) 0 var(--space-2);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    color: var(--color-warning);
+}
+
+.ing-compare {
+    margin-top: var(--space-4);
+}
+
+.ing-compare table {
+    width: 100%;
+    font-size: var(--text-xs);
+    border-collapse: collapse;
+}
+
+.ing-compare th {
+    padding: var(--space-2);
+    text-align: left;
+    font-family: var(--font-mono-data);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.ing-compare td {
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--color-divider);
+    color: var(--color-text-primary);
+}
+
+/* ── Pitch Engine (section H) — traitement minimal ────────────
+   Jamais spécifiée, markup généré en JS. Trois règles seulement :
+   valeurs en mono tabulaire, deux graisses (400/600), statuts via
+   .st-*. Pas de nouvelle mise en page pour les cartes de pitch.
+
+   Le pas-à-pas (.pitch-step / .pitch-wizard-step) est un mécanisme
+   JS complet (pitchWizardRender) sans aucun habillage CSS : les 5
+   étapes s'affichaient toutes en même temps, empilées — ce n'est pas
+   une question de mise en page, c'est le même bug que les overlays
+   de la section A (classe togglée par le JS, jamais traduite en
+   display: none). */
+.pitch-step {
+    display: none;
+}
+
+.pitch-step.active {
+    display: block;
+}
+
+.pitch-wizard-progress {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+}
+
+.pitch-wizard-step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--color-surface-1);
+    color: var(--color-text-secondary);
+    font-size: var(--text-xs);
+    cursor: pointer;
+}
+
+.pitch-wizard-step-num {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-2);
+    font-family: var(--font-mono-data);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.pitch-wizard-step.active {
+    border-color: var(--color-aegean);
+    color: var(--color-ink);
+}
+
+.pitch-wizard-step.active .pitch-wizard-step-num {
+    background: var(--color-aegean);
+    color: var(--color-text-on-dark);
+}
+
+.pitch-wizard-step.done .pitch-wizard-step-num {
+    background: var(--color-success);
+    color: var(--color-text-on-dark);
+}
+
+.pitch-wizard-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+}
+
+.pitch-wizard-status {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+/* Règle 1 : toute valeur numérique en mono tabulaire. */
+.pitch-keyline-val,
+.pitch-kpi-val,
+.pitch-term-val,
+.pitch-scen-ret {
+    font-family: var(--font-mono-data);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.pitch-disclaimer {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+}
+
+.pitch-bullet-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-aegean);
+    flex: none;
+}
+
+.pitch-scen-bar-track {
+    height: 4px;
+    margin-top: 4px;
+    border-radius: var(--radius-full);
+    background: var(--color-divider);
+}
+
+.pitch-scen-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--color-text-tertiary);
+}
+
+.pitch-scen-bull .pitch-scen-bar-fill {
+    background: var(--color-success);
+}
+
+.pitch-scen-bear .pitch-scen-bar-fill {
+    background: var(--color-danger);
+}
+
+.pitch-risk-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-text-tertiary);
+    flex: none;
+}
+
+.pitch-risk-dot.st-breach {
+    background: var(--color-danger);
+}
+
+.pitch-risk-dot.st-warn {
+    background: var(--color-warning);
+}
+
+.pitch-risk-dot.st-safe {
+    background: var(--color-success);
+}
+
+.pitch-preview-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    min-height: 320px;
+    text-align: center;
+    color: var(--color-text-tertiary);
+}
+
+/* Même bug que .ing-story-empty-ico : un SVG sans dimensions ni fill
+   retombe sur la taille par défaut du navigateur et un aplat noir. */
+.pitch-preview-empty-ico {
+    width: 40px;
+    height: 40px;
+    fill: none;
+    stroke: var(--color-text-tertiary);
+    stroke-width: 1.3;
+}
+
+/* ── Decrement Score — traitement minimal (section H) ─────────
+   Le tableau utilise déjà tables.css. Seuls le panneau latéral et sa
+   légende texte étaient en corps de texte plein, cause directe de la
+   police "incohérente" signalée par le client. */
+.dec-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+}
+
+.dec-sidebar-note {
+    margin-bottom: var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.dec-source-panel {
+    margin-bottom: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+}
+
+.dec-source-title {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-mono-data);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.dec-source-line {
+    display: flex;
+    gap: var(--space-2);
+    padding: 2px 0;
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.dec-source-line span {
+    flex: none;
+    font-family: var(--font-mono-data);
+    color: var(--color-text-tertiary);
+}
+
+.dec-column-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.empty-note {
+    padding: var(--space-6);
+    text-align: center;
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
 }

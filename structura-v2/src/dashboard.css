@@ -752,7 +752,7 @@
 
 .timeline-item {
     display: grid;
-    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-columns: 40px minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-4);
     width: 100%;
@@ -819,6 +819,37 @@
     white-space: nowrap;
 }
 
+/* Montant : jamais coloré par son propre signe, seul le filet gauche
+   porte la teinte du type d'événement (passe 5, section F). */
+.timeline-amt {
+    margin-left: auto;
+    flex: none;
+    font-family: var(--font-mono-data);
+    font-size: var(--text-base);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.timeline-item.ev-obs {
+    box-shadow: inset 3px 0 0 var(--color-text-tertiary);
+}
+
+.timeline-item.ev-coupon {
+    box-shadow: inset 3px 0 0 var(--color-success);
+}
+
+.timeline-item.ev-rappel {
+    box-shadow: inset 3px 0 0 var(--color-aegean);
+}
+
+.timeline-item.ev-mat {
+    box-shadow: inset 3px 0 0 var(--color-warning);
+}
+
+.timeline-item.ev-bar {
+    box-shadow: inset 3px 0 0 var(--color-danger);
+}
+
 .timeline-bar .timeline-date {
     background: var(--color-coral-tint);
 }
@@ -828,17 +859,25 @@
    masque au lieu d'un overflow sec. */
 .ticker-track {
     display: flex;
-    gap: var(--space-6);
     width: max-content;
     animation: ticker-scroll 90s linear infinite;
     mask-image: linear-gradient(90deg, transparent, black 24px, black calc(100% - 24px), transparent);
 }
 
+/* Séparateur vertical entre chaque entrée — sans lui, les items ne se
+   distinguent que par leur espacement, difficile à lire à la volée. */
 .ticker-item {
     display: flex;
     align-items: baseline;
     gap: var(--space-2);
+    padding-left: var(--space-6);
+    border-left: 1px solid var(--color-border);
     white-space: nowrap;
+}
+
+.ticker-item:first-child {
+    padding-left: 0;
+    border-left: none;
 }
 
 .ticker-label {

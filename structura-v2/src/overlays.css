@@ -1,0 +1,414 @@
+/* ============================================================
+   STRUCTURA — OVERLAYS (passe 5)
+   Tout ce qui doit flotter au-dessus de la page : voile, modale,
+   tiroir produit, menu déroulant. Régression passe 4 : ces quatre
+   primitives ne tenaient que grâce à styles.css/institutional-theme.css,
+   supprimés sans être relogés. Résultat en production : le formulaire
+   "Nouveau produit" (18 champs) et le calendrier des événements
+   s'affichaient empilés dans le flux normal, en bas de chaque page.
+
+   Trois règles non négociables, comme les autres feuilles migrées :
+   1. Aucune priorité forcée en CSS.
+   2. Zéro couleur littérale — uniquement var(--color-*).
+   3. Un sélecteur par élément.
+   ============================================================ */
+
+/* ── 1. Le voile ─────────────────────────────────────────────
+   Fond commun à la modale et au tiroir : assombrit la page sans la
+   cacher, n'intercepte les clics que lorsqu'il est ouvert. */
+.overlay-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--color-scrim);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.overlay-scrim.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ── 2. La modale ("Nouveau client", "Nouveau produit") ──────
+   Fermée : display: none — pas une opacité ou une visibilité seule,
+   c'est ce qui empilait le formulaire dans le flux de la page. */
+.modal {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 101;
+    transform: translate(-50%, -50%);
+    width: min(720px, calc(100vw - var(--space-6) * 2));
+    max-width: 720px;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: var(--radius-lg);
+    background: var(--gradient-card-lit);
+    box-shadow: var(--shadow-float);
+}
+
+.overlay-scrim.open .modal {
+    display: flex;
+}
+
+.modal.modal-sm {
+    max-width: 480px;
+}
+
+/* En-tête et pied collants : un formulaire de 18 champs a besoin que
+   le titre et "Enregistrer" restent atteignables sans chercher le
+   haut ou le bas de la modale. */
+.modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface-1);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+}
+
+.modal-close {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-2);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.modal-close:hover {
+    background: var(--color-surface-2-hover);
+}
+
+.modal-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface-1);
+    border-top: 1px solid var(--color-border);
+}
+
+/* Grille des 18 champs : deux colonnes, les champs longs (nom du
+   produit, notes) prennent toute la largeur. */
+.modal-body {
+    padding: var(--space-5);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-content: start;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.field-wide {
+    grid-column: 1 / -1;
+}
+
+/* ── 3. Le tiroir produit ─────────────────────────────────────
+   Transition sur transform uniquement — jamais sur right, qui ferait
+   recalculer la mise en page à chaque frame. Fermé : visibility:hidden
+   en plus du transform, pour sortir du parcours de tabulation. */
+.drawer {
+    position: fixed;
+    inset-block: 0;
+    right: 0;
+    z-index: 101;
+    width: min(560px, 100vw);
+    overflow-y: auto;
+    background: var(--gradient-card-lit);
+    box-shadow: var(--shadow-float);
+    padding: var(--space-6);
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform var(--duration-base) var(--ease-spring);
+}
+
+.overlay-scrim.open .drawer {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+/* ── Contenu du tiroir ────────────────────────────────────────
+   Non décrit dans PASSE-5.md (seule la mécanique d'ouverture l'est),
+   mais signalé et tranché explicitement : le contenu était lui aussi
+   stylé par les feuilles supprimées et s'affichait en texte brut. */
+.dr-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-2);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.dr-close:hover {
+    background: var(--color-surface-2-hover);
+}
+
+.dr-name {
+    padding-right: var(--space-7);
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+}
+
+.dr-isin {
+    margin-top: var(--space-1);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.dr-client {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+.dr-client-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+}
+
+.dr-client-card-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.dr-client-kicker {
+    font-family: var(--font-mono-data);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.dr-client-card-main strong {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.dr-client-card-main small {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.dr-client-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+}
+
+.dr-client-note {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.dr-grid,
+.dr-char-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.dr-field-lbl {
+    margin-bottom: 2px;
+    font-family: var(--font-mono-data);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.dr-field-val {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-base);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.dr-section-title {
+    margin-top: var(--space-2);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--color-text-tertiary);
+}
+
+.divider {
+    height: 1px;
+    margin: var(--space-5) 0;
+    background: var(--color-divider);
+}
+
+.dr-price-chart-wrap {
+    margin-top: var(--space-3);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--color-surface-2);
+}
+
+.dr-price-chart-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.dr-price-chart-legend {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.dr-price-chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.dr-price-chart-legend-swatch {
+    display: inline-block;
+    width: 14px;
+}
+
+.dr-price-chart-legend-swatch-solid {
+    height: 2px;
+    border-radius: 1px;
+    background: var(--color-aegean);
+}
+
+.dr-price-chart-legend-swatch-dotted {
+    height: 0;
+    border-top: 2px dotted var(--color-aegean-2);
+}
+
+.dr-price-chart-note {
+    margin-top: var(--space-2);
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+}
+
+/* Frise de calendrier du tiroir (dates clés du produit) : filet
+   vertical continu, un point par étape. */
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-top: var(--space-3);
+    padding-left: var(--space-5);
+    border-left: 2px solid var(--color-divider);
+}
+
+.tl-ev {
+    position: relative;
+}
+
+.tl-dot {
+    position: absolute;
+    top: 4px;
+    left: calc(-1 * var(--space-5) - 5px);
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-border-strong);
+}
+
+.tl-ev.done .tl-dot {
+    background: var(--color-success);
+}
+
+.tl-ev.next .tl-dot {
+    background: var(--color-aegean);
+}
+
+.tl-date {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+}
+
+.tl-lbl {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.tl-detail {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+/* ── 4. Le menu déroulant (profil, filtres) ──────────────────
+   Posé sur un parent en position: relative — aucun n'existe encore
+   dans le markup, primitive prête pour le prochain menu contextuel. */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    z-index: 90;
+    min-width: 180px;
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-1);
+    box-shadow: var(--shadow-float);
+}
+
+.dropdown-menu.open {
+    display: block;
+}

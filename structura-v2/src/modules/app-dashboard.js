@@ -697,10 +697,10 @@
     function evHtml(evs) {
       return evs
         .map(
-          (e) => `<div class="ev ev-${e.type}" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
-    <div class="ev-date-box"><div class="ev-day">${escapeHtml(e.d)}</div><div class="ev-mon">${escapeHtml(e.m)}</div></div>
-    <div><div class="ev-name">${escapeHtml(e.name)}</div><div class="ev-desc">${escapeHtml(e.desc)}</div></div>
-    <div class="ev-amt ${e.type === "coupon" ? "up" : ""}">${escapeHtml(e.amt || "—")}</div>
+          (e) => `<div class="timeline-item ev-${e.type}" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
+    <div class="timeline-date"><b>${escapeHtml(e.d)}</b><small>${escapeHtml(e.m)}</small></div>
+    <div class="timeline-main"><b>${escapeHtml(e.name)}</b><small>${escapeHtml(e.desc)}</small></div>
+    <div class="timeline-amt">${escapeHtml(e.amt || "—")}</div>
   </div>`,
         )
         .join("");

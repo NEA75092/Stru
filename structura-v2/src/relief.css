@@ -93,13 +93,21 @@
 /* ── Odomètre ────────────────────────────────────────────────
    Chaque chiffre est une colonne de 0 à 9 translatée. Le chiffre
    roule vers sa valeur au lieu de défiler en compteur : ça se lit
-   comme un cadran de salle des marchés. Hauteur pilotée par
-   --odo-h, posée avec la taille de police du KPI. */
+   comme un cadran de salle des marchés.
+
+   Passe 5 : le rognage dépendait de --odo-h, une variable jamais
+   déclarée nulle part (repli 34px partagé par coïncidence sur les
+   quatre règles) — un changement de taille de police du KPI sans
+   mise à jour manuelle de --odo-h aurait décalé le rognage et laissé
+   voir la bobine entière (constat client : chaque colonne affichait
+   ses dix chiffres au lieu d'un seul). La bobine suit maintenant la
+   taille de police du KPI directement : hauteur et translation en
+   em, aucune variable à poser. */
 .odometer {
     display: flex;
     align-items: flex-end;
     gap: 2px;
-    height: var(--odo-h, 34px);
+    height: 1em;
     overflow: hidden;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.035em;
@@ -108,21 +116,21 @@
 .odometer-digit {
     display: block;
     width: 0.58em;
-    height: var(--odo-h, 34px);
+    height: 1em;
     overflow: hidden;
-    line-height: var(--odo-h, 34px);
+    line-height: 1em;
     text-align: center;
 }
 
 .odometer-reel {
     display: block;
-    transform: translateY(calc(var(--odo-h, 34px) * -1 * var(--d, 0)));
+    transform: translateY(calc(var(--d, 0) * -1em));
     transition: transform 900ms var(--ease-spring);
 }
 
 .odometer-reel > span {
     display: block;
-    height: var(--odo-h, 34px);
+    height: 1em;
 }
 
 /* ── Sparkline ───────────────────────────────────────────────
@@ -229,4 +237,15 @@
         animation-iteration-count: 1;
         transition-duration: 1ms;
     }
+}
+
+/* ── L'attribut hidden gagne toujours ─────────────────────────
+   Chargé en dernier : à spécificité égale (un sélecteur d'attribut
+   contre une classe), c'est cette règle qui l'emporte, quelle que
+   soit la classe (.sec-hdr, .g2, .panel…) qui pose aussi un display
+   sur le même élément. Sans elle, un élément cache via .hidden en JS
+   restait visible dès que sa propre classe déclarait un display —
+   constat direct sur la bascule grille/liste du calendrier. */
+[hidden] {
+    display: none;
 }

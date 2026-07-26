@@ -41,6 +41,7 @@
     const pfSort = runtime.pfSort;
     const barrierSort = runtime.barrierSort || (runtime.barrierSort = { col: "dist", asc: true });
     let barrierSearch = "";
+    let barrierStatusFilter = null;
 
     function matchesProductSearch(product, query) {
       const q = String(query || "").trim().toLowerCase();
@@ -496,12 +497,61 @@
       setBarrierKpi("bar-kpi-safe", safe, total, "Au-delà de 15 % du seuil", false);
     }
 
+    // Frise de distance (section E) : un point par produit à barrière
+    // sur un axe -20%/+40%, coloré par statut — la distribution du
+    // risque en un coup d'œil, ce qu'aucun tableau trié ne montre.
+    // Indépendante de la recherche/du filtre de statut : c'est la
+    // référence stable, les filtres agissent sur le tableau en dessous.
+    function renderDistStrip() {
+      const track = document.getElementById("bar-dist-track");
+      const filters = document.getElementById("bar-status-filters");
+      if (!track || !filters) return;
+      const data = productsForScope().filter((p) => p.type !== "CG");
+      const MIN = -20;
+      const MAX = 40;
+      const pctAt = (v) => Math.max(0, Math.min(100, ((v - MIN) / (MAX - MIN)) * 100));
+      const dots = data
+        .filter((p) => Number.isFinite(Number(p.dist)))
+        .map(
+          (p) =>
+            `<span class="dist-strip-dot ${p.st.cls}" style="left:${pctAt(p.dist).toFixed(2)}%" title="${escapeHtml(p.name)} · ${p.dist.toFixed(1)}%"></span>`,
+        )
+        .join("");
+      track.innerHTML = `<div class="dist-strip-zone-danger" style="width:${pctAt(0).toFixed(2)}%"></div>${dots}`;
+
+      const counts = {};
+      data.forEach((p) => {
+        counts[p.st.s] = (counts[p.st.s] || 0) + 1;
+      });
+      const defs = [
+        { s: "breach", label: "Franchie" },
+        { s: "crit", label: "Critique" },
+        { s: "warn", label: "Alerte" },
+        { s: "safe", label: "Sain" },
+        { s: "unknown", label: "À confirmer" },
+      ];
+      filters.innerHTML = defs
+        .filter((d) => counts[d.s] > 0)
+        .map(
+          (d) =>
+            `<button type="button" class="status-filter st-${d.s}${barrierStatusFilter === d.s ? " on" : ""}" onclick="filterBarriersByStatus('${d.s}')">${d.label} <b>${counts[d.s]}</b></button>`,
+        )
+        .join("");
+    }
+
+    function filterBarriersByStatus(status) {
+      barrierStatusFilter = barrierStatusFilter === status ? null : status;
+      renderBarriers();
+    }
+
     function renderBarriers() {
       renderBarrierKpis();
+      renderDistStrip();
       const tbody = document.getElementById("bar-tbody");
       const data = [...productsForScope()]
         .filter((p) => p.type !== "CG")
         .filter((p) => matchesProductSearch(p, barrierSearch))
+        .filter((p) => !barrierStatusFilter || p.st.s === barrierStatusFilter)
         .map((p) => ({
           ...p,
           barrierType:
@@ -629,6 +679,10 @@
         notify("Aucun produit actif a afficher", "err");
         return;
       }
+      const clientContent = document.getElementById("dr-client-content");
+      if (clientContent) clientContent.style.display = "none";
+      const productContent = document.getElementById("dr-product-content");
+      if (productContent) productContent.style.display = "";
       document.getElementById("dr-name").textContent = p.name;
       document.getElementById("dr-isin").textContent = "ISIN : " + p.isin;
       const allocations = getProductAllocations(p);
@@ -794,6 +848,7 @@
       renderPf,
       renderBarriers,
       filterBarriers,
+      filterBarriersByStatus,
       sortBarriers,
       pfType,
       filterPf,

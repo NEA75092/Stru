@@ -1,0 +1,120 @@
+/* ============================================================
+   STRUCTURA — CONTROLS (passe 5)
+   Primitives d'interface utilisées par les 9 vues : champs de
+   saisie, toolbar, onglets. Les boutons vivent déjà dans shell.css
+   (passe 1) — complétés ici (secondaire/tertiaire, :disabled) plutôt
+   que redéclarés, pour ne pas ouvrir un second foyer de règles sur
+   .btn.
+
+   Trois règles non négociables, comme les autres feuilles migrées :
+   1. Aucune priorité forcée en CSS.
+   2. Zéro couleur littérale — uniquement var(--color-*).
+   3. Un sélecteur par élément.
+   ============================================================ */
+
+/* ── Champs de saisie ────────────────────────────────────────
+   Jamais outline: none sans remplacement visible : le focus reste
+   toujours lisible au clavier, via --shadow-focus (même anneau que
+   les boutons, cohérence du système de focus). */
+.f-lbl {
+    display: block;
+    margin-bottom: var(--space-1);
+    font-family: var(--font-mono-data);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.f-inp,
+.f-sel,
+.search {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-1);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    transition:
+        border-color var(--duration-fast) var(--ease-standard),
+        box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.f-inp:focus,
+.f-sel:focus,
+.search:focus {
+    outline: none;
+    border-color: var(--color-aegean);
+    box-shadow: var(--shadow-focus);
+}
+
+.f-inp::placeholder,
+.search::placeholder {
+    color: var(--color-text-tertiary);
+}
+
+/* ── Toolbar de vue ──────────────────────────────────────────
+   Recherche, filtres et actions sur une ligne ; passe proprement à
+   la ligne sous 900px plutôt que d'écraser la recherche. */
+.toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+
+    @media (max-width: 900px) {
+        align-items: stretch;
+    }
+}
+
+.toolbar .search {
+    flex: 1;
+    min-width: 220px;
+
+    @media (max-width: 900px) {
+        flex-basis: 100%;
+    }
+}
+
+.toolbar-spacer {
+    flex: 1;
+}
+
+/* ── Onglets ─────────────────────────────────────────────────
+   Filet actif de 2px sous l'onglet sélectionné — transition sur la
+   couleur seule, jamais sur la position du filet. */
+.tabs {
+    display: flex;
+    gap: var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.tab-item {
+    padding: var(--space-3) 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--color-text-secondary);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.tab-item.on {
+    border-bottom-color: var(--color-aegean);
+    color: var(--color-ink);
+}
+
+/* ── Groupe de boutons ───────────────────────────────────────
+   Pied de formulaire ou de panneau : actions alignées à droite. */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+}

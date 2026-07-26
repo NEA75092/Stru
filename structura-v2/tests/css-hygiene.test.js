@@ -18,7 +18,14 @@ const SRC = path.join(ROOT, "src");
 /* Feuilles réécrites depuis design-tokens.css. Y ajouter un fichier
    signifie : il ne contient aucun !important, aucune couleur
    littérale, aucun sélecteur en doublon. */
-const MIGRATED = ["shell.css", "relief.css", "tables.css", "views.css"];
+const MIGRATED = [
+  "shell.css",
+  "relief.css",
+  "tables.css",
+  "overlays.css",
+  "controls.css",
+  "views.css",
+];
 
 /* Passe validée = ses règles héritées ont été SUPPRIMÉES des
    anciennes feuilles, pas surchargées. */
@@ -260,4 +267,24 @@ test("aucun token de couleur n'est absent du thème sombre", () => {
     0,
     `tokens sans valeur en sombre (valeur du thème clair sur fond sombre) : ${missing.join(", ")}`,
   );
+});
+
+/* ── 13. Les overlays ne vivent pas dans le flux ────────────
+   Régression passe 4 : la modale et le calendrier s'affichaient
+   empilés en bas de chaque page, faute de position fixed. */
+test("chaque primitive d'overlay est positionnée hors du flux", () => {
+  const css = read("overlays.css");
+  for (const sel of [".overlay-scrim", ".modal", ".drawer"]) {
+    const block = css.slice(css.indexOf(sel));
+    const decl = block.slice(0, block.indexOf("}"));
+    assert.match(decl, /position:\s*fixed/, `${sel} n'est pas en position: fixed`);
+    assert.match(decl, /z-index:/, `${sel} n'a pas de z-index`);
+  }
+});
+
+/* ── 14. Un état fermé sort réellement du flux ──────────────── */
+test("les overlays fermés sont en display: none", () => {
+  const css = read("overlays.css");
+  assert.match(css, /\.modal(?![\w-])[^{]*\{[^}]*display:\s*none/,
+    "la modale fermée doit être en display: none, pas seulement transparente");
 });

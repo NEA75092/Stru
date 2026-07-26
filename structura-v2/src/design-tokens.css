@@ -48,6 +48,14 @@
        tableau, fond des barres de progression — plus discret que
        --color-border, jamais gris froid. */
     --color-divider: #f0ece0;
+    /* Fond légèrement retiré (case de calendrier hors période, zone
+       neutre) : une marche sous --color-surface-2, jamais un gris
+       froid détaché de la palette. */
+    --color-surface-sunk: #ece5d3;
+
+    /* Voile des overlays (modale, tiroir) : assez sombre pour détacher
+       le premier plan sans jamais devenir un aplat noir. */
+    --color-scrim: rgb(22 39 58 / 0.42);
 
     --color-ink: #16273a;
     --color-text-primary: #16273a;
@@ -239,6 +247,11 @@
     --color-border: rgb(238 228 206 / 0.16);
     --color-border-strong: rgb(238 228 206 / 0.26);
     --color-divider: rgb(238 228 206 / 0.1);
+    --color-surface-sunk: #191510;
+
+    /* Voile plus opaque en sombre : le fond est déjà proche du noir,
+       un voile clair comme en thème jour ne détacherait rien. */
+    --color-scrim: rgb(0 0 0 / 0.6);
 
     --color-ink: #f3efe2;
     --color-text-primary: #f3efe2;

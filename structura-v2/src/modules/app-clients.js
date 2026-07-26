@@ -94,133 +94,121 @@
       root.renderCalendar?.();
     }
 
-    function selectClientDetail(clientId) {
-      const id = Number(clientId) || null;
-      runtime.selectedClientDetailId = id;
-      setSelectedClientDetail(id);
-      renderClients();
-    }
-
     function filterClients(value) {
       clientSearch = String(value || "").trim().toLowerCase();
       renderClients();
     }
 
+    // Carte de client (passe 5, section D) : nom, segment, encours et
+    // compteurs seulement — le détail complet vit dans le tiroir, pas
+    // ici. Aucun montant coloré ; le compteur d'alertes réutilise les
+    // classes .st-bad/.st-warn déjà définies pour les statuts de
+    // tableau plutôt que d'inventer une nouvelle teinte.
     function renderClientCard(client) {
       const stats = clientStats(client.id);
-      const active =
-        Number(runtime.selectedClientDetailId) === Number(client.id) ? " on" : "";
-      return `<button type="button" class="client-card${active}" onclick="selectClientDetail(${client.id})">
-        <span class="client-avatar">${escapeHtml(initials(client.name))}</span>
-        <span class="client-card-main">
-          <strong>${escapeHtml(client.name)}</strong>
-          <small>${escapeHtml(client.segment)}${client.email ? ` · ${escapeHtml(client.email)}` : ""}</small>
-        </span>
-        <span class="client-card-meta">
-          <b>${stats.count}</b>
-          <small>produits</small>
-        </span>
+      const alerts = stats.breach + stats.watch;
+      const alertCls = stats.breach > 0 ? "st-bad" : alerts > 0 ? "st-warn" : "";
+      return `<button type="button" class="client-card${stats.breach > 0 ? " client-card-breach" : ""}" onclick="openClientDrawer(${client.id})">
+        <div class="client-card-top">
+          <strong class="client-card-name">${escapeHtml(client.name)}</strong>
+          <span class="pill-category">${escapeHtml(client.segment)}</span>
+        </div>
+        <div class="client-card-aum">${moneyShort(stats.nominal)}</div>
+        <div class="client-card-foot">
+          <span>${stats.count} produit${stats.count > 1 ? "s" : ""}</span>
+          ${alerts ? `<span class="${alertCls}">${alerts} alerte${alerts > 1 ? "s" : ""}</span>` : ""}
+        </div>
       </button>`;
     }
 
-    function renderClientDetail() {
-      const panel = document.getElementById("clients-detail");
-      if (!panel) return;
-      const clientId = runtime.selectedClientDetailId || CLIENTS[0]?.id;
-      const client = getClientById(clientId);
+    // Fiche client au clic : rendue dans le tiroir partagé avec les
+    // produits (section A), pas dans un panneau permanent de la page.
+    function openClientDrawer(clientId) {
+      const id = Number(clientId) || null;
+      runtime.selectedClientDetailId = id;
+      setSelectedClientDetail(id);
+      const content = document.getElementById("dr-client-content");
+      const productContent = document.getElementById("dr-product-content");
+      if (!content) return;
+      if (productContent) productContent.style.display = "none";
+      content.style.display = "";
+      const client = getClientById(id);
       if (!client) {
-        panel.innerHTML =
-          '<div class="clients-empty">Ajoutez un premier client pour structurer vos dossiers.</div>';
+        content.innerHTML = '<div class="empty-inline">Client introuvable.</div>';
+        document.getElementById("drawer-ov")?.classList.add("open");
         return;
       }
       const stats = clientStats(client.id);
       const unassigned = activeProducts().filter((p) => !p.clientId);
-      panel.innerHTML = `
-        <div class="client-detail-head">
-          <div class="client-detail-id">
-            <span class="client-avatar lg">${escapeHtml(initials(client.name))}</span>
-            <div>
-              <h2>${escapeHtml(client.name)}</h2>
-              <div class="client-detail-sub">
-                <span class="pill-category">${escapeHtml(client.segment)}</span>
-                ${client.email ? `<span>${escapeHtml(client.email)}</span>` : ""}
-              </div>
-            </div>
-          </div>
-          <div class="client-detail-actions">
-            <button class="btn btn-primary" type="button" onclick="openClientModal(${client.id})">Modifier</button>
-          </div>
+      content.innerHTML = `
+        <div class="dr-name">${escapeHtml(client.name)}</div>
+        <div class="dr-isin">${escapeHtml(client.segment)}${client.email ? ` · ${escapeHtml(client.email)}` : ""}</div>
+        <div class="dr-grid">
+          <div><div class="dr-field-lbl">Produits</div><div class="dr-field-val">${stats.count}</div></div>
+          <div><div class="dr-field-lbl">Encours nominal</div><div class="dr-field-val">${moneyShort(stats.nominal)}</div></div>
+          <div><div class="dr-field-lbl">Valorisation</div><div class="dr-field-val">${moneyShort(stats.val)}</div></div>
+          <div><div class="dr-field-lbl">Alertes</div><div class="dr-field-val">${stats.breach + stats.watch}</div></div>
         </div>
-        <div class="client-kpi-row">
-          <div class="client-kpi"><span>Produits</span><b>${stats.count}</b></div>
-          <div class="client-kpi"><span>Encours nominal</span><b>${moneyShort(stats.nominal)}</b></div>
-          <div class="client-kpi client-kpi-featured"><span>Valorisation</span><b>${moneyShort(stats.val)}</b></div>
-          <div class="client-kpi warn"><span>Alertes</span><b>${stats.breach + stats.watch}</b></div>
-        </div>
-        ${client.notes ? `<div class="client-notes">${escapeHtml(client.notes)}</div>` : ""}
-        <div class="client-products-hdr">
-          <h3>Produits du dossier</h3>
-          <select class="f-sel client-assign-select" id="client-assign-select" onchange="assignProductToClient(this.value, ${client.id})">
-            <option value="">+ Rattacher un produit</option>
-            ${unassigned
-              .map(
-                (product) =>
-                  `<option value="${product.id}">${escapeHtml(product.name)}</option>`,
-              )
+        ${client.notes ? `<div class="divider"></div><div class="dr-section-title">NOTES</div><p class="dr-field-val">${escapeHtml(client.notes)}</p>` : ""}
+        <div class="divider"></div>
+        <div class="dr-section-title">RATTACHER UN PRODUIT</div>
+        <select class="f-sel" id="client-assign-select" onchange="assignProductToClient(this.value, ${client.id})">
+          <option value="">— Sélectionner —</option>
+          ${unassigned
+            .map(
+              (product) =>
+                `<option value="${product.id}">${escapeHtml(product.name)}</option>`,
+            )
+            .join("")}
+          ${activeProducts()
+            .filter((p) => p.clientId && Number(p.clientId) !== Number(client.id))
+            .map(
+              (product) =>
+                `<option value="${product.id}">${escapeHtml(product.name)} (transfert)</option>`,
+            )
+            .join("")}
+        </select>
+        <div class="divider"></div>
+        <div class="dr-section-title">PRODUITS DU DOSSIER</div>
+        ${
+          stats.products.length
+            ? `<table>
+          <thead><tr><th>Produit</th><th>Souscription</th><th>Enveloppe</th><th>Canal</th><th class="num">Nominal</th><th>Statut</th><th></th></tr></thead>
+          <tbody>
+            ${stats.products
+              .map((product) => {
+                const alloc = allocationForClient(product, client.id);
+                return `<tr>
+              <td><button type="button" class="linkish" onclick="openDrawer(${product.id})">${escapeHtml(product.name)}</button></td>
+              <td class="cell-muted">${escapeHtml(formatSubDate(alloc?.subDate))}</td>
+              <td><span class="env-badge">${escapeHtml(envelopeLabel(alloc?.envelope))}</span></td>
+              <td><span class="channel-tag">${escapeHtml(channelLabel(alloc?.channel))}</span></td>
+              <td class="num">${moneyShort(alloc?.nominal || product.nominal)}</td>
+              <td><span class="pill-status ${product.st?.cls || "st-unknown"}">${escapeHtml(product.st?.label || "—")}</span></td>
+              <td><button type="button" class="btn btn-tertiary" onclick="unassignProductFromClient(${product.id})">Retirer</button></td>
+            </tr>`;
+              })
               .join("")}
-            ${activeProducts()
-              .filter((p) => p.clientId && Number(p.clientId) !== Number(client.id))
-              .map(
-                (product) =>
-                  `<option value="${product.id}">${escapeHtml(product.name)} (transfert)</option>`,
-              )
-              .join("")}
-          </select>
-        </div>
-        <div class="client-products-table">
-          ${
-            stats.products.length
-              ? `<table>
-            <thead><tr><th>Produit</th><th>ISIN</th><th>Souscription</th><th>Enveloppe</th><th>Canal</th><th class="num">Nominal</th><th>Statut</th><th></th></tr></thead>
-            <tbody>
-              ${stats.products
-                .map(
-                  (product) => {
-                    const alloc = allocationForClient(product, client.id);
-                    return `<tr>
-                <td><button type="button" class="linkish" onclick="openDrawer(${product.id})">${escapeHtml(product.name)}</button></td>
-                <td>${escapeHtml(product.isin || "—")}</td>
-                <td>${escapeHtml(formatSubDate(alloc?.subDate))}</td>
-                <td><span class="env-badge env-${escapeHtml(alloc?.envelope || "assurance-vie")}">${escapeHtml(envelopeLabel(alloc?.envelope))}</span></td>
-                <td><span class="channel-tag">${escapeHtml(channelLabel(alloc?.channel))}</span></td>
-                <td class="num">${moneyShort(alloc?.nominal || product.nominal)}</td>
-                <td><span class="pill-status ${product.st?.cls || "st-unknown"}">${escapeHtml(product.st?.label || "—")}</span></td>
-                <td><button type="button" class="mini-btn" onclick="unassignProductFromClient(${product.id})">Retirer</button></td>
-              </tr>`;
-                  },
-                )
-                .join("")}
-            </tbody>
-          </table>`
-              : '<div class="clients-empty inline">Aucun produit rattaché à ce client.</div>'
-          }
+          </tbody>
+        </table>`
+            : '<div class="empty-inline">Aucun produit rattaché à ce client.</div>'
+        }
+        <div class="form-actions">
+          <button class="btn btn-primary" type="button" onclick="openClientModal(${client.id})">Modifier le client</button>
         </div>`;
+      document.getElementById("drawer-ov")?.classList.add("open");
     }
 
     function renderClients() {
       const list = document.getElementById("clients-list");
       if (!list) return;
-      if (!runtime.selectedClientDetailId && CLIENTS[0]) {
-        runtime.selectedClientDetailId = CLIENTS[0].id;
-      }
       const filtered = CLIENTS.filter((client) => {
         if (!clientSearch) return true;
         return matchesClientSearch(client, clientSearch);
       });
       list.innerHTML = filtered.length
         ? filtered.map(renderClientCard).join("")
-        : '<div class="clients-empty inline">Aucun client ne correspond à la recherche.</div>';
-      renderClientDetail();
+        : '<div class="empty-inline">Aucun client ne correspond à la recherche.</div>';
       updateClientsMeta();
     }
 
@@ -239,10 +227,7 @@
     function openClientWorkspace(clientId) {
       const id = Number(clientId) || null;
       if (!id) return;
-      runtime.selectedClientDetailId = id;
-      setSelectedClientDetail(id);
-      root.nav?.("clients");
-      renderClients();
+      openClientDrawer(id);
     }
 
     function openClientModal(clientId) {
@@ -365,7 +350,7 @@
       renderClientSelector: updateClientsMeta,
       renderClientScopeBar: updateClientsMeta,
       refreshScopedViews,
-      selectClientDetail,
+      openClientDrawer,
       filterClients,
       openClientWorkspace,
       populateClientSelect,

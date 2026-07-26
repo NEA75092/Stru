@@ -1279,30 +1279,32 @@ function renderIngestionStory(payload = {}) {
   const grade = merged.grade || "LOW";
   const gradeColor =
     grade === "HIGH"
-      ? "var(--green)"
+      ? "var(--color-success)"
       : grade === "MEDIUM"
-        ? "var(--gold)"
-        : "var(--orange)";
+        ? "var(--color-warning)"
+        : "var(--color-warning)";
   const coverageLabel = intelligence?.coverage?.label || "Document source";
 
   // ── Métriques
+  // Aucune couleur arbitraire : seul Consensus porte un vrai statut
+  // (au-dessus/en dessous du seuil de fiabilité), via .tone.
   const metrics = [
-    { label: "Coupon", value: couponVal, color: "var(--gold)" },
-    { label: "Barrière", value: barrierVal, color: "var(--orange)" },
-    { label: "Rappel", value: recallVal, color: "var(--cyan)" },
-    { label: "Nominal", value: nominalVal, color: "var(--text)" },
-    { label: "Maturité", value: maturityVal, color: "var(--text)" },
+    { label: "Coupon", value: couponVal },
+    { label: "Barrière", value: barrierVal },
+    { label: "Rappel", value: recallVal },
+    { label: "Nominal", value: nominalVal },
+    { label: "Maturité", value: maturityVal },
     {
       label: "Consensus",
       value: consensusPct + "%",
-      color: consensusPct >= 70 ? "var(--green)" : "var(--orange)",
+      tone: consensusPct >= 70 ? "var(--color-success)" : "var(--color-warning)",
     },
   ];
   const metricsHtml = metrics
     .map(
       (m) => `
     <div class="ing-metric">
-      <div class="ing-metric-val" style="color:${m.color}">${escapeHtml(m.value || "—")}</div>
+      <div class="ing-metric-val${m.tone ? " tone" : ""}"${m.tone ? ` style="--tone:${m.tone}"` : ""}>${escapeHtml(m.value || "—")}</div>
       <div class="ing-metric-lbl">${m.label}</div>
     </div>`,
     )
@@ -1357,24 +1359,12 @@ function renderIngestionStory(payload = {}) {
       : null;
 
   const metrics2 = [
-    {
-      label: "VL actuelle",
-      value: vlStr,
-      color: vlStr ? "var(--cyan)" : undefined,
-    },
-    { label: "Durée", value: durationStr, color: "var(--text)" },
-    { label: "Fréquence", value: freqLabel, color: "var(--text)" },
-    {
-      label: "Barrière type",
-      value: barrObsShort,
-      color: barrObsShort === "Américaine" ? "var(--orange)" : "var(--text)",
-    },
-    {
-      label: "Mémoire",
-      value: memoire,
-      color: merged.hasMemory ? "var(--cyan)" : "var(--text3)",
-    },
-    { label: "Decrement", value: decrementStr, color: "var(--gold)" },
+    { label: "VL actuelle", value: vlStr },
+    { label: "Durée", value: durationStr },
+    { label: "Fréquence", value: freqLabel },
+    { label: "Barrière type", value: barrObsShort },
+    { label: "Mémoire", value: memoire },
+    { label: "Decrement", value: decrementStr },
   ].filter((m) => m.value);
 
   const metrics2Html = metrics2.length
@@ -1382,7 +1372,7 @@ function renderIngestionStory(payload = {}) {
         .map(
           (m) => `
   <div class="ing-metric ing-metric-sm">
-    <div class="ing-metric-val" style="color:${m.color || "var(--text2)"}; font-size:13px">${escapeHtml(m.value)}</div>
+    <div class="ing-metric-val">${escapeHtml(m.value)}</div>
     <div class="ing-metric-lbl">${m.label}</div>
   </div>`,
         )
@@ -1396,13 +1386,13 @@ function renderIngestionStory(payload = {}) {
     .map((w) => {
       const icon =
         w.level === "error" ? "⚠" : w.level === "warning" ? "◉" : "◎";
-      const color =
+      const tone =
         w.level === "error"
-          ? "var(--red)"
+          ? "var(--color-danger)"
           : w.level === "warning"
-            ? "var(--orange)"
-            : "var(--cyan)";
-      return `<div class="ing-note-pill" style="border-color:${color}"><span style="color:${color}">${icon}</span> ${escapeHtml(w.message)}</div>`;
+            ? "var(--color-warning)"
+            : "var(--color-text-secondary)";
+      return `<div class="ing-note-pill tone-border" style="--tone:${tone}"><span class="tone" style="--tone:${tone}">${icon}</span> ${escapeHtml(w.message)}</div>`;
     })
     .join("");
 
@@ -1433,7 +1423,7 @@ function renderIngestionStory(payload = {}) {
   const scheduleRows = (intelligence?.schedule || [])
     .map(
       (r) =>
-        `<tr><td>${escapeHtml(r.date)}</td><td>${escapeHtml(r.kind)}</td><td>${escapeHtml(r.level || "—")}</td><td style="color:var(--text3);font-size:9px;">${escapeHtml(humanizeDocType(r.source))}</td></tr>`,
+        `<tr><td>${escapeHtml(r.date)}</td><td>${escapeHtml(r.kind)}</td><td>${escapeHtml(r.level || "—")}</td><td class="cell-faint" style="font-size:9px;">${escapeHtml(humanizeDocType(r.source))}</td></tr>`,
     )
     .join("");
   const scheduleBlock = scheduleRows
@@ -1461,7 +1451,7 @@ function renderIngestionStory(payload = {}) {
         </div>
         <div class="ing-card-badges">
           <span class="ing-badge-pill ing-badge-type">${escapeHtml(merged.type || "Produit")}</span>
-          <span class="ing-badge-pill" style="background:${gradeColor}15;border-color:${gradeColor};color:${gradeColor};">${escapeHtml(gradeLabelFr(grade))}</span>
+          <span class="ing-badge-pill" style="--tone:${gradeColor}">${escapeHtml(gradeLabelFr(grade))}</span>
           <span class="ing-badge-pill ing-badge-source">${escapeHtml(coverageLabel)}</span>
         </div>
       </div>
@@ -2635,17 +2625,17 @@ function renderPitchPreview(deck) {
     </div>
     <div class="pitch-cover-keyline">
       <div class="pitch-keyline-item">
-        <div class="pitch-keyline-val" style="color:var(--gold)">${escapeHtml(String(p.coupon || 0))}%</div>
+        <div class="pitch-keyline-val">${escapeHtml(String(p.coupon || 0))}%</div>
         <div class="pitch-keyline-lbl">Coupon annuel</div>
       </div>
       <div class="pitch-keyline-sep"></div>
       <div class="pitch-keyline-item">
-        <div class="pitch-keyline-val" style="color:var(--orange)">${escapeHtml(String(p.barrier || 0))}%</div>
+        <div class="pitch-keyline-val">${escapeHtml(String(p.barrier || 0))}%</div>
         <div class="pitch-keyline-lbl">Protection capital</div>
       </div>
       <div class="pitch-keyline-sep"></div>
       <div class="pitch-keyline-item">
-        <div class="pitch-keyline-val" style="color:var(--cyan)">${escapeHtml(String(p.recall || 100))}%</div>
+        <div class="pitch-keyline-val">${escapeHtml(String(p.recall || 100))}%</div>
         <div class="pitch-keyline-lbl">Seuil de rappel</div>
       </div>
       <div class="pitch-keyline-sep"></div>
@@ -2692,16 +2682,13 @@ function renderPitchPreview(deck) {
     </div>`;
 
   // ── Slide 3 — Mécanique
+  // Étapes numérotées, pas de statut : un seul ton, pas un cycle de
+  // couleurs arbitraire (passe 5, section H).
   const bullets = (deck.howItWorks || [])
-    .map((b, i) => {
-      const colors = [
-        "var(--gold)",
-        "var(--cyan)",
-        "var(--orange)",
-        "var(--green)",
-      ];
-      return `<div class="pitch-bullet"><div class="pitch-bullet-dot" style="background:${colors[i % 4]}"></div><div>${escapeHtml(b)}</div></div>`;
-    })
+    .map(
+      (b) =>
+        `<div class="pitch-bullet"><div class="pitch-bullet-dot"></div><div>${escapeHtml(b)}</div></div>`,
+    )
     .join("");
   const slide3 = `
     <div class="pitch-card">
@@ -2726,12 +2713,14 @@ function renderPitchPreview(deck) {
     Math.abs(_numFromStr(s.bear?.returnStr)),
     1,
   );
-  const scenBar = (returnStr, color) => {
+  // Couleur portée par le parent (.pitch-scen-bull/-base/-bear), pas par
+  // l'appelant : bull = up, bear = dn, base = neutre (passe 5, section H).
+  const scenBar = (returnStr) => {
     const pct = Math.min(
       100,
       Math.max(5, (_numFromStr(returnStr) / maxScen) * 100),
     );
-    return `<div style="height:4px;background:var(--border);border-radius:2px;margin-top:4px;"><div style="height:4px;width:${pct}%;background:${color};border-radius:2px;"></div></div>`;
+    return `<div class="pitch-scen-bar-track"><div class="pitch-scen-bar-fill" style="width:${pct}%"></div></div>`;
   };
   const slide4 = `
   <div class="pitch-card">
@@ -2741,23 +2730,23 @@ function renderPitchPreview(deck) {
       <div class="pitch-scen pitch-scen-bull">
         <div class="pitch-scen-lbl">▲ ${escapeHtml(s.bull?.label || "Haussier")}</div>
         <div class="pitch-scen-ret">${escapeHtml(s.bull?.returnStr || "—")}</div>
-        ${scenBar(s.bull?.returnStr, "var(--green)")}
+        ${scenBar(s.bull?.returnStr)}
         <div class="pitch-scen-desc" style="margin-top:8px;">${escapeHtml(s.bull?.desc || "")}</div>
       </div>
       <div class="pitch-scen pitch-scen-base">
         <div class="pitch-scen-lbl">◉ ${escapeHtml(s.base?.label || "Central")}</div>
         <div class="pitch-scen-ret">${escapeHtml(s.base?.returnStr || "—")}</div>
-        ${scenBar(s.base?.returnStr, "var(--cyan)")}
+        ${scenBar(s.base?.returnStr)}
         <div class="pitch-scen-desc" style="margin-top:8px;">${escapeHtml(s.base?.desc || "")}</div>
       </div>
       <div class="pitch-scen pitch-scen-bear">
         <div class="pitch-scen-lbl">▼ ${escapeHtml(s.bear?.label || "Baissier")}</div>
         <div class="pitch-scen-ret">${escapeHtml(s.bear?.returnStr || "—")}</div>
-        ${scenBar(s.bear?.returnStr, "var(--red)")}
+        ${scenBar(s.bear?.returnStr)}
         <div class="pitch-scen-desc" style="margin-top:8px;">${escapeHtml(s.bear?.desc || "")}</div>
       </div>
     </div>
-    <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);">
+    <div class="pitch-disclaimer">
       Scénarios indicatifs. Performances passées non indicatives des performances futures. Capital non garanti en cas de rupture de barrière.
     </div>
   </div>`;
@@ -2765,19 +2754,19 @@ function renderPitchPreview(deck) {
   // ── Slide 5 — Risques + Pourquoi maintenant
   const risks = (deck.risks || [])
     .map((r) => {
-      const col =
+      const cls =
         r.level === "Élevé"
-          ? "var(--red)"
+          ? "st-breach"
           : r.level === "Faible"
-            ? "var(--green)"
-            : "var(--gold)";
+            ? "st-safe"
+            : "st-warn";
       return `<div class="pitch-risk-row">
-      <div class="pitch-risk-dot" style="background:${col}"></div>
+      <div class="pitch-risk-dot ${cls}"></div>
       <div class="pitch-risk-body">
         <div class="pitch-risk-name">${escapeHtml(r.risk)}</div>
         <div class="pitch-risk-desc">${escapeHtml(r.desc)}</div>
       </div>
-      <div class="pitch-risk-lvl" style="color:${col}">${escapeHtml(r.level)}</div>
+      <div class="pitch-risk-lvl ${cls}">${escapeHtml(r.level)}</div>
     </div>`;
     })
     .join("");
@@ -5916,8 +5905,7 @@ function renderCompareTable(compare, extractions, consensus) {
   </tr>`,
     )
     .join("");
-  const badge = (s) =>
-    `<span style="display:inline-block;margin-right:4px;padding:2px 6px;border:1px solid var(--border2);background:var(--s3);font-size:9px;color:var(--text2);">${s}</span>`;
+  const badge = (s) => `<span class="ing-source-badge">${s}</span>`;
   const cs = consensus?.data || {};
   const consensusRows = [
     ["ISIN", cs.isin],
@@ -5935,13 +5923,13 @@ function renderCompareTable(compare, extractions, consensus) {
     .join("");
   const consensusBlock = consensus
     ? `
-    <div style="margin:10px 0 8px 0;color:var(--gold);font-size:10px;letter-spacing:.5px;">
+    <div class="ing-consensus-hdr">
       Consensus 360°: ${consensus.status?.consensusPct || 0}% (${consensus.status?.level || "LOW"})
     </div>
     <table><thead><tr><th>Champ</th><th>Valeur</th><th>Confiance</th><th>Sources validées</th></tr></thead><tbody>${consensusRows}</tbody></table>
   `
     : "";
-  el.innerHTML = `<div style="margin-bottom:8px;color:var(--text3);">Sources: ${sourceLabel}</div>
+  el.innerHTML = `<div class="cell-faint" style="margin-bottom:8px;">Sources: ${sourceLabel}</div>
   <table><thead><tr><th>Champ</th><th>Valeurs trouvées</th><th>Retenu</th><th>Statut</th></tr></thead><tbody>${rows}</tbody></table>${consensusBlock}`;
 }
 
@@ -6105,7 +6093,7 @@ async function extractFromDocument() {
         2,
       );
       document.getElementById("ing-compare").innerHTML =
-        `<div style="color:var(--orange);">Aucun document produit-specifique exploitable detecte. Les documents fournis semblent generiques ou non pertinents.</div>`;
+        `<div class="tone" style="--tone:var(--color-warning)">Aucun document produit-specifique exploitable detecte. Les documents fournis semblent generiques ou non pertinents.</div>`;
       document.getElementById("ing-compare").style.display = "block";
       notify("Aucun document produit-specifique exploitable detecte", "err");
       return;
