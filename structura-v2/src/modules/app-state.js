@@ -181,14 +181,20 @@
     }
 
     function statusFromDist(dist, type) {
-      if (type === "CG") return { s: "safe", label: "PROTEGE", cls: "bf-safe" };
+      // "none" (capital garanti, pas de barrière) et "unknown" (donnée de
+      // distance manquante) sont deux causes distinctes d'une cellule sans
+      // valeur : la première est une caractéristique du produit, la seconde
+      // une tâche de collecte. Ne jamais les confondre sous "safe" — c'était
+      // le bug relevé par le client (passe 4) : un CG s'affichait "PROTEGE"
+      // au même titre qu'une vraie barrière saine.
+      if (type === "CG") return { s: "none", label: "GARANTI", cls: "st-none" };
       if (dist === null || dist === undefined || !Number.isFinite(Number(dist))) {
-        return { s: "unknown", label: "A CONFIRMER", cls: "bf-warn" };
+        return { s: "unknown", label: "A CONFIRMER", cls: "st-unknown" };
       }
-      if (dist < 0) return { s: "breach", label: "FRANCHIE", cls: "bf-breach" };
-      if (dist < 5) return { s: "crit", label: "CRITIQUE", cls: "bf-crit" };
-      if (dist < 15) return { s: "warn", label: "ALERTE", cls: "bf-warn" };
-      return { s: "safe", label: "SAIN", cls: "bf-safe" };
+      if (dist < 0) return { s: "breach", label: "FRANCHIE", cls: "st-breach" };
+      if (dist < 5) return { s: "crit", label: "CRITIQUE", cls: "st-crit" };
+      if (dist < 15) return { s: "warn", label: "ALERTE", cls: "st-warn" };
+      return { s: "safe", label: "SAIN", cls: "st-safe" };
     }
 
     function inferProductOrigin(p) {

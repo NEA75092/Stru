@@ -194,7 +194,7 @@
                 <td><span class="env-badge env-${escapeHtml(alloc?.envelope || "assurance-vie")}">${escapeHtml(envelopeLabel(alloc?.envelope))}</span></td>
                 <td><span class="channel-tag">${escapeHtml(channelLabel(alloc?.channel))}</span></td>
                 <td class="num">${moneyShort(alloc?.nominal || product.nominal)}</td>
-                <td><span class="bf ${product.st?.cls || ""}">${escapeHtml(product.st?.label || "—")}</span></td>
+                <td><span class="pill-status ${product.st?.cls || "st-unknown"}">${escapeHtml(product.st?.label || "—")}</span></td>
                 <td><button type="button" class="mini-btn" onclick="unassignProductFromClient(${product.id})">Retirer</button></td>
               </tr>`;
                   },

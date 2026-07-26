@@ -36,16 +36,6 @@
       ST_LABEL_SHORT,
       TYPE_NAMES,
     } = root.StructuraPortfolioConstants;
-    // Statut en pastille pleine (refonte Dolce Vita Fintech, 2026-07-25) —
-    // même mapping sémantique que ST_COLOR, juste la classe .pill-status
-    // à appliquer au lieu d'un texte coloré en style inline.
-    const ST_PILL_CLASS = {
-      breach: "danger",
-      crit: "danger",
-      warn: "warning",
-      safe: "ok",
-      unknown: "info",
-    };
 
     const pfFilter = runtime.pfFilter;
     const pfSort = runtime.pfSort;
@@ -77,9 +67,9 @@
         return `${Number(product.vlPct).toFixed(2)}%${suffix}`;
       }
       if (product.vlStatus === "no_isin" || !product.isin) {
-        return `<span style="color:var(--text3);">ISIN requis</span>`;
+        return `<span class="cell-faint">ISIN requis</span>`;
       }
-      return `<span style="color:var(--orange);">À récupérer</span>`;
+      return `<span class="cell-warn">À récupérer</span>`;
     }
 
     function issuerVlDetail(product) {
@@ -341,7 +331,9 @@
           data = data.filter((p) => p.type === pfFilter.type);
         }
       }
-      if (pfFilter.alertsOnly) data = data.filter((p) => p.st.s !== "safe");
+      if (pfFilter.alertsOnly) {
+        data = data.filter((p) => p.st.s !== "safe" && p.st.s !== "none");
+      }
       if (pfFilter.search) {
         data = data.filter((p) => matchesProductSearch(p, pfFilter.search));
       }
@@ -374,7 +366,7 @@
         `${data.length} produits${isProdMode() ? " reels" : ""}`;
       const tbody = document.getElementById("pf-tbody");
       if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;color:var(--text3);padding:28px;">Aucun produit reel en mode production. Importez un CSV ou ajoutez un produit depuis l'ingestion docs.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="13" class="tbl-empty">Aucun produit reel en mode production. Importez un CSV ou ajoutez un produit depuis l'ingestion docs.</td></tr>`;
         return;
       }
       const rowHtml = data
@@ -385,50 +377,63 @@
               ? "—"
               : (p.pnl >= 0 ? "+" : "") + moneyShort(Math.abs(p.pnl));
           const pnlPctStr = (p.pnlPct >= 0 ? "+" : "") + p.pnlPct.toFixed(1) + "%";
-          const hasDist = Number.isFinite(Number(p.dist));
-          const distPct =
-            p.type === "CG"
-              ? "—"
-              : !hasDist
-                ? `<span style="color:var(--text3);">À confirmer</span>`
-                : p.dist < 0
-                  ? `<span class="dn">${p.dist.toFixed(1)}%</span>`
-                  : `<span>${p.dist.toFixed(1)}%</span>`;
-          const barW =
-            p.type === "CG"
-              ? 5
-              : !hasDist
-                ? 8
-                : Math.max(2, Math.min(98, 100 - Math.max(0, p.dist)));
-          const barTooltip =
-            p.type === "CG"
-              ? "Capital garanti — pas de barrière de protection"
-              : !hasDist
-                ? "Barrière à confirmer"
-                : `Barrière ${p.barrier}% · distance actuelle ${p.dist.toFixed(1)}%`;
+          const dist = distProtectionCell(p);
           return `<tr data-row-key="${p.id}" class="${p.st.s === "breach" ? "row-breach" : p.st.s === "crit" || p.st.s === "warn" ? "row-warn" : ""}" onclick="openDrawer(${p.id})">
       <td data-flip-border><div class="p-name">${escapeHtml(p.name)}</div><div class="p-isin">${escapeHtml(p.isin)}</div></td>
       <td><span class="pill-category ${TYPE_CLASS[p.type]}">${escapeHtml(TYPE_SHORT[p.type] || p.type)}</span></td>
-      <td style="color:var(--text2);font-size:10px;">${escapeHtml(p.emetteur)}</td>
+      <td class="cell-muted" title="${escapeHtml(p.emetteur)}">${escapeHtml(p.emetteur)}</td>
       <td class="num">${moneyShort(p.nominal)}</td>
-      <td class="num" style="color:var(--gold);">${formatIssuerVl(p)}</td>
+      <td class="num">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
       <td class="num ${pnlCol}">${pnlStr}</td>
       <td class="num ${pnlCol}" data-flash="pnl">${pnlPctStr}</td>
-      <td style="color:var(--gold)">${escapeHtml(p.coupon)}</td>
-      <td><div class="bar-wrap" data-tooltip="${escapeHtml(barTooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${barW}%"></div></div>${distPct}</div></td>
-      <td style="color:var(--text2);font-size:10px;">${escapeHtml(p.maturity)}</td>
-      <td style="font-size:10px;color:var(--text3);">${escapeHtml(p.nextEvtDate)}</td>
-      <td><span class="pill-status ${ST_PILL_CLASS[p.st.s] || "info"}">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></td>
+      <td>${escapeHtml(p.coupon)}</td>
+      <td><div class="bar-wrap" data-tooltip="${escapeHtml(dist.tooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${dist.barW}%"></div></div><span class="dist-value ${ST_COLOR[p.st.s]}">${dist.text}${dist.note ? `<small class="dist-note">${dist.note}</small>` : ""}</span></div></td>
+      <td class="cell-muted">${escapeHtml(p.maturity)}</td>
+      <td class="cell-faint">${escapeHtml(p.nextEvtDate)}</td>
+      <td><span class="pill-status ${ST_COLOR[p.st.s]}">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></td>
     </tr>`;
         })
         .join("");
       renderRowsWithGaugeTransition(tbody, rowHtml);
     }
 
+    // Les trois cas de la colonne Distance protection (passe 4, section C) :
+    // barrière suivie (couleur du statut + jauge réelle), CG sans barrière
+    // (gris, jauge vide — caractéristique du produit) et donnée manquante
+    // (ambre, jauge vide — tâche de collecte). La distinction se fait sur
+    // le type de produit, jamais sur la nullité de dist : un CG n'a
+    // structurellement pas de barrière, un AC sans distance a une donnée
+    // absente — ce n'est pas la même situation.
+    function distProtectionCell(p) {
+      const hasDist = Number.isFinite(Number(p.dist));
+      if (p.type === "CG") {
+        return {
+          text: "—",
+          note: "sans barrière",
+          barW: 0,
+          tooltip: "Capital garanti — pas de barrière de protection",
+        };
+      }
+      if (!hasDist) {
+        return {
+          text: "À confirmer",
+          note: "donnée manquante",
+          barW: 0,
+          tooltip: "Barrière à confirmer",
+        };
+      }
+      return {
+        text: (p.dist < 0 ? "" : "+") + p.dist.toFixed(1) + "%",
+        note: "",
+        barW: Math.max(2, Math.min(98, 100 - Math.max(0, p.dist))),
+        tooltip: `Barrière ${p.barrier}% · distance actuelle ${p.dist.toFixed(1)}%`,
+      };
+    }
+
     function portfolioSortValue(product, col) {
       if (col === "statusRank") {
-        const rank = { breach: 0, crit: 1, warn: 2, unknown: 3, safe: 4 };
+        const rank = { breach: 0, crit: 1, warn: 2, unknown: 3, safe: 4, none: 5 };
         return rank[product.st?.s] ?? 3;
       }
       if (col === "type") return productFamilyLabel(product);
@@ -437,16 +442,58 @@
       return product[col] ?? "";
     }
 
+    // Date de la prochaine observation la plus proche parmi une liste de
+    // produits — c'est elle qui donne son urgence au sous-titre des cartes
+    // critique/surveillance (section D, demande client explicite).
+    function nearestObsLabel(products) {
+      const dates = products.map((p) => p.nextEvtDate).filter(Boolean).sort();
+      if (!dates.length) return "";
+      const [, m, d] = dates[0].split("-");
+      return `${d}.${m}`;
+    }
+
+    function setBarrierKpi(id, count, total, subText, invert) {
+      setTextFlash(id, count, { invert });
+      const bar = document.getElementById(`${id}-bar`);
+      if (bar) bar.style.width = `${total ? Math.round((count / total) * 100) : 0}%`;
+      const sub = document.getElementById(`${id}-sub`);
+      if (sub) sub.textContent = subText;
+    }
+
     function renderBarrierKpis() {
+      const total = productsForScope().length;
       const data = productsForScope().filter((p) => p.type !== "CG");
-      const breach = data.filter((p) => p.st?.s === "breach").length;
-      const crit = data.filter((p) => p.st?.s === "crit").length;
-      const watch = data.filter((p) => p.st?.s === "warn").length;
+      const breachList = data.filter((p) => p.st?.s === "breach");
+      const critList = data.filter((p) => p.st?.s === "crit");
+      const watchList = data.filter((p) => p.st?.s === "warn");
       const safe = data.filter((p) => p.st?.s === "safe").length;
-      setTextFlash("bar-kpi-breach", breach, { invert: true });
-      setTextFlash("bar-kpi-crit", crit, { invert: true });
-      setTextFlash("bar-kpi-watch", watch, { invert: true });
-      setTextFlash("bar-kpi-safe", safe);
+
+      setBarrierKpi(
+        "bar-kpi-breach",
+        breachList.length,
+        total,
+        "Perte de capital probable",
+        true,
+      );
+      const critObs = nearestObsLabel(critList);
+      setBarrierKpi(
+        "bar-kpi-crit",
+        critList.length,
+        total,
+        critObs ? `Sous 5 % du seuil · prochaine obs. ${critObs}` : "Sous 5 % du seuil",
+        true,
+      );
+      const watchObs = nearestObsLabel(watchList);
+      setBarrierKpi(
+        "bar-kpi-watch",
+        watchList.length,
+        total,
+        watchObs
+          ? `Entre 5 et 15 % du seuil · prochaine obs. ${watchObs}`
+          : "Entre 5 et 15 % du seuil",
+        true,
+      );
+      setBarrierKpi("bar-kpi-safe", safe, total, "Au-delà de 15 % du seuil", false);
     }
 
     function renderBarriers() {
@@ -465,25 +512,15 @@
         }))
         .sort(compareBarrierRows);
       if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px;">Aucune barrière à suivre en mode production.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12" class="tbl-empty">Aucune barrière à suivre en mode production.</td></tr>`;
         return;
       }
       const rowHtml = data
         .map((p) => {
           const hasDist = Number.isFinite(Number(p.dist));
-          const barW = hasDist
-            ? Math.max(2, Math.min(98, 100 - Math.max(0, Math.min(100, p.dist))))
-            : 8;
+          const dist = distProtectionCell(p);
           const sri = p.sri;
           const sriLabel = Number.isFinite(sri) ? `${sri}/7` : "—";
-          const sriCol =
-            !Number.isFinite(sri)
-              ? "var(--text3)"
-              : sri <= 2
-                ? "var(--green)"
-                : sri <= 4
-                  ? "var(--gold)"
-                  : "var(--orange)";
           const barrierAmt = p.barrier
             ? `${p.barrier}% (${((p.nominal * p.barrier) / 100 / 1e6).toFixed(2)}M€)`
             : "N/A";
@@ -492,15 +529,17 @@
             : `Barrière ${barrierAmt} · distance à confirmer`;
           return `<tr data-row-key="${p.id}" onclick="openDrawer(${p.id})">
       <td><div class="p-name">${escapeHtml(p.name)}</div><div class="p-isin">${escapeHtml(p.isin)}</div></td>
-      <td style="font-size:10px;color:var(--text2);">${escapeHtml(p.barrierType)}</td>
-      <td style="color:var(--text2);">${escapeHtml(p.underlying)}</td>
+      <td><span class="pill-category ${TYPE_CLASS[p.type]}">${escapeHtml(TYPE_SHORT[p.type] || p.type)}</span></td>
+      <td class="cell-muted" title="${escapeHtml(p.emetteur)}">${escapeHtml(p.emetteur)}</td>
+      <td class="cell-faint">${escapeHtml(p.barrierType)}</td>
+      <td class="cell-muted" title="${escapeHtml(p.underlying)}">${escapeHtml(p.underlying)}</td>
       <td class="num">${barrierAmt}</td>
-      <td class="num" style="color:var(--gold);">${formatIssuerVl(p)}</td>
+      <td class="num">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
-      <td class="num" data-flash="dist"><span style="color:${ST_COLOR[p.st.s] || "var(--text3)"};">${hasDist ? (p.dist < 0 ? p.dist.toFixed(1) + "%" : "+" + p.dist.toFixed(1) + "%") : "À confirmer"}</span></td>
-      <td><div class="bar-wrap" data-tooltip="${escapeHtml(barTooltip)}"><div class="bar-track" style="width:80px;"><div class="bar-fill ${p.st.cls}" style="width:${barW}%"></div><span class="barrier-mark" style="--at: ${barW}%"></span></div><span style="font-size:9px;color:${ST_COLOR[p.st.s]};">${escapeHtml(p.st.label)}</span></div></td>
-      <td style="font-size:10px;color:var(--text2);">${escapeHtml(p.nextEvtDate)}</td>
-      <td><span style="font-size:12px;font-weight:600;color:${sriCol};">${sriLabel}</span></td>
+      <td class="num ${ST_COLOR[p.st.s]}" data-flash="dist">${dist.text}${dist.note ? `<small class="dist-note">${dist.note}</small>` : ""}</td>
+      <td><div class="bar-wrap" data-tooltip="${escapeHtml(barTooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${dist.barW}%"></div><span class="barrier-mark" style="--at: ${dist.barW}%"></span></div><span class="bar-label ${ST_COLOR[p.st.s]}">${escapeHtml(p.st.label)}</span></div></td>
+      <td class="cell-faint">${escapeHtml(p.nextEvtDate)}</td>
+      <td class="num">${sriLabel}</td>
     </tr>`;
         })
         .join("");

@@ -1,0 +1,380 @@
+/* ============================================================
+   STRUCTURA — TABLES (passe 4)
+   Système de tableau unique, partagé par Portefeuille, Barrières et
+   le tableau produits de la vue Clients. Remplace les treize
+   déclarations concurrentes de `#view-portfolio thead th` et les
+   règles `nth-child` sans effet de sélection qui peuplaient
+   institutional-theme.css — c'est ce qui faisait tomber la colonne
+   VL à 0px et chevaucher les mots de la colonne Émetteur (constat
+   PASSE-4.md, défauts 1 et 2).
+
+   Trois règles non négociables, comme shell.css, relief.css et
+   views.css :
+   1. Aucune priorité forcée en CSS.
+   2. Zéro couleur littérale — uniquement var(--color-*).
+   3. Un sélecteur par élément.
+
+   Largeurs : déclarées UNE SEULE FOIS, sur la rangée d'en-tête,
+   jamais sur les cellules du corps ni via nth-child côté body.
+   ============================================================ */
+
+/* ── Conteneur et table ──────────────────────────────────── */
+.tbl-wrap {
+    overflow: auto;
+    max-height: calc(100vh - 280px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-1);
+    box-shadow: var(--shadow-card);
+}
+
+.tbl-wrap table {
+    width: 100%;
+    min-width: 1400px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: var(--text-xs);
+}
+
+.tbl-wrap thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tbl-wrap thead th {
+    background: var(--color-surface-2);
+    padding: var(--space-3) var(--space-3);
+    text-align: left;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--color-border-strong);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    font-family: var(--font-mono-data);
+    transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.tbl-wrap thead th:hover {
+    color: var(--color-aegean);
+}
+
+.tbl-wrap thead th.sorted {
+    color: var(--color-aegean);
+}
+
+.tbl-wrap thead th.sorted::after {
+    content: " ▼";
+    font-size: 8px;
+}
+
+.tbl-wrap thead th.sorted.asc::after {
+    content: " ▲";
+}
+
+.tbl-wrap thead th.num {
+    text-align: right;
+}
+
+.tbl-wrap tbody tr {
+    border-bottom: 1px solid var(--color-divider);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.tbl-wrap tbody tr:hover {
+    background: var(--color-surface-1-hover);
+}
+
+.tbl-wrap tbody tr.selected {
+    background: var(--color-aegean-tint);
+    border-left: 3px solid var(--color-aegean);
+}
+
+/* Débordement — une seule règle, sans exception (PASSE-4.md, section
+   C). Chaque cellule tient sur une ligne ; l'Émetteur porte un
+   attribut title côté markup pour le nom complet. */
+.tbl-wrap td {
+    padding: var(--space-3) var(--space-3);
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0;
+}
+
+/* ── Colonne Produit ─────────────────────────────────────── */
+.p-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.p-isin {
+    font-size: 10px;
+    color: var(--color-text-tertiary);
+    letter-spacing: 0.04em;
+    font-family: var(--font-mono-data);
+}
+
+/* ── Montants — mono, encre, tabular, jamais de couleur ──── */
+.num {
+    font-family: var(--font-mono-data);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+/* ── Texte secondaire de cellule ─────────────────────────── */
+.cell-muted {
+    color: var(--color-text-secondary);
+    font-size: var(--text-2xs);
+}
+
+.cell-faint {
+    color: var(--color-text-tertiary);
+    font-size: var(--text-2xs);
+}
+
+.cell-warn {
+    color: var(--color-warning);
+}
+
+.tbl-empty {
+    text-align: center;
+    color: var(--color-text-tertiary);
+    padding: var(--space-7);
+    white-space: normal;
+}
+
+/* ── Pastille de type produit ────────────────────────────── */
+.pill-category {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: var(--radius-full);
+    border: 1px solid transparent;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tp-ac {
+    color: var(--color-aegean);
+    border-color: var(--color-aegean-tint);
+    background: color-mix(in oklch, var(--color-aegean), transparent 88%);
+}
+
+.tp-cg {
+    color: var(--color-success);
+    border-color: transparent;
+    background: color-mix(in oklch, var(--color-success), transparent 88%);
+}
+
+.tp-rc {
+    color: var(--color-warning);
+    border-color: transparent;
+    background: color-mix(in oklch, var(--color-warning), transparent 88%);
+}
+
+.tp-lv {
+    color: var(--color-danger);
+    border-color: transparent;
+    background: color-mix(in oklch, var(--color-danger), transparent 88%);
+}
+
+/* ── Statut : couleur sémantique partagée ────────────────────
+   Classes utilisables seules (texte coloré, ex. valeur de distance)
+   ou combinées à .pill-status / .bar-fill (pastille pleine, jauge).
+   .st-breach et .st-crit partagent la couleur danger : la franchise
+   est un cas plus grave que le critique, mais les deux se lisent
+   comme "danger" — le libellé fait la distinction, pas la teinte. */
+.st-breach,
+.st-crit {
+    color: var(--color-danger);
+}
+
+.st-warn,
+.st-unknown {
+    color: var(--color-warning);
+}
+
+.st-safe {
+    color: var(--color-success);
+}
+
+.st-none {
+    color: var(--color-text-tertiary);
+}
+
+/* Alias génériques (vue Decrement Score, badge de nav) — même palette,
+   nom neutre pour un contexte qui n'est pas un statut de barrière. */
+.st-ok {
+    color: var(--color-success);
+}
+
+.st-bad {
+    color: var(--color-danger);
+}
+
+/* ── Statut en pastille pleine ────────────────────────────── */
+.pill-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: var(--radius-full);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.pill-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: var(--radius-full);
+    background: currentColor;
+}
+
+.pill-status.st-breach,
+.pill-status.st-crit,
+.pill-status.danger {
+    color: var(--color-danger);
+    background: color-mix(in oklch, var(--color-danger), transparent 84%);
+}
+
+.pill-status.st-warn,
+.pill-status.st-unknown,
+.pill-status.warning {
+    color: var(--color-warning);
+    background: color-mix(in oklch, var(--color-warning), transparent 84%);
+}
+
+.pill-status.st-safe,
+.pill-status.ok {
+    color: var(--color-success);
+    background: color-mix(in oklch, var(--color-success), transparent 84%);
+}
+
+.pill-status.st-none {
+    color: var(--color-text-tertiary);
+    background: color-mix(in oklch, var(--color-text-tertiary), transparent 88%);
+}
+
+/* ── Distance protection — jauge + valeur ─────────────────── */
+.bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.bar-track {
+    position: relative;
+    width: 100%;
+    max-width: 64px;
+    height: 6px;
+    flex: none;
+    background: var(--color-divider);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width var(--duration-slow) var(--ease-standard);
+}
+
+.bar-fill.st-breach,
+.bar-fill.st-crit {
+    background: var(--color-danger);
+}
+
+.bar-fill.st-warn,
+.bar-fill.st-unknown {
+    background: var(--color-warning);
+}
+
+.bar-fill.st-safe {
+    background: var(--color-success);
+}
+
+.bar-fill.st-none {
+    background: var(--color-border-strong);
+}
+
+.dist-value {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+}
+
+.dist-note {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--color-text-tertiary);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.bar-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+/* Ligne franchie/alerte : filet gauche sur la première cellule
+   uniquement, pas un fond plein qui écraserait toute la ligne. */
+.row-breach td:first-child {
+    box-shadow: inset 3px 0 0 var(--color-danger);
+}
+
+.row-warn td:first-child {
+    box-shadow: inset 3px 0 0 var(--color-warning);
+}
+
+/* ── Largeurs de colonnes — Portefeuille (13 colonnes) ────────
+   Une largeur par colonne, déclarée une seule fois, sur l'en-tête.
+   Somme = 100 %. */
+#pf-table thead th:nth-child(1) { width: 16%; }
+#pf-table thead th:nth-child(2) { width: 7%; }
+#pf-table thead th:nth-child(3) { width: 10%; }
+#pf-table thead th:nth-child(4) { width: 7.5%; }
+#pf-table thead th:nth-child(5) { width: 6%; }
+#pf-table thead th:nth-child(6) { width: 8%; }
+#pf-table thead th:nth-child(7) { width: 7%; }
+#pf-table thead th:nth-child(8) { width: 6%; }
+#pf-table thead th:nth-child(9) { width: 6%; }
+#pf-table thead th:nth-child(10) { width: 9.5%; }
+#pf-table thead th:nth-child(11) { width: 5%; }
+#pf-table thead th:nth-child(12) { width: 5%; }
+#pf-table thead th:nth-child(13) { width: 7%; }
+
+/* ── Largeurs de colonnes — Barrières (12 colonnes) ───────────
+   Produit / Type / Émetteur : mêmes règles que le portefeuille. */
+#bar-table thead th:nth-child(1) { width: 16%; }
+#bar-table thead th:nth-child(2) { width: 7%; }
+#bar-table thead th:nth-child(3) { width: 10%; }
+#bar-table thead th:nth-child(4) { width: 8%; }
+#bar-table thead th:nth-child(5) { width: 10%; }
+#bar-table thead th:nth-child(6) { width: 7%; }
+#bar-table thead th:nth-child(7) { width: 6%; }
+#bar-table thead th:nth-child(8) { width: 8%; }
+#bar-table thead th:nth-child(9) { width: 9.5%; }
+#bar-table thead th:nth-child(10) { width: 8%; }
+#bar-table thead th:nth-child(11) { width: 5.5%; }
+#bar-table thead th:nth-child(12) { width: 5%; }

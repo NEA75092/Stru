@@ -1,0 +1,134 @@
+/* ============================================================
+   STRUCTURA — VIEWS (passe 4)
+   Ce que dashboard.css et tables.css ne couvrent pas : accueil et
+   actions requises (dashboard), KPI de la vue Barrières, et deux
+   utilitaires de teinte dynamique partagés par plusieurs vues.
+
+   Trois règles non négociables, comme shell.css et relief.css :
+   1. Aucune priorité forcée en CSS.
+   2. Zéro couleur littérale — uniquement var(--color-*).
+   3. Un sélecteur par élément.
+   ============================================================ */
+
+/* ── Teinte dynamique ────────────────────────────────────────
+   Quelques valeurs (couleur de segment de donut, dégradé de score,
+   signe d'une variation) ne peuvent pas être des classes statiques :
+   elles dépendent d'une donnée calculée à l'affichage. La propriété
+   CSS reste ici, seule la valeur voyage en variable — la couleur ne
+   s'écrit donc jamais en dur dans un module JS. */
+.tone {
+    color: var(--tone);
+}
+
+.tone-bg {
+    background: var(--tone);
+}
+
+/* ── Decrement Score (Screener) — mécanique uniquement ──────
+   Vue hors périmètre passe 4 (pas de refonte), mais ses trois
+   couleurs littérales (nutri-score, courbes du graphique) devaient
+   quitter le JS pour survivre à la suppression du bloc d'alias en
+   section A. Palette réutilisée telle quelle, aucun redesign. */
+.ns-A {
+    background: var(--color-success);
+}
+
+.ns-B {
+    background: var(--color-success-2);
+}
+
+.ns-C {
+    background: var(--color-warning);
+}
+
+.ns-D {
+    background: var(--color-warning-2);
+}
+
+.ns-E {
+    background: var(--color-danger);
+}
+
+.chart-line-standard {
+    color: var(--color-text-secondary);
+}
+
+.chart-line-decrement {
+    color: var(--color-ocean);
+}
+
+.crit-bar-neutral {
+    background: var(--color-border-strong);
+}
+
+/* ── KPI de la vue Barrières (section D) ─────────────────────
+   Réutilise .kpi/.kpi-row/.kpi-lbl/.kpi-val/.kpi-sub (dashboard.css,
+   déjà migré) mais avec une grille interne à hauteurs fixes — les
+   quatre chiffres tombent sur la même ligne de base quel que soit le
+   nombre de mots du libellé ou du sous-titre — et deux cartes en bloc
+   de couleur plein au lieu du filet gauche du dashboard : c'est la
+   différence délibérée entre les deux contextes, pas un oubli de
+   cohérence. */
+.bar-kpi-row .kpi {
+    grid-template-rows: 14px 1fr 44px;
+}
+
+.bar-kpi-row .kpi-lbl {
+    min-height: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bar-kpi-row .kpi-sub {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.bar-kpi-row .kpi-proportion {
+    height: 3px;
+    border-radius: var(--radius-full);
+    background: var(--color-divider);
+    overflow: hidden;
+}
+
+.bar-kpi-row .kpi-proportion-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: currentColor;
+    transition: width var(--duration-slow) var(--ease-standard);
+}
+
+/* Deux cartes teintées sur quatre, pas les quatre : franchies en
+   corail, zone saine en aegean — les deux blocs de couleur pleins
+   autorisés par écran (règle CLAUDE.md). Les deux du milieu gardent
+   le filet + --shadow-card neutre de .kpi. */
+.bar-kpi-row .kpi-tint-coral {
+    border: none;
+    color: var(--color-text-on-dark);
+    background: linear-gradient(135deg, var(--color-coral), var(--color-coral-2));
+    box-shadow: var(--shadow-card-coral);
+}
+
+.bar-kpi-row .kpi-tint-aegean {
+    border: none;
+    color: var(--color-text-on-dark);
+    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1));
+    box-shadow: var(--shadow-card-aegean);
+}
+
+.bar-kpi-row .kpi-tint-coral .kpi-lbl,
+.bar-kpi-row .kpi-tint-coral .kpi-val,
+.bar-kpi-row .kpi-tint-coral .kpi-sub,
+.bar-kpi-row .kpi-tint-aegean .kpi-lbl,
+.bar-kpi-row .kpi-tint-aegean .kpi-val,
+.bar-kpi-row .kpi-tint-aegean .kpi-sub {
+    color: var(--color-text-on-dark);
+}
+
+.bar-kpi-row .kpi-tint-coral .kpi-proportion,
+.bar-kpi-row .kpi-tint-aegean .kpi-proportion {
+    background: color-mix(in oklch, var(--color-text-on-dark), transparent 75%);
+}

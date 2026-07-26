@@ -572,7 +572,7 @@
       }
       const dayContainer = document.getElementById("cal-day");
       const periodContainer = document.getElementById("cal-period");
-      const emptyMsg = `<div style="text-align:center;color:var(--text3);padding:20px;font-size:11px;">Aucun événement produit sur cette période</div>`;
+      const emptyMsg = `<div class="empty-inline">Aucun événement produit sur cette période</div>`;
       if (dayContainer) dayContainer.innerHTML = dayEvents.length ? evHtmlRef(dayEvents) : emptyMsg;
       if (periodContainer) periodContainer.innerHTML = periodEvents.length ? evHtmlRef(periodEvents) : emptyMsg;
       drawFluxChart();

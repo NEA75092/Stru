@@ -77,7 +77,12 @@ Le test progresse par passe. À la fin d'une passe :
 3. **Passe 3 — logo, relief et mouvement** : logo d'origine du client restauré,
    ombres teintées, liserés de lumière, grain, halo au curseur, entrées
    décalées (`relief.css`). Aucune mise en page touchée.
-4. **Passe 4 — le reste** : clients, pilotage, 6 autres vues.
+4. **Passe 4 — suppression des feuilles héritées** : `styles.css` et
+   `institutional-theme.css` supprimés, alias legacy supprimés, thème sombre
+   complété, système de tableau unique (portefeuille, barrières, clients),
+   KPI barrières, accueil.
+5. **Passe 5 — les vues restantes** : calendrier, pitch engine, decrement
+   score. Spec dédiée, à écrire après captures.
 
 À la fin de la passe 4 : `styles.css` et `institutional-theme.css` sont
 supprimés, le bloc d'alias `dashboard.css:40-64` est supprimé, et il ne reste
@@ -96,6 +101,26 @@ ici avec leur motif : ce fichier documente ses reversements, il ne les efface pa
 2. **« La marque est un wordmark typographique »** → annulée. Le client a
    restauré son logo d'origine depuis sa sauvegarde. La marque est de nouveau
    une image, en deux variantes (claire et sombre) — pas un `filter: invert()`.
+
+## Ce que la passe 4 a appris (26/07, revue client)
+
+Trois passes ont été livrées « vertes » alors que six vues sur neuf étaient
+encore peintes par les feuilles héritées. Deux trous dans la barrière l'ont
+permis, tous deux fermés en passe 4 :
+
+1. **Aucun test ne lisait `src/modules/*.js`.** Le test 6 ne regardait
+   qu'`index.html`. Résultat : `style="color:var(--gold)"` a survécu trois
+   passes dans `app-portfolio.js` et `app-screener.js`, colorant en corail
+   tous les montants de tous les tableaux — contre deux règles validées.
+   → test 11.
+2. **Aucun test ne vérifiait la parité clair/sombre des tokens.** Dix tokens
+   (`--color-aegean-2`, `--color-ocean-2`, `--color-success-2`…) n'avaient
+   aucune valeur en sombre et gardaient donc une couleur de thème clair sur un
+   fond presque noir : graphiques et valorisations invisibles. → test 12.
+
+Règle qui en découle : **un drapeau `STAGES` ne passe à `true` que si la vue
+a été ouverte dans les deux thèmes.** « Le test est vert » n'a jamais voulu
+dire « la vue est faite ».
 
 ## Ce qu'il ne faut pas faire
 

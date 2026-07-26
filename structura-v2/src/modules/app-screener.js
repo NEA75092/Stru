@@ -13,18 +13,11 @@
 
     function renderNutriScore(grade, size = "normal") {
       const letters = ["E", "D", "C", "B", "A"];
-      const colors = {
-        A: "#2e7d32",
-        B: "#558b2f",
-        C: "#f9a825",
-        D: "#e65100",
-        E: "#c62828",
-      };
       const s = size === "small" ? "ns-small" : "";
       return `<div class="nutri-score ${s}">${letters
         .map(
           (l) =>
-            `<span class="ns-letter" style="background:${colors[l]};opacity:${l === grade ? 1 : 0.25};">${l}</span>`,
+            `<span class="ns-letter ns-${l}" style="opacity:${l === grade ? 1 : 0.25};">${l}</span>`,
         )
         .join("")}</div>`;
     }
@@ -86,7 +79,7 @@
       if (!tbody) return;
 
       if (!scored.length) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px;">Aucun sous-jacent ne correspond aux critères</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="tbl-empty">Aucun sous-jacent ne correspond aux critères</td></tr>`;
         return;
       }
 
@@ -98,7 +91,7 @@
       <td class="num ${s.netCarry >= 0 ? "st-ok" : "st-bad"}">${s.netCarry >= 0 ? "Couvre +" : "Manque "}${Math.abs(s.netCarry).toFixed(2)} pts/an</td>
       <td class="num">${Math.abs(s.annualDrag).toFixed(1)}%/an sacrifié</td>
       <td class="num ${s.capitalLossSeverity < 5 ? "st-ok" : s.capitalLossSeverity < 15 ? "st-warn" : "st-bad"}">+${s.capitalLossSeverity.toFixed(1)} pts</td>
-      <td class="num" style="color:var(--gold);font-weight:700;">${s.fitScore}</td>
+      <td class="num" style="font-weight:700;">${s.fitScore}</td>
       <td><span class="decision-pill pill-status ${verdict.cls}">${verdict.label}</span></td>
     </tr>`;
         })
@@ -133,9 +126,9 @@
       ${renderNutriScore(s.grade)}
     </div>
     <div class="dec-detail-metrics">
-      <div class="dec-detail-metric"><div class="ddm-val" style="color:${s.netCarry >= 0 ? "var(--green)" : "var(--red)"}">${s.netCarry >= 0 ? "+" : "-"}${Math.abs(s.netCarry).toFixed(2)}</div><div class="ddm-lbl">Marge dividende</div></div>
-      <div class="dec-detail-metric"><div class="ddm-val" style="color:var(--gold)">${Math.abs(s.annualDrag).toFixed(1)}%</div><div class="ddm-lbl">Coût/an</div></div>
-      <div class="dec-detail-metric"><div class="ddm-val" style="color:var(--orange)">+${s.capitalLossSeverity.toFixed(1)}</div><div class="ddm-lbl">Non-rappel</div></div>
+      <div class="dec-detail-metric"><div class="ddm-val ${s.netCarry >= 0 ? "up" : "dn"}">${s.netCarry >= 0 ? "+" : "-"}${Math.abs(s.netCarry).toFixed(2)}</div><div class="ddm-lbl">Marge dividende</div></div>
+      <div class="dec-detail-metric"><div class="ddm-val">${Math.abs(s.annualDrag).toFixed(1)}%</div><div class="ddm-lbl">Coût/an</div></div>
+      <div class="dec-detail-metric"><div class="ddm-val st-warn">+${s.capitalLossSeverity.toFixed(1)}</div><div class="ddm-lbl">Non-rappel</div></div>
       <div class="dec-detail-metric"><div class="ddm-val">${s.fitScore}/100</div><div class="ddm-lbl">Score</div></div>
     </div>
     <div class="dec-browser-tabs">
@@ -195,11 +188,11 @@
       const decEnd = 100 + item.decrementReturn5Y * 5;
       return `<div class="dec-mini-graph">
         <svg viewBox="0 0 420 150" preserveAspectRatio="none">
-          <path d="M20 120 C120 90 250 60 400 ${150 - prEnd * 0.65}" fill="none" stroke="var(--cyan)" stroke-width="2"/>
-          <path d="M20 120 C120 100 250 78 400 ${150 - decEnd * 0.65}" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <line x1="20" y1="120" x2="400" y2="120" stroke="var(--border2)"/>
+          <path d="M20 120 C120 90 250 60 400 ${150 - prEnd * 0.65}" fill="none" stroke="var(--color-text-secondary)" stroke-width="2"/>
+          <path d="M20 120 C120 100 250 78 400 ${150 - decEnd * 0.65}" fill="none" stroke="var(--color-ocean)" stroke-width="2"/>
+          <line x1="20" y1="120" x2="400" y2="120" stroke="var(--color-divider)"/>
         </svg>
-        <div class="dec-graph-legend"><span style="color:var(--cyan)">PR standard</span><span style="color:var(--gold)">IL décrémenté</span><span>Drag ${score.annualDrag.toFixed(1)}%/an</span></div>
+        <div class="dec-graph-legend"><span class="chart-line-standard">PR standard</span><span class="chart-line-decrement">IL décrémenté</span><span>Drag ${score.annualDrag.toFixed(1)}%/an</span></div>
       </div>`;
     }
 
@@ -216,23 +209,23 @@
         return `
         <div class="dec-detail-crit">
           <div class="dec-detail-crit-label">${label}<span>${detail}</span></div>
-          <div class="dec-detail-crit-bar"><div style="width:100%;background:var(--border2);"></div></div>
-          <div class="dec-detail-crit-score" style="color:var(--text3)">Neutralisé</div>
+          <div class="dec-detail-crit-bar"><div class="crit-bar-neutral" style="width:100%;"></div></div>
+          <div class="dec-detail-crit-score cell-faint">Neutralisé</div>
         </div>`;
       }
       const color =
         score >= 75
-          ? "var(--green)"
+          ? "var(--color-success)"
           : score >= 50
-            ? "var(--gold)"
+            ? "var(--color-ocean)"
             : score >= 25
-              ? "var(--orange)"
-              : "var(--red)";
+              ? "var(--color-warning)"
+              : "var(--color-danger)";
       return `
         <div class="dec-detail-crit">
           <div class="dec-detail-crit-label">${label}<span>${detail}</span></div>
-          <div class="dec-detail-crit-bar"><div style="width:${score}%;background:${color};"></div></div>
-          <div class="dec-detail-crit-score" style="color:${color}">${score}/100</div>
+          <div class="dec-detail-crit-bar"><div class="tone-bg" style="width:${score}%;--tone:${color};"></div></div>
+          <div class="dec-detail-crit-score tone" style="--tone:${color}">${score}/100</div>
         </div>`;
     }
 

@@ -69,12 +69,13 @@
           productId: p.id,
           lvl: p.st.s === "breach" || p.st.s === "crit" ? "crit" : "warn",
           name: p.name,
-          desc: `${p.underlying || "—"} · Distance protection : ${
+          motif: p.st.label,
+          context: `${p.underlying || "—"} · Distance protection : ${
             Number.isFinite(Number(p.dist))
               ? `${Number(p.dist).toFixed(1)}%`
               : "à confirmer"
-          }`,
-          time: p.nextEvtDate || "—",
+          } · Proch. obs. ${p.nextEvtDate || "—"}`,
+          amount: p.val,
         }));
     }
 
@@ -94,19 +95,37 @@
       c.innerHTML = `<div class="ticker-track">${items}${items}</div>`;
     }
 
+    // Date la plus récente de VL émetteur reçue sur le périmètre affiché —
+    // pas une date arbitraire, celle du dernier flux réellement encaissé.
+    // Vide en mode démo (vlAsOf n'est renseigné que pour les VL "issuer").
+    function latestVlAsOf(data) {
+      const dates = data.map((p) => p.vlAsOf).filter(Boolean).sort();
+      return dates.length ? dates[dates.length - 1] : null;
+    }
+
     function renderSessionChrome() {
       if (typeof document === "undefined") return;
-      const { session, greeting } = touchSession();
+      const { session, greeting, now } = touchSession();
       const data = productsForScope();
       const alerts = buildPortfolioAlerts();
       const breach = data.filter((p) => p.st?.s === "breach").length;
       const watch = data.filter((p) => ["crit", "warn"].includes(p.st?.s)).length;
+      const totalVal = data.reduce((sum, p) => sum + (Number(p.val) || 0), 0);
+      const vlAsOf = latestVlAsOf(data);
+      const dateLabel = now.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      });
 
-      setText("session-org-line", session.orgName || "Cabinet Structura");
+      setText(
+        "session-date-line",
+        vlAsOf ? `${dateLabel} · VL au ${vlAsOf}` : `${dateLabel} · VL non disponible`,
+      );
       setText("session-user-name", session.advisorName || "Conseiller");
       setText("session-user-role", session.role || "CGP");
       setText("session-avatar", sessionInitials(session.advisorName));
-      setText("session-headline", `${greeting}, ${session.advisorName}`);
+      setText("session-headline", `${greeting} ${session.advisorName}`);
       setText(
         "session-subline",
         alerts.length
@@ -115,6 +134,8 @@
             ? `${breach + watch} produit${breach + watch > 1 ? "s" : ""} sous surveillance.`
             : `${data.length} produit${data.length > 1 ? "s" : ""} actifs · ${CLIENTS.length} dossier${CLIENTS.length > 1 ? "s" : ""} client.`,
       );
+      setText("session-total-aum", moneyShort(totalVal));
+      setText("session-total-alerts", String(alerts.length));
     }
 
     // Odomètre (passe 3) : chaque chiffre roule vers sa valeur au lieu
@@ -508,7 +529,7 @@
         .map((seg) => {
           const pct = ((seg.value / total) * 100).toFixed(1);
           return `<div class="donut-legend-item">
-            <span class="donut-legend-dot" style="background:${seg.color}"></span>
+            <span class="donut-legend-dot" style="--dot:${seg.color}"></span>
             <span class="donut-legend-label">${escapeHtml(seg.label)}</span>
             <span class="donut-legend-value">${pct}%</span>
           </div>`;
@@ -655,13 +676,13 @@
       }
       if (!list.length) {
         c.innerHTML =
-          '<div class="al al-ok"><span class="al-dot"></span><div class="al-txt"><strong>Rien d\'urgent</strong>Aucune alerte barrière ou surveillance sur le portefeuille.</div><span class="al-time">—</span></div>';
+          '<div class="al al-ok"><span class="al-rail"></span><div class="al-txt"><div class="al-title-row"><strong>Rien d\'urgent</strong></div><span class="al-context">Aucune alerte barrière ou surveillance sur le portefeuille.</span></div><span class="al-amount"></span></div>';
         return;
       }
       c.innerHTML = list
         .map(
           (a) =>
-            `<div class="al al-${a.lvl}" onclick="openDrawer(${a.productId})"><span class="al-dot"></span><div class="al-txt"><strong>${escapeHtml(a.name)}</strong>${escapeHtml(a.desc)}</div><span class="al-time">${escapeHtml(a.time)}</span></div>`,
+            `<div class="al al-${a.lvl}" onclick="openDrawer(${a.productId})"><span class="al-rail"></span><div class="al-txt"><div class="al-title-row"><strong>${escapeHtml(a.name)}</strong><span class="al-motif">${escapeHtml(a.motif)}</span></div><span class="al-context">${escapeHtml(a.context)}</span></div><span class="al-amount">${moneyShort(a.amount)}</span></div>`,
         )
         .join("");
     }

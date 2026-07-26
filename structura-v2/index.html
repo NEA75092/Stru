@@ -24,12 +24,12 @@
             href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="./src/design-tokens.css?v=20260726" />
-        <link rel="stylesheet" href="./src/shell.css?v=20260726" />
-        <link rel="stylesheet" href="./src/styles.css?v=20260726" />
-        <link rel="stylesheet" href="./src/institutional-theme.css?v=20260726" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260726" />
-        <link rel="stylesheet" href="./src/relief.css?v=20260726" />
+        <link rel="stylesheet" href="./src/design-tokens.css?v=20260727" />
+        <link rel="stylesheet" href="./src/shell.css?v=20260727" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260727" />
+        <link rel="stylesheet" href="./src/tables.css?v=20260727" />
+        <link rel="stylesheet" href="./src/views.css?v=20260727" />
+        <link rel="stylesheet" href="./src/relief.css?v=20260727" />
     </head>
     <body>
         <div class="app">
@@ -68,7 +68,7 @@
                         id="tab-barriers"
                     >
                         <span class="ico"><svg viewBox="0 0 20 20"><path d="M4.5 17V10L10 3l5.5 7v7"/><path d="M4.5 12.5h11"/></svg></span> Barrières
-                        <span class="tab-badge pill-status danger" id="cnt-bar">5</span>
+                        <span class="tab-badge" id="cnt-bar">5</span>
                     </div>
                     <div
                         class="nav-tab"
@@ -158,9 +158,19 @@
                     <div class="spotlight" aria-hidden="true"></div>
                     <div class="dash-welcome panel" id="dash-welcome">
                         <div class="dash-welcome-copy">
-                            <div class="dash-welcome-kicker" id="session-org-line">Cabinet Structura</div>
+                            <div class="dash-welcome-kicker" id="session-date-line">—</div>
                             <h2 class="dash-welcome-title" id="session-headline">—</h2>
                             <p class="dash-welcome-sub" id="session-subline">—</p>
+                        </div>
+                        <div class="dash-welcome-totals">
+                            <div class="dash-welcome-total">
+                                <div class="dash-welcome-total-lbl">Encours géré</div>
+                                <div class="dash-welcome-total-val" id="session-total-aum">—</div>
+                            </div>
+                            <div class="dash-welcome-total">
+                                <div class="dash-welcome-total-lbl">Actions requises</div>
+                                <div class="dash-welcome-total-val" id="session-total-alerts">—</div>
+                            </div>
                         </div>
                     </div>
                     <div class="kpi-row tilt-scope">
@@ -231,9 +241,9 @@
                                         <span class="perf-kpi-label">Valorisation</span>
                                         <strong id="perf-valuation">—</strong>
                                     </div>
-                                    <div class="perf-kpi perf-kpi-main">
+                                    <div class="perf-kpi">
                                         <span class="perf-kpi-label" id="perf-change-label">Performance période</span>
-                                        <strong id="perf-change">—</strong>
+                                        <strong id="perf-change" class="perf-change-val">—</strong>
                                         <small id="perf-change-abs">—</small>
                                     </div>
                                 </div>
@@ -359,25 +369,37 @@
                 <div class="view" id="view-barriers">
                     <div class="spotlight" aria-hidden="true"></div>
                     <div class="kpi-row bar-kpi-row">
-                        <div class="kpi k-red">
+                        <div class="kpi kpi-tint-coral">
                             <div class="kpi-lbl">Barrières franchies</div>
                             <div class="kpi-val" id="bar-kpi-breach">—</div>
-                            <div class="kpi-sub dn">Perte de capital probable</div>
+                            <div class="kpi-sub">
+                                <div class="kpi-proportion"><div class="kpi-proportion-fill" id="bar-kpi-breach-bar" style="width: 0%"></div></div>
+                                <span id="bar-kpi-breach-sub">Perte de capital probable</span>
+                            </div>
                         </div>
-                        <div class="kpi k-orange">
-                            <div class="kpi-lbl">Alerte critique &lt; 5 %</div>
+                        <div class="kpi">
+                            <div class="kpi-lbl">Alerte critique</div>
                             <div class="kpi-val" id="bar-kpi-crit">—</div>
-                            <div class="kpi-sub warn">Intervention urgente</div>
+                            <div class="kpi-sub">
+                                <div class="kpi-proportion"><div class="kpi-proportion-fill" id="bar-kpi-crit-bar" style="width: 0%"></div></div>
+                                <span id="bar-kpi-crit-sub">Sous 5 % du seuil</span>
+                            </div>
                         </div>
-                        <div class="kpi k-gold">
-                            <div class="kpi-lbl">Alerte 5–15 %</div>
+                        <div class="kpi">
+                            <div class="kpi-lbl">Alerte surveillance</div>
                             <div class="kpi-val" id="bar-kpi-watch">—</div>
-                            <div class="kpi-sub">Surveillance renforcée</div>
+                            <div class="kpi-sub">
+                                <div class="kpi-proportion"><div class="kpi-proportion-fill" id="bar-kpi-watch-bar" style="width: 0%"></div></div>
+                                <span id="bar-kpi-watch-sub">Entre 5 et 15 % du seuil</span>
+                            </div>
                         </div>
-                        <div class="kpi k-green">
-                            <div class="kpi-lbl">Zone saine ≥ 15 %</div>
+                        <div class="kpi kpi-tint-aegean">
+                            <div class="kpi-lbl">Zone saine</div>
                             <div class="kpi-val" id="bar-kpi-safe">—</div>
-                            <div class="kpi-sub up">Situation normale</div>
+                            <div class="kpi-sub">
+                                <div class="kpi-proportion"><div class="kpi-proportion-fill" id="bar-kpi-safe-bar" style="width: 0%"></div></div>
+                                <span id="bar-kpi-safe-sub">Au-delà de 15 % du seuil</span>
+                            </div>
                         </div>
                     </div>
 
@@ -395,19 +417,21 @@
                         />
                     </div>
                     <div class="tbl-wrap">
-                        <table>
+                        <table id="bar-table">
                             <thead>
                                 <tr>
                                     <th onclick="sortBarriers('name')">PRODUIT / ISIN</th>
+                                    <th onclick="sortBarriers('type')">TYPE</th>
+                                    <th onclick="sortBarriers('emetteur')">ÉMETTEUR</th>
                                     <th onclick="sortBarriers('barrierType')">TYPE BARRIÈRE</th>
                                     <th onclick="sortBarriers('underlying')">SOUS-JACENT</th>
                                     <th onclick="sortBarriers('barrier')" class="num">NIVEAU BARRIÈRE</th>
                                     <th onclick="sortBarriers('vlPct')" class="num">VL</th>
                                     <th onclick="sortBarriers('val')" class="num">VALORISATION</th>
                                     <th onclick="sortBarriers('dist')" class="num">DISTANCE PROTECTION</th>
-                                    <th style="width: 120px">PROGRESSION</th>
+                                    <th>PROGRESSION</th>
                                     <th onclick="sortBarriers('nextEvtDate')">PROCHAINE OBS.</th>
-                                    <th onclick="sortBarriers('sri')">SRI</th>
+                                    <th onclick="sortBarriers('sri')" class="num">SRI</th>
                                 </tr>
                             </thead>
                             <tbody id="bar-tbody"></tbody>

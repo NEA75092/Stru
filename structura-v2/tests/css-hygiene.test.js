@@ -18,7 +18,7 @@ const SRC = path.join(ROOT, "src");
 /* Feuilles réécrites depuis design-tokens.css. Y ajouter un fichier
    signifie : il ne contient aucun !important, aucune couleur
    littérale, aucun sélecteur en doublon. */
-const MIGRATED = ["shell.css", "relief.css"];
+const MIGRATED = ["shell.css", "relief.css", "tables.css", "views.css"];
 
 /* Passe validée = ses règles héritées ont été SUPPRIMÉES des
    anciennes feuilles, pas surchargées. */
@@ -26,7 +26,7 @@ const STAGES = {
   shell: true, // passe 1 — sidebar, header, nav, profil, boutons
   dashboard: true, // passe 2 — KPI, perf, Top/Flop, exposition
   relief: true, // passe 3 — logo, ombres teintées, grain, mouvement
-  views: false, // passe 4 — clients, pilotage, 6 autres vues
+  views: true, // passe 4 — tableaux, KPI barrières, accueil, perf
 };
 
 /* Noms de variables de l'ancienne charte. Interdits partout :
@@ -228,4 +228,36 @@ test("les feuilles héritées sont supprimées quand les 3 passes sont faites", 
   assert.ok(!exists("institutional-theme.css"), "institutional-theme.css existe encore");
   const total = cssFiles().reduce((n, f) => n + (read(f).match(/!important/g) || []).length, 0);
   assert.equal(total, 0, `${total} !important restants dans src/*.css`);
+});
+
+/* ── 11. La couleur ne s'écrit pas dans le JS ──────────────
+   Le test 6 ne regardait qu'index.html : les modules ont continué
+   à poser des couleurs en attribut style pendant trois passes. */
+test("aucun module ne pose de couleur en attribut style", () => {
+  const dir = path.join(SRC, "modules");
+  const offenders = [];
+  for (const f of fs.readdirSync(dir).filter((n) => n.endsWith(".js"))) {
+    const src = fs.readFileSync(path.join(dir, f), "utf8");
+    const hits = src.match(/style="[^"]*(?:color|background)\s*:/gi) || [];
+    if (hits.length) offenders.push(`${f} (${hits.length}x) — ex. ${hits[0]}`);
+  }
+  assert.equal(
+    offenders.length,
+    0,
+    `couleur posée en JS — passer par une classe :\n  ${offenders.join("\n  ")}`,
+  );
+});
+
+/* ── 12. Chaque token de couleur existe dans les deux thèmes ── */
+test("aucun token de couleur n'est absent du thème sombre", () => {
+  const css = read("design-tokens.css");
+  const light = css.slice(css.indexOf(":root"), css.indexOf('[data-theme="dark"]'));
+  const dark = css.slice(css.indexOf('[data-theme="dark"]'));
+  const names = (s) => new Set((s.match(/--color-[a-z0-9-]+(?=\s*:)/gi) || []));
+  const missing = [...names(light)].filter((n) => !names(dark).has(n));
+  assert.equal(
+    missing.length,
+    0,
+    `tokens sans valeur en sombre (valeur du thème clair sur fond sombre) : ${missing.join(", ")}`,
+  );
 });

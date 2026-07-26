@@ -86,7 +86,6 @@
     /* ── Statuts sémantiques ── */
     --color-success: #2f8f5f;
     --color-success-2: #226b46;
-    --color-success-glow: #7fd9a8;
     --color-warning: #d68a3c;
     --color-warning-2: #b87330;
     --color-danger: #c1483b;
@@ -212,63 +211,6 @@
 }
 
 /* ============================================================
-   ALIAS LEGACY — pont vers styles.css / institutional-theme.css
-   Ce bloc vivait dans dashboard.css (:root, avant la passe 2). Le
-   dashboard.css fourni pour la passe 2 ne le reprend pas — normal, ce
-   n'est plus son rôle — mais styles.css et institutional-theme.css
-   (vues Portfolio, Barrières, Calendrier, Clients, Pilotage...,
-   non migrées avant la passe 3) en dépendent encore massivement
-   (300+ usages). Sans lui, body et la quasi-totalité des vues non
-   migrées perdent couleur/fond (constat : body { color } tombait à
-   rgb(0,0,0), background à transparent). Relogé ici tel quel, pas
-   réécrit — design-tokens.css est déjà la seule source de vérité pour
-   les tokens. À supprimer à la fin de la passe 3, quand plus aucune
-   feuille ne les consomme.
-   ============================================================ */
-:root {
-    --bg: var(--color-bg);
-    --s1: var(--color-surface-1);
-    --s2: var(--color-surface-2);
-    --s3: var(--color-surface-3);
-    --elevated: var(--color-surface-1);
-    --sky: var(--color-wash);
-    --border: var(--color-border);
-    --border2: var(--color-border-strong);
-
-    --text: var(--color-text-primary);
-    --text2: var(--color-text-secondary);
-    --text3: var(--color-text-tertiary);
-    --ink: var(--color-ink);
-    --ink-panel: var(--color-ink);
-    --white: var(--color-surface-1);
-    --purple: var(--color-text-tertiary);
-
-    --gold: var(--color-coral);
-    --gold2: var(--color-coral-2);
-    --sand: var(--color-coral-tint);
-    --cyan: var(--color-text-secondary);
-    --cyan2: var(--color-text-secondary);
-    --sea: var(--color-aegean);
-    --sea-light: var(--color-aegean-2);
-    --aegean: var(--color-aegean);
-    --aegean-2: var(--color-aegean-2);
-    --blue: var(--color-aegean);
-    --blue2: var(--color-aegean-2);
-    --red: var(--color-danger);
-    --red2: var(--color-danger-2);
-    --terracotta: var(--color-danger-2);
-    --orange: var(--color-warning);
-    --orange2: var(--color-warning-2);
-    --green: var(--color-success);
-    --green2: var(--color-success-2);
-    --olive: var(--color-success-2);
-
-    --font-mono: var(--font-mono-data);
-    --font-sans: var(--font-body);
-    --font-display: var(--font-heading);
-}
-
-/* ============================================================
    DARK MODE (2026-07-26, refonte passe 2) — option via toggle, jamais
    par défaut. L'échelle précédente (bg #1b1811 / surface-1 #242019,
    ~4% d'écart de luminance, bordure à 12% d'opacité) ne détachait pas
@@ -302,18 +244,43 @@
     --color-text-primary: #f3efe2;
     --color-text-secondary: #b3a795;
     --color-text-tertiary: #8a7f6e;
+    /* Texte sur bloc de couleur plein (bandeau bleu, alerte corail) :
+       toujours blanc, dans les deux thèmes — le bloc lui-même est déjà
+       assez saturé pour porter du texte blanc, thème clair ou sombre. */
+    --color-text-on-dark: #ffffff;
 
     /* Le corail pur brûle sur fond sombre : version désaturée pour le
        texte et les tints, le corail plein reste réservé au bloc
        d'alerte du mode clair. */
     --color-coral: #e59274;
+    --color-coral-2: #f0a98d;
+    --color-coral-deep: #f0a98d;
     --color-aegean: #4a97d6;
+    --color-aegean-2: #7fb8e8;
+    --color-aegean-deep-1: #2f6f9f;
+    --color-aegean-deep-2: #235572;
     --color-aegean-tint: rgb(74 151 214 / 0.18);
     --color-coral-tint: rgb(229 146 116 / 0.16);
+    /* Bleu-vert du bandeau d'accueil, texte dessus : le bandeau est un
+       dégradé aegean fixe dans les deux thèmes, ce ciel clair reste
+       lisible sur les deux variantes d'aegean sans avoir besoin de
+       s'assombrir — décision explicite, pas un oubli (idem sky-2/
+       sky-tint/neutral-warm plus bas : couleurs catégorielles de
+       donut/légende, pas des neutres de surface). */
+    --color-sky: #9dc2e2;
+    --color-sky-2: #7fa8ca;
+    --color-sky-tint: #9dc2e2;
+    --color-neutral-warm: #d8cdb6;
+    --color-ocean: #4fa3c8;
+    --color-ocean-2: #7ec0dd;
     --color-ocean-tint: rgb(20 110 156 / 0.22);
     --color-success: #4caf7d;
+    --color-success-2: #78c99b;
     --color-warning: #e0a25c;
+    --color-warning-2: #edbb84;
     --color-danger: #e06a5b;
+    --color-danger-2: #ea8b7e;
+    --color-ink-on-coral: #2a1409;
 
     --shadow-card: none;
     --shadow-card-hover: 0 4px 14px rgb(0 0 0 / 0.4);
