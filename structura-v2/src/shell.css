@@ -14,6 +14,7 @@
 
 /* ── Coquille ────────────────────────────────────────────── */
 .app {
+    position: relative;
     display: grid;
     grid-template-columns: 248px minmax(0, 1fr);
     gap: var(--space-4);
@@ -51,33 +52,33 @@
     }
 }
 
-/* Wordmark typographique : pas d'image, donc pas de variante
-   sombre à maintenir et rien à réaligner au pixel. Même gouttière
-   de 20px que les onglets en dessous. */
 .sidebar-brand {
     display: flex;
     align-items: center;
-    gap: 6px;
     padding: var(--space-6) var(--space-5) var(--space-5);
     border-bottom: 1px solid var(--color-border);
 }
 
-.sidebar-wordmark {
-    font-family: var(--font-heading);
-    font-size: 19px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    line-height: 1;
-    color: var(--color-ink);
-    text-transform: uppercase;
+.sidebar-brand-img {
+    display: block;
+    width: 100%;
+    max-width: 188px;
+    height: auto;
 }
 
-.sidebar-wordmark-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: var(--radius-full);
-    background: var(--color-coral);
-    margin-bottom: 2px;
+:root[data-theme="dark"] .sidebar-brand-img {
+    content: url("../assets/structura-lockup-dark.png");
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
 /* ── Navigation ──────────────────────────────────────────── */
@@ -414,6 +415,7 @@
 }
 
 .view {
+    position: relative;
     display: none;
     flex-direction: column;
     gap: var(--space-5);
@@ -421,14 +423,6 @@
 
 .view.active {
     display: flex;
-    animation: view-in var(--duration-slow) var(--ease-out);
-}
-
-@keyframes view-in {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
 }
 
 @media (max-width: 1080px) {

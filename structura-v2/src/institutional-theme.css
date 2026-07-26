@@ -347,6 +347,7 @@ td {
 .s-dot { width: 6px; height: 6px; }
 
 .bar-track {
+  position: relative;
   background: var(--s3);
   border-radius: 2px;
   height: 4px;
@@ -375,7 +376,7 @@ td {
 .drawer {
   background: var(--s1);
   border-left: 1px solid var(--border);
-  box-shadow: -12px 0 40px rgba(7, 17, 31, 0.08);
+  box-shadow: var(--shadow-float);
   border-radius: 0;
 }
 
@@ -401,7 +402,7 @@ td {
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--s1);
-  box-shadow: 0 24px 64px rgba(7, 17, 31, 0.12);
+  box-shadow: var(--shadow-float);
 }
 
 @media (prefers-reduced-motion: reduce) {

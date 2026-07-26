@@ -117,6 +117,26 @@
       );
     }
 
+    // Odomètre (passe 3) : chaque chiffre roule vers sa valeur au lieu
+    // de défiler en compteur — réservé au seul KPI d'encours total. Le
+    // markup (une colonne de 0 à 9 par chiffre) n'est reconstruit que
+    // si le nombre de caractères change ; sinon seule --d bouge, ce qui
+    // fait tourner la molette au lieu de retaper le nombre.
+    function renderOdometer(el, text) {
+      if (!el) return;
+      if (el.childElementCount !== text.length) {
+        el.innerHTML = [...text].map((ch) => /\d/.test(ch)
+          ? `<span class="odometer-digit"><span class="odometer-reel">${
+              Array.from({ length: 10 }, (_, n) => `<span>${n}</span>`).join("")
+            }</span></span>`
+          : `<span class="odometer-digit">${ch}</span>`).join("");
+      }
+      [...text].forEach((ch, i) => {
+        const reel = el.children[i].firstElementChild;
+        if (reel) reel.style.setProperty("--d", ch);
+      });
+    }
+
     function renderDashboardSummary() {
       if (typeof document === "undefined") return;
       renderSessionChrome();
@@ -130,7 +150,7 @@
       const watch = data.filter((p) => ["crit", "warn"].includes(p.st?.s)).length;
       const types = new Set(data.map((p) => p.type).filter(Boolean)).size;
       const issuers = new Set(data.map((p) => p.emetteur).filter(Boolean)).size;
-      setTextFlash("kpi-total-val", totalVal ? moneyShort(totalVal) : "0€");
+      renderOdometer(document.getElementById("kpi-total-val"), totalVal ? moneyShort(totalVal) : "0€");
       renderKpiSparkline(data);
       setText(
         "kpi-total-sub",
@@ -680,10 +700,27 @@
       drawPerfChart();
     }
 
+    // Inclinaison au survol (passe 3) : cartes KPI du dashboard
+    // uniquement, jusqu'à 3° d'après la position du curseur dans la
+    // carte. Cartes statiques dans le HTML, liées une seule fois.
+    function bindKpiTilt() {
+      document.querySelectorAll("#view-dashboard .kpi.tilt").forEach((card) => {
+        card.addEventListener("mousemove", (e) => {
+          const r = card.getBoundingClientRect();
+          const rx = ((e.clientY - r.top) / r.height - 0.5) * -3;
+          const ry = ((e.clientX - r.left) / r.width - 0.5) * 3;
+          card.style.transform =
+            `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-3px)`;
+        });
+        card.addEventListener("mouseleave", () => { card.style.transform = ""; });
+      });
+    }
+
     if (typeof document !== "undefined") {
       setInterval(tick, 1000);
       tick();
       initTicker();
+      bindKpiTilt();
     }
 
     return {

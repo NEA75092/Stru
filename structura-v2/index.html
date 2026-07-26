@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>STRUCTURA PRO</title>
+        <link rel="icon" href="assets/structura-mark.png" />
         <script>
             (function () {
                 try {
@@ -28,13 +29,15 @@
         <link rel="stylesheet" href="./src/styles.css?v=20260726" />
         <link rel="stylesheet" href="./src/institutional-theme.css?v=20260726" />
         <link rel="stylesheet" href="./src/dashboard.css?v=20260726" />
+        <link rel="stylesheet" href="./src/relief.css?v=20260726" />
     </head>
     <body>
         <div class="app">
             <aside class="sidebar">
                 <div class="sidebar-brand">
-                    <span class="sidebar-wordmark">Structura</span>
-                    <span class="sidebar-wordmark-dot" aria-hidden="true"></span>
+                    <img class="sidebar-brand-img" src="assets/structura-lockup.png"
+                         alt="" width="1036" height="251" />
+                    <span class="sr-only">Structura</span>
                 </div>
                 <nav class="sidebar-nav">
                     <div class="nav-indicator" id="nav-indicator" aria-hidden="true"></div>
@@ -152,6 +155,7 @@
             <div class="main">
                 <!-- ===== DASHBOARD ===== -->
                 <div class="view active" id="view-dashboard">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="dash-welcome panel" id="dash-welcome">
                         <div class="dash-welcome-copy">
                             <div class="dash-welcome-kicker" id="session-org-line">Cabinet Structura</div>
@@ -159,20 +163,20 @@
                             <p class="dash-welcome-sub" id="session-subline">—</p>
                         </div>
                     </div>
-                    <div class="kpi-row">
-                        <div class="kpi k-gold">
+                    <div class="kpi-row tilt-scope">
+                        <div class="kpi tilt k-gold">
                             <div class="kpi-lbl">
                                 Valeur totale portefeuille
                             </div>
                             <div class="kpi-val">
-                                <span id="kpi-total-val">€124.7M</span>
-                                <svg class="kpi-spark" id="kpi-total-spark" viewBox="0 0 52 20" preserveAspectRatio="none" aria-hidden="true"></svg>
+                                <span class="odometer" id="kpi-total-val">€124.7M</span>
+                                <svg class="kpi-spark sparkline" id="kpi-total-spark" viewBox="0 0 52 20" preserveAspectRatio="none" aria-hidden="true"></svg>
                             </div>
                             <div class="kpi-sub" id="kpi-total-sub">
                                 ▲ +2.34% vs. émission
                             </div>
                         </div>
-                        <div class="kpi k-red">
+                        <div class="kpi tilt k-red">
                             <div class="kpi-lbl">Critique — barrière franchie</div>
                             <div class="kpi-val" id="kpi-breach-val">
                                 3
@@ -181,7 +185,7 @@
                                 Action immédiate requise
                             </div>
                         </div>
-                        <div class="kpi k-orange">
+                        <div class="kpi tilt k-orange">
                             <div class="kpi-lbl">Sous surveillance</div>
                             <div class="kpi-val" id="kpi-watch-val">
                                 8
@@ -190,7 +194,7 @@
                                 Critique &lt; 5 % · alerte 5–15 %
                             </div>
                         </div>
-                        <div class="kpi k-blue">
+                        <div class="kpi tilt k-blue">
                             <div class="kpi-lbl">Portefeuille actif</div>
                             <div class="kpi-val" id="kpi-count-val">
                                 54
@@ -285,6 +289,7 @@
 
                 <!-- ===== PORTFOLIO ===== -->
                 <div class="view" id="view-portfolio">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="toolbar">
                         <input
                             class="search"
@@ -352,6 +357,7 @@
 
                 <!-- ===== BARRIERS ===== -->
                 <div class="view" id="view-barriers">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="kpi-row bar-kpi-row">
                         <div class="kpi k-red">
                             <div class="kpi-lbl">Barrières franchies</div>
@@ -411,6 +417,7 @@
 
                 <!-- ===== CALENDAR ===== -->
                 <div class="view" id="view-calendar">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="cal-context panel">
                         <div class="cal-context-copy">
                             <div class="cal-context-kicker">Agenda structuré</div>
@@ -566,6 +573,7 @@
 
                 <!-- ===== ANALYTICS / PILOTAGE ===== -->
                 <div class="view" id="view-analytics">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="pilotage-page">
                         <div class="pilotage-hero panel">
                             <div class="pilotage-hero-copy">
@@ -610,6 +618,7 @@
 
                 <!-- ===== CLIENTS ===== -->
                 <div class="view" id="view-clients">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="clients-page">
                         <div class="clients-hero panel">
                             <div class="clients-hero-copy">
@@ -647,6 +656,7 @@
 
                 <!-- ===== AUTO PITCH ===== -->
                 <div class="view" id="view-autopitch">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="g2">
                         <div class="panel">
                             <div class="panel-title">
@@ -1163,6 +1173,7 @@ En attente de génération...</pre
 
                 <!-- ===== SCREENER ===== -->
                 <div class="view" id="view-screener">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="ingest-hero" style="grid-template-columns: 1fr; margin-bottom: 16px;">
                         <div class="ingest-hero-copy">
                             <div class="ingest-kicker">Structuration</div>
@@ -1263,6 +1274,7 @@ En attente de génération...</pre
                 </div>
 
                 <div class="view" id="view-ingest">
+                    <div class="spotlight" aria-hidden="true"></div>
                     <div class="ingest-hero">
                         <div class="ingest-hero-copy">
                             <div class="ingest-kicker">Doc Reader</div>

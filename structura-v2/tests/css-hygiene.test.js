@@ -18,14 +18,15 @@ const SRC = path.join(ROOT, "src");
 /* Feuilles réécrites depuis design-tokens.css. Y ajouter un fichier
    signifie : il ne contient aucun !important, aucune couleur
    littérale, aucun sélecteur en doublon. */
-const MIGRATED = ["shell.css", "dashboard.css"];
+const MIGRATED = ["shell.css", "relief.css"];
 
 /* Passe validée = ses règles héritées ont été SUPPRIMÉES des
    anciennes feuilles, pas surchargées. */
 const STAGES = {
   shell: true, // passe 1 — sidebar, header, nav, profil, boutons
   dashboard: true, // passe 2 — KPI, perf, Top/Flop, exposition
-  views: false, // passe 3 — clients, pilotage, 6 autres vues
+  relief: true, // passe 3 — logo, ombres teintées, grain, mouvement
+  views: false, // passe 4 — clients, pilotage, 6 autres vues
 };
 
 /* Noms de variables de l'ancienne charte. Interdits partout :
@@ -176,11 +177,35 @@ test("aucun bouton n'a de fond corail", () => {
   assert.ok(!html.includes("btn-gold"), "index.html utilise encore .btn-gold — renommer en .btn-primary (bleu)");
 });
 
-/* ── 8. Le logo est typographique, plus une image ──────────── */
-test("la marque est un wordmark typographique", () => {
+/* ── 8. Le logo est l'image de marque du client, en 2 variantes ──
+   Sens inversé le 26/07 : le client a restauré son logo d'origine
+   depuis sa sauvegarde. La marque redevient une image — voir
+   « Reversements de décision » dans CLAUDE.md. */
+test("la marque est l'image du client, avec sa variante sombre", () => {
   const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-  assert.ok(!html.includes("sidebar-logo"), "index.html contient encore <img class=\"sidebar-logo\"> — remplacer par .sidebar-wordmark");
-  assert.ok(html.includes("sidebar-wordmark"), "index.html ne contient pas .sidebar-wordmark");
+  assert.ok(html.includes("sidebar-brand-img"), "index.html n'utilise pas .sidebar-brand-img");
+  assert.ok(
+    !html.includes("sidebar-wordmark"),
+    "index.html contient encore le wordmark typographique — remplacé par le logo du client",
+  );
+  assert.ok(html.includes("sr-only"), "le nom accessible de la marque a disparu du DOM");
+  for (const f of ["structura-lockup.png", "structura-lockup-dark.png", "structura-mark.png"]) {
+    assert.ok(fs.existsSync(path.join(ROOT, "assets", f)), `assets/${f} manquant`);
+  }
+});
+
+/* ── 8 bis. Le relief passe par les tokens, jamais en dur ───── */
+test("relief.css ne déclare aucune ombre ni animation en littéral", () => {
+  if (!exists("relief.css")) return;
+  const clean = read("relief.css").replace(/\/\*[\s\S]*?\*\//g, "");
+  const shadows = (clean.match(/box-shadow:\s*[^;]+/gi) || []).filter(
+    (v) => !/var\(--/.test(v) && !/\b(none|inherit)\b/.test(v),
+  );
+  assert.equal(
+    shadows.length,
+    0,
+    `relief.css écrit des ombres en dur : ${shadows.slice(0, 3).join(" | ")} — passer par --shadow-*`,
+  );
 });
 
 /* ── 9. Une information, un endroit ────────────────────────── */
@@ -199,7 +224,7 @@ test("les feuilles héritées sont supprimées quand les 3 passes sont faites", 
     console.log("    (passes restantes : " + Object.entries(STAGES).filter(([, v]) => !v).map(([k]) => k).join(", ") + ")");
     return;
   }
-  assert.ok(!exists("styles.css"), "styles.css existe encore alors que les 3 passes sont marquées faites");
+  assert.ok(!exists("styles.css"), "styles.css existe encore alors que les 4 passes sont marquées faites");
   assert.ok(!exists("institutional-theme.css"), "institutional-theme.css existe encore");
   const total = cssFiles().reduce((n, f) => n + (read(f).match(/!important/g) || []).length, 0);
   assert.equal(total, 0, `${total} !important restants dans src/*.css`);

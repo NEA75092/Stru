@@ -10,7 +10,12 @@
    Reversements assumés par rapport à l'ancienne direction :
    - Cards en blanc pur (#ffffff), plus "jamais de blanc pur".
    - Relief par bordure + 2 blocs dégradés pleins par écran, plus par
-     ombre portée seule (les cards n'ont plus d'ombre).
+     ombre portée seule (les cards n'ont plus d'ombre) — règle du
+     24/07, ANNULÉE le 26/07 (passe 3) : sans ombre ni dégradé
+     interne, les cartes n'avaient pas d'épaisseur, constat direct sur
+     les captures passe 1 et passe 2. Le relief revient, mais teinté
+     de la couleur de la carte, jamais un gris neutre — voir la
+     section « Ombres » plus bas et `--gradient-card-lit`.
 
    Ce fichier ne définit QUE des variables sous des noms neufs
    (--color-*, --space-*, --radius-*, --shadow-*, --font-*, --ease-*).
@@ -125,10 +130,17 @@
     --radius-xl: 24px;
     --radius-full: 999px;
 
-    /* ── Ombres — les cards n'en ont plus (bordure + 2 blocs dégradés
-       pleins par écran suffisent comme relief, 2026-07-24). Gardées
-       uniquement pour les éléments flottants réels (modale, tiroir,
-       dropdown) qui doivent se détacher de la page. */
+    /* ── Ombres — la règle du 24/07 (« les cards n'en ont plus »,
+       bordure + 2 blocs dégradés pleins par écran comme seul relief)
+       est ANNULÉE le 26/07 (passe 3) : sans épaisseur, les cartes
+       flottaient sur le fond dans les deux thèmes. --shadow-card et
+       --shadow-card-hover gardent leurs noms mais changent de valeur
+       ci-dessous (redéfinies plus bas dans ce même bloc, tout ce qui
+       les consomme déjà gagne le relief sans une ligne de plus) —
+       teintées de la couleur de la carte, jamais un gris neutre.
+       --shadow-sm/--shadow-md restent des gris neutres pour les
+       éléments flottants réels (modale, tiroir) qui doivent se
+       détacher de la page sans porter de couleur de marque. */
     --shadow-card: none;
     --shadow-card-hover: 0 4px 14px rgba(22, 39, 58, 0.08);
     --shadow-sm: 0 1px 2px rgba(22, 39, 58, 0.05);
@@ -148,6 +160,55 @@
     --duration-fast: 120ms;
     --duration-base: 200ms;
     --duration-slow: 320ms;
+
+    /* ── Relief : ombres teintées (passe 3, 2026-07-26) ──────
+       Deux couches par ombre : un contact serré de 1px (la carte
+       touche la page) et une diffusion large et décalée vers le
+       haut (la carte est au-dessus). La teinte vit dans la couche
+       diffuse uniquement. */
+    --shadow-card: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(22 39 58 / 0.3);
+    --shadow-card-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(22 39 58 / 0.42);
+    --shadow-card-aegean: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(31 111 178 / 0.4);
+    --shadow-card-aegean-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(31 111 178 / 0.55);
+    --shadow-card-coral: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(193 72 59 / 0.42);
+    --shadow-card-coral-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(193 72 59 / 0.58);
+    --shadow-float: 0 32px 64px -28px rgb(22 39 58 / 0.4);
+
+    /* Liserés internes : lumière en haut, teinte en bas. C'est eux
+       qui donnent l'épaisseur, l'ombre seule ne suffit pas. */
+    --lit-top: inset 0 1px 0 rgb(255 255 255 / 1);
+    --lit-bottom-aegean: inset 0 -1px 0 rgb(31 111 178 / 0.09);
+    --lit-bottom-coral: inset 0 -1px 0 rgb(193 72 59 / 0.1);
+
+    /* Dégradé interne de carte : 168°, presque vertical mais pas
+       tout à fait — la lumière vient du haut-gauche. */
+    --gradient-card-lit: linear-gradient(168deg, #ffffff, #fbf7ef);
+
+    /* ── Grain ───────────────────────────────────────────────
+       Bruit fractal en multiply sur le fond de vue : la chaux
+       devient du papier. Posé une seule fois sur .app via
+       ::after, jamais par carte (coût de composition). */
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+    --grain-opacity: 0.5;
+    --grain-blend: multiply;
+
+    /* ── Halo au curseur ────────────────────────────────────
+       --mx / --my sont posées en JS au mousemove sur .view.active.
+       Valeurs de repli au centre : sans JS, un halo statique
+       discret, pas un trou noir. */
+    --spot: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%), rgb(31 111 178 / 0.1), rgb(240 145 111 / 0.05) 40%, transparent 68%);
+
+    /* ── Anneau conique de l'alerte critique ────────────────
+       Un seul élément de l'écran y a droit. */
+    --ring-critical: conic-gradient(from var(--ring), rgb(193 72 59 / 0.05), var(--color-danger) 18%, var(--color-coral) 30%, rgb(193 72 59 / 0.05) 52%, rgb(193 72 59 / 0.05));
+
+    /* ── Mouvement ──────────────────────────────────────────
+       Entrée depuis un flou de 7px, pas depuis l'opacité seule.
+       70ms d'écart entre blocs voisins : la vue se construit
+       devant l'œil sans jamais faire attendre. */
+    --duration-enter: 620ms;
+    --stagger: 80ms;
+    --blur-enter: 7px;
 }
 
 /* ============================================================
@@ -259,4 +320,29 @@
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
     --shadow-md: 0 6px 16px rgb(0 0 0 / 0.38);
     --shadow-lg: 0 16px 32px rgb(0 0 0 / 0.45);
+
+    /* ── Relief : en sombre l'ombre ne se voit plus, c'est le
+       liseré de lumière qui porte tout le relief — l'ombre ne sert
+       qu'à creuser le fond derrière la carte (passe 3, 2026-07-26). */
+    --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
+    --shadow-card-hover: inset 0 1px 0 rgb(255 255 255 / 0.1), 0 26px 44px -18px rgb(0 0 0 / 0.95);
+    --shadow-card-aegean: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
+    --shadow-card-aegean-hover: inset 0 1px 0 rgb(74 151 214 / 0.22), 0 26px 44px -18px rgb(0 0 0 / 0.95);
+    --shadow-card-coral: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
+    --shadow-card-coral-hover: inset 0 1px 0 rgb(229 146 116 / 0.24), 0 26px 44px -18px rgb(0 0 0 / 0.95);
+    --shadow-float: 0 36px 70px -26px rgb(0 0 0 / 0.85);
+
+    --lit-top: inset 0 1px 0 rgb(255 255 255 / 0.07);
+    --lit-bottom-aegean: inset 0 -1px 0 rgb(0 0 0 / 0.3);
+    --lit-bottom-coral: inset 0 -1px 0 rgb(0 0 0 / 0.3);
+
+    --gradient-card-lit: linear-gradient(168deg, #241f16, #1b1710);
+
+    /* Le grain se voit trois fois plus sur du sombre : screen à très
+       basse opacité, sinon la vue devient sale. */
+    --grain-opacity: 0.28;
+    --grain-blend: screen;
+
+    --spot: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%), rgb(74 151 214 / 0.22), rgb(240 145 111 / 0.08) 40%, transparent 68%);
+    --ring-critical: conic-gradient(from var(--ring), rgb(224 106 91 / 0.05), var(--color-danger) 18%, var(--color-coral) 30%, rgb(224 106 91 / 0.05) 52%, rgb(224 106 91 / 0.05));
 }

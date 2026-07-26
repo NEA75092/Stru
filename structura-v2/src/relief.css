@@ -1,0 +1,232 @@
+/* ============================================================
+   STRUCTURA — RELIEF & MOUVEMENT (passe 3)
+   Nouveau fichier, chargé APRÈS shell.css et dashboard.css dans
+   index.html. Il ne contient que des sélecteurs qui n'existent
+   nulle part ailleurs : grain, halo au curseur, anneau critique,
+   odomètre, entrées décalées.
+
+   Ce qui concerne une carte déjà stylée (fond, ombre, survol) ne
+   vit PAS ici : ces valeurs changent dans dashboard.css, sur le
+   sélecteur qui existe déjà (voir PASSE-3.md, section C). Une
+   règle, un endroit.
+
+   Trois règles non négociables, comme shell.css :
+   1. Aucune priorité forcée en CSS.
+   2. Zéro couleur littérale — uniquement var(--*).
+   3. Un sélecteur par élément.
+   À ajouter à MIGRATED dans tests/css-hygiene.test.js.
+   ============================================================ */
+
+@property --ring {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+/* ── Grain ───────────────────────────────────────────────────
+   Posé une seule fois, sur la coquille. .app est déjà en position
+   grid : on lui ajoute position: relative dans shell.css (une
+   ligne, section B de PASSE-3.md). */
+.app::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--grain);
+    opacity: var(--grain-opacity);
+    mix-blend-mode: var(--grain-blend);
+}
+
+/* ── Halo au curseur ─────────────────────────────────────────
+   Une seule couche, sous le contenu de la vue active. Les deux
+   variables sont posées en JS (section F) : aucun re-render, aucun
+   recalcul de mise en page — seule la peinture du dégradé change. */
+.spotlight {
+    position: absolute;
+    inset: calc(var(--space-8) * -1);
+    z-index: 0;
+    pointer-events: none;
+    background: var(--spot);
+    transition: opacity var(--duration-slow) var(--ease-standard);
+
+    @media (prefers-reduced-motion: reduce) {
+        display: none;
+    }
+}
+
+/* .view reçoit position: relative dans shell.css (section B) : le
+   sélecteur existe déjà là-bas, il ne se redéclare pas ici. */
+.view > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Anneau conique — alerte critique uniquement ──────────────
+   Réservé à un usage unique par écran. Utilisé deux fois, il ne
+   veut plus rien dire. */
+.ring-critical {
+    padding: 1px;
+    border-radius: calc(var(--radius-md) + 1px);
+    background: var(--ring-critical);
+    animation: ring-spin 4.6s linear infinite;
+}
+
+@keyframes ring-spin {
+    100% {
+        --ring: 360deg;
+    }
+}
+
+/* ── Inclinaison au survol ───────────────────────────────────
+   3° maximum, posés en JS d'après la position du curseur dans la
+   carte. La perspective vit sur le conteneur, pas sur la carte. */
+.tilt-scope {
+    perspective: 900px;
+}
+
+.tilt {
+    transform-style: preserve-3d;
+    transition: transform var(--duration-base) var(--ease-spring);
+}
+
+/* ── Odomètre ────────────────────────────────────────────────
+   Chaque chiffre est une colonne de 0 à 9 translatée. Le chiffre
+   roule vers sa valeur au lieu de défiler en compteur : ça se lit
+   comme un cadran de salle des marchés. Hauteur pilotée par
+   --odo-h, posée avec la taille de police du KPI. */
+.odometer {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: var(--odo-h, 34px);
+    overflow: hidden;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.035em;
+}
+
+.odometer-digit {
+    display: block;
+    width: 0.58em;
+    height: var(--odo-h, 34px);
+    overflow: hidden;
+    line-height: var(--odo-h, 34px);
+    text-align: center;
+}
+
+.odometer-reel {
+    display: block;
+    transform: translateY(calc(var(--odo-h, 34px) * -1 * var(--d, 0)));
+    transition: transform 900ms var(--ease-spring);
+}
+
+.odometer-reel > span {
+    display: block;
+    height: var(--odo-h, 34px);
+}
+
+/* ── Sparkline ───────────────────────────────────────────────
+   Le trait se dessine en 1,5 s. Le chiffre ne vient plus seul. */
+.sparkline {
+    width: 100%;
+    height: 30px;
+    overflow: visible;
+}
+
+.sparkline path,
+.sparkline polyline {
+    fill: none;
+    stroke: var(--color-aegean);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 320;
+    animation: sparkline-draw 1500ms var(--ease-spring) 420ms both;
+}
+
+@keyframes sparkline-draw {
+    0% {
+        stroke-dashoffset: 320;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ── Repère de barrière ──────────────────────────────────────
+   Un trait d'encre à la position exacte du seuil sur la jauge.
+   --at est posé en JS avec la distance de protection. */
+.barrier-mark {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: var(--at, 50%);
+    width: 2px;
+    border-radius: 1px;
+    background: var(--color-ink);
+}
+
+/* ── Entrées décalées ────────────────────────────────────────
+   Un seul jeu de règles, appliqué par nth-child sur les enfants
+   directs de la vue : rien à poser sur chaque composant. */
+.view.active > *:not(.spotlight) {
+    animation: block-in var(--duration-enter) var(--ease-spring) both;
+    animation-delay: calc(var(--stagger) * var(--i, 0));
+}
+
+.view.active > *:nth-child(2) {
+    --i: 1;
+}
+
+.view.active > *:nth-child(3) {
+    --i: 2;
+}
+
+.view.active > *:nth-child(4) {
+    --i: 3;
+}
+
+.view.active > *:nth-child(5) {
+    --i: 4;
+}
+
+.view.active > *:nth-child(6) {
+    --i: 5;
+}
+
+@keyframes block-in {
+    0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+        filter: blur(var(--blur-enter));
+    }
+}
+
+/* ── Respiration — pastille de statut live et alerte ───────── */
+.breathe {
+    animation: breathe 2.8s var(--ease-standard) infinite;
+}
+
+@keyframes breathe {
+    0%,
+    100% {
+        opacity: 0.55;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ── Coupe-circuit ───────────────────────────────────────────
+   Une seule règle pour tout le fichier : rien à penser au cas par
+   cas. Le relief (ombres, liserés, grain) reste, c'est le
+   mouvement qui disparaît. */
+@media (prefers-reduced-motion: reduce) {
+    .app *,
+    .app *::before,
+    .app *::after {
+        animation-duration: 1ms;
+        animation-iteration-count: 1;
+        transition-duration: 1ms;
+    }
+}

@@ -20,6 +20,22 @@
       return Array.prototype.findIndex.call(tabs, (t) => t.id === "tab-" + viewId);
     }
 
+    // Halo au curseur (passe 3) : deux variables CSS posées au
+    // mousemove, aucun state ni recalcul de mise en page — seule la
+    // peinture du dégradé (.spotlight, relief.css) est recalculée.
+    // Lié une seule fois par vue (WeakSet) pour ne pas empiler des
+    // écouteurs à chaque changement d'onglet.
+    const spotlightBound = new WeakSet();
+    function bindSpotlight(view) {
+      if (!view || spotlightBound.has(view)) return;
+      spotlightBound.add(view);
+      view.addEventListener("mousemove", (e) => {
+        const r = view.getBoundingClientRect();
+        view.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+        view.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+      });
+    }
+
     function nav(viewId) {
       if (typeof document === "undefined") return;
       const prevViewId = root.StructuraAppState?.runtime?.currentView;
@@ -45,6 +61,7 @@
         nextIndex < prevIndex ? "-14px" : "14px",
       );
       targetView?.classList.add("active");
+      bindSpotlight(targetView);
 
       if (root.StructuraAppState?.runtime) {
         root.StructuraAppState.runtime.currentView = viewId;
@@ -72,6 +89,7 @@
       // Scripts load with `defer`, so the DOM is already fully parsed
       // by the time this module runs — no need to wait for an event.
       positionNavIndicator(document.querySelector(".nav-tab.active"));
+      bindSpotlight(document.querySelector(".view.active"));
     }
 
     return { nav, positionNavIndicator };

@@ -60,7 +60,7 @@ chiffre, ISIN, libellé technique et micro-label en capitales. Aucun texte sous
 ## La barrière
 
 `npm test` inclut `tests/css-hygiene.test.js`. Il vérifie mécaniquement les
-règles 1 à 3, la sémantique du corail, et le wordmark. **Une passe n'est pas
+règles 1 à 3, la sémantique du corail, et la présence du logo du client. **Une passe n'est pas
 terminée tant que `npm test` n'est pas vert.** Ne pas modifier ce test pour le
 faire passer : le faire passer en corrigeant le CSS.
 
@@ -74,11 +74,28 @@ Le test progresse par passe. À la fin d'une passe :
 1. **Passe 1 — coquille** : sidebar, header, nav, profil, boutons (`shell.css`).
    Visible sur les 9 vues ; sert de référence de style pour la suite.
 2. **Passe 2 — dashboard** : KPI, performance, Top/Flop VL, exposition bancaire.
-3. **Passe 3 — le reste** : clients, pilotage, 6 autres vues.
+3. **Passe 3 — logo, relief et mouvement** : logo d'origine du client restauré,
+   ombres teintées, liserés de lumière, grain, halo au curseur, entrées
+   décalées (`relief.css`). Aucune mise en page touchée.
+4. **Passe 4 — le reste** : clients, pilotage, 6 autres vues.
 
-À la fin de la passe 3 : `styles.css` et `institutional-theme.css` sont
+À la fin de la passe 4 : `styles.css` et `institutional-theme.css` sont
 supprimés, le bloc d'alias `dashboard.css:40-64` est supprimé, et il ne reste
 aucun `!important` dans `src/*.css`.
+
+## Reversements de décision (26/07/2026)
+
+Deux décisions du 24/07 sont **annulées** par le client. Elles restent écrites
+ici avec leur motif : ce fichier documente ses reversements, il ne les efface pas.
+
+1. **« Les cards n'ont plus d'ombre »** → annulée. Sans ombre ni dégradé
+   interne, les cartes n'avaient pas d'épaisseur. Le relief revient, mais
+   **teinté** : l'ombre d'une carte porte la teinte de la carte (bleu pour
+   l'encours, corail pour le critique), jamais un gris neutre. Une ombre grise
+   est une ombre de template.
+2. **« La marque est un wordmark typographique »** → annulée. Le client a
+   restauré son logo d'origine depuis sa sauvegarde. La marque est de nouveau
+   une image, en deux variantes (claire et sombre) — pas un `filter: invert()`.
 
 ## Ce qu'il ne faut pas faire
 
