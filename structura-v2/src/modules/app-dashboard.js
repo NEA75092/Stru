@@ -8,7 +8,8 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraDashboard(root) {
-    const { setText, setTextFlash, moneyShort, escapeHtml } = root.StructuraUtils;
+    const { setText, setTextFlash, moneyShort, pctFr, shortDateFr, escapeHtml } =
+      root.StructuraUtils;
     const {
       APP_MODE_KEY,
       productsForScope,
@@ -68,13 +69,18 @@
         .map((p) => ({
           productId: p.id,
           lvl: p.st.s === "breach" || p.st.s === "crit" ? "crit" : "warn",
+          statusCls: p.st.cls,
+          statusLabel: p.st.label,
           name: p.name,
-          motif: p.st.label,
-          context: `${p.underlying || "—"} · Distance protection : ${
+          // "Distance protection :" retiré : la valeur seule suffit
+          // une fois qu'elle est à côté du nom du sous-jacent — le
+          // libellé ne faisait que répéter ce que la colonne dit déjà
+          // (passe 6, section B.3).
+          context: `${p.underlying || "—"} · ${
             Number.isFinite(Number(p.dist))
-              ? `${Number(p.dist).toFixed(1)}%`
+              ? `${p.dist > 0 ? "+" : ""}${pctFr(p.dist)}`
               : "à confirmer"
-          } · Proch. obs. ${p.nextEvtDate || "—"}`,
+          } · obs. ${shortDateFr(p.nextEvtDate)}`,
           amount: p.val,
         }));
     }
@@ -120,7 +126,7 @@
 
       setText(
         "session-date-line",
-        vlAsOf ? `${dateLabel} · VL au ${vlAsOf}` : `${dateLabel} · VL non disponible`,
+        vlAsOf ? `${dateLabel} · VL au ${shortDateFr(vlAsOf)}` : `${dateLabel} · VL non disponible`,
       );
       setText("session-user-name", session.advisorName || "Conseiller");
       setText("session-user-role", session.role || "CGP");
@@ -138,26 +144,6 @@
       setText("session-total-alerts", String(alerts.length));
     }
 
-    // Odomètre (passe 3) : chaque chiffre roule vers sa valeur au lieu
-    // de défiler en compteur — réservé au seul KPI d'encours total. Le
-    // markup (une colonne de 0 à 9 par chiffre) n'est reconstruit que
-    // si le nombre de caractères change ; sinon seule --d bouge, ce qui
-    // fait tourner la molette au lieu de retaper le nombre.
-    function renderOdometer(el, text) {
-      if (!el) return;
-      if (el.childElementCount !== text.length) {
-        el.innerHTML = [...text].map((ch) => /\d/.test(ch)
-          ? `<span class="odometer-digit"><span class="odometer-reel">${
-              Array.from({ length: 10 }, (_, n) => `<span>${n}</span>`).join("")
-            }</span></span>`
-          : `<span class="odometer-digit">${ch}</span>`).join("");
-      }
-      [...text].forEach((ch, i) => {
-        const reel = el.children[i].firstElementChild;
-        if (reel) reel.style.setProperty("--d", ch);
-      });
-    }
-
     function renderDashboardSummary() {
       if (typeof document === "undefined") return;
       renderSessionChrome();
@@ -171,18 +157,26 @@
       const watch = data.filter((p) => ["crit", "warn"].includes(p.st?.s)).length;
       const types = new Set(data.map((p) => p.type).filter(Boolean)).size;
       const issuers = new Set(data.map((p) => p.emetteur).filter(Boolean)).size;
-      renderOdometer(document.getElementById("kpi-total-val"), totalVal ? moneyShort(totalVal) : "0€");
-      renderKpiSparkline(data);
+      // Le total figure déjà dans le bandeau d'accueil ("Encours géré") :
+      // cette carte ne répète plus le même nombre à 40px d'écart, elle
+      // porte l'information que les trois autres cartes donnent déjà —
+      // un état, pas une somme (passe 6, section B.1).
       setText(
-        "kpi-total-sub",
+        "kpi-perf-val",
+        totalNominal ? `${pnlPct > 0 ? "+" : ""}${pctFr(pnlPct, 2)}` : "—",
+      );
+      setText(
+        "kpi-perf-sub",
         totalNominal
-          ? `${pnlPct >= 0 ? "+" : ""}${pnlPct.toFixed(2)}% vs encours initial`
+          ? `${totalVal - totalNominal > 0 ? "+" : ""}${moneyShort(totalVal - totalNominal)} vs encours initial`
           : "Import portefeuille requis",
       );
-      const totalSub = document.getElementById("kpi-total-sub");
-      if (totalSub) {
-        totalSub.classList.toggle("up", totalNominal > 0 && pnlPct >= 0);
-        totalSub.classList.toggle("dn", totalNominal > 0 && pnlPct < 0);
+      const perfVal = document.getElementById("kpi-perf-val");
+      const perfSub = document.getElementById("kpi-perf-sub");
+      for (const el of [perfVal, perfSub]) {
+        if (!el) continue;
+        el.classList.toggle("up", totalNominal > 0 && pnlPct >= 0);
+        el.classList.toggle("dn", totalNominal > 0 && pnlPct < 0);
       }
       setTextFlash("kpi-breach-val", breach, { invert: true });
       setText(
@@ -352,31 +346,6 @@
       return { points, startSnap, endSnap, periodPct, periodAbs, startDate, endDate };
     }
 
-    // Sparkline miniature à côté de "Valeur totale portefeuille" — même
-    // série que le graphique de performance (base 100, 6 mois), pas un
-    // tracé décoratif déconnecté des données réelles.
-    function renderKpiSparkline(data) {
-      const svg = document.getElementById("kpi-total-spark");
-      if (!svg) return;
-      if (!data.length) {
-        svg.innerHTML = "";
-        return;
-      }
-      const { points } = buildPerfSeries(data, "6m");
-      const vals = points.map((p) => p.idx);
-      const w = 52;
-      const h = 20;
-      const pad = 2;
-      const min = Math.min(...vals);
-      const max = Math.max(...vals);
-      const xAt = (i) => pad + (i / (vals.length - 1 || 1)) * (w - pad * 2);
-      const yAt = (v) => h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2);
-      const pts = vals
-        .map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`)
-        .join(" ");
-      svg.innerHTML = `<polyline points="${pts}"/>`;
-    }
-
     function drawPerfHistory(totalNom, _totalVal) {
       const svg = document.getElementById("perf-history-svg");
       if (!svg) return;
@@ -454,12 +423,12 @@
       const rangeLabel = PERF_RANGE_LABELS[perfRange] || perfRange;
       setText(
         "perf-change",
-        totalNom ? `${positive ? "+" : ""}${periodPct.toFixed(2)}%` : "—",
+        totalNom ? `${positive ? "+" : ""}${pctFr(periodPct, 2)}` : "—",
       );
       setText(
         "perf-change-abs",
         totalNom
-          ? `${positive ? "+" : ""}${moneyShort(Math.abs(periodAbs))} ${positive ? "sur la période" : "sur la période"}`
+          ? `${positive ? "+" : ""}${moneyShort(periodAbs)} sur la période`
           : "—",
       );
       setText("perf-change-label", `Performance · ${rangeLabel}`);
@@ -643,17 +612,33 @@
         c.innerHTML = `<div class="empty-inline">Aucune VL exploitable.</div>`;
         return;
       }
-      const renderSide = (title, rows, cls) => `<div class="vl-side vl-side-${cls}">
-        <div class="vl-side-title">${title}</div>
-        ${rows.map((p) => `<button class="vl-row" onclick="openDrawer(${p.id})">
-          <span class="vl-main"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.underlying || p.emetteur || "—")}</small></span>
-          <span class="vl-values">
-            <b class="${cls}">${p.vlLevel.toFixed(2)}%</b>
-            <small>${moneyShort(p.val)}</small>
+      // Échelle réelle, pas 0-100 : les VL de ce portefeuille tiennent
+      // sur un point et demi (92-94 % dans l'exemple client). Sur une
+      // échelle 0-100 toutes les barres se ressembleraient — l'échelle
+      // doit montrer l'écart réel (passe 6, section C).
+      const levels = data.map((p) => p.vlLevel);
+      const scaleMin = Math.min(...levels);
+      const scaleMax = Math.max(...levels);
+      const pctAt = (v) =>
+        scaleMax > scaleMin ? ((v - scaleMin) / (scaleMax - scaleMin)) * 100 : 100;
+      const renderRow = (p) => {
+        const cls = p.vlLevel >= 100 ? "up" : "dn";
+        return `<button type="button" class="vl-row" onclick="openDrawer(${p.id})">
+          <span class="vl-row-top">
+            <span class="vl-main"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.underlying || p.emetteur || "—")}</small></span>
+            <span class="vl-value ${cls}">${pctFr(p.vlLevel, 2)}</span>
           </span>
-        </button>`).join("")}
+          <span class="vl-dist-track"><span class="vl-dist-fill ${cls}" style="width:${pctAt(p.vlLevel).toFixed(1)}%"></span></span>
+        </button>`;
+      };
+      // Le montant disparaît (demande client) : ce classement n'est
+      // pas une lecture d'encours, c'est une lecture de VL.
+      const renderSide = (title, rows) => `<div class="vl-side">
+        <div class="vl-side-title">${title}</div>
+        <div class="vl-side-legend">VL en % du nominal · base 100 à l'émission</div>
+        <div class="vl-rows">${rows.map(renderRow).join("")}</div>
       </div>`;
-      c.innerHTML = `${renderSide("Top 5 VL", data.slice(0, 5), "up")}${renderSide("Flop 5 VL", data.slice(-5).reverse(), "dn")}`;
+      c.innerHTML = `${renderSide("Top 5 VL", data.slice(0, 5))}${renderSide("Flop 5 VL", data.slice(-5).reverse())}`;
     }
 
     function renderDashboardModules() {
@@ -676,13 +661,13 @@
       }
       if (!list.length) {
         c.innerHTML =
-          '<div class="al al-ok"><span class="al-rail"></span><div class="al-txt"><div class="al-title-row"><strong>Rien d\'urgent</strong></div><span class="al-context">Aucune alerte barrière ou surveillance sur le portefeuille.</span></div><span class="al-amount"></span></div>';
+          '<div class="al al-ok"><span class="al-rail"></span><div class="al-txt"><strong>Rien d\'urgent</strong><span class="al-context">Aucune alerte barrière ou surveillance sur le portefeuille.</span></div></div>';
         return;
       }
       c.innerHTML = list
         .map(
           (a) =>
-            `<div class="al al-${a.lvl}" onclick="openDrawer(${a.productId})"><span class="al-rail"></span><div class="al-txt"><div class="al-title-row"><strong>${escapeHtml(a.name)}</strong><span class="al-motif">${escapeHtml(a.motif)}</span></div><span class="al-context">${escapeHtml(a.context)}</span></div><span class="al-amount">${moneyShort(a.amount)}</span></div>`,
+            `<div class="al al-${a.lvl}" onclick="openDrawer(${a.productId})"><span class="al-rail"></span><div class="al-txt"><strong>${escapeHtml(a.name)}</strong><span class="al-context">${escapeHtml(a.context)}</span></div><span class="pill-status ${a.statusCls}">${escapeHtml(a.statusLabel)}</span><span class="al-amount">${moneyShort(a.amount)}<svg class="al-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5l6 5.5-6 5.5"/></svg></span></div>`,
         )
         .join("");
     }

@@ -43,7 +43,7 @@
 }
 
 .tbl-wrap thead th {
-    background: var(--color-surface-2);
+    background: var(--color-surface-raised);
     padding: var(--space-3) var(--space-3);
     text-align: left;
     font-size: 9px;
@@ -52,6 +52,7 @@
     color: var(--color-text-tertiary);
     text-transform: uppercase;
     border-bottom: 1px solid var(--color-border-strong);
+    box-shadow: var(--shadow-sm);
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
@@ -87,7 +88,7 @@
 }
 
 .tbl-wrap tbody tr:hover {
-    background: var(--color-surface-1-hover);
+    background: var(--color-surface-sunk);
 }
 
 .tbl-wrap tbody tr.selected {
@@ -349,34 +350,105 @@
     box-shadow: inset 3px 0 0 var(--color-warning);
 }
 
-/* ── Largeurs de colonnes — Portefeuille (13 colonnes) ────────
-   Une largeur par colonne, déclarée une seule fois, sur l'en-tête.
-   Somme = 100 %. */
-#pf-table thead th:nth-child(1) { width: 16%; }
-#pf-table thead th:nth-child(2) { width: 7%; }
-#pf-table thead th:nth-child(3) { width: 10%; }
-#pf-table thead th:nth-child(4) { width: 7.5%; }
-#pf-table thead th:nth-child(5) { width: 6%; }
-#pf-table thead th:nth-child(6) { width: 8%; }
-#pf-table thead th:nth-child(7) { width: 7%; }
-#pf-table thead th:nth-child(8) { width: 6%; }
-#pf-table thead th:nth-child(9) { width: 6%; }
-#pf-table thead th:nth-child(10) { width: 9.5%; }
-#pf-table thead th:nth-child(11) { width: 5%; }
-#pf-table thead th:nth-child(12) { width: 5%; }
-#pf-table thead th:nth-child(13) { width: 7%; }
+.tbl-wrap tbody tr:hover td:first-child {
+    box-shadow: inset 2px 0 0 var(--color-aegean);
+}
 
-/* ── Largeurs de colonnes — Barrières (12 colonnes) ───────────
-   Produit / Type / Émetteur : mêmes règles que le portefeuille. */
-#bar-table thead th:nth-child(1) { width: 16%; }
+/* ── Largeurs de colonnes — Portefeuille (11 colonnes, passe 6) ──
+   Colonne Coupon/an supprimée (reste dans le tiroir), P&L et P&L %
+   fusionnées en une seule colonne — les 12 % récupérés vont à
+   Distance protection et Produit, les deux qui débordaient. */
+#pf-table thead th:nth-child(1) { width: 18%; }
+#pf-table thead th:nth-child(2) { width: 7%; }
+#pf-table thead th:nth-child(3) { width: 12%; }
+#pf-table thead th:nth-child(4) { width: 8%; }
+#pf-table thead th:nth-child(5) { width: 7%; }
+#pf-table thead th:nth-child(6) { width: 9%; }
+#pf-table thead th:nth-child(7) { width: 11%; }
+#pf-table thead th:nth-child(8) { width: 15%; }
+#pf-table thead th:nth-child(9) { width: 6%; }
+#pf-table thead th:nth-child(10) { width: 6%; }
+#pf-table thead th:nth-child(11) { width: 8%; }
+
+#pf-table {
+    min-width: 1200px;
+}
+
+/* Sous 1200px de large, le tableau défile horizontalement. Le
+   dégradé du bord droit (calque "local", collé au vrai bord du
+   contenu) efface le calque "scroll" (collé au bord visible du
+   cadre) une fois arrivé en bout de défilement — visible seulement
+   quand il reste du contenu à droite. */
+#pf-table-wrap {
+    background-color: var(--color-surface-1);
+    background-image:
+        linear-gradient(var(--color-surface-1), var(--color-surface-1)),
+        linear-gradient(to left, var(--color-surface-1), transparent);
+    background-repeat: no-repeat, no-repeat;
+    background-position: right, right;
+    background-size: 6px 100%, 6px 100%;
+    background-attachment: local, scroll;
+}
+
+.pnl-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.35;
+}
+
+.pnl-cell small {
+    font-size: 11px;
+    font-weight: 400;
+    color: inherit;
+    opacity: 0.75;
+}
+
+.tbl-legend {
+    margin: var(--space-2) 0 0;
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+}
+
+/* ── Largeurs de colonnes — Barrières (10 colonnes, passe 6) ──
+   Colonne Type barrière supprimée (— sur toutes les lignes) ; SRI
+   déplacé dans le tiroir (donnée réglementaire statique, pas un
+   suivi de marché) ; Progression fusionnée dans Distance protection. */
+#bar-table thead th:nth-child(1) { width: 19%; }
 #bar-table thead th:nth-child(2) { width: 7%; }
-#bar-table thead th:nth-child(3) { width: 10%; }
-#bar-table thead th:nth-child(4) { width: 8%; }
-#bar-table thead th:nth-child(5) { width: 10%; }
-#bar-table thead th:nth-child(6) { width: 7%; }
-#bar-table thead th:nth-child(7) { width: 6%; }
-#bar-table thead th:nth-child(8) { width: 8%; }
-#bar-table thead th:nth-child(9) { width: 9.5%; }
+#bar-table thead th:nth-child(3) { width: 11%; }
+#bar-table thead th:nth-child(4) { width: 10%; }
+#bar-table thead th:nth-child(5) { width: 9%; }
+#bar-table thead th:nth-child(6) { width: 6%; }
+#bar-table thead th:nth-child(7) { width: 9%; }
+#bar-table thead th:nth-child(8) { width: 15%; }
+#bar-table thead th:nth-child(9) { width: 6%; }
 #bar-table thead th:nth-child(10) { width: 8%; }
-#bar-table thead th:nth-child(11) { width: 5.5%; }
-#bar-table thead th:nth-child(12) { width: 5%; }
+
+#bar-table {
+    min-width: 1200px;
+}
+
+#bar-table-wrap {
+    background-color: var(--color-surface-1);
+    background-image:
+        linear-gradient(var(--color-surface-1), var(--color-surface-1)),
+        linear-gradient(to left, var(--color-surface-1), transparent);
+    background-repeat: no-repeat, no-repeat;
+    background-position: right, right;
+    background-size: 6px 100%, 6px 100%;
+    background-attachment: local, scroll;
+}
+
+.barrier-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.35;
+}
+
+.barrier-cell small {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--color-text-tertiary);
+}

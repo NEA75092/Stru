@@ -57,8 +57,8 @@ test("render dashboard summary with seeded products", () => {
   installDom(`
     <div id="mode-toggle"></div>
     <div id="cnt-bar"></div>
-    <div id="kpi-total-val"></div>
-    <div id="kpi-total-sub"></div>
+    <div id="kpi-perf-val"></div>
+    <div id="kpi-perf-sub"></div>
     <div id="kpi-breach-val"></div>
     <div id="kpi-breach-sub"></div>
     <div id="kpi-watch-val"></div>
@@ -106,7 +106,8 @@ test("render dashboard summary with seeded products", () => {
   global.renderEvents();
   global.renderAlerts();
 
-  assert.match(document.getElementById("kpi-total-val").textContent, /€/);
+  assert.match(document.getElementById("kpi-perf-val").textContent, /%/);
+  assert.match(document.getElementById("kpi-perf-sub").textContent, /€/);
   assert.match(
     document.getElementById("kpi-count-sub").textContent,
     /types .* émetteurs/i,
@@ -174,8 +175,8 @@ test("ingest term sheet returns a stable local result", () => {
   installDom(`
     <div id="mode-toggle"></div>
     <div id="cnt-bar"></div>
-    <div id="kpi-total-val"></div>
-    <div id="kpi-total-sub"></div>
+    <div id="kpi-perf-val"></div>
+    <div id="kpi-perf-sub"></div>
     <div id="kpi-breach-val"></div>
     <div id="kpi-breach-sub"></div>
     <div id="kpi-watch-val"></div>

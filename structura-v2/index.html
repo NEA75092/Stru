@@ -178,15 +178,10 @@
                     <div class="kpi-row tilt-scope">
                         <div class="kpi tilt k-gold">
                             <div class="kpi-lbl">
-                                Valeur totale portefeuille
+                                Performance latente
                             </div>
-                            <div class="kpi-val">
-                                <span class="odometer" id="kpi-total-val">€124.7M</span>
-                                <svg class="kpi-spark sparkline" id="kpi-total-spark" viewBox="0 0 52 20" preserveAspectRatio="none" aria-hidden="true"></svg>
-                            </div>
-                            <div class="kpi-sub" id="kpi-total-sub">
-                                ▲ +2.34% vs. émission
-                            </div>
+                            <div class="kpi-val" id="kpi-perf-val">—</div>
+                            <div class="kpi-sub" id="kpi-perf-sub">—</div>
                         </div>
                         <div class="kpi tilt k-red">
                             <div class="kpi-lbl">Critique — barrière franchie</div>
@@ -235,19 +230,15 @@
                         <div class="panel perf-panel">
                             <div class="perf-header">
                                 <div class="perf-kpi-row">
-                                    <div class="perf-kpi">
-                                        <span class="perf-kpi-label">Encours initial</span>
-                                        <strong id="perf-nominal">—</strong>
-                                    </div>
-                                    <div class="perf-kpi">
-                                        <span class="perf-kpi-label">Valorisation</span>
-                                        <strong id="perf-valuation">—</strong>
-                                    </div>
-                                    <div class="perf-kpi">
-                                        <span class="perf-kpi-label" id="perf-change-label">Performance période</span>
-                                        <strong id="perf-change" class="perf-change-val">—</strong>
+                                    <strong class="perf-kpi-val" id="perf-nominal">—</strong>
+                                    <strong class="perf-kpi-val" id="perf-valuation">—</strong>
+                                    <strong class="perf-kpi-val perf-change-val" id="perf-change">—</strong>
+                                    <span class="perf-kpi-cap">Encours initial</span>
+                                    <span class="perf-kpi-cap">Valorisation</span>
+                                    <span class="perf-kpi-cap">
+                                        <span id="perf-change-label">Performance période</span>
                                         <small id="perf-change-abs">—</small>
-                                    </div>
+                                    </span>
                                 </div>
                                 <div class="perf-range-controls">
                                     <span class="pill-filter on" data-perf-range="ytd" onclick="setRange(this, 'ytd')">YTD</span>
@@ -348,12 +339,6 @@
                                     <th onclick="sortPf('pnl')" class="num">
                                         P&L
                                     </th>
-                                    <th onclick="sortPf('pnlPct')" class="num">
-                                        P&L %
-                                    </th>
-                                    <th onclick="sortPf('coupon')">
-                                        COUPON/AN
-                                    </th>
                                     <th onclick="sortPf('dist')">DISTANCE PROTECTION</th>
                                     <th onclick="sortPf('maturity')">
                                         MATURITÉ
@@ -365,13 +350,14 @@
                             <tbody id="pf-tbody"></tbody>
                         </table>
                     </div>
+                    <p class="tbl-legend">* VL estimée, en l'absence de flux émetteur (mode démonstration)</p>
                 </div>
 
                 <!-- ===== BARRIERS ===== -->
                 <div class="view" id="view-barriers">
                     <div class="spotlight" aria-hidden="true"></div>
-                    <div class="kpi-row bar-kpi-row">
-                        <div class="kpi kpi-tint-coral">
+                    <div class="kpi-row kpi-row-accent-top">
+                        <div class="kpi kpi-accent-breach">
                             <div class="kpi-lbl">Barrières franchies</div>
                             <div class="kpi-val" id="bar-kpi-breach">—</div>
                             <div class="kpi-sub">
@@ -379,7 +365,7 @@
                                 <span id="bar-kpi-breach-sub">Perte de capital probable</span>
                             </div>
                         </div>
-                        <div class="kpi">
+                        <div class="kpi kpi-accent-danger">
                             <div class="kpi-lbl">Alerte critique</div>
                             <div class="kpi-val" id="bar-kpi-crit">—</div>
                             <div class="kpi-sub">
@@ -387,7 +373,7 @@
                                 <span id="bar-kpi-crit-sub">Sous 5 % du seuil</span>
                             </div>
                         </div>
-                        <div class="kpi">
+                        <div class="kpi kpi-accent-warning">
                             <div class="kpi-lbl">Alerte surveillance</div>
                             <div class="kpi-val" id="bar-kpi-watch">—</div>
                             <div class="kpi-sub">
@@ -395,7 +381,7 @@
                                 <span id="bar-kpi-watch-sub">Entre 5 et 15 % du seuil</span>
                             </div>
                         </div>
-                        <div class="kpi kpi-tint-aegean">
+                        <div class="kpi kpi-accent-safe">
                             <div class="kpi-lbl">Zone saine</div>
                             <div class="kpi-val" id="bar-kpi-safe">—</div>
                             <div class="kpi-sub">
@@ -431,96 +417,132 @@
                             id="bar-search"
                         />
                     </div>
-                    <div class="tbl-wrap">
+                    <div class="tbl-wrap" id="bar-table-wrap">
                         <table id="bar-table">
                             <thead>
                                 <tr>
                                     <th onclick="sortBarriers('name')">PRODUIT / ISIN</th>
                                     <th onclick="sortBarriers('type')">TYPE</th>
                                     <th onclick="sortBarriers('emetteur')">ÉMETTEUR</th>
-                                    <th onclick="sortBarriers('barrierType')">TYPE BARRIÈRE</th>
                                     <th onclick="sortBarriers('underlying')">SOUS-JACENT</th>
                                     <th onclick="sortBarriers('barrier')" class="num">NIVEAU BARRIÈRE</th>
                                     <th onclick="sortBarriers('vlPct')" class="num">VL</th>
                                     <th onclick="sortBarriers('val')" class="num">VALORISATION</th>
                                     <th onclick="sortBarriers('dist')" class="num">DISTANCE PROTECTION</th>
-                                    <th>PROGRESSION</th>
-                                    <th onclick="sortBarriers('nextEvtDate')">PROCHAINE OBS.</th>
-                                    <th onclick="sortBarriers('sri')" class="num">SRI</th>
+                                    <th onclick="sortBarriers('nextEvtDate')">PROCH. OBS.</th>
+                                    <th onclick="sortBarriers('statusRank')">STATUT</th>
                                 </tr>
                             </thead>
                             <tbody id="bar-tbody"></tbody>
                         </table>
                     </div>
+                    <p class="tbl-legend">* VL estimée, en l'absence de flux émetteur (mode démonstration)</p>
                 </div>
 
                 <!-- ===== CALENDAR ===== -->
                 <div class="view" id="view-calendar">
                     <div class="spotlight" aria-hidden="true"></div>
-                    <div class="cal-context panel">
-                        <div class="cal-context-copy">
-                            <div class="cal-context-kicker">Agenda structuré</div>
-                            <h2 class="cal-context-title" id="cal-context-title">—</h2>
-                            <p class="cal-context-sub" id="cal-context-sub">—</p>
+                    <div class="cal-bar">
+                        <button type="button" class="cal-bar-chevron" onclick="calendarStepMonth(-1)" aria-label="Mois précédent">‹</button>
+                        <button type="button" class="cal-bar-chevron" onclick="calendarStepMonth(1)" aria-label="Mois suivant">›</button>
+                        <span class="cal-bar-month" id="cal-bar-month">—</span>
+                        <div class="cal-bar-sep"></div>
+                        <div class="cal-bar-tabs">
+                            <span class="pill-filter" onclick="resetCalendarView()">Vue principale</span>
+                            <span class="pill-filter" data-calendar-mode="day" onclick="setCalendarMode('day')">Jour</span>
+                            <span class="pill-filter" data-calendar-mode="week" onclick="setCalendarMode('week')">Semaine</span>
+                            <span class="pill-filter on" data-calendar-mode="month" onclick="setCalendarMode('month')">Mois</span>
+                            <span class="pill-filter" data-calendar-mode="year" onclick="setCalendarMode('year')">Année</span>
+                            <span class="pill-filter" data-calendar-mode="range" onclick="setCalendarMode('range')">Plage</span>
+                            <span class="pill-filter" data-calendar-mode="rolling" onclick="setCalendarMode('rolling')">Glissant</span>
                         </div>
-                        <div class="cal-context-badge" id="cal-context-mode">—</div>
-                    </div>
-                    <div class="toolbar">
+                        <div class="cal-bar-sep"></div>
                         <input
-                            class="search"
+                            class="search cal-bar-search"
                             type="text"
-                            placeholder="Rechercher un produit (nom, ISIN, émetteur, sous-jacent) — échéancier complet"
+                            placeholder="Rechercher un produit..."
                             oninput="filterCalendar(this.value)"
                             id="cal-search"
                         />
+                        <button type="button" class="cal-bar-date-btn" id="cal-date-btn" onclick="toggleCalendarDatePicker()">Date de référence</button>
+                        <input class="f-inp cal-bar-date-input" type="date" id="cal-date" onchange="setCalendarDate(this.value)" hidden />
+                        <input class="f-inp cal-bar-date-input" type="week" id="cal-week" onchange="setCalendarWeek(this.value)" hidden />
+                        <input class="f-inp cal-bar-date-input" type="month" id="cal-month-picker" onchange="setCalendarMonth(this.value)" hidden />
+                        <input class="f-inp cal-bar-date-input" type="number" min="2000" max="2100" id="cal-year" onchange="setCalendarYear(this.value)" hidden />
+                        <input class="f-inp cal-bar-date-input" type="date" id="cal-start" onchange="setCalendarRange()" hidden />
+                        <input class="f-inp cal-bar-date-input" type="date" id="cal-end" onchange="setCalendarRange()" hidden />
+                        <select class="f-sel cal-bar-date-input" id="cal-rolling" onchange="setCalendarRolling(this.value)" hidden>
+                            <option value="7">7 jours glissants</option>
+                            <option value="30" selected>30 jours glissants</option>
+                            <option value="90">90 jours glissants</option>
+                            <option value="180">180 jours glissants</option>
+                            <option value="365">12 mois glissants</option>
+                        </select>
+                        <span class="cal-bar-meta" id="cal-bar-meta">—</span>
                         <div class="toolbar-spacer"></div>
                         <div class="calendar-month-view-toggle" id="cal-month-view-toggle" hidden>
                             <span class="pill-filter on" data-month-view="grid" onclick="setCalendarMonthView('grid')">Grille</span>
                             <span class="pill-filter" data-month-view="list" onclick="setCalendarMonthView('list')">Liste</span>
                         </div>
-                    </div>
-                    <div class="calendar-controls-panel">
-                        <div class="calendar-control calendar-day-control">
-                            <label class="f-lbl">Date de référence</label>
-                            <input class="f-inp calendar-date-input" type="date" id="cal-date" onchange="setCalendarDate(this.value)" />
-                        </div>
-                        <div class="calendar-period-workbench">
-                            <label class="f-lbl">Période affichée</label>
-                            <div class="calendar-mode-buttons">
-                                <button class="calendar-mode-btn calendar-home-btn" onclick="resetCalendarView()">Vue principale</button>
-                                <button class="calendar-mode-btn" data-calendar-mode="day" onclick="setCalendarMode('day')">Jour</button>
-                                <button class="calendar-mode-btn" data-calendar-mode="week" onclick="setCalendarMode('week')">Semaine</button>
-                                <button class="calendar-mode-btn on" data-calendar-mode="month" onclick="setCalendarMode('month')">Mois</button>
-                                <button class="calendar-mode-btn" data-calendar-mode="year" onclick="setCalendarMode('year')">Année</button>
-                                <button class="calendar-mode-btn" data-calendar-mode="range" onclick="setCalendarMode('range')">Plage</button>
-                                <button class="calendar-mode-btn" data-calendar-mode="rolling" onclick="setCalendarMode('rolling')">Glissant</button>
-                            </div>
-                            <select class="f-sel calendar-mode-select" id="cal-mode" onchange="setCalendarMode(this.value)" aria-hidden="true" tabindex="-1" hidden>
-                                <option value="day">Jour</option>
-                                <option value="week">Semaine</option>
-                                <option value="month" selected>Mois</option>
-                                <option value="year">Année</option>
-                                <option value="range">Plage de dates</option>
-                                <option value="rolling">Période glissante</option>
-                            </select>
-                            <div class="calendar-picker-row">
-                                <input class="f-inp calendar-date-input calendar-period-field" type="week" id="cal-week" onchange="setCalendarWeek(this.value)" />
-                                <input class="f-inp calendar-date-input calendar-period-field" type="month" id="cal-month-picker" onchange="setCalendarMonth(this.value)" />
-                                <input class="f-inp calendar-date-input calendar-period-field" type="number" min="2000" max="2100" id="cal-year" onchange="setCalendarYear(this.value)" />
-                                <input class="f-inp calendar-date-input calendar-range-field" type="date" id="cal-start" onchange="setCalendarRange()" />
-                                <input class="f-inp calendar-date-input calendar-range-field" type="date" id="cal-end" onchange="setCalendarRange()" />
-                                <select class="f-sel calendar-date-input calendar-period-field" id="cal-rolling" onchange="setCalendarRolling(this.value)">
-                                    <option value="7">7 jours glissants</option>
-                                    <option value="30" selected>30 jours glissants</option>
-                                    <option value="90">90 jours glissants</option>
-                                    <option value="180">180 jours glissants</option>
-                                    <option value="365">12 mois glissants</option>
-                                </select>
-                            </div>
-                            <p class="calendar-period-hint" id="cal-period-hint">Choisissez une granularité, puis affinez la période avec les sélecteurs ci-dessous.</p>
+                        <div class="cal-bar-legend" id="cal-bar-legend" hidden>
+                            <span class="cal-legend-item"><span class="cal-legend-dot ev-obs"></span>Observation</span>
+                            <span class="cal-legend-item"><span class="cal-legend-dot ev-coupon"></span>Coupon</span>
+                            <span class="cal-legend-item"><span class="cal-legend-dot ev-rappel"></span>Rappel</span>
+                            <span class="cal-legend-item"><span class="cal-legend-dot ev-mat"></span>Maturité</span>
                         </div>
                     </div>
                     <div id="cal-period-view">
+                    <div id="cal-month-section">
+                        <div class="cal-month-grid" id="cal-month-grid"></div>
+                        <div class="tbl-wrap" id="cal-month-list-wrap" hidden>
+                            <table id="cal-month-table">
+                                <thead>
+                                    <tr>
+                                        <th>DATE</th>
+                                        <th>PRODUIT</th>
+                                        <th>TYPE</th>
+                                        <th>ÉMETTEUR</th>
+                                        <th class="num">MONTANT</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cal-month-list-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="sec-hdr cal-events-hdr" id="cal-events-hdr">
+                        <div class="sec-title">Événements produits</div>
+                        <span class="sec-meta" id="cal-events-meta">—</span>
+                    </div>
+                    <div class="g2 cal-events-grid" id="cal-events-grid">
+                        <div class="cal-events-col" id="cal-day-col">
+                            <div class="sec-hdr cal-col-hdr">
+                                <div class="sec-title" id="cal-day-title">—</div>
+                                <span class="sec-meta">Focus sur la date de référence</span>
+                            </div>
+                            <div class="panel cal-events-panel">
+                                <div class="ev-list" id="cal-day"></div>
+                            </div>
+                        </div>
+                        <div class="cal-events-col" id="cal-period-col">
+                            <div class="sec-hdr cal-col-hdr">
+                                <div class="sec-title" id="cal-period-title">—</div>
+                                <span class="sec-meta" id="cal-period-meta">Période affichée</span>
+                            </div>
+                            <div class="panel cal-events-panel">
+                                <div class="ev-list" id="cal-period"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel cal-flux-panel" id="cal-flux-panel">
+                        <div class="sec-hdr" style="margin-bottom: 10px">
+                            <div class="sec-title" id="cal-flux-title">Flux de coupons</div>
+                            <span class="sec-meta" id="cal-flux-meta">Sur la période sélectionnée</span>
+                        </div>
+                        <div class="cal-flux-chart" id="cal-flux-chart"></div>
+                    </div>
+
                     <div class="sec-hdr cal-kpi-hdr">
                         <div class="sec-title">Prochains 30 jours</div>
                         <span class="sec-meta">Indicateurs à venir, indépendants de la période affichée</span>
@@ -571,63 +593,6 @@
                             <div class="kpi-sub" id="cal-kpi-bar-sub">Sur la période sélectionnée ci-dessus</div>
                         </div>
                     </div>
-
-                    <div id="cal-month-section">
-                        <div class="cal-legend">
-                            <span class="cal-legend-item"><span class="cal-legend-dot ev-obs"></span>Observation</span>
-                            <span class="cal-legend-item"><span class="cal-legend-dot ev-coupon"></span>Coupon</span>
-                            <span class="cal-legend-item"><span class="cal-legend-dot ev-rappel"></span>Rappel</span>
-                            <span class="cal-legend-item"><span class="cal-legend-dot ev-mat"></span>Maturité</span>
-                        </div>
-                        <div class="cal-month-grid" id="cal-month-grid"></div>
-                        <div class="tbl-wrap" id="cal-month-list-wrap" hidden>
-                            <table id="cal-month-table">
-                                <thead>
-                                    <tr>
-                                        <th>DATE</th>
-                                        <th>PRODUIT</th>
-                                        <th>TYPE</th>
-                                        <th>ÉMETTEUR</th>
-                                        <th class="num">MONTANT</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="cal-month-list-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="sec-hdr cal-events-hdr" id="cal-events-hdr">
-                        <div class="sec-title">Événements produits</div>
-                        <span class="sec-meta" id="cal-events-meta">—</span>
-                    </div>
-                    <div class="g2 cal-events-grid" id="cal-events-grid">
-                        <div class="cal-events-col" id="cal-day-col">
-                            <div class="sec-hdr cal-col-hdr">
-                                <div class="sec-title" id="cal-day-title">—</div>
-                                <span class="sec-meta">Focus sur la date de référence</span>
-                            </div>
-                            <div class="panel cal-events-panel">
-                                <div class="ev-list" id="cal-day"></div>
-                            </div>
-                        </div>
-                        <div class="cal-events-col" id="cal-period-col">
-                            <div class="sec-hdr cal-col-hdr">
-                                <div class="sec-title" id="cal-period-title">—</div>
-                                <span class="sec-meta" id="cal-period-meta">Période affichée</span>
-                            </div>
-                            <div class="panel cal-events-panel">
-                                <div class="ev-list" id="cal-period"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="panel cal-flux-panel" id="cal-flux-panel">
-                        <div class="sec-hdr" style="margin-bottom: 10px">
-                            <div class="sec-title" id="cal-flux-title">Flux de coupons</div>
-                            <span class="sec-meta" id="cal-flux-meta">Sur la période sélectionnée</span>
-                        </div>
-                        <div class="cal-flux-chart" id="cal-flux-chart"></div>
-                    </div>
                     </div>
 
                     <div id="cal-product-focus" class="cal-product-focus" hidden>
@@ -645,29 +610,22 @@
                     <div class="pilotage-page">
                         <div class="pilotage-hero panel">
                             <div class="pilotage-hero-copy">
-                                <div class="pilotage-kicker">Analyse cabinet</div>
                                 <h1 class="pilotage-hero-title">Pilotage</h1>
-                                <p class="pilotage-hero-sub">
-                                    Concentrations, répartition par type et aperçu des dossiers clients.
-                                    Le détail barrière et client se trouve dans les onglets dédiés.
-                                </p>
+                                <span class="pilotage-hero-sub">Concentrations, répartition par type et aperçu des dossiers clients.</span>
                             </div>
                             <div class="pilotage-hero-actions">
                                 <button type="button" class="btn" onclick="nav('barriers')">Barrières</button>
                                 <button type="button" class="btn btn-primary" onclick="nav('clients')">Dossiers clients</button>
                             </div>
                         </div>
+                        <div id="ana-metrics" class="kpi-row kpi-row-accent-top pilotage-kpi-row"></div>
                         <div class="pilotage-grid">
                             <div class="dash-module">
                                 <div class="sec-hdr">
-                                    <div class="sec-title">Concentration & risques</div>
-                                    <span class="sec-meta">Exposition et diversité du portefeuille</span>
+                                    <div class="sec-title">Répartition par type</div>
+                                    <span class="sec-meta">Nombre de produits par famille</span>
                                 </div>
                                 <div class="panel dash-module-panel pilotage-panel">
-                                    <div id="ana-metrics" class="pilotage-metrics"></div>
-                                    <div class="sec-hdr pilotage-type-hdr">
-                                        <div class="sec-title">Répartition par type</div>
-                                    </div>
                                     <div id="ana-type-breakdown" class="pilotage-type-breakdown"></div>
                                 </div>
                             </div>
@@ -718,7 +676,7 @@
                 <!-- ===== AUTO PITCH ===== -->
                 <div class="view" id="view-autopitch">
                     <div class="spotlight" aria-hidden="true"></div>
-                    <div class="g2">
+                    <div class="g2" id="autopitch-grid">
                         <div class="panel">
                             <div class="panel-title">
                                 Pitch Engine
@@ -746,6 +704,7 @@
                                 </button>
                             </div>
                             <div class="pitch-step active" data-step="1">
+                            <div class="pitch-advanced-title">Identité produit</div>
                             <div class="form-row">
                                 <div>
                                     <label class="f-lbl">Nom client</label
@@ -1102,6 +1061,7 @@
                                 </div>
                             </div>
                             <div class="pitch-step" data-step="4">
+                            <div class="pitch-advanced-title">Émetteur &amp; contexte</div>
                             <div class="pitch-substep-title">Émetteur &amp; notation</div>
                             <div class="form-row triple">
                                 <div>
@@ -1157,32 +1117,32 @@
                             </div>
                             </div>
                             <div class="pitch-step" data-step="5">
-                                <div class="pitch-substep-title">Résumé avant génération</div>
+                                <div class="pitch-advanced-title">Résumé &amp; génération</div>
                                 <div id="pitch-wizard-summary" class="pitch-wizard-summary"></div>
-                                <div class="form-actions">
+                                <div class="pitch-summary-footer">
                                     <button
-                                        class="btn"
+                                        class="btn btn-secondary"
                                         onclick="hydratePitchFromLastExtraction()"
                                     >
                                         Utiliser dernier document lu
+                                    </button>
+                                    <button
+                                        class="btn btn-secondary"
+                                        onclick="downloadPitchPPTX()"
+                                    >
+                                        Exporter PPTX
+                                    </button>
+                                    <button
+                                        class="btn btn-secondary"
+                                        onclick="downloadPitchPDF()"
+                                    >
+                                        Exporter PDF
                                     </button>
                                     <button
                                         class="btn btn-primary"
                                         onclick="generatePitchLocal()"
                                     >
                                         Générer pitch
-                                    </button>
-                                    <button
-                                        class="btn"
-                                        onclick="downloadPitchPPTX()"
-                                    >
-                                        Exporter PPTX
-                                    </button>
-                                    <button
-                                        class="btn"
-                                        onclick="downloadPitchPDF()"
-                                    >
-                                        Exporter PDF
                                     </button>
                                 </div>
                             </div>
@@ -1302,25 +1262,23 @@ En attente de génération...</pre
                         <div class="panel dec-main">
                             <div class="panel-title">Table de décision</div>
                             <div class="dec-column-legend">
-                                <span><b>Vert</b> mécanisme confortable</span>
-                                <span><b>Orange</b> à justifier par le coupon</span>
-                                <span><b>Rouge</b> coût difficile à défendre</span>
+                                <span><span class="dec-legend-dot st-safe"></span>Vert mécanisme confortable</span>
+                                <span><span class="dec-legend-dot st-warn"></span>Orange à justifier par le coupon</span>
+                                <span><span class="dec-legend-dot st-crit"></span>Rouge coût difficile à défendre</span>
                             </div>
                             <div class="tbl-wrap" style="max-height: 420px">
-                                <table>
+                                <table id="dscore-table">
                                     <thead>
                                         <tr>
                                             <th>SOUS-JACENT</th>
                                             <th class="num">DIVIDENDE - DÉCRÉMENT</th>
                                             <th class="num">COÛT HISTORIQUE</th>
-                                            <th class="num">SI NON-RAPPEL</th>
                                             <th class="num">SCORE</th>
-                                            <th>VERDICT</th>
                                         </tr>
                                     </thead>
                                     <tbody id="screener-tbody">
                                         <tr>
-                                            <td colspan="6" class="empty-note empty-note-td">Prêt à scorer. Lancez le classement.</td>
+                                            <td colspan="4" class="empty-note empty-note-td">Prêt à scorer. Lancez le classement.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1364,24 +1322,29 @@ En attente de génération...</pre
                             <div class="panel-title ingest-panel-title">
                                 Document
                             </div>
-                            <div class="ingest-dropzone">
-                                <div class="ingest-dropzone-title">
+                            <div
+                                class="ingest-dropzone"
+                                id="ing-dropzone"
+                                onclick="triggerIngestFilePicker()"
+                                ondragover="handleIngestDragOver(event)"
+                                ondragleave="handleIngestDragLeave(event)"
+                                ondrop="handleIngestDrop(event)"
+                            >
+                                <div class="ingest-dropzone-title" id="ing-dropzone-title">
                                     Déposer un fichier
                                 </div>
-                                <div class="ingest-dropzone-sub">
+                                <div class="ingest-dropzone-sub" id="ing-dropzone-sub">
                                     PDF · TXT · HTML · DOCX
                                 </div>
-                                <div class="form-row full">
-                                    <div>
-                                        <input
-                                            class="f-inp"
-                                            id="ing-file"
-                                            type="file"
-                                            multiple
-                                            accept=".pdf,.txt,.md,.html,.htm,.docx"
-                                        />
-                                    </div>
-                                </div>
+                                <input
+                                    class="sr-only"
+                                    id="ing-file"
+                                    type="file"
+                                    multiple
+                                    accept=".pdf,.txt,.md,.html,.htm,.docx"
+                                    onchange="updateIngestDropzoneLabel()"
+                                    onclick="event.stopPropagation()"
+                                />
                             </div>
                             <div class="form-actions">
                                 <button

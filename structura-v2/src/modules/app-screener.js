@@ -7,9 +7,15 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraScreener(root) {
-    const { notify } = root.StructuraUtils;
+    const { notify, pctFr } = root.StructuraUtils;
     const { DECREMENT_UNIVERSE, calculateDecrementScore } =
       root.StructuraDecrementEngine;
+
+    // Virgule décimale française pour les points (pas un pourcentage,
+    // pctFr ne s'applique pas ici) — même logique que pctFr, sans le "%".
+    function fmtPts(value, digits = 2) {
+      return Math.abs(Number(value) || 0).toFixed(digits).replace(".", ",");
+    }
 
     function renderNutriScore(grade, size = "normal") {
       const letters = ["E", "D", "C", "B", "A"];
@@ -79,20 +85,24 @@
       if (!tbody) return;
 
       if (!scored.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="tbl-empty">Aucun sous-jacent ne correspond aux critères</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="tbl-empty">Aucun sous-jacent ne correspond aux critères</td></tr>`;
         return;
       }
 
+      // La couleur passe sur une pastille, jamais sur le texte (passe 6) :
+      // le mot ("Couvre"/"Manque") porte l'information, le point la double.
+      // Score en pastille : même couleur que le verdict (ok/warning/danger)
+      // qui n'a plus sa propre colonne — la note résume déjà la conclusion.
       tbody.innerHTML = scored
         .map(({ item, score: s }) => {
           const verdict = businessVerdict(s);
+          const carryCls = s.netCarry >= 0 ? "st-safe" : "st-crit";
+          const carryWord = s.netCarry >= 0 ? "Couvre +" : "Manque ";
           return `<tr onclick="showScreenerDetail('${item.id}')">
-      <td><div class="p-name" style="font-size:11px;">${item.name}</div><div class="p-isin" style="font-size:9px;">${item.assetType} · ${regionBucket(item.region)} · ${sourceBadge(s)}${s.decPctRefNote ? ` · ${s.decPctRefNote}` : ""}</div></td>
-      <td class="num ${s.netCarry >= 0 ? "st-ok" : "st-bad"}">${s.netCarry >= 0 ? "Couvre +" : "Manque "}${Math.abs(s.netCarry).toFixed(2)} pts/an</td>
-      <td class="num">${Math.abs(s.annualDrag).toFixed(1)}%/an sacrifié</td>
-      <td class="num ${s.capitalLossSeverity < 5 ? "st-ok" : s.capitalLossSeverity < 15 ? "st-warn" : "st-bad"}">+${s.capitalLossSeverity.toFixed(1)} pts</td>
-      <td class="num" style="font-weight:700;">${s.fitScore}</td>
-      <td><span class="decision-pill pill-status ${verdict.cls}">${verdict.label}</span></td>
+      <td><div class="p-name" style="font-size:11px;">${item.name}</div><div class="p-isin" style="font-size:9px;">${item.assetType} · ${regionBucket(item.region)} · ${sourceBadge(s)}</div></td>
+      <td class="num dec-metric"><span class="dec-metric-dot ${carryCls}"></span>${carryWord}${fmtPts(s.netCarry)} pts/an</td>
+      <td class="num dec-metric">${pctFr(Math.abs(s.annualDrag), 1)}/an sacrifié</td>
+      <td class="num"><span class="pill-status ${verdict.cls}">${s.fitScore}</span></td>
     </tr>`;
         })
         .join("");

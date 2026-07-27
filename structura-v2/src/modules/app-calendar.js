@@ -44,6 +44,7 @@
       end: null,
       rollingDays: 30,
       monthView: "grid",
+      datePickerOpen: false,
     };
 
     const CAL_EVENT_TYPE_LABELS = {
@@ -51,15 +52,6 @@
       coupon: "Coupon",
       rappel: "Rappel",
       mat: "Maturité",
-    };
-
-    const CALENDAR_MODE_LABELS = {
-      day: "Vue jour",
-      week: "Vue semaine",
-      month: "Vue mois",
-      year: "Vue année",
-      range: "Plage personnalisée",
-      rolling: "Période glissante",
     };
 
     function eventMatchesSearch(event, query) {
@@ -241,12 +233,7 @@
             : `${products.length} produits pour « ${query} » · échéanciers complets`;
       }
 
-      setText("cal-context-title", "Recherche produit");
-      setText("cal-context-mode", "Échéancier complet");
-      setText(
-        "cal-context-sub",
-        "Toutes les échéances passées et futures — la sélection jour / mois / année n'applique pas ici.",
-      );
+      setText("cal-bar-meta", "Échéancier complet — jour / mois / année n'applique pas ici");
 
       listEl.innerHTML = products
         .map((product) => {
@@ -502,20 +489,10 @@
 
     function updateCalendarContext(selectedRange, periodEvents, day) {
       const refDate = parseIsoDate(day);
-      const modeLabel = CALENDAR_MODE_LABELS[calendarState.mode] || "Calendrier";
-      setText("cal-context-title", selectedRange.title);
-      setText("cal-context-mode", modeLabel);
+      setText("cal-bar-month", monthTitleFR(refDate));
       setText(
-        "cal-context-sub",
-        `Date de référence : ${refDate.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · ${periodEvents.length} événement${periodEvents.length > 1 ? "s" : ""} sur la période affichée`,
-      );
-      setText(
-        "cal-period-hint",
-        calendarState.mode === "day"
-          ? "Mode jour : un seul panneau liste les événements du jour sélectionné."
-          : calendarState.mode === "rolling"
-            ? `Fenêtre glissante de ${calendarState.rollingDays || 30} jours à partir de la date de référence.`
-            : "Colonne de gauche = focus sur la date de référence · colonne de droite = période affichée.",
+        "cal-bar-meta",
+        `${periodEvents.length} événement${periodEvents.length > 1 ? "s" : ""} · ${selectedRange.title}`,
       );
       setText(
         "cal-events-meta",
@@ -661,10 +638,12 @@
       const isMonthMode = calendarState.mode === "month";
       const monthToggle = document.getElementById("cal-month-view-toggle");
       const monthSection = document.getElementById("cal-month-section");
+      const barLegend = document.getElementById("cal-bar-legend");
       const eventsHdr = document.getElementById("cal-events-hdr");
       const fluxPanel = document.getElementById("cal-flux-panel");
       if (monthToggle) monthToggle.hidden = !isMonthMode;
       if (monthSection) monthSection.hidden = !isMonthMode;
+      if (barLegend) barLegend.hidden = !isMonthMode;
       if (eventsHdr) eventsHdr.hidden = isMonthMode;
       if (fluxPanel) fluxPanel.hidden = isMonthMode;
       if (isMonthMode) renderMonthView(allEvents, selectedRange);
@@ -695,50 +674,71 @@
       drawFluxChart();
     }
 
+    // Le champ date natif est un contrôle secondaire (passe 6, section F) :
+    // masqué par défaut, révélé par le bouton "Date de référence". Un seul
+    // des six champs ci-dessous est pertinent pour le mode actif ; les
+    // cinq autres restent cachés même quand le tiroir est ouvert.
     function syncCalendarControls() {
       const dateEl = document.getElementById("cal-date");
       const weekEl = document.getElementById("cal-week");
       const monthEl = document.getElementById("cal-month-picker");
       const yearEl = document.getElementById("cal-year");
-      const modeEl = document.getElementById("cal-mode");
       const startEl = document.getElementById("cal-start");
       const endEl = document.getElementById("cal-end");
       const rollingEl = document.getElementById("cal-rolling");
+      const dateBtn = document.getElementById("cal-date-btn");
       const baseDate = parseIsoDate(calendarState.date);
       calendarState.week = calendarState.week || dateToWeekInput(baseDate);
       calendarState.month = calendarState.month || calendarState.date.slice(0, 7);
       document.querySelectorAll("[data-calendar-mode]").forEach((button) => {
         button.classList.toggle("on", button.dataset.calendarMode === calendarState.mode);
       });
+      if (dateBtn) dateBtn.classList.toggle("on", calendarState.datePickerOpen);
+      const open = calendarState.datePickerOpen;
       if (dateEl) {
         dateEl.value = calendarState.date;
-        dateEl.disabled = false;
+        dateEl.hidden = !(open && calendarState.mode === "day");
       }
       if (weekEl) {
         weekEl.value = calendarState.week;
-        weekEl.style.display = calendarState.mode === "week" ? "" : "none";
+        weekEl.hidden = !(open && calendarState.mode === "week");
       }
       if (monthEl) {
         monthEl.value = calendarState.month;
-        monthEl.style.display = calendarState.mode === "month" ? "" : "none";
+        monthEl.hidden = !(open && calendarState.mode === "month");
       }
       if (yearEl) {
         yearEl.value = calendarState.year;
-        yearEl.style.display = calendarState.mode === "year" ? "" : "none";
+        yearEl.hidden = !(open && calendarState.mode === "year");
       }
-      if (modeEl) modeEl.value = calendarState.mode;
       if (rollingEl) {
         rollingEl.value = String(calendarState.rollingDays || 30);
-        rollingEl.style.display = calendarState.mode === "rolling" ? "" : "none";
+        rollingEl.hidden = !(open && calendarState.mode === "rolling");
       }
       if (startEl) {
         startEl.value = calendarState.start || calendarState.date;
-        startEl.style.display = calendarState.mode === "range" ? "" : "none";
+        startEl.hidden = !(open && calendarState.mode === "range");
       }
       if (endEl) {
         endEl.value = calendarState.end || calendarState.date;
-        endEl.style.display = calendarState.mode === "range" ? "" : "none";
+        endEl.hidden = !(open && calendarState.mode === "range");
       }
+    }
+
+    function toggleCalendarDatePicker() {
+      calendarState.datePickerOpen = !calendarState.datePickerOpen;
+      syncCalendarControls();
+    }
+
+    // Chevrons de la barre (passe 6, section F) : avant, changer de mois
+    // demandait de rouvrir le sélecteur de date. Avance/recule la date de
+    // référence d'un mois, jour clampé au dernier jour du mois cible.
+    function calendarStepMonth(delta) {
+      const current = parseIsoDate(calendarState.date);
+      const target = new Date(current.getFullYear(), current.getMonth() + delta, 1);
+      const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+      target.setDate(Math.min(current.getDate(), lastDay));
+      setCalendarDate(isoDate(target));
     }
 
     function filterCalendar(value) {
@@ -829,6 +829,8 @@
       setCalendarRolling,
       resetCalendarView,
       setCalendarMonthView,
+      toggleCalendarDatePicker,
+      calendarStepMonth,
     };
   },
 );

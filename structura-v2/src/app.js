@@ -1719,19 +1719,19 @@ function pitchTermCards(p) {
     {
       families: ["phoenix", "athena", "bearish_taux", "cln", "note"],
       label: "Date d'émission",
-      value: c.issueDate || p.issueDate || "—",
+      value: shortDateFr(c.issueDate || p.issueDate),
       note: "début de vie du produit",
     },
     {
       families: ["phoenix", "athena", "bearish_taux", "cln", "note"],
       label: "Fin commercialisation",
-      value: c.commercialisationEndDate || p.commercialisationEndDate || "—",
+      value: shortDateFr(c.commercialisationEndDate || p.commercialisationEndDate),
       note: "fenêtre de souscription",
     },
     {
       families: ["phoenix", "athena", "bearish_taux", "cln", "note"],
       label: "Date de maturité",
-      value: c.maturityDate || p.maturityDate || "—",
+      value: shortDateFr(c.maturityDate || p.maturityDate),
       note: "échéance finale",
     },
     {
@@ -2007,11 +2007,25 @@ const PITCH_FREQUENCY_LABELS = {
   mensuel: "Mensuelle",
 };
 
-function pitchWizardSummaryRow(step, label, value) {
-  return `<div class="pitch-summary-row">
-    <span class="pitch-summary-label">${escapeHtml(label)}</span>
-    <span class="pitch-summary-value">${escapeHtml(value)}</span>
-    <button type="button" class="pitch-summary-edit" onclick="pitchWizardGoTo(${step})">Modifier</button>
+// Un bouton "Modifier" par SECTION (passe 6), pas par ligne : douze
+// boutons natifs alignés en escalier donnaient l'impression de casse.
+// Le tableau reprend le vocabulaire de tables.css (libellé / valeur).
+function pitchWizardSummarySection(step, title, rows) {
+  return `<div class="pitch-summary-section">
+    <div class="pitch-summary-section-hdr">
+      <span class="pitch-substep-title">${escapeHtml(title)}</span>
+      <button type="button" class="btn btn-tertiary pitch-summary-edit" onclick="pitchWizardGoTo(${step})">Modifier</button>
+    </div>
+    <table class="pitch-summary-table">
+      <tbody>
+        ${rows
+          .map(
+            ([label, value]) =>
+              `<tr><td>${escapeHtml(label)}</td><td class="num">${escapeHtml(value)}</td></tr>`,
+          )
+          .join("")}
+      </tbody>
+    </table>
   </div>`;
 }
 
@@ -2022,43 +2036,37 @@ function pitchWizardBuildSummary() {
   const val = (id) => document.getElementById(id)?.value || "";
   const family = val("ap-type") || "phoenix";
   const showsBarrier = ["phoenix", "athena", "bearish_taux"].includes(family);
-  const rows = [
-    pitchWizardSummaryRow(1, "Client", val("ap-client") || "—"),
-    pitchWizardSummaryRow(1, "Type produit", PITCH_TYPE_LABELS[family] || family),
-    pitchWizardSummaryRow(1, "Sous-jacent(s)", val("ap-under") || "—"),
-    pitchWizardSummaryRow(1, "Durée", val("ap-dur") || "—"),
-    pitchWizardSummaryRow(
-      1,
-      "Coupon",
-      val("ap-coupon") ? `${val("ap-coupon")}%/an` : "—",
-    ),
+
+  const identityRows = [
+    ["Client", val("ap-client") || "—"],
+    ["Type produit", PITCH_TYPE_LABELS[family] || family],
+    ["Sous-jacent(s)", val("ap-under") || "—"],
+    ["Durée", val("ap-dur") || "—"],
+    ["Coupon", val("ap-coupon") ? `${val("ap-coupon")}%/an` : "—"],
   ];
   if (showsBarrier) {
-    rows.push(
-      pitchWizardSummaryRow(
-        1,
-        "PDI / barrière protection",
-        val("ap-barrier") ? `${val("ap-barrier")}%` : "—",
-      ),
-      pitchWizardSummaryRow(
-        1,
-        "Rappel",
-        val("ap-recall") ? `${val("ap-recall")}%` : "—",
-      ),
+    identityRows.push(
+      ["PDI / barrière protection", val("ap-barrier") ? `${val("ap-barrier")}%` : "—"],
+      ["Rappel", val("ap-recall") ? `${val("ap-recall")}%` : "—"],
     );
   }
-  rows.push(
-    pitchWizardSummaryRow(
-      2,
-      "Fréquence",
-      PITCH_FREQUENCY_LABELS[val("ap-frequency")] || "—",
-    ),
-    pitchWizardSummaryRow(2, "Date de maturité", val("ap-maturity-date") || "—"),
-    pitchWizardSummaryRow(4, "Émetteur", val("ap-issuer") || "—"),
-    pitchWizardSummaryRow(4, "Notation", val("ap-rating") || "—"),
-    pitchWizardSummaryRow(4, "SRI (KID)", val("ap-sri") || "—"),
-  );
-  el.innerHTML = rows.join("");
+
+  const paramsRows = [
+    ["Fréquence", PITCH_FREQUENCY_LABELS[val("ap-frequency")] || "—"],
+    ["Date de maturité", val("ap-maturity-date") || "—"],
+  ];
+
+  const issuerRows = [
+    ["Émetteur", val("ap-issuer") || "—"],
+    ["Notation", val("ap-rating") || "—"],
+    ["SRI (KID)", val("ap-sri") || "—"],
+  ];
+
+  el.innerHTML = [
+    pitchWizardSummarySection(1, "Identité produit", identityRows),
+    pitchWizardSummarySection(2, "Paramètres produit", paramsRows),
+    pitchWizardSummarySection(4, "Émetteur & contexte", issuerRows),
+  ].join("");
 }
 
 function pitchWizardRender() {
@@ -2599,6 +2607,9 @@ function generatePitchDeck(payload) {
 function renderPitchPreview(deck) {
   const el = document.getElementById("ap-preview");
   const raw = document.getElementById("ap-raw");
+  document
+    .getElementById("autopitch-grid")
+    ?.classList.toggle("has-deck", Boolean(deck));
   if (raw)
     raw.textContent = deck
       ? JSON.stringify(deck, null, 2)
@@ -2619,7 +2630,7 @@ function renderPitchPreview(deck) {
   const slide1 = `
   <div class="pitch-card pitch-card-cover">
     <div class="pitch-cover-top">
-      <div class="pitch-cover-kicker">${escapeHtml(familyLabel.toUpperCase())} · ${isoDate(new Date())}</div>
+      <div class="pitch-cover-kicker">${escapeHtml(familyLabel.toUpperCase())} · ${new Date().toLocaleDateString("fr-FR")}</div>
       <div class="pitch-cover-title">${escapeHtml(deck.tagline)}</div>
       <div class="pitch-cover-sub">${escapeHtml(deck.subtitle)}</div>
     </div>
@@ -6404,6 +6415,51 @@ function refreshDistancesFromMarketData() {
     if (APP_RUNTIME.currentView === "barriers") renderBarriers();
   }
   return updated;
+}
+
+// ===================== DOC READER — ZONE DE DÉPÔT =====================
+// L'input natif (Parcourir… / Aucun fichier sélectionné) est masqué en
+// sr-only (passe 6, section J) : toute la zone devient cliquable et
+// réceptive au glisser-déposer, le nom du fichier remplace le libellé
+// une fois sélectionné.
+function triggerIngestFilePicker() {
+  document.getElementById("ing-file")?.click();
+}
+
+function updateIngestDropzoneLabel() {
+  const files = Array.from(document.getElementById("ing-file")?.files || []);
+  const title = document.getElementById("ing-dropzone-title");
+  const sub = document.getElementById("ing-dropzone-sub");
+  if (!title || !sub) return;
+  if (!files.length) {
+    title.textContent = "Déposer un fichier";
+    sub.textContent = "PDF · TXT · HTML · DOCX";
+    return;
+  }
+  title.textContent =
+    files.length === 1 ? files[0].name : `${files.length} fichiers sélectionnés`;
+  sub.textContent =
+    files.length === 1
+      ? "Cliquez ou glissez un fichier pour le remplacer"
+      : files.map((f) => f.name).join(" · ");
+}
+
+function handleIngestDragOver(event) {
+  event.preventDefault();
+  document.getElementById("ing-dropzone")?.classList.add("dragover");
+}
+
+function handleIngestDragLeave() {
+  document.getElementById("ing-dropzone")?.classList.remove("dragover");
+}
+
+function handleIngestDrop(event) {
+  event.preventDefault();
+  document.getElementById("ing-dropzone")?.classList.remove("dragover");
+  const input = document.getElementById("ing-file");
+  if (!input || !event.dataTransfer?.files?.length) return;
+  input.files = event.dataTransfer.files;
+  updateIngestDropzoneLabel();
 }
 
 // ===================== ONBOARDING =====================

@@ -7,7 +7,7 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraAnalytics(root) {
-    const { moneyShort, escapeHtml } = root.StructuraUtils;
+    const { moneyShort, pctFr, escapeHtml } = root.StructuraUtils;
     const {
       productsForScope,
       getProductAllocations,
@@ -96,37 +96,53 @@
       return "safe";
     }
 
-    function renderMetricCard(label, value, sub, pct, level) {
+    // Même composant que les KPI Barrières (.kpi-row-accent-top) : filet
+    // supérieur coloré par niveau, --gradient-card-lit, jamais d'aplat.
+    const ACCENT_CLASS = { crit: "kpi-accent-danger", warn: "kpi-accent-warning", safe: "kpi-accent-safe", neutral: "" };
+
+    function renderKpiCard(label, value, sub, pct, level) {
       const width = Math.min(100, Math.max(0, Number(pct) || 0));
-      const tooltip = `${label} : ${value}${sub ? ` — ${sub}` : ""}`;
-      return `<div class="pilotage-metric pilotage-metric-${level}">
-        <div class="pilotage-metric-top">
-          <span class="pilotage-metric-label">${escapeHtml(label)}</span>
-          <span class="pilotage-metric-value">${escapeHtml(value)}</span>
+      return `<div class="kpi ${ACCENT_CLASS[level] || ""}">
+        <div class="kpi-lbl">${escapeHtml(label)}</div>
+        <div class="kpi-val" style="font-size: 26px">${escapeHtml(value)}</div>
+        <div class="kpi-sub">
+          <div class="kpi-proportion"><div class="kpi-proportion-fill" style="width:${width}%"></div></div>
+          <span>${escapeHtml(sub)}</span>
         </div>
-        <div class="pilotage-metric-bar" data-tooltip="${escapeHtml(tooltip)}"><span style="width:${width}%"></span></div>
-        <div class="pilotage-metric-sub">${escapeHtml(sub)}</div>
       </div>`;
     }
+
+    // Type de produit → classe de couleur : mêmes tp-ac/tp-cg/tp-rc/tp-lv
+    // que .pill-category (tables.css), pour qu'un segment de l'histogramme
+    // se reconnaisse comme la même famille que sa pastille dans les
+    // tableaux. La couleur ne s'écrit jamais en style="" (règle CLAUDE.md).
+    const TYPE_CLASS = { AC: "tp-ac", CG: "tp-cg", RC: "tp-rc", LV: "tp-lv" };
 
     function renderRiskMetrics() {
       const m = computePortfolioMetrics();
       const metricsEl = document.getElementById("ana-metrics");
       if (metricsEl) {
         metricsEl.innerHTML = [
-          renderMetricCard(
+          renderKpiCard(
             "Concentration produit max",
-            m.maxProductPct ? `${m.maxProductPct.toFixed(1)}%` : "—",
+            m.maxProductPct ? pctFr(m.maxProductPct) : "—",
             m.maxProductName || "—",
             m.maxProductPct,
             concentrationLevel(m.maxProductPct),
           ),
-          renderMetricCard(
+          renderKpiCard(
             "Coupon moyen pondéré",
-            m.weightedCoupon ? `${m.weightedCoupon.toFixed(2)}%/an` : "—",
+            m.weightedCoupon ? `${pctFr(m.weightedCoupon, 2)}/an` : "—",
             "Pondéré par l'encours valorisé du portefeuille",
             Math.min(100, (m.weightedCoupon / 12) * 100),
             "neutral",
+          ),
+          renderKpiCard(
+            "Concentration émetteur max",
+            m.maxIssuerPct ? pctFr(m.maxIssuerPct) : "—",
+            m.maxIssuer || "—",
+            m.maxIssuerPct,
+            concentrationLevel(m.maxIssuerPct),
           ),
         ].join("");
       }
@@ -135,18 +151,24 @@
       if (typeEl) {
         const labels = { AC: "Autocall", CG: "Cap. Garanti", RC: "Rev. Conv.", LV: "Levier" };
         const total = Object.values(m.byType).reduce((sum, n) => sum + n, 0);
-        typeEl.innerHTML = Object.entries(m.byType).length
-          ? Object.entries(m.byType)
-              .map(([t, n]) => {
-                const pct = total ? (n / total) * 100 : 0;
-                return `<div class="pilotage-type-row">
-                  <span class="pilotage-type-name">${labels[t] || t}</span>
-                  <span class="pilotage-type-bar"><span style="width:${pct.toFixed(0)}%"></span></span>
-                  <span class="pilotage-type-count num">${n}</span>
-                </div>`;
-              })
-              .join("")
-          : `<div class="pilotage-preview-empty">Aucun produit dans le périmètre.</div>`;
+        const entries = Object.entries(m.byType).filter(([, n]) => n > 0);
+        if (!entries.length) {
+          typeEl.innerHTML = `<div class="pilotage-preview-empty">Aucun produit dans le périmètre.</div>`;
+        } else {
+          const segments = entries
+            .map(([t, n]) => {
+              const pct = total ? (n / total) * 100 : 0;
+              return `<span class="pilotage-type-segment ${TYPE_CLASS[t] || ""}" style="width:${pct.toFixed(1)}%" title="${escapeHtml(labels[t] || t)} · ${n} · ${pct.toFixed(0)}%"></span>`;
+            })
+            .join("");
+          const legend = entries
+            .map(([t, n]) => {
+              const pct = total ? (n / total) * 100 : 0;
+              return `<span class="pilotage-type-legend-item"><span class="pilotage-type-dot ${TYPE_CLASS[t] || ""}"></span>${escapeHtml(labels[t] || t)} · ${pct.toFixed(0)}%</span>`;
+            })
+            .join("");
+          typeEl.innerHTML = `<div class="pilotage-type-histogram">${segments}</div><div class="pilotage-type-legend">${legend}</div>`;
+        }
       }
     }
 
@@ -159,14 +181,19 @@
         container.innerHTML = `<div class="pilotage-preview-empty">Aucun encours rattaché à un dossier client.</div>`;
         return;
       }
+      const maxNominal = Math.max(...rows.slice(0, 5).map((row) => row.nominal), 1);
       container.innerHTML = `${rows.slice(0, 5).map((row) => {
         const weight = totalNom ? ((row.nominal / totalNom) * 100).toFixed(1) : "0.0";
+        const share = Math.max(2, (row.nominal / maxNominal) * 100);
         return `<button type="button" class="pilotage-preview-row" onclick="openClientWorkspace(${row.client.id})">
-          <span class="pilotage-preview-main">
-            <span class="pilotage-preview-name">${escapeHtml(row.client.name)}</span>
-            <small>${row.products} produit${row.products > 1 ? "s" : ""} · ${weight}% du cabinet</small>
+          <span class="pilotage-preview-top">
+            <span class="pilotage-preview-main">
+              <span class="pilotage-preview-name">${escapeHtml(row.client.name)}</span>
+              <small>${row.products} produit${row.products > 1 ? "s" : ""} · ${weight}% du cabinet</small>
+            </span>
+            <span class="pilotage-preview-metric">${moneyShort(row.nominal)}</span>
           </span>
-          <span class="pilotage-preview-metric">${moneyShort(row.nominal)}</span>
+          <span class="pilotage-preview-bar-track"><span class="pilotage-preview-bar-fill" style="width:${share.toFixed(1)}%"></span></span>
         </button>`;
       }).join("")}
       <button type="button" class="btn pilotage-preview-all" onclick="nav('clients')">Voir tous les dossiers</button>`;

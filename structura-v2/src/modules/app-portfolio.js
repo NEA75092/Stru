@@ -9,6 +9,8 @@
   function createStructuraPortfolio(root) {
     const {
       moneyShort,
+      pctFr,
+      shortDateFr,
       notify,
       escapeHtml,
       setTextFlash,
@@ -79,7 +81,7 @@
         Number.isFinite(Number(product.vlPct))
       ) {
         const parts = [`${Number(product.vlPct).toFixed(2)}% du nominal`];
-        if (product.vlAsOf) parts.push(`au ${product.vlAsOf}`);
+        if (product.vlAsOf) parts.push(`au ${formatSubDate(product.vlAsOf)}`);
         if (product.vlSource) parts.push(product.vlSource);
         return parts.join(" · ");
       }
@@ -367,17 +369,14 @@
         `${data.length} produits${isProdMode() ? " reels" : ""}`;
       const tbody = document.getElementById("pf-tbody");
       if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="13" class="tbl-empty">Aucun produit reel en mode production. Importez un CSV ou ajoutez un produit depuis l'ingestion docs.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" class="tbl-empty">Aucun produit reel en mode production. Importez un CSV ou ajoutez un produit depuis l'ingestion docs.</td></tr>`;
         return;
       }
       const rowHtml = data
         .map((p) => {
           const pnlCol = p.pnl >= 0 ? "up" : "dn";
-          const pnlStr =
-            p.pnl === 0
-              ? "—"
-              : (p.pnl >= 0 ? "+" : "") + moneyShort(Math.abs(p.pnl));
-          const pnlPctStr = (p.pnlPct >= 0 ? "+" : "") + p.pnlPct.toFixed(1) + "%";
+          const pnlStr = p.pnl === 0 ? "—" : (p.pnl > 0 ? "+" : "") + moneyShort(p.pnl);
+          const pnlPctStr = (p.pnlPct >= 0 ? "+" : "") + pctFr(p.pnlPct);
           const dist = distProtectionCell(p);
           return `<tr data-row-key="${p.id}" class="${p.st.s === "breach" ? "row-breach" : p.st.s === "crit" || p.st.s === "warn" ? "row-warn" : ""}" onclick="openDrawer(${p.id})">
       <td data-flip-border><div class="p-name">${escapeHtml(p.name)}</div><div class="p-isin">${escapeHtml(p.isin)}</div></td>
@@ -386,12 +385,10 @@
       <td class="num">${moneyShort(p.nominal)}</td>
       <td class="num">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
-      <td class="num ${pnlCol}">${pnlStr}</td>
-      <td class="num ${pnlCol}" data-flash="pnl">${pnlPctStr}</td>
-      <td>${escapeHtml(p.coupon)}</td>
+      <td class="num ${pnlCol}" data-flash="pnl"><div class="pnl-cell"><span>${pnlStr}</span><small>${pnlPctStr}</small></div></td>
       <td><div class="bar-wrap" data-tooltip="${escapeHtml(dist.tooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${dist.barW}%"></div></div><span class="dist-value ${ST_COLOR[p.st.s]}">${dist.text}${dist.note ? `<small class="dist-note">${dist.note}</small>` : ""}</span></div></td>
-      <td class="cell-muted">${escapeHtml(p.maturity)}</td>
-      <td class="cell-faint">${escapeHtml(p.nextEvtDate)}</td>
+      <td class="cell-muted">${escapeHtml(shortDateFr(p.maturity))}</td>
+      <td class="cell-faint">${escapeHtml(shortDateFr(p.nextEvtDate))}</td>
       <td><span class="pill-status ${ST_COLOR[p.st.s]}">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></td>
     </tr>`;
         })
@@ -517,7 +514,7 @@
             `<span class="dist-strip-dot ${p.st.cls}" style="left:${pctAt(p.dist).toFixed(2)}%" title="${escapeHtml(p.name)} · ${p.dist.toFixed(1)}%"></span>`,
         )
         .join("");
-      track.innerHTML = `<div class="dist-strip-zone-danger" style="width:${pctAt(0).toFixed(2)}%"></div>${dots}`;
+      track.innerHTML = `<div class="dist-strip-zone-danger" style="width:${pctAt(0).toFixed(2)}%"></div><span class="dist-strip-zero" style="left:${pctAt(0).toFixed(2)}%" title="Seuil de la barrière — 0 %"></span>${dots}`;
 
       const counts = {};
       data.forEach((p) => {
@@ -552,44 +549,33 @@
         .filter((p) => p.type !== "CG")
         .filter((p) => matchesProductSearch(p, barrierSearch))
         .filter((p) => !barrierStatusFilter || p.st.s === barrierStatusFilter)
-        .map((p) => ({
-          ...p,
-          barrierType:
-            p.characteristics?.barrierType ||
-            p.barrierType ||
-            (p.barrier > 0 ? "—" : "—"),
-          sri: productSri(p),
-        }))
         .sort(compareBarrierRows);
       if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="12" class="tbl-empty">Aucune barrière à suivre en mode production.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="tbl-empty">Aucune barrière à suivre en mode production.</td></tr>`;
         return;
       }
       const rowHtml = data
         .map((p) => {
           const hasDist = Number.isFinite(Number(p.dist));
           const dist = distProtectionCell(p);
-          const sri = p.sri;
-          const sriLabel = Number.isFinite(sri) ? `${sri}/7` : "—";
-          const barrierAmt = p.barrier
-            ? `${p.barrier}% (${((p.nominal * p.barrier) / 100 / 1e6).toFixed(2)}M€)`
-            : "N/A";
+          const barrierAbs = p.barrier
+            ? `${((p.nominal * p.barrier) / 100 / 1e6).toFixed(2)}M€`
+            : "";
+          const barrierAmt = p.barrier ? `${p.barrier} %` : "N/A";
           const barTooltip = hasDist
-            ? `Barrière ${barrierAmt} · ${p.st.label.toLowerCase()}`
-            : `Barrière ${barrierAmt} · distance à confirmer`;
+            ? `Barrière ${p.barrier}% (${barrierAbs}) · ${p.st.label.toLowerCase()}`
+            : `Barrière ${p.barrier}% (${barrierAbs}) · distance à confirmer`;
           return `<tr data-row-key="${p.id}" onclick="openDrawer(${p.id})">
       <td><div class="p-name">${escapeHtml(p.name)}</div><div class="p-isin">${escapeHtml(p.isin)}</div></td>
       <td><span class="pill-category ${TYPE_CLASS[p.type]}">${escapeHtml(TYPE_SHORT[p.type] || p.type)}</span></td>
       <td class="cell-muted" title="${escapeHtml(p.emetteur)}">${escapeHtml(p.emetteur)}</td>
-      <td class="cell-faint">${escapeHtml(p.barrierType)}</td>
       <td class="cell-muted" title="${escapeHtml(p.underlying)}">${escapeHtml(p.underlying)}</td>
-      <td class="num">${barrierAmt}</td>
+      <td class="num"><div class="barrier-cell"><span>${barrierAmt}</span>${barrierAbs ? `<small>${barrierAbs}</small>` : ""}</div></td>
       <td class="num">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
-      <td class="num ${ST_COLOR[p.st.s]}" data-flash="dist">${dist.text}${dist.note ? `<small class="dist-note">${dist.note}</small>` : ""}</td>
-      <td><div class="bar-wrap" data-tooltip="${escapeHtml(barTooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${dist.barW}%"></div><span class="barrier-mark" style="--at: ${dist.barW}%"></span></div><span class="bar-label ${ST_COLOR[p.st.s]}">${escapeHtml(p.st.label)}</span></div></td>
-      <td class="cell-faint">${escapeHtml(p.nextEvtDate)}</td>
-      <td class="num">${sriLabel}</td>
+      <td><div class="bar-wrap" data-tooltip="${escapeHtml(barTooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${dist.barW}%"></div><span class="barrier-mark" style="--at: ${dist.barW}%"></span></div><span class="dist-value ${ST_COLOR[p.st.s]}">${dist.text}${dist.note ? `<small class="dist-note">${dist.note}</small>` : ""}</span></div></td>
+      <td class="cell-faint">${escapeHtml(shortDateFr(p.nextEvtDate))}</td>
+      <td><span class="pill-status ${ST_COLOR[p.st.s]}">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></td>
     </tr>`;
         })
         .join("");
@@ -602,9 +588,10 @@
     }
 
     function barrierSortValue(product, col) {
-      if (col === "sri") return product.sri ?? -1;
-      if (col === "riskScore") return product.sri ?? -1;
-      if (col === "barrierType") return product.barrierType;
+      if (col === "statusRank") {
+        const rank = { breach: 0, crit: 1, warn: 2, unknown: 3, safe: 4, none: 5 };
+        return rank[product.st?.s] ?? 3;
+      }
       return product[col] ?? "";
     }
 
@@ -628,7 +615,7 @@
       if (barrierSort.col === col) barrierSort.asc = !barrierSort.asc;
       else {
         barrierSort.col = col;
-        barrierSort.asc = col === "sri" || col === "riskScore" ? false : true;
+        barrierSort.asc = true;
       }
       renderBarriers();
     }
@@ -755,8 +742,8 @@
           "P&L",
           p.pnl === 0
             ? "—"
-            : (p.pnl >= 0 ? "+" : "") +
-              moneyShort(Math.abs(p.pnl)) +
+            : (p.pnl > 0 ? "+" : "") +
+              moneyShort(p.pnl) +
               " (" +
               p.pnlPct.toFixed(1) +
               "%)",
@@ -785,7 +772,7 @@
               ? (p.dist >= 0 ? "+" : "") + p.dist.toFixed(1) + "%"
               : "À confirmer",
         ],
-        ["Maturité", p.maturity],
+        ["Maturité", formatSubDate(p.maturity)],
         ["Notation émetteur", p.rating],
       ];
       document.getElementById("dr-grid").innerHTML = fields
@@ -819,10 +806,10 @@
           l: "Observations / Coupons passés",
           v: "",
         },
-        { s: "next", d: p.nextEvtDate, l: p.nextEvt, v: "" },
+        { s: "next", d: formatSubDate(p.nextEvtDate), l: p.nextEvt, v: "" },
         {
           s: "future",
-          d: p.maturity,
+          d: formatSubDate(p.maturity),
           l: "Maturité finale",
           v: "Remboursement nominal",
         },

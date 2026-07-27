@@ -3,6 +3,8 @@
   root.StructuraUtils = api;
   root.setText = api.setText;
   root.moneyShort = api.moneyShort;
+  root.pctFr = api.pctFr;
+  root.shortDateFr = api.shortDateFr;
   root.notify = api.notify;
   if (typeof module !== "undefined" && module.exports) {
     module.exports = api;
@@ -15,13 +17,44 @@
       if (el) el.textContent = value;
     }
 
+    // Le signe se décide ici, une seule fois — jamais à l'appel. Un
+    // appelant qui passerait déjà Math.abs(value) referait perdre le
+    // signe ; c'est justement le bug que ce formateur corrige (passe 6:
+    // un P&L négatif s'affichait en valeur absolue malgré une couleur
+    // rouge correcte). Tiret demi-cadratin U+2212, pas le trait
+    // d'union U+002D — signe mathématique, pas ponctuation.
     function moneyShort(value) {
       const n = Number(value) || 0;
-      if (Math.abs(n) >= 1000000)
-        return `${(n / 1000000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })}M€`;
-      if (Math.abs(n) >= 1000)
-        return `${Math.round(n / 1000).toLocaleString("fr-FR")}k€`;
-      return `${Math.round(n).toLocaleString("fr-FR")}€`;
+      const sign = n < 0 ? "−" : "";
+      const abs = Math.abs(n);
+      if (abs >= 1000000)
+        return `${sign}${(abs / 1000000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })}M€`;
+      if (abs >= 1000)
+        return `${sign}${Math.round(abs / 1000).toLocaleString("fr-FR")}k€`;
+      return `${sign}${Math.round(abs).toLocaleString("fr-FR")}€`;
+    }
+
+    // Virgule décimale, espace insécable avant le signe pourcent —
+    // "−2,20 %", jamais "-2.20%" (passe 6, partout où un pourcentage
+    // s'affiche). Même logique de signe que moneyShort : le "+" d'un
+    // delta positif reste un choix de l'appelant, seul le "−" négatif
+    // est géré ici pour ne jamais se perdre dans un Math.abs() amont.
+    function pctFr(value, digits = 1) {
+      const n = Number(value) || 0;
+      const sign = n < 0 ? "−" : "";
+      const abs = Math.abs(n);
+      return `${sign}${abs.toFixed(digits).replace(".", ",")} %`;
+    }
+
+    // Format court jj.mm — jamais l'ISO aaaa-mm-jj en interface (passe
+    // 6, partout où une date s'affiche). Une date ISO brute a besoin
+    // d'être "lue" ; jj.mm se reconnaît d'un coup d'œil dans un
+    // contexte où l'année ne change pas la décision.
+    function shortDateFr(iso) {
+      const parts = String(iso || "").split("-");
+      if (parts.length !== 3) return iso || "—";
+      const [, m, d] = parts;
+      return `${d}.${m}`;
     }
 
     function escapeHtml(value) {
@@ -252,6 +285,8 @@
     return {
       setText,
       moneyShort,
+      pctFr,
+      shortDateFr,
       escapeHtml,
       notify,
       renderRowsWithGaugeTransition,

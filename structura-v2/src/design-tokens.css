@@ -52,6 +52,10 @@
        neutre) : une marche sous --color-surface-2, jamais un gris
        froid détaché de la palette. */
     --color-surface-sunk: #ece5d3;
+    /* Fond légèrement soulevé (en-tête de tableau collant) : une marche
+       au-dessus de --color-surface-2, pour rester lisible une fois
+       superposé au contenu qui défile dessous. */
+    --color-surface-raised: #f7f4ea;
 
     /* Voile des overlays (modale, tiroir) : assez sombre pour détacher
        le premier plan sans jamais devenir un aplat noir. */
@@ -248,6 +252,8 @@
     --color-border-strong: rgb(238 228 206 / 0.26);
     --color-divider: rgb(238 228 206 / 0.1);
     --color-surface-sunk: #191510;
+    /* Marche au-dessus de --color-surface-2, comme en clair. */
+    --color-surface-raised: #332d20;
 
     /* Voile plus opaque en sombre : le fond est déjà proche du noir,
        un voile clair comme en thème jour ne détacherait rien. */
