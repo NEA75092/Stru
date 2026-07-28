@@ -34,6 +34,11 @@
     const monthShortFRRef = dashboardApi.monthShortFR || monthShortFR;
     const evHtmlRef = dashboardApi.evHtml || evHtml;
     let calendarSearch = "";
+    // Jour sélectionné dans la grille du mois (passe 7C-2, point 1) : un
+    // état local, distinct de calendarState.date (la date de référence) —
+    // cliquer une case ne doit pas changer la période affichée en barre 1,
+    // seulement révéler les événements de ce jour sous la grille.
+    let calendarGridDay = null;
     const calendarState = {
       mode: "month",
       date: isoDate(new Date()),
@@ -380,7 +385,11 @@
       return `${d.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
     }
 
-    function updateCalendarKpis(periodEvents) {
+    // « Prochains 30 jours » : trois indicateurs à venir, indépendants de
+    // la période affichée (passe 7C-2, point 2) — le 4e (événements de la
+    // période) contredisait le titre de la bande, il vit maintenant dans
+    // la méta de la section « Événements » elle-même (cal-events-meta).
+    function updateCalendarKpis() {
       const allEvents = buildProductCalendarEvents().filter((event) =>
         eventMatchesSearch(event, calendarSearch),
       );
@@ -421,14 +430,6 @@
       );
       setText("cal-kpi-obs-val", String(obs.length));
       setText("cal-kpi-obs-sub", "Dates de constatation");
-      setText("cal-kpi-bar-val", String(periodEvents.length));
-      const range = rangeForMode();
-      setText(
-        "cal-kpi-bar-sub",
-        periodEvents.length
-          ? `Du ${parseIsoDate(range.start).toLocaleDateString("fr-FR")} au ${parseIsoDate(range.end).toLocaleDateString("fr-FR")}`
-          : "Sur la période affichée",
-      );
     }
 
     // Barres mensuelles seulement quand il y a plusieurs mois à comparer
@@ -559,16 +560,19 @@
         );
         const shown = dayEvents.slice(0, 3);
         const overflow = dayEvents.length - shown.length;
-        html += `<div class="cal-grid-cell${inMonth ? "" : " cal-grid-cell-out"}${isToday ? " cal-grid-cell-today" : ""}${isWeekend ? " cal-grid-cell-weekend" : ""}">
+        // La case ouvre les cartes du jour sous la grille (passe 7C-2,
+        // point 1) ; un événement précis garde son propre clic (ouvrir le
+        // produit), stopPropagation évite de déclencher les deux à la fois.
+        html += `<div class="cal-grid-cell${inMonth ? "" : " cal-grid-cell-out"}${isToday ? " cal-grid-cell-today" : ""}${isWeekend ? " cal-grid-cell-weekend" : ""}" onclick="selectGridDay('${iso}')">
           <div class="cal-grid-daynum">${cursor.getDate()}</div>
           <div class="cal-grid-events">
             ${shown
               .map(
                 (e) =>
-                  `<button type="button" class="cal-grid-ev ev-${e.type}" title="${escapeHtml(e.name)}" onclick="openDrawer(${e.productId})"><span class="cal-grid-ev-dot"></span><span class="cal-grid-ev-name">${escapeHtml(e.name.split(" — ")[0])}</span></button>`,
+                  `<button type="button" class="cal-grid-ev ev-${e.type}" title="${escapeHtml(e.name)}" onclick="event.stopPropagation(); openDrawer(${e.productId})"><span class="cal-grid-ev-dot"></span><span class="cal-grid-ev-name">${escapeHtml(e.name.split(" — ")[0])}</span></button>`,
               )
               .join("")}
-            ${overflow > 0 ? `<button type="button" class="cal-grid-ev-more" onclick="filterCalendar(document.getElementById('cal-search').value)">+${overflow}</button>` : ""}
+            ${overflow > 0 ? `<button type="button" class="cal-grid-ev-more" onclick="event.stopPropagation(); selectGridDay('${iso}')">+${overflow}</button>` : ""}
           </div>
         </div>`;
         cursor = addDays(cursor, 1);
@@ -640,7 +644,7 @@
       const selectedRange = rangeForMode();
       const day = calendarState.date || isoDate(new Date());
       const periodEvents = filterEventsByRange(allEvents, selectedRange.start, selectedRange.end);
-      updateCalendarKpis(periodEvents);
+      updateCalendarKpis();
       updateCalendarContext(selectedRange, periodEvents, day);
       if (calendarSearch.trim() && !productMatches.length) {
         setText(
@@ -655,29 +659,69 @@
       const monthSection = document.getElementById("cal-month-section");
       const barLegend = document.getElementById("cal-bar-legend");
       const eventsHdr = document.getElementById("cal-events-hdr");
+      const eventsPanel = document.getElementById("cal-events-panel");
       const fluxPanel = document.getElementById("cal-flux-panel");
       if (monthToggle) monthToggle.hidden = !isMonthMode;
       if (monthSection) monthSection.hidden = !isMonthMode;
       if (barLegend) barLegend.hidden = !isMonthMode;
-      if (eventsHdr) eventsHdr.hidden = isMonthMode;
       if (fluxPanel) fluxPanel.hidden = isMonthMode;
-      if (isMonthMode) renderMonthView(allEvents, selectedRange);
-
-      // Liste unique des événements de la période (passe 7C, A.2) : la
-      // date de référence est déjà un repère dans la barre 2, elle ne
-      // mérite pas son propre panneau — si elle a des événements, ce
-      // sont des lignes mises en évidence dans cette même liste
-      // (.ev-focus), pas un second panneau qui doublait souvent le
-      // premier vide pour vide.
-      const periodContainer = document.getElementById("cal-period");
-      const emptyMsg = `<div class="empty-inline">Aucun événement produit sur cette période</div>`;
-      if (periodContainer) {
-        periodContainer.innerHTML = periodEvents.length ? evHtmlRef(periodEvents) : emptyMsg;
-        [...periodContainer.children].forEach((el, i) => {
-          el.classList.toggle("ev-focus", periodEvents[i]?._dateIso === day);
-        });
+      // Un jour cliqué dans la grille ne survit pas à un re-rendu complet
+      // (changement de mode, de recherche, navigation) — sinon la carte
+      // d'un jour d'un autre mois resterait affichée sous une grille qui
+      // ne le montre plus (passe 7C-2, point 1).
+      calendarGridDay = null;
+      if (isMonthMode) {
+        renderMonthView(allEvents, selectedRange);
+        // Grille = la grille seule ; Liste = le tableau seul. Le panneau
+        // d'événements ne réapparaît qu'au clic sur une case (selectGridDay).
+        if (eventsHdr) eventsHdr.hidden = true;
+        if (eventsPanel) eventsPanel.hidden = true;
+      } else {
+        const titleEl = eventsHdr?.querySelector(".sec-title");
+        if (titleEl) titleEl.textContent = "Événements de la période";
+        if (eventsHdr) eventsHdr.hidden = false;
+        if (eventsPanel) eventsPanel.hidden = false;
+        // Liste unique des événements de la période (passe 7C, A.2) : la
+        // date de référence est déjà un repère dans la barre 2, elle ne
+        // mérite pas son propre panneau — si elle a des événements, ce
+        // sont des lignes mises en évidence dans cette même liste
+        // (.ev-focus), pas un second panneau qui doublait souvent le
+        // premier vide pour vide.
+        const periodContainer = document.getElementById("cal-period");
+        const emptyMsg = `<div class="empty-inline">Aucun événement produit sur cette période</div>`;
+        if (periodContainer) {
+          periodContainer.innerHTML = periodEvents.length ? evHtmlRef(periodEvents) : emptyMsg;
+          [...periodContainer.children].forEach((el, i) => {
+            el.classList.toggle("ev-focus", periodEvents[i]?._dateIso === day);
+          });
+        }
       }
       drawFluxChart();
+    }
+
+    // Clic sur une case de la grille du mois (passe 7C-2, point 1) : révèle
+    // les événements de ce jour sous la grille, sans changer la date de
+    // référence ni la période affichée en barre 1.
+    function selectGridDay(iso) {
+      calendarGridDay = iso;
+      const dayEvents = filterEventsByRange(
+        buildProductCalendarEvents().filter((event) => eventMatchesSearch(event, calendarSearch)),
+        iso,
+        iso,
+      );
+      const hdr = document.getElementById("cal-events-hdr");
+      const panel = document.getElementById("cal-events-panel");
+      const titleEl = hdr?.querySelector(".sec-title");
+      if (titleEl) titleEl.textContent = `Événements du ${parseIsoDate(iso).toLocaleDateString("fr-FR")}`;
+      setText("cal-events-meta", `${dayEvents.length} événement${dayEvents.length > 1 ? "s" : ""}`);
+      if (hdr) hdr.hidden = false;
+      if (panel) panel.hidden = false;
+      const container = document.getElementById("cal-period");
+      if (container) {
+        container.innerHTML = dayEvents.length
+          ? evHtmlRef(dayEvents)
+          : `<div class="empty-inline">Aucun événement produit ce jour-là</div>`;
+      }
     }
 
     // Le champ date natif est un contrôle secondaire (passe 6, section F) :
@@ -837,6 +881,7 @@
       setCalendarMonthView,
       toggleCalendarDatePicker,
       calendarStepMonth,
+      selectGridDay,
     };
   },
 );

@@ -25,8 +25,6 @@
       matchesClientSearch,
       getProductAllocations,
       envelopeLabel,
-      channelLabel,
-      formatSubDate,
       normalizeAllocation,
       isoDate,
     } = root.StructuraAppState;
@@ -64,6 +62,16 @@
       const breach = products.filter((p) => p.st?.s === "breach").length;
       const watch = products.filter((p) => ["crit", "warn"].includes(p.st?.s)).length;
       return { products, count: products.length, nominal, val, breach, watch };
+    }
+
+    // Souscription en date courte (passe 7C-2, point 4) : mois/année
+    // suffit pour situer un dossier, le jour n'aide pas à décider et
+    // coûtait toute la largeur qui manquait à Produit et Statut.
+    function formatSubDateShort(iso) {
+      if (!iso) return "—";
+      const date = new Date(`${iso}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return "—";
+      return `${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
     }
 
     // L'enveloppe la plus fréquente parmi les produits rattachés — pas
@@ -186,21 +194,19 @@
               <col class="dr-col-produit" />
               <col class="dr-col-sub" />
               ${mixedEnvelopes ? '<col class="dr-col-envelope" />' : ""}
-              <col class="dr-col-canal" />
               <col class="dr-col-nominal" />
               <col class="dr-col-statut" />
               <col class="dr-col-action" />
             </colgroup>
-            <thead><tr><th>Produit</th><th>Souscr.</th>${mixedEnvelopes ? "<th>Enveloppe</th>" : ""}<th>Canal</th><th class="num">Nominal</th><th>Statut</th><th></th></tr></thead>
+            <thead><tr><th>Produit</th><th>Souscr.</th>${mixedEnvelopes ? "<th>Enveloppe</th>" : ""}<th class="num">Nominal</th><th>Statut</th><th aria-hidden="true"></th></tr></thead>
             <tbody>
               ${stats.products
                 .map((product) => {
                   const alloc = allocationForClient(product, client.id);
                   return `<tr>
                 <td><button type="button" class="linkish" onclick="openDrawer(${product.id})" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</button></td>
-                <td class="cell-muted">${escapeHtml(formatSubDate(alloc?.subDate))}</td>
+                <td class="cell-muted">${escapeHtml(formatSubDateShort(alloc?.subDate))}</td>
                 ${mixedEnvelopes ? `<td><span class="env-badge">${escapeHtml(envelopeLabel(alloc?.envelope))}</span></td>` : ""}
-                <td><span class="channel-tag">${escapeHtml(channelLabel(alloc?.channel))}</span></td>
                 <td class="num">${moneyShort(alloc?.nominal || product.nominal)}</td>
                 <td><span class="pill-status ${product.st?.cls || "st-unknown"}">${escapeHtml(product.st?.label || "—")}</span></td>
                 <td><button type="button" class="btn btn-tertiary" onclick="unassignProductFromClient(${product.id})">Retirer</button></td>

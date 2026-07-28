@@ -483,7 +483,7 @@
    pensé pour une grille pleine page. */
 .cal-kpi-row {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-4);
     margin-bottom: var(--space-4);
 
@@ -601,11 +601,16 @@
     color: var(--color-text-tertiary);
 }
 
+/* Hauteur ferme, pas un minimum (passe 7C-2, point 3) : min-height
+   laissait une case à 3 événements étirer toute sa ligne de grille à
+   ~190 px — 3 pastilles max (déjà plafonné côté JS) doivent tenir
+   dans ces 96 px, quitte à couper plutôt qu'à grandir. */
 .cal-grid-cell {
     display: flex;
     flex-direction: column;
-    min-height: 96px;
+    height: 96px;
     padding: var(--space-2);
+    overflow: hidden;
     background: var(--color-surface-1);
 }
 

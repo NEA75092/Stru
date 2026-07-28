@@ -373,24 +373,26 @@
     width: auto;
 }
 
+/* Mois/année (passe 7C-2, point 4) : le jour de souscription n'aide
+   pas à décider, la largeur qu'il coûtait manquait à Produit et
+   Statut. */
 .dr-col-sub {
-    width: 64px;
+    width: 72px;
 }
 
 .dr-col-envelope {
-    width: 88px;
-}
-
-.dr-col-canal {
-    width: 46px;
+    width: 100px;
 }
 
 .dr-col-nominal {
-    width: 60px;
+    width: 64px;
 }
 
+/* Colonne Canal supprimée (passe 7C-2, point 4) : aucune décision ne
+   s'y prenait. Statut respire avec la largeur récupérée — c'était
+   « ● FRANCHI » coupé avant. */
 .dr-col-statut {
-    width: 76px;
+    width: 100px;
 }
 
 .dr-col-action {
