@@ -1933,7 +1933,13 @@ function hydratePitchFromLastExtraction() {
   set("ap-bearish-guaranteed", c.bearishCouponGuaranteed ? "true" : "false");
   set("ap-bearish-guaranteed-period", c.bearishCouponGuaranteedPeriod);
   set("ap-bearish-guaranteed-amount", c.bearishCouponGuaranteedAmount);
-  set("ap-bearish-recall-barrier", c.bearishRecallBarrier ?? data.recallPct);
+  // Pas de repli sur data.recallPct (passe 7A, correctif 5) : ce champ
+  // porte le niveau de rappel générique phoenix/athena (typiquement
+  // ≥ 100 %), une donnée différente de la barrière de rappel bearish —
+  // les confondre a produit une "barrière" à 2 % venue d'un tout autre
+  // champ. Si l'extraction n'a rien trouvé, le champ reste vide et
+  // pitchApplyFamilyDefaults() lui donne 100 %, la valeur du barème.
+  set("ap-bearish-recall-barrier", c.bearishRecallBarrier);
   set("ap-bearish-coupon-barrier", c.bearishCouponBarrier ?? c.couponBarrier);
   set("ap-sri", data.riskScore ?? c.riskScore ?? c.sri);
   set("ap-spread", c.spreadPct);
@@ -1945,6 +1951,7 @@ function hydratePitchFromLastExtraction() {
     `Pitch généré depuis la lecture documentaire ${data.isin ? `(${data.isin})` : ""}. Paramètres à valider contre le KID/DIC et le term sheet.`,
   );
   notify("Pitch Engine prérempli depuis le dernier document", "ok");
+  pitchApplyFamilyDefaults(family);
   updatePitchProductFields();
 }
 
@@ -1990,83 +1997,161 @@ function toggleTheme() {
   applyTheme(next);
 }
 
-const PITCH_WIZARD_STEP_COUNT = 5;
+const PITCH_WIZARD_STEP_COUNT = 4;
 let pitchWizardCurrentStep = 1;
 
-const PITCH_TYPE_LABELS = {
-  phoenix: "Phoenix Autocall",
-  athena: "Athena Autocall",
-  bearish_taux: "Bearish Taux",
-  cln: "CLN (Credit Linked Note)",
-  note: "Note taux fixe/variable",
-};
-const PITCH_FREQUENCY_LABELS = {
-  annuel: "Annuelle",
-  semestriel: "Semestrielle",
-  trimestriel: "Trimestrielle",
-  mensuel: "Mensuelle",
-};
-
-// Un bouton "Modifier" par SECTION (passe 6), pas par ligne : douze
-// boutons natifs alignés en escalier donnaient l'impression de casse.
-// Le tableau reprend le vocabulaire de tables.css (libellé / valeur).
-function pitchWizardSummarySection(step, title, rows) {
-  return `<div class="pitch-summary-section">
-    <div class="pitch-summary-section-hdr">
-      <span class="pitch-substep-title">${escapeHtml(title)}</span>
-      <button type="button" class="btn btn-tertiary pitch-summary-edit" onclick="pitchWizardGoTo(${step})">Modifier</button>
-    </div>
-    <table class="pitch-summary-table">
-      <tbody>
-        ${rows
-          .map(
-            ([label, value]) =>
-              `<tr><td>${escapeHtml(label)}</td><td class="num">${escapeHtml(value)}</td></tr>`,
-          )
-          .join("")}
-      </tbody>
-    </table>
-  </div>`;
+// Les 4 lignes clés de la carte d'aperçu permanente (passe 7, A.3) :
+// un instantané du produit en cours de saisie, mis à jour à chaque
+// changement de champ et à chaque changement d'étape.
+function pitchUpdatePreviewCard() {
+  if (typeof document === "undefined") return;
+  const val = (id) => document.getElementById(id)?.value || "";
+  const pct = (id) => (val(id) ? `${val(id)}%` : "—");
+  const family = val("ap-type") || "phoenix";
+  const familyLabel = globalThis.StructuraDomain?.PRODUCT_FAMILIES?.[family]?.label || family;
+  setText(
+    "pitch-preview-product",
+    val("ap-under") ? `${familyLabel} · ${val("ap-under")}` : familyLabel,
+  );
+  setText("pitch-kl-coupon", val("ap-coupon") ? `${val("ap-coupon")}%/an` : "—");
+  setText("pitch-kl-coupon-barrier", pct("ap-coupon-barrier"));
+  setText("pitch-kl-protection", pct("ap-barrier"));
+  setText("pitch-kl-recall", pct("ap-recall"));
 }
 
-function pitchWizardBuildSummary() {
+// Récapitulatif de l'étape 4 (correctif 3-5) : le produit, les blocs
+// de contenu retenus à l'étape 2, le client et l'émetteur — les
+// quatre décisions prises plus haut dans le parcours, relisibles au
+// moment de générer sans revenir en arrière étape par étape.
+const PITCH_CONTENT_BLOCK_LABELS = [
+  ["ap-block-mechanism", "Mécanique du produit"],
+  ["ap-block-scenarios", "Scénarios de remboursement"],
+  ["ap-block-history", "Historique du sous-jacent"],
+  ["ap-block-decrement", "Decrement Score"],
+  ["ap-block-eurofund", "Comparaison fonds euro"],
+];
+
+function pitchUpdateRecap() {
   if (typeof document === "undefined") return;
-  const el = document.getElementById("pitch-wizard-summary");
-  if (!el) return;
   const val = (id) => document.getElementById(id)?.value || "";
   const family = val("ap-type") || "phoenix";
-  const showsBarrier = ["phoenix", "athena", "bearish_taux"].includes(family);
+  const familyLabel = globalThis.StructuraDomain?.PRODUCT_FAMILIES?.[family]?.label || family;
+  setText(
+    "pitch-recap-product",
+    val("ap-under") ? `${familyLabel} · ${val("ap-under")}` : familyLabel,
+  );
 
-  const identityRows = [
-    ["Client", val("ap-client") || "—"],
-    ["Type produit", PITCH_TYPE_LABELS[family] || family],
-    ["Sous-jacent(s)", val("ap-under") || "—"],
-    ["Durée", val("ap-dur") || "—"],
-    ["Coupon", val("ap-coupon") ? `${val("ap-coupon")}%/an` : "—"],
-  ];
-  if (showsBarrier) {
-    identityRows.push(
-      ["PDI / barrière protection", val("ap-barrier") ? `${val("ap-barrier")}%` : "—"],
-      ["Rappel", val("ap-recall") ? `${val("ap-recall")}%` : "—"],
-    );
+  const checkedLabels = PITCH_CONTENT_BLOCK_LABELS.filter(
+    ([id]) => document.getElementById(id)?.checked,
+  ).map(([, label]) => label);
+  setText(
+    "pitch-recap-blocks",
+    checkedLabels.length
+      ? `${checkedLabels.length} page${checkedLabels.length > 1 ? "s" : ""} — ${checkedLabels.join(", ")}`
+      : "Aucune page retenue",
+  );
+
+  setText("pitch-recap-client", val("ap-client") || "—");
+  setText("pitch-recap-issuer", val("ap-issuer") || "—");
+}
+
+// Couleur du cabinet (correctif 6) : l'input reste minuscule (44×44),
+// la valeur hex se lit à côté en mono plutôt que dans le picker natif.
+function pitchUpdateBrandColorLabel() {
+  const input = document.getElementById("ap-brand-color");
+  const label = document.getElementById("ap-brand-color-hex");
+  if (input && label) label.textContent = input.value.toUpperCase();
+}
+
+// Quatre pastilles de palette (passe 7A, correctif 6) : la couleur
+// vient du token CSS résolu, jamais d'un hex écrit ici — le défaut
+// au chargement (aegean) passe par la même fonction, pas par un
+// value="#..." dans le HTML.
+function pitchSetBrandColor(cssVar) {
+  const input = document.getElementById("ap-brand-color");
+  if (!input || typeof document === "undefined") return;
+  const hex = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
+  if (!hex) return;
+  input.value = hex;
+  pitchUpdateBrandColorLabel();
+}
+
+// Logo du cabinet (correctif 7) : input natif masqué, déclenché par un
+// bouton au gabarit .btn — le nom du fichier choisi s'affiche à côté.
+function pitchUpdateLogoLabel() {
+  const input = document.getElementById("ap-brand-logo");
+  const label = document.getElementById("ap-brand-logo-name");
+  if (!input || !label) return;
+  label.textContent = input.files?.[0]?.name || "Aucun fichier";
+}
+
+// Le bloc Decrement Score de l'étape 2 n'apparaît que si le
+// sous-jacent choisi est décrémenté (passe 7, A.2). Phoenix/Athena
+// déclarent la nature du sous-jacent explicitement (champ "Nature
+// sous-jacent") — c'est la seule source de vérité pour ces familles,
+// un rapprochement textuel y ferait un faux positif ("CAC 40" est
+// aussi le baseIndex de "CAC 40 Dec 50" sans être décrémenté).
+// Les autres familles n'ont pas ce champ : on retombe sur un
+// rapprochement exact avec les univers connus de decrement-engine.js
+// et index-registry.js, ou un mot-clé explicite dans le texte saisi.
+function pitchUnderlyingIsDecremented() {
+  if (typeof document === "undefined") return false;
+  const family = document.getElementById("ap-type")?.value || "phoenix";
+  if (["phoenix", "athena"].includes(family)) {
+    return document.getElementById("ap-underlying-type")?.value === "action_decrement";
   }
+  const under = String(document.getElementById("ap-under")?.value || "")
+    .trim()
+    .toLowerCase();
+  if (!under) return false;
+  if (/d[ée]cr[ée]ment/.test(under)) return true;
+  const decUniverse = globalThis.StructuraDecrementEngine?.DECREMENT_UNIVERSE || [];
+  if (decUniverse.some((item) => String(item.name || "").toLowerCase() === under)) return true;
+  const registryIndices = globalThis.STRUCTURA_INDEX_REGISTRY?.indices || [];
+  return registryIndices.some(
+    (idx) => idx.type === "decrement" && String(idx.name || "").toLowerCase() === under,
+  );
+}
 
-  const paramsRows = [
-    ["Fréquence", PITCH_FREQUENCY_LABELS[val("ap-frequency")] || "—"],
-    ["Date de maturité", val("ap-maturity-date") || "—"],
-  ];
+function pitchUpdateContentBlocks() {
+  if (typeof document === "undefined") return;
+  const row = document.getElementById("ap-block-row-decrement");
+  if (!row) return;
+  const show = pitchUnderlyingIsDecremented();
+  const wasHidden = row.hidden;
+  row.hidden = !show;
+  const box = document.getElementById("ap-block-decrement");
+  if (!box) return;
+  if (!show) box.checked = false;
+  else if (wasHidden) box.checked = true;
+}
 
-  const issuerRows = [
-    ["Émetteur", val("ap-issuer") || "—"],
-    ["Notation", val("ap-rating") || "—"],
-    ["SRI (KID)", val("ap-sri") || "—"],
-  ];
+function pitchToggleFullscreen() {
+  const grid = document.getElementById("autopitch-grid");
+  const btn = document.getElementById("pitch-fullscreen-btn");
+  if (!grid) return;
+  const on = grid.classList.toggle("pitch-fullscreen");
+  if (btn) btn.textContent = on ? "Réduire" : "Plein écran";
+}
 
-  el.innerHTML = [
-    pitchWizardSummarySection(1, "Identité produit", identityRows),
-    pitchWizardSummarySection(2, "Paramètres produit", paramsRows),
-    pitchWizardSummarySection(4, "Émetteur & contexte", issuerRows),
-  ].join("");
+// La hauteur de l'en-tête collant dépend du nombre d'étapes du fil et
+// de la taille de police du navigateur — jamais une constante en dur.
+// pitch-task-header lit cette variable pour son scroll-margin-top
+// (correctif 3-1) : sans elle, scrollIntoView() cale le titre pile
+// sous le haut de la fenêtre, donc derrière l'en-tête collant.
+function pitchSyncHeaderOffset() {
+  if (typeof document === "undefined") return;
+  const header = document.querySelector("#view-autopitch .pitch-header-sticky");
+  if (!header) return;
+  // Posée sur <html>, pas sur la grille : html:has(#view-autopitch.active)
+  // (passe7.css) lit cette même variable pour scroll-padding-top, et une
+  // variable posée sur un descendant de <html> ne remonte jamais jusqu'à
+  // lui — un seul endroit d'écriture pour les deux usages (scroll-padding
+  // du document, scroll-margin du titre, qui hérite normalement).
+  document.documentElement.style.setProperty(
+    "--pitch-header-h",
+    `${header.getBoundingClientRect().height}px`,
+  );
 }
 
 function pitchWizardRender() {
@@ -2082,15 +2167,18 @@ function pitchWizardRender() {
   });
   const prevBtn = document.getElementById("pitch-wizard-prev");
   const nextBtn = document.getElementById("pitch-wizard-next");
-  const status = document.getElementById("pitch-wizard-status");
   if (prevBtn) prevBtn.disabled = pitchWizardCurrentStep === 1;
   if (nextBtn) nextBtn.hidden = pitchWizardCurrentStep === PITCH_WIZARD_STEP_COUNT;
-  if (status) {
-    status.textContent = `Étape ${pitchWizardCurrentStep} sur ${PITCH_WIZARD_STEP_COUNT}`;
-  }
-  if (pitchWizardCurrentStep === PITCH_WIZARD_STEP_COUNT) {
-    pitchWizardBuildSummary();
-  }
+  pitchUpdatePreviewCard();
+  pitchUpdateContentBlocks();
+  pitchUpdateRecap();
+  // pitchSyncHeaderOffset() garde --pitch-header-h à jour : le
+  // positionnement lui-même est laissé au CSS seul (scroll-margin-top
+  // / scroll-padding-top dans passe7.css), pas à un scrollIntoView()
+  // ici — un saut de scroll piloté par JS à chaque étape déplaçait le
+  // conteneur de façon imprévisible pour l'utilisateur qui venait de
+  // défiler manuellement.
+  pitchSyncHeaderOffset();
 }
 
 function pitchWizardGoTo(step) {
@@ -2151,6 +2239,26 @@ function pitchWizardSetupInlineValidation() {
   if (typeof document === "undefined") return;
   document.querySelectorAll("#view-autopitch .f-inp, #view-autopitch .f-sel").forEach((el) => {
     el.addEventListener("blur", () => pitchValidateField(el));
+  });
+}
+
+// Un seul écouteur délégué plutôt qu'un onchange par champ : la carte
+// d'aperçu (4 lignes clés) et la visibilité du bloc Decrement Score
+// suivent la saisie en direct, y compris sur les champs révélés
+// dynamiquement par data-families.
+function pitchWizardSetupLiveUpdates() {
+  if (typeof document === "undefined") return;
+  const view = document.getElementById("view-autopitch");
+  if (!view) return;
+  view.addEventListener("input", () => {
+    pitchUpdatePreviewCard();
+    pitchUpdateContentBlocks();
+    pitchUpdateRecap();
+  });
+  view.addEventListener("change", () => {
+    pitchUpdatePreviewCard();
+    pitchUpdateContentBlocks();
+    pitchUpdateRecap();
   });
 }
 
@@ -2271,6 +2379,28 @@ function updatePitchProductFields() {
       noteReferenceVisible
         ? ""
         : "none";
+  });
+
+  // Un sous-groupe (.pitch-substep-block) dont tous les .pitch-field
+  // viennent d'être masqués ci-dessus n'a plus rien à montrer : son
+  // titre ("MÉCANIQUE DU SOUS-JACENT", "BARRIÈRES BEARISH"...)
+  // s'affichait seul, sans aucun champ dessous (passe 7, correctif 2).
+  // Sa largeur dépend aussi du nombre de champs visibles — 1 ou 2 ne
+  // méritent pas les deux colonnes de .pitch-step-blocks (passe 7A,
+  // correctif 2) : la liste des champs ne change pas, mais leur
+  // visibilité dépend de la famille, donc le calcul doit rester ici.
+  document.querySelectorAll("#view-autopitch .pitch-substep-block").forEach((block) => {
+    const visibleFields = [...block.querySelectorAll(".pitch-field")].filter(
+      (field) => field.style.display !== "none",
+    );
+    const hasVisibleLongtext = visibleFields.some((field) =>
+      field.classList.contains("pitch-field-longtext"),
+    );
+    block.style.display = visibleFields.length ? "" : "none";
+    block.classList.toggle(
+      "pitch-substep-block-wide",
+      visibleFields.length >= 3 || hasVisibleLongtext,
+    );
   });
 
   const labels = {
@@ -2607,9 +2737,6 @@ function generatePitchDeck(payload) {
 function renderPitchPreview(deck) {
   const el = document.getElementById("ap-preview");
   const raw = document.getElementById("ap-raw");
-  document
-    .getElementById("autopitch-grid")
-    ?.classList.toggle("has-deck", Boolean(deck));
   if (raw)
     raw.textContent = deck
       ? JSON.stringify(deck, null, 2)
@@ -2626,201 +2753,69 @@ function renderPitchPreview(deck) {
     p.type ||
     "Produit structuré";
 
-  // ── Slide 1 — Couverture
-  const slide1 = `
-  <div class="pitch-card pitch-card-cover">
-    <div class="pitch-cover-top">
-      <div class="pitch-cover-kicker">${escapeHtml(familyLabel.toUpperCase())} · ${new Date().toLocaleDateString("fr-FR")}</div>
-      <div class="pitch-cover-title">${escapeHtml(deck.tagline)}</div>
-      <div class="pitch-cover-sub">${escapeHtml(deck.subtitle)}</div>
-    </div>
-    <div class="pitch-cover-keyline">
-      <div class="pitch-keyline-item">
-        <div class="pitch-keyline-val">${escapeHtml(String(p.coupon || 0))}%</div>
-        <div class="pitch-keyline-lbl">Coupon annuel</div>
-      </div>
-      <div class="pitch-keyline-sep"></div>
-      <div class="pitch-keyline-item">
-        <div class="pitch-keyline-val">${escapeHtml(String(p.barrier || 0))}%</div>
-        <div class="pitch-keyline-lbl">Protection capital</div>
-      </div>
-      <div class="pitch-keyline-sep"></div>
-      <div class="pitch-keyline-item">
-        <div class="pitch-keyline-val">${escapeHtml(String(p.recall || 100))}%</div>
-        <div class="pitch-keyline-lbl">Seuil de rappel</div>
-      </div>
-      <div class="pitch-keyline-sep"></div>
-      <div class="pitch-keyline-item">
-        <div class="pitch-keyline-val">${escapeHtml(p.duration || "—")}</div>
-        <div class="pitch-keyline-lbl">Durée max.</div>
-      </div>
-    </div>
-    <div class="pitch-cover-infos">
-      <div class="pitch-cover-info"><span>Client</span>${escapeHtml(p.client || "—")}</div>
-      <div class="pitch-cover-info"><span>Sous-jacent</span>${escapeHtml(p.underlying || "—")}</div>
-      <div class="pitch-cover-info"><span>Émetteur</span>${escapeHtml(p.issuer || "—")}</div>
-      <div class="pitch-cover-info"><span>Notation</span>${escapeHtml(p.rating || "—")}</div>
-    </div>
-  </div>`;
-
-  // ── Slide 2 — Métriques clés
-  const metrics = (deck.keyMetrics || [])
-    .map(
-      (m) => `
-    <div class="pitch-kpi-box">
-      <div class="pitch-kpi-val">${escapeHtml(m.value)}</div>
-      <div class="pitch-kpi-lbl">${escapeHtml(m.label)}</div>
-      <div class="pitch-kpi-sub">${escapeHtml(m.sub)}</div>
-    </div>`,
-    )
-    .join("");
-  const terms = (deck.productTerms || [])
-    .map(
-      (m) => `
-    <div class="pitch-term">
-      <div class="pitch-term-lbl">${escapeHtml(m.label)}</div>
-      <div class="pitch-term-val">${escapeHtml(String(m.value || "—"))}</div>
-      <div class="pitch-term-note">${escapeHtml(m.note || "")}</div>
-    </div>`,
-    )
-    .join("");
-  const slide2 = `
-    <div class="pitch-card">
-      <div class="pitch-card-label">Paramètres clés</div>
-      <div class="pitch-card-title">${escapeHtml(deck.executiveSummary?.slice(0, 120) || "Synthèse")}…</div>
-      <div class="pitch-kpi-grid">${metrics}</div>
-      <div class="pitch-term-grid">${terms}</div>
-    </div>`;
-
-  // ── Slide 3 — Mécanique
-  // Étapes numérotées, pas de statut : un seul ton, pas un cycle de
-  // couleurs arbitraire (passe 5, section H).
-  const bullets = (deck.howItWorks || [])
-    .map(
-      (b) =>
-        `<div class="pitch-bullet"><div class="pitch-bullet-dot"></div><div>${escapeHtml(b)}</div></div>`,
-    )
-    .join("");
-  const slide3 = `
-    <div class="pitch-card">
-      <div class="pitch-card-label">Fonctionnement</div>
-      <div class="pitch-card-title">Mécanique ${escapeHtml(familyLabel)} sur ${escapeHtml(p.underlying || "—")}</div>
-      <div class="pitch-mechanic-desc">${escapeHtml(deck.productDescription || "")}</div>
-      <div class="pitch-bullets">${bullets}</div>
-    </div>`;
-
-  // ── Slide 4 — Scénarios
+  // Onglet Slides = une vignette par slide, pas le texte intégral
+  // (correctif 3-2, bloquant) : numéro, titre, 3 lignes de résumé
+  // maximum. Le texte complet vit dans #ap-raw (Contenu brut), pas
+  // ici — cette liste ne fait que le pointer.
+  const kv = (label, value) => ({ label, value: value ?? "—" });
   const s = deck.scenarios || {};
-  // Helper : extraction numérique depuis returnStr
-  const _numFromStr = (str) =>
-    parseFloat(
-      String(str || "0")
-        .replace("%", "")
-        .replace("+", ""),
-    ) || 0;
-  const maxScen = Math.max(
-    _numFromStr(s.bull?.returnStr),
-    _numFromStr(s.base?.returnStr),
-    Math.abs(_numFromStr(s.bear?.returnStr)),
-    1,
-  );
-  // Couleur portée par le parent (.pitch-scen-bull/-base/-bear), pas par
-  // l'appelant : bull = up, bear = dn, base = neutre (passe 5, section H).
-  const scenBar = (returnStr) => {
-    const pct = Math.min(
-      100,
-      Math.max(5, (_numFromStr(returnStr) / maxScen) * 100),
-    );
-    return `<div class="pitch-scen-bar-track"><div class="pitch-scen-bar-fill" style="width:${pct}%"></div></div>`;
-  };
-  const slide4 = `
-  <div class="pitch-card">
-    <div class="pitch-card-label">Analyse de sensibilité</div>
-    <div class="pitch-card-title">Performance selon le scénario de marché</div>
-    <div class="pitch-scenarios">
-      <div class="pitch-scen pitch-scen-bull">
-        <div class="pitch-scen-lbl">▲ ${escapeHtml(s.bull?.label || "Haussier")}</div>
-        <div class="pitch-scen-ret">${escapeHtml(s.bull?.returnStr || "—")}</div>
-        ${scenBar(s.bull?.returnStr)}
-        <div class="pitch-scen-desc" style="margin-top:8px;">${escapeHtml(s.bull?.desc || "")}</div>
-      </div>
-      <div class="pitch-scen pitch-scen-base">
-        <div class="pitch-scen-lbl">◉ ${escapeHtml(s.base?.label || "Central")}</div>
-        <div class="pitch-scen-ret">${escapeHtml(s.base?.returnStr || "—")}</div>
-        ${scenBar(s.base?.returnStr)}
-        <div class="pitch-scen-desc" style="margin-top:8px;">${escapeHtml(s.base?.desc || "")}</div>
-      </div>
-      <div class="pitch-scen pitch-scen-bear">
-        <div class="pitch-scen-lbl">▼ ${escapeHtml(s.bear?.label || "Baissier")}</div>
-        <div class="pitch-scen-ret">${escapeHtml(s.bear?.returnStr || "—")}</div>
-        ${scenBar(s.bear?.returnStr)}
-        <div class="pitch-scen-desc" style="margin-top:8px;">${escapeHtml(s.bear?.desc || "")}</div>
-      </div>
-    </div>
-    <div class="pitch-disclaimer">
-      Scénarios indicatifs. Performances passées non indicatives des performances futures. Capital non garanti en cas de rupture de barrière.
-    </div>
-  </div>`;
+  const slides = [
+    {
+      title: deck.tagline || familyLabel,
+      lines: [
+        kv("Client", p.client),
+        kv("Sous-jacent", p.underlying),
+        kv("Émetteur", p.issuer),
+      ],
+    },
+    {
+      title: "Paramètres clés",
+      lines: (deck.productTerms || [])
+        .slice(0, 3)
+        .map((m) => kv(m.label, m.value)),
+    },
+    {
+      title: `Mécanique ${familyLabel} sur ${p.underlying || "—"}`,
+      lines: (deck.howItWorks || []).slice(0, 3),
+    },
+    {
+      title: "Performance selon le scénario de marché",
+      lines: [
+        kv(s.bull?.label || "Haussier", s.bull?.returnStr),
+        kv(s.base?.label || "Central", s.base?.returnStr),
+        kv(s.bear?.label || "Baissier", s.bear?.returnStr),
+      ],
+    },
+    {
+      title: "Risques & Opportunité",
+      lines: (deck.risks || [])
+        .slice(0, 3)
+        .map((r) => kv(r.risk, r.level)),
+    },
+    {
+      title: deck.ctaTitle || "Valider",
+      lines: [deck.ctaBody].filter(Boolean),
+    },
+  ];
 
-  // ── Slide 5 — Risques + Pourquoi maintenant
-  const risks = (deck.risks || [])
-    .map((r) => {
-      const cls =
-        r.level === "Élevé"
-          ? "st-breach"
-          : r.level === "Faible"
-            ? "st-safe"
-            : "st-warn";
-      return `<div class="pitch-risk-row">
-      <div class="pitch-risk-dot ${cls}"></div>
-      <div class="pitch-risk-body">
-        <div class="pitch-risk-name">${escapeHtml(r.risk)}</div>
-        <div class="pitch-risk-desc">${escapeHtml(r.desc)}</div>
-      </div>
-      <div class="pitch-risk-lvl ${cls}">${escapeHtml(r.level)}</div>
-    </div>`;
-    })
-    .join("");
-  const whyRows = (deck.whyNow || [])
-    .map((w) => `<div class="pitch-why-row">→ ${escapeHtml(w)}</div>`)
-    .join("");
-  const educationRows = (deck.educationPoints || [])
-    .map((w) => `<div class="pitch-watch-row">${escapeHtml(w)}</div>`)
-    .join("");
-  const slide5 = `
-    <div class="pitch-card">
-      <div class="pitch-card-label">Risques &amp; Opportunité</div>
-      <div class="pitch-risks-section">
-        <div class="pitch-risks-title">Risques principaux</div>
-        <div class="pitch-risks">${risks}</div>
-      </div>
-      <div class="pitch-why-section">
-        <div class="pitch-risks-title">Pourquoi maintenant</div>
-        ${whyRows}
-      </div>
-      <div class="pitch-watch-section">
-        <div class="pitch-risks-title">Points à expliquer au client</div>
-        ${educationRows}
-      </div>
-    </div>`;
+  const line = (l) =>
+    l && typeof l === "object" && "label" in l
+      ? `<div class="pitch-slide-line pitch-slide-line-kv"><span class="pitch-slide-line-lbl">${escapeHtml(l.label || "—")}</span><span class="pitch-slide-line-val">${escapeHtml(String(l.value ?? "—"))}</span></div>`
+      : `<div class="pitch-slide-line">${escapeHtml(String(l || ""))}</div>`;
 
-  // ── Slide 6 — CTA
-  const slide6 = `
-    <div class="pitch-card pitch-card-cta">
-      <div class="pitch-cta-title">${escapeHtml(deck.ctaTitle || "Valider")}</div>
-      <div class="pitch-cta-body">${escapeHtml(deck.ctaBody || "")}</div>
-      <div class="pitch-disclaimer">${escapeHtml(deck.disclaimer || "")}</div>
-    </div>`;
-
-  el.className = "deck-preview-v2";
-  el.innerHTML = `
-    <div class="pitch-label-row">SLIDE 1 — COUVERTURE</div>${slide1}
-    <div class="pitch-label-row">SLIDE 2 — PARAMÈTRES</div>${slide2}
-    <div class="pitch-label-row">SLIDE 3 — MÉCANIQUE</div>${slide3}
-    <div class="pitch-label-row">SLIDE 4 — SCÉNARIOS</div>${slide4}
-    <div class="pitch-label-row">SLIDE 5 — RISQUES</div>${slide5}
-    <div class="pitch-label-row">SLIDE 6 — CONCLUSION</div>${slide6}
-  `;
+  el.className = "pitch-slide-list";
+  el.innerHTML = slides
+    .map(
+      (slide, i) => `
+    <div class="pitch-slide-thumb">
+      <div class="pitch-slide-thumb-num">${i + 1}</div>
+      <div class="pitch-slide-thumb-body">
+        <div class="pitch-slide-thumb-title">${escapeHtml(slide.title)}</div>
+        ${slide.lines.slice(0, 3).map(line).join("")}
+      </div>
+    </div>`,
+    )
+    .join("");
 }
 
 function generatePitchLocal() {
@@ -3921,13 +3916,24 @@ function extractDomainCharacteristicsFromText(rawText = "", base = {}) {
             /m[ée]canisme\s+(annuel|semestriel|trimestriel|mensuel)\s+de remboursement/i,
             /(?:chaque\s+)?(annuel|semestriel|trimestriel|mensuel|annuelle|semestrielle|trimestrielle|mensuelle)[^.]{0,80}remboursement anticip[ée]/i,
           ]),
+          // Fenêtre resserrée à 15 caractères (passe 7A, correctif
+          // 3-4) : à 40, "Barrière de rappel ... à partir de la 2ème
+          // période ... 100%" laissait le "2" de "2ème" matcher avant
+          // d'atteindre le vrai pourcentage — le nombre le plus proche
+          // du libellé n'est pas forcément le bon, mais un intitulé de
+          // barrière est en pratique suivi de son taux à quelques mots
+          // près (" : ", " fixée à ", " de "), jamais après une clause
+          // entière. C'est la cause du "2" tracé pour Bearish Athena :
+          // pas une valeur réécrite après coup, une mauvaise capture à
+          // l'extraction, en amont de tout ce que la passe 7A précédente
+          // a corrigé côté hydratation.
           bearishCouponBarrier: pickNum([
-            /Barri[èe]re de distribution de coupon[^0-9%]{0,40}([0-9]+(?:[.,][0-9]+)?)\s*%/i,
-            /barri[èe]re coupon bearish[^0-9%]{0,40}([0-9]+(?:[.,][0-9]+)?)\s*%/i,
+            /Barri[èe]re de distribution de coupon[^0-9%]{0,15}([0-9]+(?:[.,][0-9]+)?)\s*%/i,
+            /barri[èe]re coupon bearish[^0-9%]{0,15}([0-9]+(?:[.,][0-9]+)?)\s*%/i,
           ]),
           bearishRecallBarrier: pickNum([
-            /Barri[èe]re de rappel[^0-9%]{0,40}([0-9]+(?:[.,][0-9]+)?)\s*%/i,
-            /barri[èe]re rappel bearish[^0-9%]{0,40}([0-9]+(?:[.,][0-9]+)?)\s*%/i,
+            /Barri[èe]re de rappel[^0-9%]{0,15}([0-9]+(?:[.,][0-9]+)?)\s*%/i,
+            /barri[èe]re rappel bearish[^0-9%]{0,15}([0-9]+(?:[.,][0-9]+)?)\s*%/i,
           ]),
           referenceEntity: pick([
             /Entit[ée] de r[ée]f[ée]rence\s*[:\-]\s*([^.;\n\r]{2,100}?)(?=\s+(?:Coupon|Callable|P[ée]riode|Chaque|À maturit[ée]|A maturit[ée]|ISDA|$))/i,
@@ -6485,10 +6491,13 @@ if (typeof document !== "undefined") {
   updatePitchProductFields();
   pitchWizardRender();
   pitchWizardSetupInlineValidation();
+  pitchWizardSetupLiveUpdates();
   applyTheme(getTheme());
+  pitchSetBrandColor("--color-aegean");
   ["ap-recall-type", "ap-put-leveraged", "ap-rate-type"].forEach((id) => {
     document.getElementById(id)?.addEventListener("change", updatePitchProductFields);
   });
+  window.addEventListener("resize", pitchSyncHeaderOffset);
 }
 
 if (typeof module !== "undefined" && module.exports) {

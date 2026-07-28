@@ -83,6 +83,7 @@
       if (viewId === "calendar") root.renderCalendar?.();
       if (viewId === "clients") root.renderClients?.();
       if (viewId === "screener") root.runScreener?.();
+      if (viewId === "autopitch") root.pitchSyncHeaderOffset?.();
     }
 
     if (typeof document !== "undefined") {

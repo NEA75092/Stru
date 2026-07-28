@@ -31,6 +31,7 @@
         <link rel="stylesheet" href="./src/dashboard.css?v=20260727" />
         <link rel="stylesheet" href="./src/tables.css?v=20260727" />
         <link rel="stylesheet" href="./src/views.css?v=20260728" />
+        <link rel="stylesheet" href="./src/passe7.css?v=20260728" />
         <link rel="stylesheet" href="./src/relief.css?v=20260727" />
     </head>
     <body>
@@ -293,30 +294,38 @@
                 <!-- ===== PORTFOLIO ===== -->
                 <div class="view" id="view-portfolio">
                     <div class="spotlight" aria-hidden="true"></div>
-                    <div class="toolbar">
-                        <input
-                            class="search"
-                            type="text"
-                            placeholder="Rechercher produit, ISIN, émetteur, client (nom, prénom)..."
-                            oninput="filterPf(this.value)"
-                            id="pf-search"
-                        />
-                        <select class="f-sel portfolio-type-select" id="pf-type-select" onchange="pfType(this.value)">
-                            <option value="all">Tous les produits</option>
-                            <option value="family:phoenix">Phoenix Autocall</option>
-                            <option value="family:athena">Athena Autocall</option>
-                            <option value="family:bearish_taux">Bearish Taux</option>
-                            <option value="family:cln">CLN</option>
-                            <option value="family:note">Note taux fixe/variable</option>
-                        </select>
-                        <span
-                            class="pill-filter"
-                            id="chip-alerts"
-                            onclick="pfAlerts(this)"
-                            >⚠ Alertes seules</span
-                        >
-                        <div class="toolbar-spacer"></div>
-                        <span class="portfolio-count" id="pf-count">54 produits</span>
+                    <div class="control-stack">
+                        <div class="control-band-sub">
+                            <div class="control-search">
+                                <svg class="control-search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6"/><path d="M17 17l-4-4"/></svg>
+                                <input
+                                    class="search"
+                                    type="text"
+                                    placeholder="Rechercher un produit, un ISIN, un émetteur"
+                                    oninput="filterPf(this.value)"
+                                    id="pf-search"
+                                />
+                                <kbd class="control-kbd">⌘K</kbd>
+                            </div>
+                            <div class="control-band-divider"></div>
+                            <div class="control-band-actions">
+                                <select class="f-sel" id="pf-type-select" onchange="pfType(this.value)">
+                                    <option value="all">Tous les produits</option>
+                                    <option value="family:phoenix">Phoenix Autocall</option>
+                                    <option value="family:athena">Athena Autocall</option>
+                                    <option value="family:bearish_taux">Bearish Taux</option>
+                                    <option value="family:cln">CLN</option>
+                                    <option value="family:note">Note taux fixe/variable</option>
+                                </select>
+                                <span
+                                    class="pill-filter"
+                                    id="chip-alerts"
+                                    onclick="pfAlerts(this)"
+                                    >⚠ Alertes seules</span
+                                >
+                                <span class="control-band-count" id="pf-count">54 produits</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="tbl-wrap" id="pf-table-wrap">
                         <table id="pf-table">
@@ -408,14 +417,20 @@
                         <div class="sec-title">Suivi des barrières</div>
                         <span class="sec-meta">Suivi de la distance aux seuils de tous les produits à barrière</span>
                     </div>
-                    <div class="toolbar">
-                        <input
-                            class="search"
-                            type="text"
-                            placeholder="Rechercher produit, ISIN, émetteur, sous-jacent, client..."
-                            oninput="filterBarriers(this.value)"
-                            id="bar-search"
-                        />
+                    <div class="control-stack">
+                        <div class="control-band-sub">
+                            <div class="control-search">
+                                <svg class="control-search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6"/><path d="M17 17l-4-4"/></svg>
+                                <input
+                                    class="search"
+                                    type="text"
+                                    placeholder="Rechercher un produit, un ISIN, un émetteur"
+                                    oninput="filterBarriers(this.value)"
+                                    id="bar-search"
+                                />
+                                <kbd class="control-kbd">⌘K</kbd>
+                            </div>
+                        </div>
                     </div>
                     <div class="tbl-wrap" id="bar-table-wrap">
                         <table id="bar-table">
@@ -442,53 +457,65 @@
                 <!-- ===== CALENDAR ===== -->
                 <div class="view" id="view-calendar">
                     <div class="spotlight" aria-hidden="true"></div>
-                    <div class="cal-bar">
-                        <button type="button" class="cal-bar-chevron" onclick="calendarStepMonth(-1)" aria-label="Mois précédent">‹</button>
-                        <button type="button" class="cal-bar-chevron" onclick="calendarStepMonth(1)" aria-label="Mois suivant">›</button>
-                        <span class="cal-bar-month" id="cal-bar-month">—</span>
-                        <div class="cal-bar-sep"></div>
-                        <div class="cal-bar-tabs">
-                            <span class="pill-filter" onclick="resetCalendarView()">Vue principale</span>
-                            <span class="pill-filter" data-calendar-mode="day" onclick="setCalendarMode('day')">Jour</span>
-                            <span class="pill-filter" data-calendar-mode="week" onclick="setCalendarMode('week')">Semaine</span>
-                            <span class="pill-filter on" data-calendar-mode="month" onclick="setCalendarMode('month')">Mois</span>
-                            <span class="pill-filter" data-calendar-mode="year" onclick="setCalendarMode('year')">Année</span>
-                            <span class="pill-filter" data-calendar-mode="range" onclick="setCalendarMode('range')">Plage</span>
-                            <span class="pill-filter" data-calendar-mode="rolling" onclick="setCalendarMode('rolling')">Glissant</span>
+                    <div class="control-stack">
+                        <div class="control-band">
+                            <button type="button" class="cal-bar-chevron" onclick="calendarStepMonth(-1)" aria-label="Mois précédent">‹</button>
+                            <button type="button" class="cal-bar-chevron" onclick="calendarStepMonth(1)" aria-label="Mois suivant">›</button>
+                            <div class="control-band-period">
+                                <span class="control-band-period-label" id="cal-bar-month">—</span>
+                                <span class="control-band-period-range" id="cal-bar-meta">—</span>
+                            </div>
+                            <div class="control-band-divider"></div>
+                            <div class="seg">
+                                <button type="button" class="seg-item" data-calendar-mode="day" onclick="setCalendarMode('day')">Jour</button>
+                                <button type="button" class="seg-item" data-calendar-mode="week" onclick="setCalendarMode('week')">Semaine</button>
+                                <button type="button" class="seg-item on" data-calendar-mode="month" onclick="setCalendarMode('month')">Mois</button>
+                                <button type="button" class="seg-item" data-calendar-mode="year" onclick="setCalendarMode('year')">Année</button>
+                                <button type="button" class="seg-item" data-calendar-mode="range" onclick="setCalendarMode('range')">Plage</button>
+                                <button type="button" class="seg-item" data-calendar-mode="rolling" onclick="setCalendarMode('rolling')">Glissant</button>
+                            </div>
                         </div>
-                        <div class="cal-bar-sep"></div>
-                        <input
-                            class="search cal-bar-search"
-                            type="text"
-                            placeholder="Rechercher un produit..."
-                            oninput="filterCalendar(this.value)"
-                            id="cal-search"
-                        />
-                        <button type="button" class="cal-bar-date-btn" id="cal-date-btn" onclick="toggleCalendarDatePicker()">Date de référence</button>
-                        <input class="f-inp cal-bar-date-input" type="date" id="cal-date" onchange="setCalendarDate(this.value)" hidden />
-                        <input class="f-inp cal-bar-date-input" type="week" id="cal-week" onchange="setCalendarWeek(this.value)" hidden />
-                        <input class="f-inp cal-bar-date-input" type="month" id="cal-month-picker" onchange="setCalendarMonth(this.value)" hidden />
-                        <input class="f-inp cal-bar-date-input" type="number" min="2000" max="2100" id="cal-year" onchange="setCalendarYear(this.value)" hidden />
-                        <input class="f-inp cal-bar-date-input" type="date" id="cal-start" onchange="setCalendarRange()" hidden />
-                        <input class="f-inp cal-bar-date-input" type="date" id="cal-end" onchange="setCalendarRange()" hidden />
-                        <select class="f-sel cal-bar-date-input" id="cal-rolling" onchange="setCalendarRolling(this.value)" hidden>
-                            <option value="7">7 jours glissants</option>
-                            <option value="30" selected>30 jours glissants</option>
-                            <option value="90">90 jours glissants</option>
-                            <option value="180">180 jours glissants</option>
-                            <option value="365">12 mois glissants</option>
-                        </select>
-                        <span class="cal-bar-meta" id="cal-bar-meta">—</span>
-                        <div class="toolbar-spacer"></div>
-                        <div class="calendar-month-view-toggle" id="cal-month-view-toggle" hidden>
-                            <span class="pill-filter on" data-month-view="grid" onclick="setCalendarMonthView('grid')">Grille</span>
-                            <span class="pill-filter" data-month-view="list" onclick="setCalendarMonthView('list')">Liste</span>
-                        </div>
-                        <div class="cal-bar-legend" id="cal-bar-legend" hidden>
-                            <span class="cal-legend-item"><span class="cal-legend-dot ev-obs"></span>Observation</span>
-                            <span class="cal-legend-item"><span class="cal-legend-dot ev-coupon"></span>Coupon</span>
-                            <span class="cal-legend-item"><span class="cal-legend-dot ev-rappel"></span>Rappel</span>
-                            <span class="cal-legend-item"><span class="cal-legend-dot ev-mat"></span>Maturité</span>
+                        <div class="control-band-sub">
+                            <div class="control-search">
+                                <svg class="control-search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6"/><path d="M17 17l-4-4"/></svg>
+                                <input
+                                    class="search"
+                                    type="text"
+                                    placeholder="Rechercher un produit"
+                                    oninput="filterCalendar(this.value)"
+                                    id="cal-search"
+                                />
+                                <kbd class="control-kbd">⌘K</kbd>
+                            </div>
+                            <div class="control-band-divider"></div>
+                            <button type="button" class="cal-bar-date-btn" id="cal-date-btn" onclick="toggleCalendarDatePicker()">Date de référence</button>
+                            <input class="f-inp cal-bar-date-input" type="date" id="cal-date" onchange="setCalendarDate(this.value)" hidden />
+                            <input class="f-inp cal-bar-date-input" type="week" id="cal-week" onchange="setCalendarWeek(this.value)" hidden />
+                            <input class="f-inp cal-bar-date-input" type="month" id="cal-month-picker" onchange="setCalendarMonth(this.value)" hidden />
+                            <input class="f-inp cal-bar-date-input" type="number" min="2000" max="2100" id="cal-year" onchange="setCalendarYear(this.value)" hidden />
+                            <input class="f-inp cal-bar-date-input" type="date" id="cal-start" onchange="setCalendarRange()" hidden />
+                            <input class="f-inp cal-bar-date-input" type="date" id="cal-end" onchange="setCalendarRange()" hidden />
+                            <select class="f-sel cal-bar-date-input" id="cal-rolling" onchange="setCalendarRolling(this.value)" hidden>
+                                <option value="7">7 jours glissants</option>
+                                <option value="30" selected>30 jours glissants</option>
+                                <option value="90">90 jours glissants</option>
+                                <option value="180">180 jours glissants</option>
+                                <option value="365">12 mois glissants</option>
+                            </select>
+                            <button type="button" class="pill-filter" onclick="resetCalendarView()">Aujourd'hui</button>
+                            <div class="control-band-divider"></div>
+                            <div class="control-band-actions">
+                                <div class="seg" id="cal-month-view-toggle" hidden>
+                                    <button type="button" class="seg-item on" data-month-view="grid" onclick="setCalendarMonthView('grid')">Grille</button>
+                                    <button type="button" class="seg-item" data-month-view="list" onclick="setCalendarMonthView('list')">Liste</button>
+                                </div>
+                                <div class="cal-bar-legend" id="cal-bar-legend" hidden>
+                                    <span class="cal-legend-item"><span class="cal-legend-dot ev-obs"></span>Observation</span>
+                                    <span class="cal-legend-item"><span class="cal-legend-dot ev-coupon"></span>Coupon</span>
+                                    <span class="cal-legend-item"><span class="cal-legend-dot ev-rappel"></span>Rappel</span>
+                                    <span class="cal-legend-item"><span class="cal-legend-dot ev-mat"></span>Maturité</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div id="cal-period-view">
@@ -658,54 +685,85 @@
                                 <button class="btn btn-primary" type="button" onclick="openClientModal()">+ Nouveau client</button>
                             </div>
                         </div>
-                        <div class="toolbar">
-                            <input
-                                class="search"
-                                id="clients-search"
-                                type="text"
-                                placeholder="Rechercher par nom, prénom ou les deux..."
-                                oninput="filterClients(this.value)"
-                            />
-                            <div class="toolbar-spacer"></div>
-                            <span class="sec-meta" id="clients-page-meta">—</span>
+                        <div class="control-stack">
+                            <div class="control-band-sub">
+                                <div class="control-search">
+                                    <svg class="control-search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6"/><path d="M17 17l-4-4"/></svg>
+                                    <input
+                                        class="search"
+                                        id="clients-search"
+                                        type="text"
+                                        placeholder="Rechercher un client"
+                                        oninput="filterClients(this.value)"
+                                    />
+                                    <kbd class="control-kbd">⌘K</kbd>
+                                </div>
+                                <div class="control-band-divider"></div>
+                                <div class="control-band-actions">
+                                    <span class="control-band-count" id="clients-page-meta">—</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="clients-grid" id="clients-list"></div>
+                        <div class="tbl-wrap" id="clients-table-wrap">
+                            <table id="clients-table">
+                                <colgroup>
+                                    <col class="col-client" />
+                                    <col class="col-encours" />
+                                    <col class="col-perf" />
+                                    <col class="col-count" />
+                                    <col class="col-remark" />
+                                    <col class="col-chevron" />
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>CLIENT</th>
+                                        <th class="num">ENCOURS</th>
+                                        <th class="num">PERFORMANCE</th>
+                                        <th class="num">PRODUITS</th>
+                                        <th>REMARQUE</th>
+                                        <th aria-hidden="true"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-list"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
                 <!-- ===== AUTO PITCH ===== -->
                 <div class="view" id="view-autopitch">
                     <div class="spotlight" aria-hidden="true"></div>
-                    <div class="g2" id="autopitch-grid">
+                    <div class="pitch-grid" id="autopitch-grid">
                         <div class="panel">
-                            <div class="panel-title">
-                                Pitch Engine
-                            </div>
-                            <div class="pitch-wizard-progress" id="pitch-wizard-progress">
-                                <button type="button" class="pitch-wizard-step active" data-step-btn="1" onclick="pitchWizardGoTo(1)">
-                                    <span class="pitch-wizard-step-num">1</span>
-                                    <span class="pitch-wizard-step-label">Identité produit</span>
-                                </button>
-                                <button type="button" class="pitch-wizard-step" data-step-btn="2" onclick="pitchWizardGoTo(2)">
-                                    <span class="pitch-wizard-step-num">2</span>
-                                    <span class="pitch-wizard-step-label">Paramètres produit</span>
-                                </button>
-                                <button type="button" class="pitch-wizard-step" data-step-btn="3" onclick="pitchWizardGoTo(3)">
-                                    <span class="pitch-wizard-step-num">3</span>
-                                    <span class="pitch-wizard-step-label">Barrières &amp; rappel</span>
-                                </button>
-                                <button type="button" class="pitch-wizard-step" data-step-btn="4" onclick="pitchWizardGoTo(4)">
-                                    <span class="pitch-wizard-step-num">4</span>
-                                    <span class="pitch-wizard-step-label">Émetteur &amp; contexte</span>
-                                </button>
-                                <button type="button" class="pitch-wizard-step" data-step-btn="5" onclick="pitchWizardGoTo(5)">
-                                    <span class="pitch-wizard-step-num">5</span>
-                                    <span class="pitch-wizard-step-label">Résumé &amp; génération</span>
-                                </button>
+                            <div class="pitch-header-sticky">
+                                <div class="panel-title">
+                                    Pitch Engine
+                                </div>
+                                <div class="pitch-wizard-progress" id="pitch-wizard-progress">
+                                    <button type="button" class="pitch-wizard-step active" data-step-btn="1" onclick="pitchWizardGoTo(1)">
+                                        <span class="pitch-wizard-step-num">1</span>
+                                        <span class="pitch-wizard-step-label">Le produit</span>
+                                    </button>
+                                    <button type="button" class="pitch-wizard-step" data-step-btn="2" onclick="pitchWizardGoTo(2)">
+                                        <span class="pitch-wizard-step-num">2</span>
+                                        <span class="pitch-wizard-step-label">Le contenu</span>
+                                    </button>
+                                    <button type="button" class="pitch-wizard-step" data-step-btn="3" onclick="pitchWizardGoTo(3)">
+                                        <span class="pitch-wizard-step-num">3</span>
+                                        <span class="pitch-wizard-step-label">La mise en forme</span>
+                                    </button>
+                                    <button type="button" class="pitch-wizard-step" data-step-btn="4" onclick="pitchWizardGoTo(4)">
+                                        <span class="pitch-wizard-step-num">4</span>
+                                        <span class="pitch-wizard-step-label">Présenter</span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="pitch-step active" data-step="1">
-                            <div class="pitch-advanced-title">Identité produit</div>
-                            <div class="form-row">
+                            <div class="pitch-task-header">
+                                <div class="pitch-task-question">Quel produit structurez-vous ?</div>
+                                <div class="pitch-task-help">Famille et sous-jacent d'abord — le reste du formulaire s'ajuste automatiquement selon le type choisi.</div>
+                            </div>
+                            <div class="pitch-field-grid">
                                 <div>
                                     <label class="f-lbl">Nom client</label
                                     ><input
@@ -717,7 +775,7 @@
                                 </div>
                                 <div>
                                     <label class="f-lbl">Type produit</label>
-                                    <select class="f-sel" id="ap-type" onchange="pitchApplyFamilyDefaults(this.value); updatePitchProductFields()">
+                                    <select class="f-sel" id="ap-type" onchange="pitchApplyFamilyDefaults(this.value); updatePitchProductFields(); pitchUpdateContentBlocks();">
                                         <option value="phoenix">Phoenix Autocall</option>
                                         <option value="athena">Athena Autocall</option>
                                         <option value="bearish_taux">Bearish Taux</option>
@@ -725,9 +783,7 @@
                                         <option value="note">Note taux fixe/variable</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="form-row">
-                                <div>
+                                <div class="pitch-field-wide">
                                     <label class="f-lbl">Sous-jacent(s)</label
                                     ><input
                                         class="f-inp"
@@ -746,8 +802,6 @@
                                         required
                                     />
                                 </div>
-                            </div>
-                            <div class="form-row triple">
                                 <div>
                                     <label class="f-lbl">Coupon (%/an)</label
                                     ><input
@@ -785,13 +839,10 @@
                                     />
                                 </div>
                             </div>
-                            </div>
-                            <div class="pitch-step" data-step="2">
-                                <div class="pitch-advanced-title">
-                                    Paramètres produit
-                                </div>
+                            <div class="pitch-step-blocks">
+                            <div class="pitch-substep-block">
                                 <div class="pitch-substep-title">Fréquence &amp; observation</div>
-                                <div class="form-row triple">
+                                <div class="pitch-field-grid">
                                     <div class="pitch-field" data-families="phoenix athena bearish_taux cln note">
                                         <label class="f-lbl">Fréquence</label>
                                         <select class="f-sel" id="ap-frequency">
@@ -817,8 +868,10 @@
                                         </select>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="pitch-substep-block">
                                 <div class="pitch-substep-title">Dates clés</div>
-                                <div class="form-row triple">
+                                <div class="pitch-field-grid">
                                     <div class="pitch-field" data-families="phoenix athena bearish_taux cln note">
                                         <label class="f-lbl">Date d'émission</label>
                                         <input class="f-inp" id="ap-issue-date" placeholder="jj/mm/aaaa" />
@@ -832,11 +885,13 @@
                                         <input class="f-inp" id="ap-maturity-date" placeholder="jj/mm/aaaa" />
                                     </div>
                                 </div>
-                                <div class="pitch-substep-title">Sous-jacent &amp; décrément</div>
-                                <div class="form-row triple">
+                            </div>
+                            <div class="pitch-substep-block">
+                                <div class="pitch-substep-title">Mécanique du sous-jacent</div>
+                                <div class="pitch-field-grid">
                                     <div class="pitch-field" data-families="phoenix athena">
                                         <label class="f-lbl">Nature sous-jacent</label>
-                                        <select class="f-sel" id="ap-underlying-type">
+                                        <select class="f-sel" id="ap-underlying-type" onchange="pitchUpdateContentBlocks()">
                                             <option value="indice">Indice standard</option>
                                             <option value="action_vanille">Action vive</option>
                                             <option value="action_decrement">Indice/action décrémenté</option>
@@ -853,6 +908,10 @@
                                             <option value="percent">Pourcentage</option>
                                         </select>
                                     </div>
+                                    <div class="pitch-field" data-families="phoenix athena">
+                                        <label class="f-lbl">Décrément (pts)</label>
+                                        <input class="f-inp" id="ap-decrement" type="number" step="5" placeholder="ex: 50" />
+                                    </div>
                                     <div class="pitch-field" data-families="bearish_taux">
                                         <label class="f-lbl">Type Bearish</label>
                                         <select class="f-sel" id="ap-bearish-subtype" onchange="updatePitchProductFields()">
@@ -867,24 +926,15 @@
                                             <option value="in_fine">In Fine</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="form-row triple">
                                     <div class="pitch-field pitch-bearish-phoenix-field" data-families="phoenix bearish_taux">
                                         <label class="f-lbl">Barrière coupon (%)</label>
                                         <input class="f-inp" id="ap-coupon-barrier" type="number" step="1" min="0" max="100" value="60" />
                                     </div>
-                                    <div class="pitch-field" data-families="phoenix athena">
-                                        <label class="f-lbl">Décrément (pts)</label>
-                                        <input class="f-inp" id="ap-decrement" type="number" step="5" placeholder="ex: 50" />
-                                    </div>
                                 </div>
                             </div>
-                            <div class="pitch-step" data-step="3">
-                                <div class="pitch-advanced-title">
-                                    Barrières &amp; rappel
-                                </div>
+                            <div class="pitch-substep-block">
                                 <div class="pitch-substep-title">Rappel &amp; dégressivité</div>
-                                <div class="form-row triple">
+                                <div class="pitch-field-grid">
                                     <div class="pitch-field" data-families="phoenix athena">
                                         <label class="f-lbl">Type rappel</label>
                                         <select class="f-sel" id="ap-recall-type">
@@ -901,8 +951,10 @@
                                         <input class="f-inp" id="ap-floor" type="number" step="1" min="0" max="100" placeholder="ex: 80" />
                                     </div>
                                 </div>
+                            </div>
+                            <div class="pitch-substep-block">
                                 <div class="pitch-substep-title">Mécanismes optionnels</div>
-                                <div class="form-row triple">
+                                <div class="pitch-field-grid">
                                     <div class="pitch-field" data-families="phoenix">
                                         <label class="f-lbl">Put Leveraged</label>
                                         <select class="f-sel" id="ap-put-leveraged">
@@ -918,8 +970,6 @@
                                         <label class="f-lbl">Multiplicateur perte</label>
                                         <input class="f-inp" id="ap-put-multiplier" type="number" step="0.1" min="1" max="10" placeholder="ex: 2" />
                                     </div>
-                                </div>
-                                <div class="form-row triple">
                                     <div class="pitch-field pitch-multi-underlying-field" data-families="phoenix athena">
                                         <label class="f-lbl">Structure panier</label>
                                         <select class="f-sel" id="ap-basket">
@@ -948,8 +998,10 @@
                                         <input class="f-inp" id="ap-bearish-guaranteed-period" placeholder="ex: 1ère année écoulée" />
                                     </div>
                                 </div>
+                            </div>
+                            <div class="pitch-substep-block">
                                 <div class="pitch-substep-title">Barrières bearish</div>
-                                <div class="form-row triple">
+                                <div class="pitch-field-grid">
                                     <div class="pitch-field" data-families="bearish_taux">
                                         <label class="f-lbl">Barrière rappel bearish (%)</label>
                                         <input class="f-inp" id="ap-bearish-recall-barrier" type="number" step="1" min="0" max="300" placeholder="ex: 100" />
@@ -959,8 +1011,10 @@
                                         <input class="f-inp" id="ap-bearish-coupon-barrier" type="number" step="1" min="0" max="100" placeholder="ex: 95" />
                                     </div>
                                 </div>
+                            </div>
+                            <div class="pitch-substep-block">
                                 <div class="pitch-substep-title">Taux, callable &amp; référence (CLN / Note)</div>
-                                <div class="form-row triple">
+                                <div class="pitch-field-grid">
                                     <div class="pitch-field" data-families="cln note">
                                         <label class="f-lbl">Callable émetteur</label>
                                         <select class="f-sel" id="ap-callable" onchange="updatePitchProductFields()">
@@ -982,9 +1036,7 @@
                                             <option value="in_fine">In Fine</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="form-row triple">
-                                    <div class="pitch-field pitch-note-reference-field" data-families="cln note">
+                                    <div class="pitch-field pitch-note-reference-field pitch-field-wide" data-families="cln note">
                                         <label class="f-lbl">Référence taux / crédit</label>
                                         <input class="f-inp" id="ap-note-underlying" placeholder="EURIBOR 12M, Entité CLN..." />
                                     </div>
@@ -997,8 +1049,10 @@
                                         <input class="f-inp" id="ap-cap-floor" placeholder="ex: 8 / 2" />
                                     </div>
                                 </div>
+                            </div>
+                            <div class="pitch-substep-block">
                                 <div class="pitch-substep-title">Calendrier de call &amp; périodes</div>
-                                <div class="form-row triple">
+                                <div class="pitch-field-grid">
                                     <div class="pitch-field pitch-call-field pitch-cln-call-period-field" data-families="cln">
                                         <label class="f-lbl">Début call</label>
                                         <input class="f-inp" id="ap-call-start" type="date" />
@@ -1007,7 +1061,7 @@
                                         <label class="f-lbl">Fin call</label>
                                         <input class="f-inp" id="ap-call-end" type="date" />
                                     </div>
-                                    <div class="pitch-field pitch-call-field pitch-cln-call-dates-field" data-families="cln">
+                                    <div class="pitch-field pitch-field-longtext pitch-call-field pitch-cln-call-dates-field" data-families="cln">
                                         <label class="f-lbl">Dates fixes de call</label>
                                         <input class="f-inp" id="ap-call-dates" placeholder="ex: 01/06/2027; 01/06/2028" />
                                     </div>
@@ -1021,8 +1075,6 @@
                                             <option value="mensuel">Mensuelle</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="form-row triple">
                                     <div class="pitch-field" data-families="phoenix bearish_taux">
                                         <label class="f-lbl">Période de non-call</label>
                                         <select class="f-sel" id="ap-start-period">
@@ -1033,7 +1085,7 @@
                                             <option value="5">5ème période écoulée</option>
                                         </select>
                                     </div>
-                                    <div class="pitch-field" data-families="phoenix athena">
+                                    <div class="pitch-field pitch-field-longtext" data-families="phoenix athena">
                                         <label class="f-lbl">Dates niveau initial</label>
                                         <input class="f-inp" id="ap-initial-dates" placeholder="ex: 01/03/2026; 05/03/2026" />
                                     </div>
@@ -1044,8 +1096,6 @@
                                             <option value="dates">Dates fixes</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="form-row triple">
                                     <div class="pitch-field" data-families="note">
                                         <label class="f-lbl">Début coupon (Note)</label>
                                         <input class="f-inp" id="ap-note-coupon-start-period" type="number" min="1" value="1" />
@@ -1060,8 +1110,59 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="pitch-step" data-step="4">
-                            <div class="pitch-advanced-title">Émetteur &amp; contexte</div>
+                            </div>
+                            </div>
+                            <div class="pitch-step" data-step="2">
+                                <div class="pitch-task-header">
+                                    <div class="pitch-task-question">Qu'est-ce qu'on met dans le pitch ?</div>
+                                    <div class="pitch-task-help">Chaque bloc coché devient une page du document généré.</div>
+                                </div>
+                                <label class="pitch-block">
+                                    <span class="pitch-block-box"><input type="checkbox" id="ap-block-mechanism" checked /></span>
+                                    <span class="pitch-block-copy">
+                                        <span class="pitch-block-title">Mécanique du produit</span>
+                                        <span class="pitch-block-desc">Fonctionnement, barrières, calendrier d'observation.</span>
+                                    </span>
+                                    <span class="pitch-block-pages">1 page</span>
+                                </label>
+                                <label class="pitch-block">
+                                    <span class="pitch-block-box"><input type="checkbox" id="ap-block-scenarios" checked /></span>
+                                    <span class="pitch-block-copy">
+                                        <span class="pitch-block-title">Scénarios de remboursement</span>
+                                        <span class="pitch-block-desc">Projetés depuis le comportement du sous-jacent ; le nominal ne fait que les chiffrer en euros.</span>
+                                    </span>
+                                    <span class="pitch-block-pages">1 page</span>
+                                </label>
+                                <label class="pitch-block">
+                                    <span class="pitch-block-box"><input type="checkbox" id="ap-block-history" checked /></span>
+                                    <span class="pitch-block-copy">
+                                        <span class="pitch-block-title">Historique du sous-jacent</span>
+                                        <span class="pitch-block-desc">Performance passée et volatilité du sous-jacent retenu.</span>
+                                    </span>
+                                    <span class="pitch-block-pages">1 page</span>
+                                </label>
+                                <label class="pitch-block" id="ap-block-row-decrement" hidden>
+                                    <span class="pitch-block-box"><input type="checkbox" id="ap-block-decrement" checked /></span>
+                                    <span class="pitch-block-copy">
+                                        <span class="pitch-block-title">Decrement Score</span>
+                                        <span class="pitch-block-desc">Couverture dividende, performance sacrifiée et avis sur le sous-jacent décrémenté.</span>
+                                    </span>
+                                    <span class="pitch-block-pages">1 page</span>
+                                </label>
+                                <label class="pitch-block">
+                                    <span class="pitch-block-box"><input type="checkbox" id="ap-block-eurofund" /></span>
+                                    <span class="pitch-block-copy">
+                                        <span class="pitch-block-title">Comparaison fonds euro</span>
+                                        <span class="pitch-block-desc">Rendement du produit face à un fonds euro classique.</span>
+                                    </span>
+                                    <span class="pitch-block-pages">2 pages</span>
+                                </label>
+                            </div>
+                            <div class="pitch-step" data-step="3">
+                            <div class="pitch-task-header">
+                                <div class="pitch-task-question">Sous quelle signature présente-t-on ce pitch ?</div>
+                                <div class="pitch-task-help">Émetteur, contexte commercial et habillage du cabinet.</div>
+                            </div>
                             <div class="pitch-substep-title">Émetteur &amp; notation</div>
                             <div class="form-row triple">
                                 <div>
@@ -1115,11 +1216,84 @@
                                     />
                                 </div>
                             </div>
+                            <div class="pitch-substep-title">Habillage cabinet</div>
+                            <div class="form-row">
+                                <div>
+                                    <label class="f-lbl">Logo du cabinet</label>
+                                    <div class="pitch-logo-field">
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary"
+                                            onclick="document.getElementById('ap-brand-logo').click()"
+                                        >
+                                            Choisir un logo
+                                        </button>
+                                        <span class="pitch-logo-name" id="ap-brand-logo-name">Aucun fichier</span>
+                                        <input
+                                            class="sr-only"
+                                            id="ap-brand-logo"
+                                            type="file"
+                                            accept="image/*"
+                                            onchange="pitchUpdateLogoLabel()"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="f-lbl">Couleur du cabinet</label>
+                                    <div class="pitch-color-field">
+                                        <input
+                                            class="pitch-color-input"
+                                            id="ap-brand-color"
+                                            type="color"
+                                            oninput="pitchUpdateBrandColorLabel()"
+                                        />
+                                        <span class="pitch-color-hex" id="ap-brand-color-hex">#000000</span>
+                                        <div class="pitch-color-swatches">
+                                            <button type="button" class="pitch-color-swatch pitch-color-swatch-aegean" onclick="pitchSetBrandColor('--color-aegean')" aria-label="Aegean"></button>
+                                            <button type="button" class="pitch-color-swatch pitch-color-swatch-coral" onclick="pitchSetBrandColor('--color-coral')" aria-label="Corail"></button>
+                                            <button type="button" class="pitch-color-swatch pitch-color-swatch-ink" onclick="pitchSetBrandColor('--color-ink')" aria-label="Encre"></button>
+                                            <button type="button" class="pitch-color-swatch pitch-color-swatch-success" onclick="pitchSetBrandColor('--color-success')" aria-label="Succès"></button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="pitch-step" data-step="5">
-                                <div class="pitch-advanced-title">Résumé &amp; génération</div>
-                                <div id="pitch-wizard-summary" class="pitch-wizard-summary"></div>
-                                <div class="pitch-summary-footer">
+                            </div>
+                            <div class="pitch-step" data-step="4">
+                                <div class="pitch-task-header">
+                                    <div class="pitch-task-question">Prêt à générer le document ?</div>
+                                    <div class="pitch-task-help">L'aperçu à droite se met à jour à chaque génération.</div>
+                                </div>
+                                <div class="pitch-recap">
+                                    <div class="pitch-recap-row">
+                                        <div class="pitch-recap-copy">
+                                            <span class="pitch-recap-lbl">Produit</span>
+                                            <span class="pitch-recap-val" id="pitch-recap-product">—</span>
+                                        </div>
+                                        <button type="button" class="btn btn-tertiary" onclick="pitchWizardGoTo(1)">Modifier</button>
+                                    </div>
+                                    <div class="pitch-recap-row">
+                                        <div class="pitch-recap-copy">
+                                            <span class="pitch-recap-lbl">Contenu retenu</span>
+                                            <span class="pitch-recap-val" id="pitch-recap-blocks">—</span>
+                                        </div>
+                                        <button type="button" class="btn btn-tertiary" onclick="pitchWizardGoTo(2)">Modifier</button>
+                                    </div>
+                                    <div class="pitch-recap-row">
+                                        <div class="pitch-recap-copy">
+                                            <span class="pitch-recap-lbl">Client</span>
+                                            <span class="pitch-recap-val" id="pitch-recap-client">—</span>
+                                        </div>
+                                        <button type="button" class="btn btn-tertiary" onclick="pitchWizardGoTo(1)">Modifier</button>
+                                    </div>
+                                    <div class="pitch-recap-row">
+                                        <div class="pitch-recap-copy">
+                                            <span class="pitch-recap-lbl">Émetteur</span>
+                                            <span class="pitch-recap-val" id="pitch-recap-issuer">—</span>
+                                        </div>
+                                        <button type="button" class="btn btn-tertiary" onclick="pitchWizardGoTo(3)">Modifier</button>
+                                    </div>
+                                </div>
+                                <div class="pitch-summary-footer form-actions">
                                     <button
                                         class="btn btn-secondary"
                                         onclick="hydratePitchFromLastExtraction()"
@@ -1146,48 +1320,76 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="pitch-wizard-nav">
-                                <button type="button" class="btn" id="pitch-wizard-prev" onclick="pitchWizardPrev()" disabled>← Précédent</button>
-                                <span class="pitch-wizard-status" id="pitch-wizard-status">Étape 1 sur 5</span>
-                                <button type="button" class="btn btn-primary" id="pitch-wizard-next" onclick="pitchWizardNext()">Suivant →</button>
-                            </div>
                         </div>
-                        <div class="panel">
-                            <div class="panel-title">
-                                Prévisualisation slides
-                            </div>
-                            <div class="toolbar" style="margin-bottom: 10px">
-                                <span
-                                    class="pill-filter on"
-                                    id="ap-tab-slides"
-                                    onclick="switchPitchTab('slides')"
-                                    >Slides</span
+                        <div class="panel pitch-preview-pane">
+                            <div class="panel-title pitch-preview-title">
+                                <span>Aperçu</span>
+                                <button
+                                    type="button"
+                                    class="btn btn-tertiary pitch-fullscreen-toggle"
+                                    id="pitch-fullscreen-btn"
+                                    onclick="pitchToggleFullscreen()"
                                 >
-                                <span
-                                    class="pill-filter"
-                                    id="ap-tab-raw"
-                                    onclick="switchPitchTab('raw')"
-                                    >Contenu brut</span
+                                    Plein écran
+                                </button>
+                            </div>
+                            <div class="pitch-preview-card">
+                                <div class="pitch-preview-product" id="pitch-preview-product">Phoenix Autocall · CAC 40</div>
+                                <div class="pitch-preview-keylines">
+                                    <div class="pitch-preview-keyline">
+                                        <span class="pitch-preview-keyline-lbl">Coupon</span>
+                                        <span class="pitch-keyline-val" id="pitch-kl-coupon">—</span>
+                                    </div>
+                                    <div class="pitch-preview-keyline">
+                                        <span class="pitch-preview-keyline-lbl">Barrière coupon</span>
+                                        <span class="pitch-keyline-val" id="pitch-kl-coupon-barrier">—</span>
+                                    </div>
+                                    <div class="pitch-preview-keyline">
+                                        <span class="pitch-preview-keyline-lbl">Protection capital</span>
+                                        <span class="pitch-keyline-val" id="pitch-kl-protection">—</span>
+                                    </div>
+                                    <div class="pitch-preview-keyline">
+                                        <span class="pitch-preview-keyline-lbl">Premier rappel</span>
+                                        <span class="pitch-keyline-val" id="pitch-kl-recall">—</span>
+                                    </div>
+                                </div>
+                                <div class="toolbar pitch-preview-tabs">
+                                    <span
+                                        class="pill-filter on"
+                                        id="ap-tab-slides"
+                                        onclick="switchPitchTab('slides')"
+                                        >Slides</span
+                                    >
+                                    <span
+                                        class="pill-filter"
+                                        id="ap-tab-raw"
+                                        onclick="switchPitchTab('raw')"
+                                        >Contenu brut</span
+                                    >
+                                </div>
+                                <div
+                                    id="ap-loading"
+                                    class="pitch-loading"
+                                    style="display: none"
                                 >
-                            </div>
-                            <div
-                                id="ap-loading"
-                                class="pitch-loading"
-                                style="display: none"
-                            >
-                                Composition du pitch en cours...
-                            </div>
-                            <div id="ap-preview" class="pitch-preview-empty">
-                                <svg class="pitch-preview-empty-ico" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1.5"/><path d="M6.5 17h7"/><path d="M10 13.5V17"/><path d="M5.5 10l2.3-2.6 2 1.6 3-3.4"/></svg>
-                                <div>Générez un pitch pour afficher le deck.</div>
-                            </div>
-                            <pre
-                                id="ap-raw"
-                                class="json-view"
-                                style="display: none"
-                            >
+                                    Composition du pitch en cours...
+                                </div>
+                                <div id="ap-preview" class="pitch-preview-empty">
+                                    <svg class="pitch-preview-empty-ico" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1.5"/><path d="M6.5 17h7"/><path d="M10 13.5V17"/><path d="M5.5 10l2.3-2.6 2 1.6 3-3.4"/></svg>
+                                    <div>Générez un pitch pour afficher le deck.</div>
+                                </div>
+                                <pre
+                                    id="ap-raw"
+                                    class="json-view"
+                                    style="display: none"
+                                >
 En attente de génération...</pre
-                            >
+                                >
+                            </div>
+                            <div class="pitch-preview-nav">
+                                <button type="button" class="btn btn-secondary" id="pitch-wizard-prev" onclick="pitchWizardPrev()" disabled>Retour</button>
+                                <button type="button" class="btn btn-primary" id="pitch-wizard-next" onclick="pitchWizardNext()">Continuer</button>
+                            </div>
                         </div>
                     </div>
                 </div>

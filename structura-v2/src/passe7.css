@@ -1,0 +1,678 @@
+/* ============================================================
+   STRUCTURA — PASSE 7 (sections A et C : Pitch Engine, contrôles)
+   Chargée après views.css, avant relief.css. Sections B, D, E, F de
+   PASSE-7.md pas encore appliquées.
+
+   Trois règles inchangées : aucune priorité forcée en CSS, aucune
+   couleur littérale, un sélecteur par élément.
+   ============================================================ */
+
+/* ── Grille de la vue (A.3) ───────────────────────────────────
+   Colonne d'aperçu fixe à 460 px, permanente — plus de bascule
+   50/50 une fois un deck généré : la carte d'aperçu vit dans cette
+   même colonne à chaque étape, pas seulement après génération. */
+.pitch-grid {
+    display: grid;
+    gap: var(--space-4);
+}
+
+#autopitch-grid {
+    grid-template-columns: minmax(0, 1fr) 460px;
+}
+
+#autopitch-grid.pitch-fullscreen {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+#autopitch-grid.pitch-fullscreen > .panel:first-child {
+    display: none;
+}
+
+/* Aperçu et navigation collants (correctif 3) : sans ça, l'aperçu et
+   les boutons Retour/Continuer partent en haut de page dès qu'on
+   descend dans le formulaire — le CGP perd la navigation. La carte
+   est la seule zone qui grandit ; le pied de colonne reste fixe. */
+.pitch-preview-pane {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+/* Le bouton plein écran vit dans l'en-tête de la colonne d'aperçu,
+   pas dans le pied de l'étape 4 : le pied disparaît avec le
+   formulaire en plein écran, ce bouton doit rester joignable pour
+   pouvoir revenir en arrière. */
+.pitch-preview-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.pitch-fullscreen-toggle {
+    min-height: 28px;
+    padding: 0 var(--space-3);
+    font-size: var(--text-xs);
+}
+
+/* En-tête collant en haut de la colonne de gauche (correctifs 3 et 1) :
+   PITCH ENGINE + le fil des 4 étapes forment un seul bloc collant, sur
+   fond opaque avec un filet bas et un z-index au-dessus des champs —
+   sans ça le contenu défile derrière (voire le spinner d'un
+   input[type=number] flotte devant, un input établit son propre
+   contexte d'empilement dès qu'on le touche/focus). C'est le seul
+   indicateur d'étape (correctif 5), il doit rester joignable pendant
+   tout le défilement du formulaire. */
+.pitch-header-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding-top: var(--space-2);
+    /* Bande pleine, sans filet (correctif 4-2) : un texte qui défile
+       sous l'en-tête doit disparaître derrière un bandeau opaque,
+       jamais être coupé net sur une ligne. Le filet précédent créait
+       une couture visuelle à la jonction ; ~12 px de marge en plus
+       de la garde d'origine absorbe la ligne de texte entière avant
+       la coupe plutôt que de la trancher à mi-glyphe. */
+    padding-bottom: calc(var(--space-3) + var(--space-3));
+    background: var(--color-surface-1);
+}
+
+.pitch-header-sticky .pitch-wizard-progress {
+    margin-bottom: 0;
+}
+
+/* ── En-tête de tâche (A.1.2) ──────────────────────────────────
+   Remplace .pitch-advanced-title seul : une question courte en
+   24 px dit ce que le CGP doit faire à cette étape, une ligne d'aide
+   en dessous. .pitch-substep-title reste pour les sous-groupes.
+
+   Correctif 3-1 (bloquant) : le titre appartient au flux défilant,
+   pas à la zone collante — mais un changement d'étape n'a aucune
+   raison de replacer le défilement pile sous le bas de l'en-tête.
+   scroll-margin-top (posé dynamiquement par pitchSyncHeaderOffset(),
+   la hauteur réelle de .pitch-header-sticky n'est pas une constante :
+   elle dépend du nombre d'étapes du fil et de la taille de police)
+   garde une marge de lecture au-dessus du titre quand
+   scrollIntoView() l'amène en haut de la fenêtre. */
+.pitch-task-header {
+    margin-bottom: var(--space-4);
+    scroll-margin-top: calc(var(--pitch-header-h, 64px) + var(--space-4));
+}
+
+/* scroll-padding-top sur le conteneur défilant (correctif 4-1) : la
+   page elle-même défile (aucun overflow posé sur .main), donc le
+   conteneur pertinent est le document — restreint à cette vue via
+   :has() pour ne rien changer aux autres. Sans JS pour recentrer au
+   changement d'étape, c'est ce qui garde un champ invalide
+   (pitchWizardValidateStep() -> .focus()) visible sous l'en-tête
+   plutôt que caché derrière lors d'un focus natif du navigateur. */
+html:has(#view-autopitch.active) {
+    scroll-padding-top: calc(var(--pitch-header-h, 64px) + var(--space-4));
+}
+
+.pitch-task-question {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--color-ink);
+}
+
+.pitch-task-help {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ── Étape 1 en deux colonnes (correctif 1, bloquant) ──────────
+   Les trois anciennes étapes concaténées en une seule colonne pleine
+   largeur faisaient défiler 4 hauteurs d'écran pour saisir un
+   Phoenix complet — le défaut d'origine, déplacé, pas corrigé. */
+.pitch-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.pitch-field-wide {
+    grid-column: 1 / -1;
+}
+
+/* Les blocs eux-mêmes en grille 2 colonnes (passe 7A, correctif 2) :
+   un bloc à 1-2 champs gaspillait sa moitié droite en pleine largeur.
+   .pitch-substep-block-wide (posée par updatePitchProductFields(),
+   pas ici — la largeur dépend des champs visibles, donc de la
+   famille) passe un bloc à 3 champs visibles ou plus sur les deux
+   colonnes. */
+.pitch-step-blocks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    align-items: start;
+}
+
+/* Chaque .pitch-substep-title ouvre un bloc plutôt que de flotter
+   dans un flux continu — la coupure entre sous-groupes se voit sans
+   lire le titre. */
+.pitch-substep-block {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-wash);
+}
+
+.pitch-substep-block-wide {
+    grid-column: 1 / -1;
+}
+
+.pitch-substep-block .pitch-substep-title {
+    margin: 0 0 var(--space-3);
+}
+
+/* ── Étape 2 : blocs à cocher = pages du document (A.2) ────────
+   Une ligne cochable par bloc : titre, description, pagination à
+   droite. Le bloc Decrement est conditionnel (masqué via [hidden],
+   déjà display:none en cascade) ; Scénarios reste toujours visible,
+   ce n'est pas une case parmi d'autres — c'est la correction
+   explicite du client. */
+.pitch-block {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
+    cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+
+.pitch-block:hover {
+    border-color: var(--color-aegean);
+    background: var(--color-surface-2);
+}
+
+.pitch-block-box {
+    flex: none;
+    display: flex;
+}
+
+.pitch-block-box input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-aegean);
+}
+
+.pitch-block-copy {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pitch-block-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.pitch-block-desc {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.pitch-block-pages {
+    flex: none;
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+/* ── Carte d'aperçu permanente (A.3, correctifs 3 et 4) ─────────
+   Fond en retrait par rapport au .panel qui la contient — évite de
+   doubler bordure et ombre plutôt que de gagner un relief en plus.
+   Seule zone flexible de la colonne collante : elle grandit avec le
+   deck généré et défile sur elle-même plutôt que de repousser les
+   boutons Retour/Continuer hors champ. */
+.pitch-preview-card {
+    min-height: 0;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+    overflow-y: auto;
+}
+
+.pitch-preview-product {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.pitch-preview-keylines {
+    margin-bottom: var(--space-4);
+}
+
+.pitch-preview-keyline {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-divider);
+}
+
+.pitch-preview-keyline:last-child {
+    border-bottom: none;
+}
+
+.pitch-preview-keyline-lbl {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.pitch-preview-tabs {
+    margin: 0 0 10px;
+}
+
+/* ── Onglet Slides : vignettes, pas un mur de texte (correctif 3-2,
+   bloquant) ─────────────────────────────────────────────────────
+   Une vignette par slide générée : numéro, titre, 3 lignes de
+   résumé maximum. Le texte intégral vit dans Contenu brut — cette
+   liste ne le duplique pas, elle le pointe. */
+.pitch-slide-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.pitch-slide-thumb {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.pitch-slide-thumb-num {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in oklch, var(--color-aegean), transparent 88%);
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-aegean);
+}
+
+.pitch-slide-thumb-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pitch-slide-thumb-title {
+    margin-bottom: 2px;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+/* Ligne libre (mécanique, risques...) : un résumé, pas la phrase
+   entière — tronquée sur une ligne plutôt que de reproduire le
+   texte intégral déjà présent dans Contenu brut. */
+.pitch-slide-line {
+    overflow: hidden;
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Paire libellé/valeur (correctif 3-2) : chaque paire est sa propre
+   ligne, la valeur en mono à droite — plus de concaténation brute
+   type "ClientClient Professionnel". */
+.pitch-slide-line-kv {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    white-space: normal;
+}
+
+.pitch-slide-line-lbl {
+    flex: none;
+    color: var(--color-text-tertiary);
+}
+
+.pitch-slide-line-val {
+    overflow: hidden;
+    font-family: var(--font-mono-data);
+    color: var(--color-ink);
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Pied de colonne (correctif 3) : margin-top: auto le pousse au bas
+   de .pitch-preview-pane, sous la carte flexible ci-dessus — toujours
+   visible, jamais poussé hors champ par le contenu du formulaire. */
+.pitch-preview-nav {
+    display: flex;
+    flex: none;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-4);
+}
+
+/* Retour reste à sa largeur naturelle, Continuer prend le reste —
+   c'est lui l'action attendue à chaque étape. */
+#pitch-wizard-next {
+    flex: 1;
+}
+
+/* ── Récapitulatif de l'étape 4 (correctif 3-5) ────────────────
+   Avant : titre + ligne d'aide + 4 boutons, puis un vide jusqu'au
+   bas de la colonne — la seule étape sans rien à relire au moment
+   où le CGP décide. Une ligne par décision prise plus haut dans le
+   parcours, un Modifier qui y renvoie directement. */
+.pitch-recap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.pitch-recap-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.pitch-recap-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pitch-recap-lbl {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.pitch-recap-val {
+    overflow: hidden;
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Pied d'actions de l'étape 4 (A.4) ─────────────────────────
+   .form-actions (controls.css) fournit déjà le flex/justify-end ;
+   .pitch-summary-footer n'ajoute que ce qui lui est propre : le
+   collant en bas de panneau. Boutons à 44 px, alignés sur les
+   champs de saisie plutôt que sur la hauteur par défaut de .btn. */
+.pitch-summary-footer .btn {
+    min-height: 44px;
+}
+
+/* ── Habillage cabinet (correctifs 6 et 7) ─────────────────────
+   Couleur : 44 × 44 px au lieu d'un input étiré pleine largeur rendu
+   comme un aplat noir, hex affiché à côté en mono. */
+.pitch-color-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.pitch-color-input {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    padding: 2px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-1);
+    cursor: pointer;
+}
+
+.pitch-color-hex {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+}
+
+/* Quatre pastilles de palette (passe 7A, correctif 6) : le noir
+   n'existe pas dans la charte, --color-aegean est le défaut. */
+.pitch-color-swatches {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.pitch-color-swatch {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+}
+
+.pitch-color-swatch-aegean {
+    background: var(--color-aegean);
+}
+
+.pitch-color-swatch-coral {
+    background: var(--color-coral);
+}
+
+.pitch-color-swatch-ink {
+    background: var(--color-ink);
+}
+
+.pitch-color-swatch-success {
+    background: var(--color-success);
+}
+
+/* Logo : gabarit .btn secondaire au lieu de l'input natif brut
+   (Parcourir… / Aucun fichier sélectionné), 44 px comme les autres
+   champs de cette étape. */
+.pitch-logo-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.pitch-logo-field .btn {
+    min-height: 44px;
+}
+
+.pitch-logo-name {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+/* ============================================================
+   SECTION C — Gabarit de contrôles (recherche, période, modes)
+   Remplace .toolbar / .cal-bar, qui posaient recherche, filtres,
+   période et actions sur une seule ligne débordante (cause du
+   défilement horizontal signalé sur Portefeuille, Barrières,
+   Clients, Calendrier). Deux briques empilées dans .control-stack :
+   .control-band (60 px, période + modes, seulement là où une
+   période existe : Calendrier) et .control-band-sub (52 px,
+   recherche + actions, partout). Même rayon pour les deux — une
+   seule famille, pas un choix par vue.
+   ============================================================ */
+.control-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.control-band {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-3);
+    height: 60px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-1);
+}
+
+.control-band-sub {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-3);
+    height: 52px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-wash);
+}
+
+/* Libellé de période (16 px) + plage en mono 9,5 px, en baseline
+   plutôt qu'empilés : les deux se lisent comme une seule information
+   ("Juillet 2026" / "01 – 31 juil."), pas deux lignes séparées. */
+.control-band-period {
+    display: flex;
+    flex: none;
+    align-items: baseline;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.control-band-period-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink);
+    white-space: nowrap;
+}
+
+.control-band-period-range {
+    font-family: var(--font-mono-data);
+    font-size: 9.5px;
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Filet interne (A.1) : sépare la zone de recherche des actions à
+   droite dans la même carte, sans doubler le cadre de la carte. */
+.control-band-divider {
+    width: 1px;
+    height: 24px;
+    flex: none;
+    background: var(--color-divider);
+}
+
+.control-search {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 120px;
+}
+
+.control-search-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    fill: none;
+    stroke: var(--color-text-tertiary);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.control-kbd {
+    flex: none;
+    padding: 2px 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-1);
+    font-family: var(--font-mono-data);
+    font-size: 10px;
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+}
+
+.control-band-actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+/* .f-sel a width: 100% par défaut (contrôle de formulaire pleine
+   largeur) — dans la zone d'actions d'une barre, un sélecteur se
+   dimensionne à son contenu comme les autres contrôles voisins. */
+.control-band-actions .f-sel {
+    flex: none;
+    width: auto;
+}
+
+.control-band-count {
+    flex: none;
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+}
+
+/* ── Segmenté (modes de calendrier, vue mois grille/liste) ──────
+   Un seul widget pour tout choix exclusif à peu d'options — remplace
+   les .pill-filter isolées, qui n'exprimaient pas visuellement
+   qu'un seul choix est possible à la fois. */
+.seg {
+    display: flex;
+    flex: none;
+    gap: 2px;
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-2);
+}
+
+.seg-item {
+    height: 30px;
+    padding: 0 var(--space-3);
+    border: none;
+    border-radius: calc(var(--radius-sm) - 2px);
+    background: none;
+    color: var(--color-text-secondary);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background var(--duration-fast) var(--ease-standard),
+        color var(--duration-fast) var(--ease-standard);
+}
+
+.seg-item.on {
+    background: var(--color-surface-1);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-sm);
+}

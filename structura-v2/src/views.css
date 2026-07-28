@@ -87,73 +87,136 @@
     white-space: nowrap;
 }
 
-/* ── Vue Clients (section D) ──────────────────────────────────
-   Liste en cartes ; la fiche complète vit dans le tiroir (section A),
-   pas ici — cette grille ne montre que ce qui aide à choisir. */
-.clients-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: var(--space-4);
-}
-
-.client-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    padding: var(--space-5);
-    text-align: left;
-    border: none;
-    border-radius: var(--radius-md);
-    background: var(--gradient-card-lit);
-    box-shadow: var(--lit-top), var(--shadow-card);
-    cursor: pointer;
-    transition:
-        transform var(--duration-slow) var(--ease-spring),
-        box-shadow var(--duration-slow) var(--ease-spring);
-}
-
-.client-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--lit-top), var(--shadow-card-hover);
-}
-
-/* Seul usage du corail de la vue : un dossier avec une barrière
-   franchie le porte sur son ombre, pas sur un aplat. */
-.client-card-breach {
-    box-shadow: var(--lit-top), var(--shadow-card-coral);
-}
-
-.client-card-breach:hover {
-    box-shadow: var(--lit-top), var(--shadow-card-coral-hover);
-}
-
-.client-card-top {
+/* ── En-tête de la vue Clients (passe 7, section C) ─────────────
+   .panel pose padding: var(--space-6) et rien d'autre : kicker, h1 et
+   p en flux bloc normal empilaient leurs marges par défaut jusqu'à
+   500 px pour trois lignes de texte. Titre et bouton sur la même
+   ligne, sous-titre en dessous — tient en 120 px. */
+.clients-hero {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-3);
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
 }
 
-.client-card-name {
-    font-size: 15px;
+.clients-hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.clients-kicker {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.clients-hero-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--color-ink);
+}
+
+.clients-hero-sub {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+}
+
+.clients-hero-actions {
+    flex: none;
+}
+
+/* ── Vue Clients (section B, passe 7) ──────────────────────────
+   Tableau sur le gabarit de tables.css (.tbl-wrap, .num, colonnes
+   figées par <colgroup>) plutôt qu'une grille de cartes — la liste
+   se lit en balayage vertical, pas en pavés. Profil de risque,
+   distribution et historique de pitch restent dans la fiche
+   (tiroir, au clic), pas dans cette ligne : elle ne montre que ce
+   qui aide à choisir un dossier. Aucun avatar ni initiales : sans
+   valeur pour des clients nommés en toutes lettres. */
+/* .tbl-wrap table impose min-width: 1400px pour les tableaux à onze
+   colonnes (portefeuille, barrières) — cette table n'en a que six et
+   n'a pas besoin de la largeur minimale des autres, qui ne faisait
+   que pousser le chevron hors champ sans qu'aucune colonne n'en
+   profite. */
+#clients-table {
+    min-width: 760px;
+}
+
+#clients-table .col-client {
+    width: 34%;
+}
+
+#clients-table .col-encours {
+    width: 14%;
+}
+
+#clients-table .col-perf {
+    width: 14%;
+}
+
+#clients-table .col-count {
+    width: 11%;
+}
+
+#clients-table .col-remark {
+    width: 23%;
+}
+
+#clients-table .col-chevron {
+    width: 4%;
+}
+
+.client-name {
+    font-size: 13px;
     font-weight: 600;
     color: var(--color-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.client-card-aum {
+.client-meta {
     font-family: var(--font-mono-data);
-    font-size: 18px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-ink);
-}
-
-.client-card-foot {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
     font-size: var(--text-xs);
     color: var(--color-text-tertiary);
+}
+
+/* Pastille de remarque : vide par défaut, n'apparaît que quand il y
+   a réellement quelque chose à signaler (franchise de barrière) —
+   pas un état par défaut à remplir. */
+.client-remark {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: var(--radius-full);
+    background: color-mix(in oklch, var(--color-danger), transparent 84%);
+    color: var(--color-danger);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.client-row-chevron-cell {
+    text-align: right;
+}
+
+.client-row-chevron {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: var(--color-text-tertiary);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 /* ── Vue Barrières — frise de distance (section E) ────────────
@@ -312,27 +375,12 @@
     }
 }
 
-/* ── Vue Calendrier — barre de contrôle unique (passe 6, section F) ──
-   Remplace le bandeau de 350 px + les trois blocs de réglages : un
-   bandeau blanc à quatre lignes de texte brut, "Vue mois" en
-   paragraphe, six boutons natifs non stylés, un champ date toujours
-   visible, une phrase expliquant la disposition — et aucune grille
-   visible sans défiler. Une seule ligne de 56 px ; le contenu qui ne
-   tient pas défile horizontalement, comme .tbl-wrap. */
-.cal-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    height: 56px;
-    padding: 0 var(--space-4);
-    margin-bottom: var(--space-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface-1);
-    box-shadow: var(--shadow-card);
-    overflow-x: auto;
-}
-
+/* ── Vue Calendrier — chevrons de la barre période (passe 7, section C) ──
+   .cal-bar (une seule ligne de 56 px, tout dessus) est remplacée par
+   le gabarit partagé .control-band / .control-band-sub (passe7.css) :
+   période + modes sur la première barre, recherche + date de
+   référence sur la seconde. Les chevrons restent propres au
+   calendrier — aucune autre vue n'a de navigation par période. */
 .cal-bar-chevron {
     display: inline-flex;
     align-items: center;
@@ -355,38 +403,13 @@
     border-color: var(--color-aegean);
 }
 
-.cal-bar-month {
-    flex: none;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--color-ink);
-    white-space: nowrap;
-}
-
-.cal-bar-sep {
-    flex: none;
-    width: 1px;
-    height: 26px;
-    background: var(--color-border);
-}
-
-.cal-bar-tabs {
-    display: flex;
-    flex: none;
-    gap: var(--space-2);
-}
-
-.cal-bar-search {
-    flex: none;
-    width: 220px;
-    height: 34px;
-}
-
+/* Bouton et champs de la barre 2 (recherche + date de référence) :
+   38 px, comme tout contrôle de .control-band-sub (passe 7, C.1). */
 .cal-bar-date-btn {
     display: inline-flex;
     align-items: center;
     flex: none;
-    height: 30px;
+    height: 38px;
     padding: 0 var(--space-3);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
@@ -408,16 +431,8 @@
 
 .cal-bar-date-input {
     flex: none;
-    height: 30px;
+    height: 38px;
     width: auto;
-}
-
-.cal-bar-meta {
-    flex: none;
-    font-family: var(--font-mono-data);
-    font-size: 11px;
-    color: var(--color-text-tertiary);
-    white-space: nowrap;
 }
 
 .cal-bar-legend {
@@ -429,14 +444,6 @@
 .cal-bar-legend .cal-legend-item {
     font-family: var(--font-mono-data);
     font-size: 10px;
-}
-
-/* Nouveau mode par défaut, à côté des vues jour/semaine/année/plage/
-   glissant existantes, inchangées. */
-.calendar-month-view-toggle {
-    display: flex;
-    flex: none;
-    gap: var(--space-2);
 }
 
 .cal-legend-item {
@@ -1371,32 +1378,10 @@
     color: var(--color-text-on-dark);
 }
 
-.pitch-wizard-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    margin-top: var(--space-5);
-}
-
-.pitch-wizard-status {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-}
-
-/* Hiérarchie des titres (passe 6, section H) : un seul titre de
-   niveau 1 par étape, des sous-titres nettement plus discrets. Sans
-   ça, "Barrières & rappel" et "Rappel & dégressivité" se lisaient au
-   même rang — six titres de même poids sur un écran. */
-.pitch-advanced-title {
-    margin-bottom: var(--space-4);
-    font-family: var(--font-heading);
-    font-size: var(--text-lg);
-    font-weight: 800;
-    color: var(--color-ink);
-}
-
+/* Sous-titres de sous-groupe à l'intérieur d'une étape (passe 6,
+   généralisé passe 7) : le titre de niveau 1 de l'étape vit dans
+   .pitch-task-header (passe7.css), ce niveau-ci reste pour les
+   sous-groupes de champs. */
 .pitch-substep-title {
     margin: var(--space-5) 0 var(--space-3);
     font-family: var(--font-mono-data);
@@ -1411,77 +1396,19 @@
     margin-top: 0;
 }
 
-/* Récapitulatif étape 5 (passe 6) : un tableau libellé/valeur par
-   section, un seul bouton "Modifier" dans l'en-tête de section — pas
-   un bouton natif après chacune des douze lignes. */
-.pitch-summary-section {
-    margin-bottom: var(--space-5);
-}
-
-.pitch-summary-section-hdr {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
-}
-
-.pitch-summary-section-hdr .pitch-substep-title {
-    margin: 0;
-}
-
-.pitch-summary-edit {
-    min-height: 28px;
-    padding: 0 var(--space-3);
-    font-size: var(--text-xs);
-}
-
-.pitch-summary-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.pitch-summary-table td {
-    padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--color-divider);
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-}
-
-.pitch-summary-table tr:last-child td {
-    border-bottom: none;
-}
-
-.pitch-summary-table td.num {
-    font-weight: 600;
-    color: var(--color-ink);
-}
-
-/* Pied collant (passe 6) : un seul bouton primaire, les trois autres
-   en secondaire, plutôt que quatre boutons sur une ligne dont un
-   déborde à gauche du conteneur. */
+/* Pied d'actions de l'étape "Présenter" (passe 5, revu passe 7
+   section A.4) : collant en bas de panneau. L'alignement à droite et
+   l'espacement viennent de .form-actions (controls.css, combiné sur
+   le même élément) ; cette règle n'ajoute que ce qui lui est propre. */
 .pitch-summary-footer {
     position: sticky;
     bottom: 0;
     z-index: 1;
-    display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: var(--space-3);
     margin-top: var(--space-5);
     padding: var(--space-4) 0 0;
     background: var(--color-surface-1);
     border-top: 1px solid var(--color-border);
-}
-
-/* Panneau de prévisualisation (passe 6) : 320 px tant qu'il est vide
-   — au lieu de 45 % de l'écran pour une icône et une phrase — puis
-   retour au partage 50/50 une fois un deck généré. */
-#autopitch-grid {
-    grid-template-columns: minmax(0, 1fr) 320px;
-}
-
-#autopitch-grid.has-deck {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 /* Règle 1 : toute valeur numérique en mono tabulaire. */
@@ -1559,6 +1486,7 @@
     justify-content: center;
     gap: var(--space-3);
     min-height: 320px;
+    max-height: 320px;
     text-align: center;
     color: var(--color-text-tertiary);
 }

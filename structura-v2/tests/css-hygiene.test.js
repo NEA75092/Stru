@@ -25,6 +25,7 @@ const MIGRATED = [
   "overlays.css",
   "controls.css",
   "views.css",
+  "passe7.css",
 ];
 
 /* Passe validée = ses règles héritées ont été SUPPRIMÉES des

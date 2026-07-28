@@ -28,8 +28,7 @@
 }
 
 .f-inp,
-.f-sel,
-.search {
+.f-sel {
     width: 100%;
     min-height: 44px;
     padding: 0 var(--space-3);
@@ -45,21 +44,44 @@
 }
 
 .f-inp:focus,
-.f-sel:focus,
-.search:focus {
+.f-sel:focus {
     outline: none;
     border-color: var(--color-aegean);
     box-shadow: var(--shadow-focus);
 }
 
-.f-inp::placeholder,
+.f-inp::placeholder {
+    color: var(--color-text-tertiary);
+}
+
+/* ── Champ de recherche de .control-search (passe 7, section C) ──
+   Plat, sans bordure ni fond propres : la carte .control-band-sub
+   porte déjà le fond --color-wash et le filet, un champ bordé par
+   dessus aurait doublé le cadre. 38 px, pas 44 — c'est la hauteur de
+   contrôle de la barre 2, pas celle d'un champ de formulaire. */
+.search {
+    flex: 1;
+    min-height: 38px;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+}
+
+.search:focus {
+    outline: none;
+}
+
 .search::placeholder {
     color: var(--color-text-tertiary);
 }
 
-/* ── Toolbar de vue ──────────────────────────────────────────
-   Recherche, filtres et actions sur une ligne ; passe proprement à
-   la ligne sous 900px plutôt que d'écraser la recherche. */
+/* ── Toolbar générique ────────────────────────────────────────
+   Réutilisée par .pitch-preview-tabs (passe 7A) pour l'alignement de
+   ses deux onglets — pas seulement les barres de recherche. */
 .toolbar {
     display: flex;
     align-items: center;
@@ -70,19 +92,6 @@
     @media (max-width: 900px) {
         align-items: stretch;
     }
-}
-
-.toolbar .search {
-    flex: 1;
-    min-width: 220px;
-
-    @media (max-width: 900px) {
-        flex-basis: 100%;
-    }
-}
-
-.toolbar-spacer {
-    flex: 1;
 }
 
 /* ── Onglets ─────────────────────────────────────────────────

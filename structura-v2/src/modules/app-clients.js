@@ -8,7 +8,7 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraClients(root) {
-    const { moneyShort, escapeHtml, notify } = root.StructuraUtils;
+    const { moneyShort, pctFr, escapeHtml, notify } = root.StructuraUtils;
     const {
       CLIENTS,
       PRODUCTS,
@@ -66,13 +66,18 @@
       return { products, count: products.length, nominal, val, breach, watch };
     }
 
-    function initials(name) {
-      return String(name || "C")
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase() || "")
-        .join("") || "C";
+    // L'enveloppe la plus fréquente parmi les produits rattachés — pas
+    // un champ stocké sur le client, dérivée de ses allocations
+    // réelles à chaque rendu plutôt que d'inventer une donnée.
+    function dominantEnvelope(products, clientId) {
+      const counts = {};
+      products.forEach((product) => {
+        const env = allocationForClient(product, clientId)?.envelope;
+        if (!env) return;
+        counts[env] = (counts[env] || 0) + 1;
+      });
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+      return top ? envelopeLabel(top[0]) : "";
     }
 
     function updateClientsMeta() {
@@ -99,26 +104,36 @@
       renderClients();
     }
 
-    // Carte de client (passe 5, section D) : nom, segment, encours et
-    // compteurs seulement — le détail complet vit dans le tiroir, pas
-    // ici. Aucun montant coloré ; le compteur d'alertes réutilise les
-    // classes .st-bad/.st-warn déjà définies pour les statuts de
-    // tableau plutôt que d'inventer une nouvelle teinte.
-    function renderClientCard(client) {
+    // Ligne de client (passe 7, section B) : tableau, pas des cartes —
+    // la liste se lit en balayage vertical. Profil de risque, distribution
+    // et historique de pitch restent dans la fiche (openClientDrawer),
+    // pas ici ; cette ligne ne montre que ce qui aide à choisir un
+    // dossier. Aucun avatar ni initiales : sans valeur pour des clients
+    // nommés en toutes lettres.
+    function renderClientRow(client) {
       const stats = clientStats(client.id);
-      const alerts = stats.breach + stats.watch;
-      const alertCls = stats.breach > 0 ? "st-bad" : alerts > 0 ? "st-warn" : "";
-      return `<button type="button" class="client-card${stats.breach > 0 ? " client-card-breach" : ""}" onclick="openClientDrawer(${client.id})">
-        <div class="client-card-top">
-          <strong class="client-card-name">${escapeHtml(client.name)}</strong>
-          <span class="pill-category">${escapeHtml(client.segment)}</span>
-        </div>
-        <div class="client-card-aum">${moneyShort(stats.nominal)}</div>
-        <div class="client-card-foot">
-          <span>${stats.count} produit${stats.count > 1 ? "s" : ""}</span>
-          ${alerts ? `<span class="${alertCls}">${alerts} alerte${alerts > 1 ? "s" : ""}</span>` : ""}
-        </div>
-      </button>`;
+      const reference = `DOS-${String(client.id).padStart(4, "0")}`;
+      const envelope = dominantEnvelope(stats.products, client.id);
+      const perfPct =
+        stats.nominal > 0 ? ((stats.val - stats.nominal) / stats.nominal) * 100 : null;
+      const perfCls = perfPct === null ? "" : perfPct >= 0 ? "up" : "dn";
+      const perfStr =
+        perfPct === null ? "—" : `${perfPct >= 0 ? "+" : ""}${pctFr(perfPct)}`;
+      const remark =
+        stats.breach > 0
+          ? `<span class="client-remark">${stats.breach} produit${stats.breach > 1 ? "s" : ""} sous PDI</span>`
+          : "";
+      return `<tr onclick="openClientDrawer(${client.id})">
+        <td>
+          <div class="client-name">${escapeHtml(client.name)}</div>
+          <div class="client-meta">${escapeHtml(reference)}${envelope ? ` · ${escapeHtml(envelope)}` : ""}</div>
+        </td>
+        <td class="num">${moneyShort(stats.nominal)}</td>
+        <td class="num ${perfCls}">${perfStr}</td>
+        <td class="num">${stats.count}</td>
+        <td>${remark}</td>
+        <td class="client-row-chevron-cell"><svg class="client-row-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5l6 5.5-6 5.5"/></svg></td>
+      </tr>`;
     }
 
     // Fiche client au clic : rendue dans le tiroir partagé avec les
@@ -207,8 +222,8 @@
         return matchesClientSearch(client, clientSearch);
       });
       list.innerHTML = filtered.length
-        ? filtered.map(renderClientCard).join("")
-        : '<div class="empty-inline">Aucun client ne correspond à la recherche.</div>';
+        ? filtered.map(renderClientRow).join("")
+        : '<tr><td colspan="6" class="tbl-empty">Aucun client ne correspond à la recherche.</td></tr>';
       updateClientsMeta();
     }
 
