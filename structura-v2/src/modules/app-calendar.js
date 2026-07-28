@@ -431,6 +431,12 @@
       );
     }
 
+    // Barres mensuelles seulement quand il y a plusieurs mois à comparer
+    // (passe 7C, A.4) : une carte de 300 px pour une seule barre n'avait
+    // rien à montrer — un point unique se lit mieux en ligne
+    // (« 120 k€ en août »). La méta ne porte que ce qui est propre à
+    // cette carte (nombre de versements) : la période est déjà écrite
+    // une fois, dans la barre 1.
     function drawFluxChart() {
       const container = document.getElementById("cal-flux-chart");
       if (!container) return;
@@ -453,58 +459,68 @@
       });
       const entries = [...buckets.entries()].sort((a, b) => a[0].localeCompare(b[0]));
       const meta = document.getElementById("cal-flux-meta");
-      const title = document.getElementById("cal-flux-title");
-      if (title) title.textContent = "Flux de coupons";
-      if (meta) {
-        meta.textContent = entries.length
-          ? `${selectedRange.title} · ${entries.length} mois avec flux`
-          : selectedRange.title;
-      }
-      if (!entries.length) {
-        container.innerHTML = `<div class="cal-flux-empty">Aucun coupon sur cette période.</div>`;
+      const monthLabel = (key, format) => {
+        const [year, month] = key.split("-").map(Number);
+        return new Date(year, month - 1, 1).toLocaleDateString("fr-FR", { month: format });
+      };
+      const formatAmount = (amount) =>
+        amount >= 1e6
+          ? `${(amount / 1e6).toFixed(2)} M€`
+          : amount >= 1e3
+            ? `${Math.round(amount / 1e3)} k€`
+            : `${Math.round(amount)} €`;
+
+      if (entries.length <= 1) {
+        container.className = "cal-flux-line";
+        if (!entries.length) {
+          if (meta) meta.textContent = "Aucun coupon sur cette période";
+          container.innerHTML = `<span class="cal-flux-empty">Aucun coupon sur cette période.</span>`;
+          return;
+        }
+        const [key, amount] = entries[0];
+        if (meta) meta.textContent = "1 versement";
+        container.innerHTML = `<span class="cal-flux-line-val">${escapeHtml(formatAmount(amount))}</span><span class="cal-flux-line-label">en ${escapeHtml(monthLabel(key, "long"))}</span>`;
         return;
       }
+
+      if (meta) meta.textContent = `${entries.length} mois avec flux`;
       const max = Math.max(...entries.map(([, v]) => v), 1);
+      container.className = "cal-flux-chart-grid";
       container.innerHTML = entries
         .map(([key, amount]) => {
-          const [year, month] = key.split("-").map(Number);
-          const label = new Date(year, month - 1, 1).toLocaleDateString("fr-FR", {
-            month: "short",
-          });
           const height = Math.max(8, Math.round((amount / max) * 88));
-          const display =
-            amount >= 1e6
-              ? `${(amount / 1e6).toFixed(2)} M€`
-              : amount >= 1e3
-                ? `${Math.round(amount / 1e3)} k€`
-                : `${Math.round(amount)} €`;
+          const display = formatAmount(amount);
           return `<div class="cal-flux-bar-wrap">
             <span class="cal-flux-bar-val">${escapeHtml(display)}</span>
             <div class="cal-flux-bar" style="height:${height}px" title="${escapeHtml(display)}"></div>
-            <span class="cal-flux-bar-label">${escapeHtml(label)}</span>
+            <span class="cal-flux-bar-label">${escapeHtml(monthLabel(key, "short"))}</span>
           </div>`;
         })
         .join("");
     }
 
+    // La période ne s'écrit qu'une fois, dans la barre 1 (passe 7C, A.3) :
+    // cal-bar-meta porte le libellé complet de la période active
+    // (selectedRange.title — « Semaine du... », « Année 2026 »...) ; les
+    // cartes en dessous ne répètent plus la date, leur méta ne porte que
+    // ce qui leur est propre (nombre d'événements, de versements).
     function updateCalendarContext(selectedRange, periodEvents, day) {
       const refDate = parseIsoDate(day);
       setText("cal-bar-month", monthTitleFR(refDate));
-      setText(
-        "cal-bar-meta",
-        `${periodEvents.length} événement${periodEvents.length > 1 ? "s" : ""} · ${selectedRange.title}`,
-      );
+      // La plage, en chiffres — jamais le même texte que cal-bar-month
+      // (en mode Mois, selectedRange.title est aussi "Juillet 2026",
+      // doublant le libellé juste à côté).
+      const start = parseIsoDate(selectedRange.start);
+      const end = parseIsoDate(selectedRange.end);
+      const rangeLabel =
+        selectedRange.start === selectedRange.end
+          ? start.toLocaleDateString("fr-FR")
+          : `${start.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })} – ${end.toLocaleDateString("fr-FR")}`;
+      setText("cal-bar-meta", rangeLabel);
       setText(
         "cal-events-meta",
-        `${selectedRange.title} · du ${parseIsoDate(selectedRange.start).toLocaleDateString("fr-FR")} au ${parseIsoDate(selectedRange.end).toLocaleDateString("fr-FR")}`,
+        `${periodEvents.length} événement${periodEvents.length > 1 ? "s" : ""}`,
       );
-      const periodMeta = document.getElementById("cal-period-meta");
-      if (periodMeta) {
-        periodMeta.textContent =
-          calendarState.mode === "day"
-            ? "Même jour que la date de référence"
-            : `${periodEvents.length} événement${periodEvents.length > 1 ? "s" : ""}`;
-      }
     }
 
     // Grille mensuelle (section F) : un point par événement, coloré par
@@ -623,7 +639,6 @@
       );
       const selectedRange = rangeForMode();
       const day = calendarState.date || isoDate(new Date());
-      const dayEvents = filterEventsByRange(allEvents, day, day);
       const periodEvents = filterEventsByRange(allEvents, selectedRange.start, selectedRange.end);
       updateCalendarKpis(periodEvents);
       updateCalendarContext(selectedRange, periodEvents, day);
@@ -648,29 +663,20 @@
       if (fluxPanel) fluxPanel.hidden = isMonthMode;
       if (isMonthMode) renderMonthView(allEvents, selectedRange);
 
-      const isDayMode = calendarState.mode === "day";
-      const eventsGrid = document.getElementById("cal-events-grid");
-      if (eventsGrid) eventsGrid.hidden = isMonthMode;
-      const dayCol = document.getElementById("cal-day-col");
-      if (eventsGrid) eventsGrid.classList.toggle("cal-events-day", isDayMode);
-      if (dayCol) dayCol.style.display = isDayMode ? "none" : "";
-      const dayTitle = document.getElementById("cal-day-title");
-      const periodTitle = document.getElementById("cal-period-title");
-      if (dayTitle) {
-        dayTitle.textContent = isDayMode
-          ? `Événements du ${parseIsoDate(day).toLocaleDateString("fr-FR")}`
-          : `Jour de référence · ${parseIsoDate(day).toLocaleDateString("fr-FR")}`;
-      }
-      if (periodTitle) {
-        periodTitle.textContent = isDayMode
-          ? selectedRange.title
-          : selectedRange.title;
-      }
-      const dayContainer = document.getElementById("cal-day");
+      // Liste unique des événements de la période (passe 7C, A.2) : la
+      // date de référence est déjà un repère dans la barre 2, elle ne
+      // mérite pas son propre panneau — si elle a des événements, ce
+      // sont des lignes mises en évidence dans cette même liste
+      // (.ev-focus), pas un second panneau qui doublait souvent le
+      // premier vide pour vide.
       const periodContainer = document.getElementById("cal-period");
       const emptyMsg = `<div class="empty-inline">Aucun événement produit sur cette période</div>`;
-      if (dayContainer) dayContainer.innerHTML = dayEvents.length ? evHtmlRef(dayEvents) : emptyMsg;
-      if (periodContainer) periodContainer.innerHTML = periodEvents.length ? evHtmlRef(periodEvents) : emptyMsg;
+      if (periodContainer) {
+        periodContainer.innerHTML = periodEvents.length ? evHtmlRef(periodEvents) : emptyMsg;
+        [...periodContainer.children].forEach((el, i) => {
+          el.classList.toggle("ev-focus", periodEvents[i]?._dateIso === day);
+        });
+      }
       drawFluxChart();
     }
 

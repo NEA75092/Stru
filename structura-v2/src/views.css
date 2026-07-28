@@ -476,6 +476,110 @@
     background: var(--color-warning);
 }
 
+/* ── KPI « Prochains 30 jours » (passe 7C, A.1) ─────────────────
+   Remontée juste sous les deux barres de contrôles, avant tout
+   contenu d'événements — plus en bas de vue. Bande ~110 px : .kpi
+   garde son gabarit (dashboard.css) mais sans le min-height:148px
+   pensé pour une grille pleine page. */
+.cal-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+
+    @media (max-width: 1280px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.cal-kpi-row .kpi {
+    min-height: 0;
+    padding: var(--space-3) var(--space-4);
+}
+
+.cal-kpi-row .kpi-val {
+    font-size: var(--text-2xl);
+}
+
+.cal-kpi-row .kpi-sub {
+    font-size: var(--text-xs);
+}
+
+/* Ligne mise en évidence (passe 7C, A.2) : la date de référence n'a
+   plus son propre panneau — quand un événement de la liste tombe ce
+   jour-là, c'est cette teinte qui le signale, pas une seconde carte
+   vide à côté d'une première vide. */
+.ev-focus {
+    background: color-mix(in oklch, var(--color-aegean), transparent 92%);
+    border-radius: var(--radius-sm);
+}
+
+/* ── Flux de coupons (passe 7C, A.4) ────────────────────────────
+   Barres seulement quand il y a plusieurs mois à comparer ; un point
+   unique se lit en ligne, pas dans une carte de 300 px vide. */
+.cal-flux-chart-grid {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-4);
+    height: 120px;
+    padding-top: var(--space-3);
+}
+
+.cal-flux-bar-wrap {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    max-width: 64px;
+}
+
+.cal-flux-bar-val {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.cal-flux-bar {
+    width: 100%;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    background: var(--color-aegean);
+}
+
+.cal-flux-bar-label {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-2xs);
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+}
+
+.cal-flux-line {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+}
+
+.cal-flux-line-val {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.cal-flux-line-label {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+}
+
+.cal-flux-empty {
+    display: block;
+    padding: var(--space-2) 0;
+    color: var(--color-text-tertiary);
+    font-size: var(--text-sm);
+}
+
 .cal-month-grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));

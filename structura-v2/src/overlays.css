@@ -296,6 +296,139 @@
     background: var(--color-divider);
 }
 
+/* ── Tiroir client — 4 KPI en une rangée (passe 7C, B.6) ────────
+   Même composant que .kpi-row-accent-top (Barrières, Pilotage),
+   compacté pour les ~512 px utiles du tiroir : .kpi-val de 34 px
+   déborderait sur une carte de ~115 px de large. */
+.dr-kpi-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.dr-kpi-row .kpi {
+    min-height: 92px;
+    padding: var(--space-3) var(--space-3) var(--space-2);
+}
+
+.dr-kpi-row .kpi-val {
+    font-size: 20px;
+    gap: var(--space-1);
+}
+
+/* ── Bloc contact (passe 7C, B.4) ────────────────────────────────
+   L'e-mail n'est pas une donnée de pilotage : il descend sous les
+   notes, en texte discret plutôt qu'en sous-titre du tiroir. */
+.dr-contact {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+/* ── Pied de tiroir (passe 7C, B.5) ───────────────────────────────
+   « Rattacher un produit » est une action, pas un champ au milieu du
+   flux : elle rejoint le bouton principal en pied de tiroir. */
+.dr-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+.dr-attach-select {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ── Tableau produits du tiroir (passe 7C, B.1-B.2) ───────────────
+   .tbl-wrap table impose min-width: 1400px et une hauteur maximale
+   pensée pour une vue pleine page — dans les ~512 px utiles du
+   tiroir, qui défile déjà lui-même, ça produit un double défilement
+   et un tableau tronqué. Colonnes figées par <colgroup>, Produit en
+   1fr : c'est elle qui doit absorber la largeur, pas les colonnes
+   fixes qui l'écrasaient à ~110 px. */
+#dr-products-wrap {
+    max-height: none;
+    overflow: visible;
+}
+
+#dr-products-wrap thead {
+    position: static;
+}
+
+#dr-products-table {
+    min-width: 0;
+}
+
+/* table-layout: fixed (hérité de .tbl-wrap table) fixe la largeur des
+   colonnes, mais un th/td plus large que sa colonne continue de
+   peindre par-dessus la colonne voisine tant que rien ne le coupe —
+   c'était la cause du « SOUSCRIPTIONENVELOPPE » soudé. */
+#dr-products-table th {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dr-col-produit {
+    width: auto;
+}
+
+.dr-col-sub {
+    width: 64px;
+}
+
+.dr-col-envelope {
+    width: 88px;
+}
+
+.dr-col-canal {
+    width: 46px;
+}
+
+.dr-col-nominal {
+    width: 60px;
+}
+
+.dr-col-statut {
+    width: 76px;
+}
+
+.dr-col-action {
+    width: 70px;
+}
+
+/* Retirer : gabarit .btn standard, trop large pour 70 px — compacté
+   pour cette table uniquement, pas une redéclaration de .btn-tertiary. */
+#dr-products-table .btn-tertiary {
+    min-height: 30px;
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+}
+
+/* Nom de produit : le libellé le plus important de la ligne, sur une
+   ligne, tronqué avec … si nécessaire — jamais une pastille encadrée
+   (bouton natif non stylé, cause des 4 lignes dans ~110 px). */
+.linkish {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.linkish:hover {
+    color: var(--color-aegean);
+}
+
 .dr-price-chart-wrap {
     margin-top: var(--space-3);
     border-radius: var(--radius-sm);

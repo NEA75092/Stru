@@ -519,6 +519,33 @@
                         </div>
                     </div>
                     <div id="cal-period-view">
+                    <div class="sec-hdr cal-kpi-hdr">
+                        <div class="sec-title">Prochains 30 jours</div>
+                        <span class="sec-meta">Indicateurs à venir, indépendants de la période affichée</span>
+                    </div>
+                    <div class="cal-kpi-row">
+                        <div class="kpi k-blue">
+                            <div class="kpi-lbl">Coupons attendus</div>
+                            <div class="kpi-val" id="cal-kpi-coupon-val">—</div>
+                            <div class="kpi-sub" id="cal-kpi-coupon-sub">—</div>
+                        </div>
+                        <div class="kpi k-gold">
+                            <div class="kpi-lbl">Maturités / remboursements</div>
+                            <div class="kpi-val" id="cal-kpi-mat-val">—</div>
+                            <div class="kpi-sub" id="cal-kpi-mat-sub">—</div>
+                        </div>
+                        <div class="kpi k-orange">
+                            <div class="kpi-lbl">Observations à venir</div>
+                            <div class="kpi-val" id="cal-kpi-obs-val">—</div>
+                            <div class="kpi-sub" id="cal-kpi-obs-sub">—</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-lbl">Événements — période affichée</div>
+                            <div class="kpi-val" id="cal-kpi-bar-val">—</div>
+                            <div class="kpi-sub">Sur la période affichée</div>
+                        </div>
+                    </div>
+
                     <div id="cal-month-section">
                         <div class="cal-month-grid" id="cal-month-grid"></div>
                         <div class="tbl-wrap" id="cal-month-list-wrap" hidden>
@@ -538,87 +565,19 @@
                     </div>
 
                     <div class="sec-hdr cal-events-hdr" id="cal-events-hdr">
-                        <div class="sec-title">Événements produits</div>
+                        <div class="sec-title">Événements de la période</div>
                         <span class="sec-meta" id="cal-events-meta">—</span>
                     </div>
-                    <div class="g2 cal-events-grid" id="cal-events-grid">
-                        <div class="cal-events-col" id="cal-day-col">
-                            <div class="sec-hdr cal-col-hdr">
-                                <div class="sec-title" id="cal-day-title">—</div>
-                                <span class="sec-meta">Focus sur la date de référence</span>
-                            </div>
-                            <div class="panel cal-events-panel">
-                                <div class="ev-list" id="cal-day"></div>
-                            </div>
-                        </div>
-                        <div class="cal-events-col" id="cal-period-col">
-                            <div class="sec-hdr cal-col-hdr">
-                                <div class="sec-title" id="cal-period-title">—</div>
-                                <span class="sec-meta" id="cal-period-meta">Période affichée</span>
-                            </div>
-                            <div class="panel cal-events-panel">
-                                <div class="ev-list" id="cal-period"></div>
-                            </div>
-                        </div>
+                    <div class="panel cal-events-panel">
+                        <div class="ev-list" id="cal-period"></div>
                     </div>
 
                     <div class="panel cal-flux-panel" id="cal-flux-panel">
                         <div class="sec-hdr" style="margin-bottom: 10px">
                             <div class="sec-title" id="cal-flux-title">Flux de coupons</div>
-                            <span class="sec-meta" id="cal-flux-meta">Sur la période sélectionnée</span>
+                            <span class="sec-meta" id="cal-flux-meta">—</span>
                         </div>
                         <div class="cal-flux-chart" id="cal-flux-chart"></div>
-                    </div>
-
-                    <div class="sec-hdr cal-kpi-hdr">
-                        <div class="sec-title">Prochains 30 jours</div>
-                        <span class="sec-meta">Indicateurs à venir, indépendants de la période affichée</span>
-                    </div>
-                    <div class="g4 cal-kpi-row">
-                        <div class="kpi k-blue">
-                            <div class="kpi-lbl">Coupons attendus</div>
-                            <div
-                                class="kpi-val"
-                                id="cal-kpi-coupon-val"
-                                style="font-size: 18px"
-                            >
-                                —
-                            </div>
-                            <div class="kpi-sub" id="cal-kpi-coupon-sub">—</div>
-                        </div>
-                        <div class="kpi k-gold">
-                            <div class="kpi-lbl">Maturités / remboursements</div>
-                            <div
-                                class="kpi-val"
-                                id="cal-kpi-mat-val"
-                                style="font-size: 18px"
-                            >
-                                —
-                            </div>
-                            <div class="kpi-sub" id="cal-kpi-mat-sub">—</div>
-                        </div>
-                        <div class="kpi k-orange">
-                            <div class="kpi-lbl">Observations à venir</div>
-                            <div
-                                class="kpi-val"
-                                id="cal-kpi-obs-val"
-                                style="font-size: 18px"
-                            >
-                                —
-                            </div>
-                            <div class="kpi-sub" id="cal-kpi-obs-sub">—</div>
-                        </div>
-                        <div class="kpi k-red">
-                            <div class="kpi-lbl">Événements — période affichée</div>
-                            <div
-                                class="kpi-val"
-                                id="cal-kpi-bar-val"
-                                style="font-size: 18px"
-                            >
-                                —
-                            </div>
-                            <div class="kpi-sub" id="cal-kpi-bar-sub">Sur la période sélectionnée ci-dessus</div>
-                        </div>
                     </div>
                     </div>
 

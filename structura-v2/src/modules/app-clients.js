@@ -155,60 +155,80 @@
       }
       const stats = clientStats(client.id);
       const unassigned = activeProducts().filter((p) => !p.clientId);
+      const envelopes = new Set(
+        stats.products
+          .map((product) => allocationForClient(product, client.id)?.envelope)
+          .filter(Boolean),
+      );
+      const dominantEnvelope = envelopes.size === 1 ? envelopeLabel([...envelopes][0]) : null;
+      const mixedEnvelopes = envelopes.size > 1;
+      const alerts = stats.breach + stats.watch;
       content.innerHTML = `
         <div class="dr-name">${escapeHtml(client.name)}</div>
-        <div class="dr-isin">${escapeHtml(client.segment)}${client.email ? ` · ${escapeHtml(client.email)}` : ""}</div>
-        <div class="dr-grid">
-          <div><div class="dr-field-lbl">Produits</div><div class="dr-field-val">${stats.count}</div></div>
-          <div><div class="dr-field-lbl">Encours nominal</div><div class="dr-field-val">${moneyShort(stats.nominal)}</div></div>
-          <div><div class="dr-field-lbl">Valorisation</div><div class="dr-field-val">${moneyShort(stats.val)}</div></div>
-          <div><div class="dr-field-lbl">Alertes</div><div class="dr-field-val">${stats.breach + stats.watch}</div></div>
+        <div class="dr-isin">${escapeHtml(client.segment)}${dominantEnvelope ? ` · ${escapeHtml(dominantEnvelope)}` : ""}</div>
+        <div class="kpi-row kpi-row-accent-top dr-kpi-row">
+          <div class="kpi"><div class="kpi-lbl">Produits</div><div class="kpi-val">${stats.count}</div><div class="kpi-sub">Rattachés au dossier</div></div>
+          <div class="kpi"><div class="kpi-lbl">Encours nominal</div><div class="kpi-val">${moneyShort(stats.nominal)}</div><div class="kpi-sub">&nbsp;</div></div>
+          <div class="kpi"><div class="kpi-lbl">Valorisation</div><div class="kpi-val">${moneyShort(stats.val)}</div><div class="kpi-sub">&nbsp;</div></div>
+          <div class="kpi${alerts > 0 ? " kpi-accent-danger" : ""}"><div class="kpi-lbl">Alertes</div><div class="kpi-val">${alerts}</div><div class="kpi-sub">&nbsp;</div></div>
         </div>
         ${client.notes ? `<div class="divider"></div><div class="dr-section-title">NOTES</div><p class="dr-field-val">${escapeHtml(client.notes)}</p>` : ""}
         <div class="divider"></div>
-        <div class="dr-section-title">RATTACHER UN PRODUIT</div>
-        <select class="f-sel" id="client-assign-select" onchange="assignProductToClient(this.value, ${client.id})">
-          <option value="">— Sélectionner —</option>
-          ${unassigned
-            .map(
-              (product) =>
-                `<option value="${product.id}">${escapeHtml(product.name)}</option>`,
-            )
-            .join("")}
-          ${activeProducts()
-            .filter((p) => p.clientId && Number(p.clientId) !== Number(client.id))
-            .map(
-              (product) =>
-                `<option value="${product.id}">${escapeHtml(product.name)} (transfert)</option>`,
-            )
-            .join("")}
-        </select>
+        <div class="dr-section-title">CONTACT</div>
+        <div class="dr-contact">${client.email ? escapeHtml(client.email) : "Aucune adresse enregistrée"}</div>
         <div class="divider"></div>
         <div class="dr-section-title">PRODUITS DU DOSSIER</div>
         ${
           stats.products.length
-            ? `<table>
-          <thead><tr><th>Produit</th><th>Souscription</th><th>Enveloppe</th><th>Canal</th><th class="num">Nominal</th><th>Statut</th><th></th></tr></thead>
-          <tbody>
-            ${stats.products
-              .map((product) => {
-                const alloc = allocationForClient(product, client.id);
-                return `<tr>
-              <td><button type="button" class="linkish" onclick="openDrawer(${product.id})">${escapeHtml(product.name)}</button></td>
-              <td class="cell-muted">${escapeHtml(formatSubDate(alloc?.subDate))}</td>
-              <td><span class="env-badge">${escapeHtml(envelopeLabel(alloc?.envelope))}</span></td>
-              <td><span class="channel-tag">${escapeHtml(channelLabel(alloc?.channel))}</span></td>
-              <td class="num">${moneyShort(alloc?.nominal || product.nominal)}</td>
-              <td><span class="pill-status ${product.st?.cls || "st-unknown"}">${escapeHtml(product.st?.label || "—")}</span></td>
-              <td><button type="button" class="btn btn-tertiary" onclick="unassignProductFromClient(${product.id})">Retirer</button></td>
-            </tr>`;
-              })
-              .join("")}
-          </tbody>
-        </table>`
+            ? `<div class="tbl-wrap" id="dr-products-wrap">
+          <table id="dr-products-table">
+            <colgroup>
+              <col class="dr-col-produit" />
+              <col class="dr-col-sub" />
+              ${mixedEnvelopes ? '<col class="dr-col-envelope" />' : ""}
+              <col class="dr-col-canal" />
+              <col class="dr-col-nominal" />
+              <col class="dr-col-statut" />
+              <col class="dr-col-action" />
+            </colgroup>
+            <thead><tr><th>Produit</th><th>Souscr.</th>${mixedEnvelopes ? "<th>Enveloppe</th>" : ""}<th>Canal</th><th class="num">Nominal</th><th>Statut</th><th></th></tr></thead>
+            <tbody>
+              ${stats.products
+                .map((product) => {
+                  const alloc = allocationForClient(product, client.id);
+                  return `<tr>
+                <td><button type="button" class="linkish" onclick="openDrawer(${product.id})" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</button></td>
+                <td class="cell-muted">${escapeHtml(formatSubDate(alloc?.subDate))}</td>
+                ${mixedEnvelopes ? `<td><span class="env-badge">${escapeHtml(envelopeLabel(alloc?.envelope))}</span></td>` : ""}
+                <td><span class="channel-tag">${escapeHtml(channelLabel(alloc?.channel))}</span></td>
+                <td class="num">${moneyShort(alloc?.nominal || product.nominal)}</td>
+                <td><span class="pill-status ${product.st?.cls || "st-unknown"}">${escapeHtml(product.st?.label || "—")}</span></td>
+                <td><button type="button" class="btn btn-tertiary" onclick="unassignProductFromClient(${product.id})">Retirer</button></td>
+              </tr>`;
+                })
+                .join("")}
+            </tbody>
+          </table>
+        </div>`
             : '<div class="empty-inline">Aucun produit rattaché à ce client.</div>'
         }
-        <div class="form-actions">
+        <div class="dr-footer">
+          <select class="f-sel dr-attach-select" id="client-assign-select" onchange="assignProductToClient(this.value, ${client.id})">
+            <option value="">Rattacher un produit…</option>
+            ${unassigned
+              .map(
+                (product) =>
+                  `<option value="${product.id}">${escapeHtml(product.name)}</option>`,
+              )
+              .join("")}
+            ${activeProducts()
+              .filter((p) => p.clientId && Number(p.clientId) !== Number(client.id))
+              .map(
+                (product) =>
+                  `<option value="${product.id}">${escapeHtml(product.name)} (transfert)</option>`,
+              )
+              .join("")}
+          </select>
           <button class="btn btn-primary" type="button" onclick="openClientModal(${client.id})">Modifier le client</button>
         </div>`;
       document.getElementById("drawer-ov")?.classList.add("open");
