@@ -490,12 +490,24 @@
       return buckets;
     }
 
+    // Bucket vide → un rail (l'axe), jamais un tiret de hauteur nulle :
+    // un rail distingue « zéro versement » d'un graphe qui ne rend rien
+    // (passe 7C-3b, 2). L'échelle vient du max des buckets non vides —
+    // Math.max ignore déjà les buckets à 0, un plancher de 4px garantit
+    // qu'un bucket non vide reste visible même très petit face au max.
     function fluxBarHtml(bucket, maxAmount, maxBarPx) {
       const total = bucket.amount;
-      const totalHeight = total > 0 ? Math.max(4, Math.round((total / maxAmount) * maxBarPx)) : 0;
-      const acquiredHeight = total > 0 ? Math.round((bucket.acquired / total) * totalHeight) : 0;
+      if (total <= 0) {
+        return `<div class="cal-flux-bar-wrap">
+          <span class="cal-flux-bar-val">—</span>
+          <div class="cal-flux-bar-rail" style="height:${maxBarPx}px"></div>
+          <span class="cal-flux-bar-label">${escapeHtml(bucket.label)}</span>
+        </div>`;
+      }
+      const totalHeight = Math.max(4, Math.round((total / maxAmount) * maxBarPx));
+      const acquiredHeight = Math.round((bucket.acquired / total) * totalHeight);
       const conditionalHeight = totalHeight - acquiredHeight;
-      const display = total > 0 ? fluxAmountLabel(total) : "—";
+      const display = fluxAmountLabel(total);
       return `<div class="cal-flux-bar-wrap">
         <span class="cal-flux-bar-val">${escapeHtml(display)}</span>
         <div class="cal-flux-bar-stack" style="height:${totalHeight}px" title="${escapeHtml(display)}">
@@ -511,11 +523,14 @@
       <span class="cal-flux-legend-item"><span class="cal-flux-legend-swatch conditional"></span>Conditionnel</span>
     </div>`;
 
-    // Semaine / Jour : pas de graphe, la carte garde le montant et la
-    // liste des versements attendus — deux ou trois lignes maximum
-    // (passe 7C-3, D).
+    const FLUX_EMPTY_HTML = `<div class="cal-flux-list"><div class="cal-flux-list-empty">Aucun coupon attendu sur les 30 prochains jours</div></div>`;
+
+    // Semaine / Jour, et tout mode à barres hebdomadaires retombé en
+    // liste faute d'assez de buckets (passe 7C-3b, 5-6) : la carte garde
+    // le montant et la liste des versements attendus — deux ou trois
+    // lignes maximum, un message discret si aucun versement.
     function renderFluxList(items) {
-      if (!items.length) return "";
+      if (!items.length) return FLUX_EMPTY_HTML;
       const sorted = [...items].sort((a, b) => a._dateIso.localeCompare(b._dateIso)).slice(0, 3);
       return `<div class="cal-flux-list">${sorted
         .map(
@@ -567,11 +582,24 @@
         bucket.conditional += e.conditional;
       });
       const entries = [...buckets.values()];
+
+      // Un graphe à moins de 3 buckets non vides n'établit pas de
+      // comparaison — la liste des versements est plus lisible qu'une
+      // ou deux barres isolées (passe 7C-3b, 5). Année garde toujours
+      // ses 12 barres : c'est l'axe de comparaison annuel, pas une
+      // fenêtre courte qui peut n'avoir qu'un seul mois avec flux.
+      const nonEmptyCount = entries.filter((b) => b.amount > 0).length;
+      if (mode !== "year" && nonEmptyCount < 3) {
+        container.innerHTML = renderFluxList(items);
+        return;
+      }
+
       const max = Math.max(...entries.map((b) => b.amount), 1);
       const MAX_BAR_PX = 64;
+      const hasConditional = entries.some((b) => b.conditional > 0);
       container.innerHTML = `<div class="cal-flux-chart-grid">${entries
         .map((bucket) => fluxBarHtml(bucket, max, MAX_BAR_PX))
-        .join("")}</div>${FLUX_LEGEND_HTML}`;
+        .join("")}</div>${hasConditional ? FLUX_LEGEND_HTML : ""}`;
     }
 
     // La période ne s'écrit qu'une fois, dans la barre 1 (passe 7C, A.3) :

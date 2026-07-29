@@ -515,32 +515,32 @@
 
 /* Carte Coupons attendus : deux zones dans la même carte, le graphe
    vit à l'intérieur — pas de conteneur imbriqué avec son propre
-   cadre (passe 7C-3, B). */
+   cadre (passe 7C-3, B). Grille à deux colonnes, pas du flex avec
+   une largeur minimale sur la gauche seule (passe 7C-3b, 3) : un
+   flex sans contrainte sur la colonne de droite laissait le graphe
+   se réduire à son contenu au lieu d'occuper l'espace restant. */
 .cal-kpi-coupon {
-    display: flex;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) 1fr;
     gap: var(--space-5);
     min-height: 140px;
     max-height: 140px;
 
     @media (max-width: 900px) {
-        flex-direction: column;
+        grid-template-columns: minmax(0, 1fr);
         max-height: none;
     }
 }
 
 .cal-kpi-coupon-left {
     display: flex;
-    flex: 0 0 auto;
     flex-direction: column;
     justify-content: center;
     gap: var(--space-2);
-    min-width: 200px;
 }
 
 .cal-kpi-coupon-chart {
     display: flex;
-    flex: 1;
     flex-direction: column;
     min-width: 0;
     overflow: hidden;
@@ -579,7 +579,15 @@
     gap: var(--space-1);
     height: 100%;
     min-width: 20px;
-    max-width: 48px;
+}
+
+/* Bucket sans versement (passe 7C-3b, 2) : un rail, pas un vide —
+   il donne l'axe et permet de distinguer « zéro » d'un graphe cassé. */
+.cal-flux-bar-rail {
+    width: 2px;
+    border-radius: var(--radius-full);
+    background: var(--color-text-tertiary);
+    opacity: 0.12;
 }
 
 .cal-flux-bar-val {
@@ -627,7 +635,7 @@
     align-items: center;
     justify-content: flex-end;
     gap: var(--space-3);
-    padding-top: var(--space-1);
+    margin-top: var(--space-2);
 }
 
 .cal-flux-legend-item {
@@ -694,6 +702,25 @@
     font-family: var(--font-mono-data);
     font-weight: 700;
     color: var(--color-ink);
+}
+
+.cal-flux-list-empty {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+/* État vide de la liste d'événements (passe 7C-3b, hors carte) : le
+   panneau et le message empilent chacun leur propre padding (48px),
+   une marge négative annule celui du panneau pour revenir à une
+   bande de 64px — sans toucher .empty-inline, partagé par d'autres
+   états vides ailleurs dans l'app. */
+.cal-events-panel .empty-inline {
+    margin: calc(var(--space-6) * -1);
+    padding: 0;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cal-month-grid {
