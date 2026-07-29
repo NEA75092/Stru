@@ -524,20 +524,25 @@
                         <span class="sec-meta">Indicateurs à venir, indépendants de la période affichée</span>
                     </div>
                     <div class="cal-kpi-row">
-                        <div class="kpi k-blue">
-                            <div class="kpi-lbl">Coupons attendus</div>
-                            <div class="kpi-val" id="cal-kpi-coupon-val">—</div>
-                            <div class="kpi-sub" id="cal-kpi-coupon-sub">—</div>
+                        <div class="kpi k-blue cal-kpi-coupon">
+                            <div class="cal-kpi-coupon-left">
+                                <div class="kpi-lbl">Coupons attendus</div>
+                                <div class="kpi-val" id="cal-kpi-coupon-val">—</div>
+                                <div class="kpi-sub" id="cal-kpi-coupon-sub">—</div>
+                            </div>
+                            <div class="cal-kpi-coupon-chart" id="cal-flux-chart"></div>
                         </div>
-                        <div class="kpi k-gold">
-                            <div class="kpi-lbl">Maturités / remboursements</div>
-                            <div class="kpi-val" id="cal-kpi-mat-val">—</div>
-                            <div class="kpi-sub" id="cal-kpi-mat-sub">—</div>
-                        </div>
-                        <div class="kpi k-orange">
-                            <div class="kpi-lbl">Observations à venir</div>
-                            <div class="kpi-val" id="cal-kpi-obs-val">—</div>
-                            <div class="kpi-sub" id="cal-kpi-obs-sub">—</div>
+                        <div class="cal-kpi-row-secondary">
+                            <div class="kpi k-gold">
+                                <div class="kpi-lbl">Maturités / remboursements</div>
+                                <div class="kpi-val" id="cal-kpi-mat-val">—</div>
+                                <div class="kpi-sub" id="cal-kpi-mat-sub">—</div>
+                            </div>
+                            <div class="kpi k-orange">
+                                <div class="kpi-lbl">Observations à venir</div>
+                                <div class="kpi-val" id="cal-kpi-obs-val">—</div>
+                                <div class="kpi-sub" id="cal-kpi-obs-sub">—</div>
+                            </div>
                         </div>
                     </div>
 
@@ -567,13 +572,6 @@
                         <div class="ev-list" id="cal-period"></div>
                     </div>
 
-                    <div class="panel cal-flux-panel" id="cal-flux-panel">
-                        <div class="sec-hdr" style="margin-bottom: 10px">
-                            <div class="sec-title" id="cal-flux-title">Flux de coupons</div>
-                            <span class="sec-meta" id="cal-flux-meta">—</span>
-                        </div>
-                        <div class="cal-flux-chart" id="cal-flux-chart"></div>
-                    </div>
                     </div>
 
                     <div id="cal-product-focus" class="cal-product-focus" hidden>
@@ -670,10 +668,10 @@
                                 </colgroup>
                                 <thead>
                                     <tr>
-                                        <th>CLIENT</th>
-                                        <th class="num">ENCOURS</th>
-                                        <th class="num">PERFORMANCE</th>
-                                        <th class="num">PRODUITS</th>
+                                        <th onclick="sortClients('name')">CLIENT</th>
+                                        <th class="num" onclick="sortClients('nominal')">ENCOURS</th>
+                                        <th class="num" onclick="sortClients('perfPct')">PERFORMANCE</th>
+                                        <th class="num" onclick="sortClients('count')">PRODUITS</th>
                                         <th>REMARQUE</th>
                                         <th aria-hidden="true"></th>
                                     </tr>

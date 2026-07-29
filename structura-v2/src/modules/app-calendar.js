@@ -86,6 +86,18 @@
       return ((Number(product?.nominal) || 0) * (Number(couponPerPeriod) || 0)) / 100;
     }
 
+    // Acquis vs conditionnel (passe 7C-3, C) : sans barrière de coupon,
+    // le versement n'a pas de condition de marché — il est acquis, quelle
+    // que soit la date. Avec barrière, seule une date déjà passée est
+    // connue (constatation faite, effet mémoire déjà comptabilisé) ; une
+    // date future reste sous réserve du franchissement à la constatation.
+    function isCouponAcquired(product, dateIso, todayIso) {
+      const barrier = Number(product?.characteristics?.couponBarrier ?? product?.barrier);
+      const hasBarrier = Number.isFinite(barrier) && barrier > 0;
+      if (!hasBarrier) return true;
+      return dateIso <= todayIso;
+    }
+
     function monthTitleFR(date) {
       const label = date.toLocaleDateString("fr-FR", {
         month: "long",
@@ -432,72 +444,134 @@
       setText("cal-kpi-obs-sub", "Dates de constatation");
     }
 
-    // Barres mensuelles seulement quand il y a plusieurs mois à comparer
-    // (passe 7C, A.4) : une carte de 300 px pour une seule barre n'avait
-    // rien à montrer — un point unique se lit mieux en ligne
-    // (« 120 k€ en août »). La méta ne porte que ce qui est propre à
-    // cette carte (nombre de versements) : la période est déjà écrite
-    // une fois, dans la barre 1.
+    function fluxAmountLabel(amount) {
+      return amount >= 1e6
+        ? `${(amount / 1e6).toFixed(2)} M€`
+        : amount >= 1e3
+          ? `${Math.round(amount / 1e3)} k€`
+          : `${Math.round(amount)} €`;
+    }
+
+    function fluxMondayOf(dateIso) {
+      const d = parseIsoDate(dateIso);
+      const dow = (d.getDay() + 6) % 7;
+      return isoDate(addDays(d, -dow));
+    }
+
+    // Granularité selon le mode (passe 7C-3, D) : Année compare 12 mois
+    // fixes (même les mois sans flux, pour donner un axe de comparaison
+    // stable) ; Mois/Plage/Glissant comparent des semaines calendaires
+    // (lundi à dimanche) qui recouvrent la période affichée.
+    function buildFluxMonthBuckets(range) {
+      const year = Number(range.start.slice(0, 4));
+      const buckets = new Map();
+      for (let m = 1; m <= 12; m++) {
+        const key = `${year}-${String(m).padStart(2, "0")}`;
+        const label = new Date(year, m - 1, 1)
+          .toLocaleDateString("fr-FR", { month: "short" })
+          .replace(".", "");
+        buckets.set(key, { key, label, amount: 0, acquired: 0, conditional: 0 });
+      }
+      return buckets;
+    }
+
+    function buildFluxWeekBuckets(range) {
+      const buckets = new Map();
+      const lastMonday = fluxMondayOf(range.end);
+      let cursor = fluxMondayOf(range.start);
+      while (cursor <= lastMonday) {
+        const label = parseIsoDate(cursor).toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+        });
+        buckets.set(cursor, { key: cursor, label, amount: 0, acquired: 0, conditional: 0 });
+        cursor = isoDate(addDays(parseIsoDate(cursor), 7));
+      }
+      return buckets;
+    }
+
+    function fluxBarHtml(bucket, maxAmount, maxBarPx) {
+      const total = bucket.amount;
+      const totalHeight = total > 0 ? Math.max(4, Math.round((total / maxAmount) * maxBarPx)) : 0;
+      const acquiredHeight = total > 0 ? Math.round((bucket.acquired / total) * totalHeight) : 0;
+      const conditionalHeight = totalHeight - acquiredHeight;
+      const display = total > 0 ? fluxAmountLabel(total) : "—";
+      return `<div class="cal-flux-bar-wrap">
+        <span class="cal-flux-bar-val">${escapeHtml(display)}</span>
+        <div class="cal-flux-bar-stack" style="height:${totalHeight}px" title="${escapeHtml(display)}">
+          ${conditionalHeight > 0 ? `<div class="cal-flux-bar-conditional" style="height:${conditionalHeight}px"></div>` : ""}
+          ${acquiredHeight > 0 ? `<div class="cal-flux-bar-acquired" style="height:${acquiredHeight}px"></div>` : ""}
+        </div>
+        <span class="cal-flux-bar-label">${escapeHtml(bucket.label)}</span>
+      </div>`;
+    }
+
+    const FLUX_LEGEND_HTML = `<div class="cal-flux-legend">
+      <span class="cal-flux-legend-item"><span class="cal-flux-legend-swatch acquired"></span>Acquis</span>
+      <span class="cal-flux-legend-item"><span class="cal-flux-legend-swatch conditional"></span>Conditionnel</span>
+    </div>`;
+
+    // Semaine / Jour : pas de graphe, la carte garde le montant et la
+    // liste des versements attendus — deux ou trois lignes maximum
+    // (passe 7C-3, D).
+    function renderFluxList(items) {
+      if (!items.length) return "";
+      const sorted = [...items].sort((a, b) => a._dateIso.localeCompare(b._dateIso)).slice(0, 3);
+      return `<div class="cal-flux-list">${sorted
+        .map(
+          (e) => `<div class="cal-flux-list-row">
+            <span class="cal-flux-list-name">${escapeHtml(e.product.name)}</span>
+            <span class="cal-flux-list-date">${escapeHtml(parseIsoDate(e._dateIso).toLocaleDateString("fr-FR"))}</span>
+            <span class="cal-flux-list-amt">${escapeHtml(fluxAmountLabel(e.amount))}</span>
+          </div>`,
+        )
+        .join("")}</div>`;
+    }
+
     function drawFluxChart() {
       const container = document.getElementById("cal-flux-chart");
       if (!container) return;
+      const mode = calendarState.mode;
       const selectedRange = rangeForMode();
-      const events = buildProductCalendarEvents()
+      const todayIso = isoDate(new Date());
+      const items = buildProductCalendarEvents()
         .filter((event) => eventMatchesSearch(event, calendarSearch))
         .filter(
           (e) =>
             e.type === "coupon" &&
             e._dateIso >= selectedRange.start &&
             e._dateIso <= selectedRange.end,
-        );
-      const buckets = new Map();
-      events.forEach((e) => {
-        const d = new Date(e._dateIso + "T00:00:00");
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-        const p = productsForScope().find((x) => x.id === e.productId);
-        if (!p?.cpnNum || !p?.nominal) return;
-        buckets.set(key, (buckets.get(key) || 0) + couponCashflowAmount(p));
-      });
-      const entries = [...buckets.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-      const meta = document.getElementById("cal-flux-meta");
-      const monthLabel = (key, format) => {
-        const [year, month] = key.split("-").map(Number);
-        return new Date(year, month - 1, 1).toLocaleDateString("fr-FR", { month: format });
-      };
-      const formatAmount = (amount) =>
-        amount >= 1e6
-          ? `${(amount / 1e6).toFixed(2)} M€`
-          : amount >= 1e3
-            ? `${Math.round(amount / 1e3)} k€`
-            : `${Math.round(amount)} €`;
+        )
+        .map((e) => {
+          const p = productsForScope().find((x) => x.id === e.productId);
+          if (!p?.cpnNum || !p?.nominal) return null;
+          const amount = couponCashflowAmount(p);
+          const acquired = isCouponAcquired(p, e._dateIso, todayIso) ? amount : 0;
+          return { ...e, product: p, amount, acquired, conditional: amount - acquired };
+        })
+        .filter(Boolean);
 
-      if (entries.length <= 1) {
-        container.className = "cal-flux-line";
-        if (!entries.length) {
-          if (meta) meta.textContent = "Aucun coupon sur cette période";
-          container.innerHTML = `<span class="cal-flux-empty">Aucun coupon sur cette période.</span>`;
-          return;
-        }
-        const [key, amount] = entries[0];
-        if (meta) meta.textContent = "1 versement";
-        container.innerHTML = `<span class="cal-flux-line-val">${escapeHtml(formatAmount(amount))}</span><span class="cal-flux-line-label">en ${escapeHtml(monthLabel(key, "long"))}</span>`;
+      if (mode === "day" || mode === "week") {
+        container.innerHTML = renderFluxList(items);
         return;
       }
 
-      if (meta) meta.textContent = `${entries.length} mois avec flux`;
-      const max = Math.max(...entries.map(([, v]) => v), 1);
-      container.className = "cal-flux-chart-grid";
-      container.innerHTML = entries
-        .map(([key, amount]) => {
-          const height = Math.max(8, Math.round((amount / max) * 88));
-          const display = formatAmount(amount);
-          return `<div class="cal-flux-bar-wrap">
-            <span class="cal-flux-bar-val">${escapeHtml(display)}</span>
-            <div class="cal-flux-bar" style="height:${height}px" title="${escapeHtml(display)}"></div>
-            <span class="cal-flux-bar-label">${escapeHtml(monthLabel(key, "short"))}</span>
-          </div>`;
-        })
-        .join("");
+      const buckets =
+        mode === "year" ? buildFluxMonthBuckets(selectedRange) : buildFluxWeekBuckets(selectedRange);
+      items.forEach((e) => {
+        const key = mode === "year" ? e._monthKey : fluxMondayOf(e._dateIso);
+        const bucket = buckets.get(key);
+        if (!bucket) return;
+        bucket.amount += e.amount;
+        bucket.acquired += e.acquired;
+        bucket.conditional += e.conditional;
+      });
+      const entries = [...buckets.values()];
+      const max = Math.max(...entries.map((b) => b.amount), 1);
+      const MAX_BAR_PX = 64;
+      container.innerHTML = `<div class="cal-flux-chart-grid">${entries
+        .map((bucket) => fluxBarHtml(bucket, max, MAX_BAR_PX))
+        .join("")}</div>${FLUX_LEGEND_HTML}`;
     }
 
     // La période ne s'écrit qu'une fois, dans la barre 1 (passe 7C, A.3) :
@@ -660,11 +734,9 @@
       const barLegend = document.getElementById("cal-bar-legend");
       const eventsHdr = document.getElementById("cal-events-hdr");
       const eventsPanel = document.getElementById("cal-events-panel");
-      const fluxPanel = document.getElementById("cal-flux-panel");
       if (monthToggle) monthToggle.hidden = !isMonthMode;
       if (monthSection) monthSection.hidden = !isMonthMode;
       if (barLegend) barLegend.hidden = !isMonthMode;
-      if (fluxPanel) fluxPanel.hidden = isMonthMode;
       // Un jour cliqué dans la grille ne survit pas à un re-rendu complet
       // (changement de mode, de recherche, navigation) — sinon la carte
       // d'un jour d'un autre mois resterait affichée sous une grille qui

@@ -8,7 +8,7 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraClients(root) {
-    const { moneyShort, pctFr, escapeHtml, notify } = root.StructuraUtils;
+    const { moneyShort, pctFr, escapeHtml, notify, shortDateFr } = root.StructuraUtils;
     const {
       CLIENTS,
       PRODUCTS,
@@ -30,6 +30,12 @@
     } = root.StructuraAppState;
 
     let clientSearch = "";
+    // Tri persistant par vue, pas global (passe 7C-3, E) : la table
+    // Clients et la table produits du tiroir gardent chacune leur propre
+    // colonne/sens, indépendamment l'une de l'autre.
+    const clientsSort = runtime.clientsSort || (runtime.clientsSort = { col: "nominal", asc: false });
+    const drawerProductSort =
+      runtime.drawerProductSort || (runtime.drawerProductSort = { col: "nextEvtDate", asc: true });
 
     function clientProducts(clientId) {
       return activeProducts().filter((product) =>
@@ -62,16 +68,6 @@
       const breach = products.filter((p) => p.st?.s === "breach").length;
       const watch = products.filter((p) => ["crit", "warn"].includes(p.st?.s)).length;
       return { products, count: products.length, nominal, val, breach, watch };
-    }
-
-    // Souscription en date courte (passe 7C-2, point 4) : mois/année
-    // suffit pour situer un dossier, le jour n'aide pas à décider et
-    // coûtait toute la largeur qui manquait à Produit et Statut.
-    function formatSubDateShort(iso) {
-      if (!iso) return "—";
-      const date = new Date(`${iso}T00:00:00`);
-      if (Number.isNaN(date.getTime())) return "—";
-      return `${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
     }
 
     // L'enveloppe la plus fréquente parmi les produits rattachés — pas
@@ -118,8 +114,7 @@
     // pas ici ; cette ligne ne montre que ce qui aide à choisir un
     // dossier. Aucun avatar ni initiales : sans valeur pour des clients
     // nommés en toutes lettres.
-    function renderClientRow(client) {
-      const stats = clientStats(client.id);
+    function renderClientRow(client, stats) {
       const reference = `DOS-${String(client.id).padStart(4, "0")}`;
       const envelope = dominantEnvelope(stats.products, client.id);
       const perfPct =
@@ -142,6 +137,41 @@
         <td>${remark}</td>
         <td class="client-row-chevron-cell"><svg class="client-row-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5l6 5.5-6 5.5"/></svg></td>
       </tr>`;
+    }
+
+    function drawerProductSortValue(product, clientId, col) {
+      if (col === "nominal") return Number(allocationForClient(product, clientId)?.nominal || product.nominal) || 0;
+      return product[col] ?? "";
+    }
+
+    function compareDrawerProducts(a, b, clientId) {
+      let va = drawerProductSortValue(a, clientId, drawerProductSort.col);
+      let vb = drawerProductSortValue(b, clientId, drawerProductSort.col);
+      if (typeof va === "string" || typeof vb === "string") {
+        va = String(va).toLowerCase();
+        vb = String(vb).toLowerCase();
+      }
+      if (va === vb) return 0;
+      return drawerProductSort.asc ? (va > vb ? 1 : -1) : va < vb ? 1 : -1;
+    }
+
+    function sortDrawerProducts(col) {
+      if (drawerProductSort.col === col) drawerProductSort.asc = !drawerProductSort.asc;
+      else {
+        drawerProductSort.col = col;
+        drawerProductSort.asc = col !== "nominal";
+      }
+      document.querySelectorAll("#dr-products-table thead th").forEach((th) => {
+        th.classList.remove("sorted", "asc");
+      });
+      const th = [...document.querySelectorAll("#dr-products-table thead th")].find((t) =>
+        t.getAttribute("onclick")?.includes(`'${col}'`),
+      );
+      if (th) {
+        th.classList.add("sorted");
+        if (drawerProductSort.asc) th.classList.add("asc");
+      }
+      openClientDrawer(runtime.selectedClientDetailId);
     }
 
     // Fiche client au clic : rendue dans le tiroir partagé avec les
@@ -198,14 +228,15 @@
               <col class="dr-col-statut" />
               <col class="dr-col-action" />
             </colgroup>
-            <thead><tr><th>Produit</th><th>Souscr.</th>${mixedEnvelopes ? "<th>Enveloppe</th>" : ""}<th class="num">Nominal</th><th>Statut</th><th aria-hidden="true"></th></tr></thead>
+            <thead><tr><th>Produit</th><th onclick="sortDrawerProducts('nextEvtDate')">Échéance</th>${mixedEnvelopes ? "<th>Enveloppe</th>" : ""}<th class="num" onclick="sortDrawerProducts('nominal')">Nominal</th><th>Statut</th><th aria-hidden="true"></th></tr></thead>
             <tbody>
-              ${stats.products
+              ${[...stats.products]
+                .sort((a, b) => compareDrawerProducts(a, b, client.id))
                 .map((product) => {
                   const alloc = allocationForClient(product, client.id);
                   return `<tr>
                 <td><button type="button" class="linkish" onclick="openDrawer(${product.id})" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</button></td>
-                <td class="cell-muted">${escapeHtml(formatSubDateShort(alloc?.subDate))}</td>
+                <td class="cell-muted">${escapeHtml(shortDateFr(product.nextEvtDate))}</td>
                 ${mixedEnvelopes ? `<td><span class="env-badge">${escapeHtml(envelopeLabel(alloc?.envelope))}</span></td>` : ""}
                 <td class="num">${moneyShort(alloc?.nominal || product.nominal)}</td>
                 <td><span class="pill-status ${product.st?.cls || "st-unknown"}">${escapeHtml(product.st?.label || "—")}</span></td>
@@ -240,15 +271,56 @@
       document.getElementById("drawer-ov")?.classList.add("open");
     }
 
+    function clientSortValue(client, stats, col) {
+      if (col === "name") return client.name || "";
+      if (col === "nominal") return stats.nominal;
+      if (col === "perfPct")
+        return stats.nominal > 0 ? ((stats.val - stats.nominal) / stats.nominal) * 100 : -Infinity;
+      if (col === "count") return stats.count;
+      return "";
+    }
+
+    function compareClientRows(a, b) {
+      let va = clientSortValue(a.client, a.stats, clientsSort.col);
+      let vb = clientSortValue(b.client, b.stats, clientsSort.col);
+      if (typeof va === "string" || typeof vb === "string") {
+        va = String(va).toLowerCase();
+        vb = String(vb).toLowerCase();
+      }
+      if (va === vb) return 0;
+      return clientsSort.asc ? (va > vb ? 1 : -1) : va < vb ? 1 : -1;
+    }
+
+    function sortClients(col) {
+      if (clientsSort.col === col) clientsSort.asc = !clientsSort.asc;
+      else {
+        clientsSort.col = col;
+        clientsSort.asc = !["nominal", "perfPct", "count"].includes(col);
+      }
+      document.querySelectorAll("#clients-table thead th").forEach((th) => {
+        th.classList.remove("sorted", "asc");
+      });
+      const th = [...document.querySelectorAll("#clients-table thead th")].find((t) =>
+        t.getAttribute("onclick")?.includes(`'${col}'`),
+      );
+      if (th) {
+        th.classList.add("sorted");
+        if (clientsSort.asc) th.classList.add("asc");
+      }
+      renderClients();
+    }
+
     function renderClients() {
       const list = document.getElementById("clients-list");
       if (!list) return;
       const filtered = CLIENTS.filter((client) => {
         if (!clientSearch) return true;
         return matchesClientSearch(client, clientSearch);
-      });
+      })
+        .map((client) => ({ client, stats: clientStats(client.id) }))
+        .sort(compareClientRows);
       list.innerHTML = filtered.length
-        ? filtered.map(renderClientRow).join("")
+        ? filtered.map(({ client, stats }) => renderClientRow(client, stats)).join("")
         : '<tr><td colspan="6" class="tbl-empty">Aucun client ne correspond à la recherche.</td></tr>';
       updateClientsMeta();
     }
@@ -393,6 +465,8 @@
       refreshScopedViews,
       openClientDrawer,
       filterClients,
+      sortClients,
+      sortDrawerProducts,
       openClientWorkspace,
       populateClientSelect,
       openClientModal,
