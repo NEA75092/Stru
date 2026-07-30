@@ -668,6 +668,8 @@
       }
       const clientContent = document.getElementById("dr-client-content");
       if (clientContent) clientContent.style.display = "none";
+      const underlyingContent = document.getElementById("dr-underlying-content");
+      if (underlyingContent) underlyingContent.style.display = "none";
       const productContent = document.getElementById("dr-product-content");
       if (productContent) productContent.style.display = "";
       document.getElementById("dr-name").textContent = p.name;

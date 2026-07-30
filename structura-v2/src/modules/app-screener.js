@@ -7,25 +7,14 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraScreener(root) {
-    const { notify, pctFr } = root.StructuraUtils;
-    const { DECREMENT_UNIVERSE, calculateDecrementScore } =
+    const { notify, pctFr, escapeHtml } = root.StructuraUtils;
+    const { DECREMENT_UNIVERSE, calculateDecrementScore, decrementVerdict } =
       root.StructuraDecrementEngine;
 
     // Virgule décimale française pour les points (pas un pourcentage,
     // pctFr ne s'applique pas ici) — même logique que pctFr, sans le "%".
     function fmtPts(value, digits = 2) {
       return Math.abs(Number(value) || 0).toFixed(digits).replace(".", ",");
-    }
-
-    function renderNutriScore(grade, size = "normal") {
-      const letters = ["E", "D", "C", "B", "A"];
-      const s = size === "small" ? "ns-small" : "";
-      return `<div class="nutri-score ${s}">${letters
-        .map(
-          (l) =>
-            `<span class="ns-letter ns-${l}" style="opacity:${l === grade ? 1 : 0.25};">${l}</span>`,
-        )
-        .join("")}</div>`;
     }
 
     function computeStructurationScore(item, criteriaOrTargetCoupon) {
@@ -60,6 +49,52 @@
       return (rank[grade] ?? 0) >= (rank[minGrade] ?? 0);
     }
 
+    // Tri par ordre d'avis, pas alphabétique (passe 7D, D.1) — même
+    // mécanique de tri persistant que 7C-3 (Clients, tiroir client) :
+    // un objet {col, asc}, un rang stable par colonne, jamais un tri sur
+    // le libellé traduit (« À éviter » < « À justifier » alphabétiquement
+    // n'a aucun rapport avec la sévérité).
+    const screenerSort = { col: "avis", asc: false };
+    const AVIS_RANK = { avoid: 0, justify: 1, acceptable: 2, recommended: 3 };
+
+    function screenerSortValue(item, s, col) {
+      if (col === "name") return item.name || "";
+      if (col === "carry") return s.netCarry;
+      if (col === "drag") return Math.abs(s.annualDrag);
+      if (col === "avis") return AVIS_RANK[decrementVerdict(s.fitScore).key] ?? 0;
+      return 0;
+    }
+
+    function compareScreenerRows(a, b) {
+      let va = screenerSortValue(a.item, a.score, screenerSort.col);
+      let vb = screenerSortValue(b.item, b.score, screenerSort.col);
+      if (typeof va === "string" || typeof vb === "string") {
+        va = String(va).toLowerCase();
+        vb = String(vb).toLowerCase();
+      }
+      if (va === vb) return 0;
+      return screenerSort.asc ? (va > vb ? 1 : -1) : va < vb ? 1 : -1;
+    }
+
+    function sortScreener(col) {
+      if (screenerSort.col === col) screenerSort.asc = !screenerSort.asc;
+      else {
+        screenerSort.col = col;
+        screenerSort.asc = col === "name";
+      }
+      document.querySelectorAll("#dscore-table thead th").forEach((th) => {
+        th.classList.remove("sorted", "asc");
+      });
+      const th = [...document.querySelectorAll("#dscore-table thead th")].find((t) =>
+        t.getAttribute("onclick")?.includes(`'${col}'`),
+      );
+      if (th) {
+        th.classList.add("sorted");
+        if (screenerSort.asc) th.classList.add("asc");
+      }
+      runScreener();
+    }
+
     function runScreener() {
       const criteria = getScreenerCriteria();
       let universe = [...DECREMENT_UNIVERSE];
@@ -79,7 +114,7 @@
         }))
         .filter(({ score: s }) => s.decPctAnnual <= criteria.maxDecrement)
         .filter(({ score: s }) => gradePasses(s.grade, criteria.minGrade))
-        .sort((a, b) => b.score.fitScore - a.score.fitScore);
+        .sort(compareScreenerRows);
 
       const tbody = document.getElementById("screener-tbody");
       if (!tbody) return;
@@ -90,172 +125,148 @@
       }
 
       // La couleur passe sur une pastille, jamais sur le texte (passe 6) :
-      // le mot ("Couvre"/"Manque") porte l'information, le point la double.
-      // Score en pastille : même couleur que le verdict (ok/warning/danger)
-      // qui n'a plus sa propre colonne — la note résume déjà la conclusion.
+      // le mot ("Couvre"/"Manque") porte l'information, le point la
+      // double. Avis en pastille (passe 7D) : le mot est l'information,
+      // le score chiffré a quitté la liste — visible dans le tiroir
+      // (showScreenerDetail), à côté de la pastille, nulle part ailleurs.
       tbody.innerHTML = scored
         .map(({ item, score: s }) => {
-          const verdict = businessVerdict(s);
+          const verdict = decrementVerdict(s.fitScore);
           const carryCls = s.netCarry >= 0 ? "st-safe" : "st-crit";
           const carryWord = s.netCarry >= 0 ? "Couvre +" : "Manque ";
           return `<tr onclick="showScreenerDetail('${item.id}')">
       <td><div class="p-name" style="font-size:11px;">${item.name}</div><div class="p-isin" style="font-size:9px;">${item.assetType} · ${regionBucket(item.region)} · ${sourceBadge(s)}</div></td>
       <td class="num dec-metric"><span class="dec-metric-dot ${carryCls}"></span>${carryWord}${fmtPts(s.netCarry)} pts/an</td>
       <td class="num dec-metric">${pctFr(Math.abs(s.annualDrag), 1)}/an sacrifié</td>
-      <td class="num"><span class="pill-status ${verdict.cls}">${s.fitScore}</span></td>
+      <td><span class="pill-status ${verdict.tone}">${escapeHtml(verdict.label)}</span></td>
     </tr>`;
         })
         .join("");
 
-      const best = scored[0];
-      const avg = Math.round(
-        scored.reduce((sum, x) => sum + x.score.fitScore, 0) / scored.length,
-      );
-      void best;
-      void avg;
-
       notify("Classement Decrement Score mis à jour", "ok");
     }
 
+    function gaugeTone(score) {
+      return score >= 70 ? "st-safe" : score >= 50 ? "st-warn" : "st-crit";
+    }
+
+    // Jauge horizontale à repère de seuil vertical (passe 7D, D.2) : le
+    // même objet graphique que la distance à la barrière (Barrières,
+    // Portefeuille) — .bar-wrap/.bar-track/.bar-fill/.barrier-mark de
+    // tables.css/relief.css, pas une variante. Le repère à 50% marque le
+    // même seuil que le bas de la bande "Acceptable" du barème d'avis :
+    // à gauche, la composante pèse contre le produit. La valeur affichée
+    // est la métrique réelle (ratio, %/an, points) — jamais le score
+    // interne 0-100, qui resterait un chiffre sans unité à interpréter.
+    function gaugeRow(label, desc, score, metric) {
+      const tone = gaugeTone(score);
+      const width = Math.max(0, Math.min(100, Number(score) || 0));
+      return `<div class="dr-underlying-gauge">
+        <div class="dr-underlying-gauge-label">${escapeHtml(label)}<span>${escapeHtml(desc)}</span></div>
+        <div class="bar-wrap">
+          <div class="bar-track">
+            <div class="bar-fill ${tone}" style="width:${width}%"></div>
+            <span class="barrier-mark" style="--at: 50%"></span>
+          </div>
+          <span class="dist-value ${tone}">${escapeHtml(metric)}</span>
+        </div>
+      </div>`;
+    }
+
+    // Le texte que le CGP recopie dans son rapport d'adéquation (passe
+    // 7D, D.2) : nomme le sous-jacent, le niveau de décrément, et
+    // justifie l'avis — une seule zone de prose, pas une par onglet.
+    function underlyingReading(item, s, verdict) {
+      const refNote = s.decPctRefNote ? ` (${s.decPctRefNote})` : "";
+      const coverageWord = s.coverageRatio >= 1 ? "couvre" : "ne couvre pas";
+      const closing = {
+        recommended:
+          "Le mécanisme est économiquement confortable au regard des données historiques disponibles.",
+        acceptable:
+          "Le mécanisme présente un coût modéré, cohérent avec un coupon à vérifier sur la term sheet.",
+        justify:
+          "Le coupon proposé doit explicitement compenser cette performance sacrifiée pour être défendable.",
+        avoid:
+          "Le coût du décrément est significatif et doit être présenté sans ambiguïté au client.",
+      }[verdict.key];
+      return `<b>${escapeHtml(item.name)}</b> applique un décrément de ${s.decPctAnnual.toFixed(1)}%/an${escapeHtml(refNote)}. Le dividende historique (${item.historicalDividend.toFixed(1)}%/an) ${coverageWord} ce coût (${s.coverageRatio.toFixed(2)}x), pour une performance sacrifiée d'environ ${Math.abs(s.annualDrag).toFixed(1)}%/an et un surcoût de ${s.capitalLossSeverity.toFixed(1)} points en cas de non-rappel. Avis : ${escapeHtml(verdict.label)}. ${closing}`;
+    }
+
+    // Le tiroir partagé (overlays.css), pas un panneau inline sous le
+    // tableau (passe 7D, D.2) : même mécanique d'ouverture que
+    // openDrawer/openClientDrawer — un seul contenu visible à la fois
+    // dans #drawer-ov, closeDrawer() déjà partagé fonctionne tel quel.
     function showScreenerDetail(id) {
       const item = DECREMENT_UNIVERSE.find((u) => u.id === id);
       if (!item) return;
       const s = computeStructurationScore(item, getScreenerCriteria());
-      const panel = document.getElementById("scr-detail-panel");
-      if (!panel) return;
-      const coverage = s.coverageRatio ? `${s.coverageRatio.toFixed(2)}x` : "N/A";
-      const investorProfile = businessVerdict(s).label;
-      const mifidText = clientLanguage(item, s);
+      const verdict = decrementVerdict(s.fitScore);
 
-      panel.innerHTML = `
-    <div class="dec-detail-header">
-      <div>
-        <div class="dec-detail-name">${item.name}</div>
-        <div class="dec-detail-base">${item.baseIndex} · ${item.providers.join(", ")} · ${sourceBadge(s)}${s.decPctRefNote ? ` · ${s.decPctRefNote}` : ""}</div>
-      </div>
-      ${renderNutriScore(s.grade)}
-    </div>
-    <div class="dec-detail-metrics">
-      <div class="dec-detail-metric"><div class="ddm-val ${s.netCarry >= 0 ? "up" : "dn"}">${s.netCarry >= 0 ? "+" : "-"}${Math.abs(s.netCarry).toFixed(2)}</div><div class="ddm-lbl">Marge dividende</div></div>
-      <div class="dec-detail-metric"><div class="ddm-val">${Math.abs(s.annualDrag).toFixed(1)}%</div><div class="ddm-lbl">Coût/an</div></div>
-      <div class="dec-detail-metric"><div class="ddm-val st-warn">+${s.capitalLossSeverity.toFixed(1)}</div><div class="ddm-lbl">Non-rappel</div></div>
-      <div class="dec-detail-metric"><div class="ddm-val">${s.fitScore}/100</div><div class="ddm-lbl">Score</div></div>
-    </div>
-    <div class="dec-browser-tabs">
-      <button class="on" data-tab="score" onclick="switchScreenerDetailTab('score')">Verdict</button>
-      <button data-tab="graphs" onclick="switchScreenerDetailTab('graphs')">Chiffrage</button>
-      <button data-tab="criteria" onclick="switchScreenerDetailTab('criteria')">Pourquoi ce score ?</button>
-      <button data-tab="compare" onclick="switchScreenerDetailTab('compare')">Duel coupon</button>
-    </div>
-    <div class="dec-browser-tab on" data-scr-tab="score">
-      <div class="dec-verdict">${investorProfile}</div>
-      <div class="dec-detail-interp">
-        <p><b>Lecture CGP.</b> Le dividende couvre ${coverage} le coût du décrément. ${s.netCarry >= 0 ? "Le mécanisme part avec un coussin positif." : "Le mécanisme consomme déjà plus que le dividende historique."}</p>
-        <p>Le prix à payer est une performance sacrifiée d'environ ${Math.abs(s.annualDrag).toFixed(1)}% par an. En non-rappel, la perte augmente de ${s.capitalLossSeverity.toFixed(1)} points.</p>
-        <p>Conclusion : ${investorProfile}. Le coupon proposé doit au minimum compenser ce coût économique.</p>
-      </div>
-      <div class="dec-client-text">
-        <div class="dec-detail-sec">Pitch dossier client</div>
-        ${mifidText}
-      </div>
-    </div>
-    <div class="dec-browser-tab" data-scr-tab="graphs">
-      ${miniGraph(item, s)}
-      <div class="dec-detail-interp">Le match montre l'écart entre le sous-jacent standard et sa version décrémentée. Les graphes complets ajoutent dividendes, drawdowns et recall par millésime.</div>
-    </div>
-    <div class="dec-browser-tab" data-scr-tab="criteria">
-      <div class="dec-detail-criteria">
-        <div class="dec-detail-sec">Pourquoi ce score ?</div>
-        ${criteriaBar("Dividende vs décrément", s.coverageScore, "Le dividende absorbe-t-il le coût annuel ?")}
-        ${criteriaBar("Performance sacrifiée", s.dragScore, "Combien l'investisseur abandonne historiquement")}
-        ${criteriaBar("Marché stressé", s.stressScore, "Amplification dans les drawdowns")}
-        ${criteriaBar("Non-rappel", s.capitalLossSeverityScore, "Surcoût si le produit va au terme")}
-        ${criteriaBar("Marché latéral", s.pathDependencyScore, "Risque d'érosion quand l'indice stagne")}
-      </div>
-    </div>
-    <div class="dec-browser-tab" data-scr-tab="compare">
-      ${comparatorPreview(item, s)}
-    </div>`;
-    }
+      const productContent = document.getElementById("dr-product-content");
+      const clientContent = document.getElementById("dr-client-content");
+      const underlyingContent = document.getElementById("dr-underlying-content");
+      if (!underlyingContent) return;
+      if (productContent) productContent.style.display = "none";
+      if (clientContent) clientContent.style.display = "none";
+      underlyingContent.style.display = "";
 
-    function switchScreenerDetailTab(tab) {
-      document.querySelectorAll(".dec-browser-tabs button").forEach((btn) => {
-        btn.classList.toggle("on", btn.dataset.tab === tab);
-      });
-      document.querySelectorAll("[data-scr-tab]").forEach((panel) => {
-        panel.classList.toggle("on", panel.dataset.scrTab === tab);
-      });
-    }
+      const gauges = [
+        gaugeRow(
+          "Dividende vs décrément",
+          "Le dividende absorbe-t-il le coût annuel ?",
+          s.coverageScore,
+          `${s.coverageRatio.toFixed(2)}x`,
+        ),
+        gaugeRow(
+          "Performance sacrifiée",
+          "Combien l'investisseur abandonne historiquement",
+          s.dragScore,
+          `${Math.abs(s.annualDrag).toFixed(1)}%/an`,
+        ),
+        gaugeRow(
+          "Marché stressé",
+          "Amplification dans les drawdowns",
+          s.stressScore,
+          `×${s.stressAmplification.toFixed(2)}`,
+        ),
+        gaugeRow(
+          "Non-rappel",
+          "Surcoût si le produit va au terme",
+          s.capitalLossSeverityScore,
+          `+${s.capitalLossSeverity.toFixed(1)} pts`,
+        ),
+        gaugeRow(
+          "Marché latéral",
+          "Risque d'érosion quand l'indice stagne",
+          s.pathDependencyScore,
+          `${s.lateralDragMean.toFixed(1)} pts/an`,
+        ),
+      ].join("");
 
-    function businessVerdict(score) {
-      if (score.fitScore >= 80 && score.netCarry >= 0) return { label: "Défendable", cls: "ok" };
-      if (score.fitScore >= 60) return { label: "À justifier", cls: "warning" };
-      return { label: "À éviter", cls: "danger" };
-    }
-
-    function miniGraph(item, score) {
-      const prEnd = 100 + item.historicalReturn5Y * 5;
-      const decEnd = 100 + item.decrementReturn5Y * 5;
-      return `<div class="dec-mini-graph">
-        <svg viewBox="0 0 420 150" preserveAspectRatio="none">
-          <path d="M20 120 C120 90 250 60 400 ${150 - prEnd * 0.65}" fill="none" stroke="var(--color-text-secondary)" stroke-width="2"/>
-          <path d="M20 120 C120 100 250 78 400 ${150 - decEnd * 0.65}" fill="none" stroke="var(--color-ocean)" stroke-width="2"/>
-          <line x1="20" y1="120" x2="400" y2="120" stroke="var(--color-divider)"/>
-        </svg>
-        <div class="dec-graph-legend"><span class="chart-line-standard">PR standard</span><span class="chart-line-decrement">IL décrémenté</span><span>Drag ${score.annualDrag.toFixed(1)}%/an</span></div>
-      </div>`;
-    }
-
-    function comparatorPreview(item, score) {
-      return `<div class="dec-compare-preview">
-        <div><b>${item.name}</b><span>Score ${score.fitScore} · ${score.grade}</span><label>Coupon A (%)</label><input class="f-inp" value="8.0" /></div>
-        <div><b>Challenger</b><span>Sélection dans le comparateur complet</span><label>Coupon B (%)</label><input class="f-inp" value="8.5" /></div>
-        <p>Duel coupon : le supplément de rendement doit battre le coût du décrément, pas seulement paraître plus généreux.</p>
-      </div>`;
-    }
-
-    function criteriaBar(label, score, detail) {
-      if (!Number.isFinite(score)) {
-        return `
-        <div class="dec-detail-crit">
-          <div class="dec-detail-crit-label">${label}<span>${detail}</span></div>
-          <div class="dec-detail-crit-bar"><div class="crit-bar-neutral" style="width:100%;"></div></div>
-          <div class="dec-detail-crit-score cell-faint">Neutralisé</div>
-        </div>`;
-      }
-      const color =
-        score >= 75
-          ? "var(--color-success)"
-          : score >= 50
-            ? "var(--color-ocean)"
-            : score >= 25
-              ? "var(--color-warning)"
-              : "var(--color-danger)";
-      return `
-        <div class="dec-detail-crit">
-          <div class="dec-detail-crit-label">${label}<span>${detail}</span></div>
-          <div class="dec-detail-crit-bar"><div class="tone-bg" style="width:${score}%;--tone:${color};"></div></div>
-          <div class="dec-detail-crit-score tone" style="--tone:${color}">${score}/100</div>
-        </div>`;
+      underlyingContent.innerHTML = `
+        <div class="dr-name">${escapeHtml(item.name)}</div>
+        <div class="dr-isin">${escapeHtml(item.assetType)} · ${escapeHtml(item.providers.join(", "))}</div>
+        <div class="dr-underlying-avis">
+          <span class="pill-status ${verdict.tone}">${escapeHtml(verdict.label)}</span>
+          <span class="dr-underlying-score">${s.fitScore}</span>
+        </div>
+        <div class="dr-underlying-kpis">
+          <div class="kpi"><div class="kpi-lbl">Couverture dividende</div><div class="kpi-val">${s.coverageRatio.toFixed(2)}x</div><div class="kpi-sub">&nbsp;</div></div>
+          <div class="kpi"><div class="kpi-lbl">Performance sacrifiée</div><div class="kpi-val">${Math.abs(s.annualDrag).toFixed(1)}%</div><div class="kpi-sub">par an</div></div>
+          <div class="kpi"><div class="kpi-lbl">Surcoût non-rappel</div><div class="kpi-val">+${s.capitalLossSeverity.toFixed(1)}</div><div class="kpi-sub">points</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="dr-section-title">COMPOSANTES DU SCORE</div>
+        <div class="dr-underlying-gauges">${gauges}</div>
+        <div class="divider"></div>
+        <div class="dr-section-title">LECTURE CGP</div>
+        <div class="dr-underlying-reading">${underlyingReading(item, s, verdict)}</div>
+      `;
+      document.getElementById("drawer-ov")?.classList.add("open");
     }
 
     function sourceBadge(score) {
       return `<span class="dec-source-badge" title="${score.sourceTooltip}">${score.sourceLabel}</span>`;
-    }
-
-    function clientLanguage(item, score) {
-      const refNote = score.decPctRefNote ? ` (${score.decPctRefNote})` : "";
-      const shared = `Le sous-jacent ${item.name} utilise un mécanisme de décrément représentant ${score.decPctAnnual.toFixed(1)}%/an${refNote}. Le dividende historique ressort à ${item.historicalDividend.toFixed(1)}%/an, soit une couverture de ${score.coverageRatio.toFixed(2)}x. Le drag annualisé estimé est de ${score.annualDrag.toFixed(1)}%/an et le scénario adverse ajoute ${score.capitalLossSeverity.toFixed(1)} points de perte en cas de non-rappel.`;
-      if (score.grade === "A") {
-        return `${shared} Ce mécanisme est économiquement justifié au regard des données historiques disponibles. Note Decrement Score : ${score.grade} (${score.fitScore}/100).`;
-      }
-      if (score.grade === "B") {
-        return `${shared} Ce mécanisme présente un coût modéré, compensé par le supplément de coupon à vérifier sur la term sheet. Note Decrement Score : ${score.grade} (${score.fitScore}/100).`;
-      }
-      if (score.grade === "C") {
-        return `${shared} Le coupon perçu reflète en partie une performance future sacrifiée. Note Decrement Score : ${score.grade} (${score.fitScore}/100).`;
-      }
-      return `${shared} Le coût du décrément est significatif et doit être explicitement présenté au client. Note Decrement Score : ${score.grade} (${score.fitScore}/100).`;
     }
 
     function createPitchFromOpportunity(asset) {
@@ -271,10 +282,9 @@
 
     return {
       runScreener,
+      sortScreener,
       showScreenerDetail,
       createPitchFromOpportunity,
-      renderNutriScore,
-      switchScreenerDetailTab,
     };
   },
 );

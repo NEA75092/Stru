@@ -272,6 +272,18 @@
       };
     }
 
-    return { DECREMENT_UNIVERSE, STATIC_WEIGHTS, calculateDecrementScore };
+    // Barème de l'avis (passe 7D) : la seule source de vérité pour les
+    // quatre seuils 85/70/50 — la vue ne les connaît pas, elle affiche
+    // { label, tone }. key est stable, non traduite, et sert au tri —
+    // jamais le libellé français, qui peut changer sans casser le tri.
+    function decrementVerdict(score) {
+      const s = Number(score) || 0;
+      if (s >= 85) return { key: "recommended", label: "Recommandé", tone: "av-recommended" };
+      if (s >= 70) return { key: "acceptable", label: "Acceptable", tone: "av-acceptable" };
+      if (s >= 50) return { key: "justify", label: "À justifier", tone: "av-justify" };
+      return { key: "avoid", label: "À éviter", tone: "av-avoid" };
+    }
+
+    return { DECREMENT_UNIVERSE, STATIC_WEIGHTS, calculateDecrementScore, decrementVerdict };
   },
 );

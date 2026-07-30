@@ -120,8 +120,19 @@
       return x;
     }
 
+    // Calendrier local, jamais UTC (passe 7D) : toISOString() convertit en
+    // UTC avant de trancher la date — en UTC+2 (Europe l'été), un minuit
+    // local construit via `new Date(y, m, d)` recule d'un jour une fois
+    // reformaté. Trouvé sur le calendrier (7C-3b, buckets hebdomadaires
+    // désynchronisés) puis confirmé ailleurs (graphe de performance,
+    // app-dashboard.js : le curseur mensuel du 1er du mois tombait
+    // toujours la veille). Les composants de date locale (getFullYear /
+    // getMonth / getDate) ne traversent jamais l'UTC, donc jamais ce
+    // décalage — c'est la correction à la source, pas un formateur local
+    // de plus empilé par appelant.
     function isoDate(d) {
-      return new Date(d).toISOString().slice(0, 10);
+      const date = new Date(d);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     }
 
     function defaultChannelForEnvelope(envelope) {

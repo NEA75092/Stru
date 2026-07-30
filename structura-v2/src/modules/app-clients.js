@@ -182,8 +182,10 @@
       setSelectedClientDetail(id);
       const content = document.getElementById("dr-client-content");
       const productContent = document.getElementById("dr-product-content");
+      const underlyingContent = document.getElementById("dr-underlying-content");
       if (!content) return;
       if (productContent) productContent.style.display = "none";
+      if (underlyingContent) underlyingContent.style.display = "none";
       content.style.display = "";
       const client = getClientById(id);
       if (!client) {

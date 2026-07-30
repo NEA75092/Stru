@@ -316,6 +316,103 @@
     gap: var(--space-1);
 }
 
+/* ── Tiroir sous-jacent — Decrement Score (passe 7D, D.2) ───────
+   En-tête (nom, type, émetteurs, pastille d'avis + score chiffré),
+   trois KPI en une rangée, composantes en jauges horizontales,
+   une seule zone de prose. Le score chiffré n'apparaît qu'ici,
+   en mono --text-sm à côté de la pastille — nulle part ailleurs. */
+.dr-underlying-avis {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.dr-underlying-score {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-secondary);
+}
+
+.dr-underlying-kpis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.dr-underlying-kpis .kpi {
+    min-height: 92px;
+    padding: var(--space-3) var(--space-3) var(--space-2);
+}
+
+.dr-underlying-kpis .kpi-val {
+    font-size: 20px;
+    gap: var(--space-1);
+}
+
+/* Composantes en jauges (passe 7D, D.2) : le même objet graphique que
+   la distance à la barrière (tables.css .bar-wrap/.bar-track/.bar-fill,
+   relief.css .barrier-mark) — pas une variante, pas de carte ni de
+   bordure gauche colorée autour. Le repère à 50% partage le seuil bas
+   de la bande "Acceptable" du barème d'avis (decrementVerdict). */
+.dr-underlying-gauges {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.dr-underlying-gauge {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.dr-underlying-gauge-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.dr-underlying-gauge-label span {
+    font-size: var(--text-2xs);
+    font-weight: 400;
+    color: var(--color-text-tertiary);
+}
+
+/* La jauge du tiroir dispose de 180px, pas des 64px pensés pour une
+   cellule de tableau (tables.css .bar-track) — même composant, plus
+   de largeur disponible. .bar-track en largeur:100% de son parent
+   flex (.bar-wrap) laissait .dist-value se faire pousser hors de la
+   colonne ; flex:1 partage l'espace avec la valeur au lieu de le
+   revendiquer en entier. */
+.dr-underlying-gauge .bar-track {
+    flex: 1;
+    width: auto;
+    max-width: none;
+}
+
+.dr-underlying-gauge .dist-value {
+    flex: none;
+}
+
+.dr-underlying-reading {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+}
+
+.dr-underlying-reading b {
+    color: var(--color-ink);
+}
+
 /* ── Bloc contact (passe 7C, B.4) ────────────────────────────────
    L'e-mail n'est pas une donnée de pilotage : il descend sous les
    notes, en texte discret plutôt qu'en sous-titre du tiroir. */

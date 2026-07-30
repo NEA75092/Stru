@@ -458,23 +458,14 @@
           : `${Math.round(amount)} €`;
     }
 
-    // isoDate() (app-state.js) passe par toISOString, donc par UTC : un
-    // fuseau en avance sur UTC (Europe en été) fait reculer d'un jour
-    // tout minuit local qu'on lui donne. Sur un seul appel cet écart ne
-    // se voit pas ; répété à chaque semaine dans buildFluxWeekBuckets,
-    // il désynchronise les clés de bucket du conteneur et des
-    // événements (chacun perd un jour différemment selon le chemin de
-    // calcul), et un mois qui a réellement 3+ semaines avec versement
-    // retombait en liste faute de correspondance. Un format ISO en
-    // calendrier local, sans passer par UTC, élimine l'écart.
-    function fluxLocalIso(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    }
-
+    // isoDate() (app-state.js) est désormais en calendrier local, plus en
+    // UTC — corrigé à la source en passe 7D après l'audit qui a trouvé le
+    // même décalage ailleurs que dans ce fichier (perf chart du dashboard
+    // notamment). Le contournement local posé en 7C-3b a été retiré.
     function fluxMondayOf(dateIso) {
       const d = parseIsoDate(dateIso);
       const dow = (d.getDay() + 6) % 7;
-      return fluxLocalIso(addDays(d, -dow));
+      return isoDate(addDays(d, -dow));
     }
 
     // Granularité selon le mode (passe 7C-3, D) : Année compare 12 mois
@@ -504,7 +495,7 @@
           month: "2-digit",
         });
         buckets.set(cursor, { key: cursor, label, amount: 0, acquired: 0, conditional: 0 });
-        cursor = fluxLocalIso(addDays(parseIsoDate(cursor), 7));
+        cursor = isoDate(addDays(parseIsoDate(cursor), 7));
       }
       return buckets;
     }

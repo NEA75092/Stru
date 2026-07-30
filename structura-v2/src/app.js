@@ -6104,11 +6104,6 @@ async function extractFromDocument() {
         empty: true,
         message: `Aucun document produit-spécifique exploitable détecté. ${rejectedDocs.length ? `Les ${rejectedDocs.length} document(s) fournis semblent génériques ou hors périmètre.` : ""}`,
       });
-      document.getElementById("ing-output").textContent = JSON.stringify(
-        { rejectedDocs, analysed: extractions },
-        null,
-        2,
-      );
       document.getElementById("ing-compare").innerHTML =
         `<div class="tone" style="--tone:var(--color-warning)">Aucun document produit-specifique exploitable detecte. Les documents fournis semblent generiques ou non pertinents.</div>`;
       document.getElementById("ing-compare").style.display = "block";
@@ -6188,10 +6183,6 @@ async function extractFromDocument() {
         alerts: fallback.alerts,
         reconciled,
       });
-      const reporting = buildConsensusReportingPayload(
-        consensus,
-        fallback.data,
-      );
       extractedDocumentData.productDescription =
         intelligence.retailText || descriptor.full;
       renderIngestionStory({
@@ -6212,22 +6203,6 @@ async function extractFromDocument() {
         fallback.sources ||
           fallbackSources.map((s) => ({ ...s.data, docType: s.docType })),
         consensus,
-      );
-      document.getElementById("ing-output").textContent = JSON.stringify(
-        {
-          merged: fallback.data,
-          reporting,
-          descriptor,
-          intelligence,
-          reconciled,
-          consensus,
-          sources: fallback.sources,
-          compare: fallback.compare,
-          alerts: fallback.alerts,
-          rejectedDocs,
-        },
-        null,
-        2,
       );
       setIngestionAddButton(true);
       notify(
@@ -6286,7 +6261,6 @@ async function extractFromDocument() {
       alerts: consolidated.alerts,
       reconciled,
     });
-    const reporting = buildConsensusReportingPayload(consensus, merged);
     extractedDocumentData.productDescription =
       intelligence.retailText || descriptor.full;
     renderIngestionStory({
@@ -6303,22 +6277,6 @@ async function extractFromDocument() {
       rawDocuments,
     });
     renderCompareTable(compare, consolidated.sources || extractions, consensus);
-    document.getElementById("ing-output").textContent = JSON.stringify(
-      {
-        merged,
-        reporting,
-        descriptor,
-        intelligence,
-        reconciled,
-        consensus,
-        sources: consolidated.sources,
-        compare,
-        alerts: consolidated.alerts,
-        rejectedDocs,
-      },
-      null,
-      2,
-    );
     setIngestionAddButton(true);
     const badCount = compare.filter((c) => c.status === "bad").length;
     notify(

@@ -274,6 +274,31 @@
     background: color-mix(in oklch, var(--color-text-tertiary), transparent 88%);
 }
 
+/* ── Avis Decrement Score (passe 7D, D.1) ────────────────────────
+   Quatre pastilles graduées, sur le même gabarit .pill-status —
+   pas un système de couleur séparé. Deux teintes vertes distinguent
+   Recommandé/Acceptable (les deux avis sans réserve), warning marque
+   À justifier, danger marque À éviter. */
+.pill-status.av-recommended {
+    color: var(--color-success);
+    background: color-mix(in oklch, var(--color-success), transparent 84%);
+}
+
+.pill-status.av-acceptable {
+    color: var(--color-success-2);
+    background: color-mix(in oklch, var(--color-success-2), transparent 84%);
+}
+
+.pill-status.av-justify {
+    color: var(--color-warning);
+    background: color-mix(in oklch, var(--color-warning), transparent 84%);
+}
+
+.pill-status.av-avoid {
+    color: var(--color-danger);
+    background: color-mix(in oklch, var(--color-danger), transparent 84%);
+}
+
 /* ── Distance protection — jauge + valeur ─────────────────── */
 .bar-wrap {
     display: flex;

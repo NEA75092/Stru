@@ -28,43 +28,6 @@
     border-color: var(--tone);
 }
 
-/* ── Decrement Score (Screener) — mécanique uniquement ──────
-   Vue hors périmètre passe 4 (pas de refonte), mais ses trois
-   couleurs littérales (nutri-score, courbes du graphique) devaient
-   quitter le JS pour survivre à la suppression du bloc d'alias en
-   section A. Palette réutilisée telle quelle, aucun redesign. */
-.ns-A {
-    background: var(--color-success);
-}
-
-.ns-B {
-    background: var(--color-success-2);
-}
-
-.ns-C {
-    background: var(--color-warning);
-}
-
-.ns-D {
-    background: var(--color-warning-2);
-}
-
-.ns-E {
-    background: var(--color-danger);
-}
-
-.chart-line-standard {
-    color: var(--color-text-secondary);
-}
-
-.chart-line-decrement {
-    color: var(--color-ocean);
-}
-
-.crit-bar-neutral {
-    background: var(--color-border-strong);
-}
-
 /* ── Petites pastilles partagées (tiroir produit, tableau clients) ── */
 .env-badge {
     display: inline-flex;
@@ -1801,42 +1764,30 @@
     color: var(--color-text-tertiary);
 }
 
-.dec-column-legend {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-4);
-    margin-bottom: var(--space-3);
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-}
-
-.dec-column-legend span {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* Légende en pastilles réelles (passe 6), pas en mot coloré : même
-   classes st-safe/st-warn/st-crit que la pastille Score de la ligne. */
-.dec-legend-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: var(--radius-full);
-    background: currentColor;
-}
-
 /* Quatre colonnes (passe 6, section I) : Non-rappel et Verdict
    restent dans la fiche (clic sur la ligne), pas dans le tableau —
-   c'est ce qui laissait 900px de vide entre deux colonnes voisines. */
+   c'est ce qui laissait 900px de vide entre deux colonnes voisines.
+   Avis en <colgroup> figé (passe 7D, D.1) : la pastille la plus
+   longue, « À justifier », ne doit jamais tronquer. */
 #dscore-table {
     min-width: 640px;
 }
 
-#dscore-table thead th:nth-child(1) { width: 34%; }
-#dscore-table thead th:nth-child(2) { width: 22%; }
-#dscore-table thead th:nth-child(3) { width: 22%; }
-#dscore-table thead th:nth-child(4) { width: 22%; }
+.dscore-col-name {
+    width: 34%;
+}
+
+.dscore-col-carry {
+    width: 22%;
+}
+
+.dscore-col-drag {
+    width: 22%;
+}
+
+.dscore-col-avis {
+    width: 150px;
+}
 
 /* Toute valeur numérique en mono tabulaire, même taille — la couleur
    ne s'écrit plus sur le texte, seulement sur la pastille qui
