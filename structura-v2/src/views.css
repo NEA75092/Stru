@@ -1767,26 +1767,40 @@
 /* Quatre colonnes (passe 6, section I) : Non-rappel et Verdict
    restent dans la fiche (clic sur la ligne), pas dans le tableau —
    c'est ce qui laissait 900px de vide entre deux colonnes voisines.
-   Avis en <colgroup> figé (passe 7D, D.1) : la pastille la plus
-   longue, « À justifier », ne doit jamais tronquer. */
+   Avis en <colgroup> figé (passe 7D, D.1). Largeurs redistribuées
+   (passe 7D-2, point 3) : mélanger % et px sur quatre colonnes
+   figées (table-layout: fixed hérité de .tbl-wrap table) laissait un
+   vide à droite dès que leur somme n'atteignait pas 100 %. Une seule
+   colonne flexible (Sous-jacent, width: auto — même principe que
+   .dr-col-produit dans le tiroir) absorbe le reste ; les trois autres
+   sont fixes en px, jamais de vide fantôme quel que soit le panneau. */
 #dscore-table {
     min-width: 640px;
 }
 
 .dscore-col-name {
-    width: 34%;
+    width: auto;
 }
 
 .dscore-col-carry {
-    width: 22%;
+    width: 200px;
 }
 
 .dscore-col-drag {
-    width: 22%;
+    width: 190px;
 }
 
 .dscore-col-avis {
     width: 150px;
+}
+
+/* Dernière ligne visible entière, jamais coupée à mi-hauteur (passe
+   7D-2, point 4) : un dégradé de sortie sur les 32 derniers px
+   indique le défilement au lieu d'un clip sec. La sticky thead reste
+   pleine (le masque ne couvre que le bas de la boîte, pas son
+   contenu scrollé). */
+.dscore-table-wrap {
+    mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent);
 }
 
 /* Toute valeur numérique en mono tabulaire, même taille — la couleur

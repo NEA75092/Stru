@@ -21,7 +21,7 @@
       const criteria =
         typeof criteriaOrTargetCoupon === "object"
           ? criteriaOrTargetCoupon
-          : { region: "all", minDividend: 0, maxDecrement: 15, minGrade: "E" };
+          : { region: "all", minDividend: 0, maxDecrement: 15, minAvis: "all" };
       void criteria;
       const dec = calculateDecrementScore(item);
       const fitScore = dec.total;
@@ -36,7 +36,7 @@
           parseFloat(document.getElementById("scr-min-div")?.value) || 0,
         maxDecrement:
           parseFloat(document.getElementById("scr-max-dec")?.value) || 15,
-        minGrade: document.getElementById("scr-min-grade")?.value || "E",
+        minAvis: document.getElementById("scr-min-avis")?.value || "all",
       };
     }
 
@@ -44,18 +44,21 @@
       return region === "France" || region === "Allemagne" ? "Europe" : region;
     }
 
-    function gradePasses(grade, minGrade) {
-      const rank = { E: 0, D: 1, C: 2, B: 3, A: 4 };
-      return (rank[grade] ?? 0) >= (rank[minGrade] ?? 0);
-    }
-
     // Tri par ordre d'avis, pas alphabétique (passe 7D, D.1) — même
     // mécanique de tri persistant que 7C-3 (Clients, tiroir client) :
     // un objet {col, asc}, un rang stable par colonne, jamais un tri sur
     // le libellé traduit (« À éviter » < « À justifier » alphabétiquement
-    // n'a aucun rapport avec la sévérité).
+    // n'a aucun rapport avec la sévérité). Même rang utilisé pour le
+    // filtre « Avis minimum » (passe 7D-2, point 1) — l'ancienne note
+    // A–E n'existe plus nulle part dans la vue.
     const screenerSort = { col: "avis", asc: false };
     const AVIS_RANK = { avoid: 0, justify: 1, acceptable: 2, recommended: 3 };
+
+    function avisPasses(fitScore, minAvis) {
+      if (minAvis === "all") return true;
+      const rank = AVIS_RANK[decrementVerdict(fitScore).key] ?? 0;
+      return rank >= (AVIS_RANK[minAvis] ?? 0);
+    }
 
     function screenerSortValue(item, s, col) {
       if (col === "name") return item.name || "";
@@ -113,7 +116,7 @@
           score: computeStructurationScore(item, criteria),
         }))
         .filter(({ score: s }) => s.decPctAnnual <= criteria.maxDecrement)
-        .filter(({ score: s }) => gradePasses(s.grade, criteria.minGrade))
+        .filter(({ score: s }) => avisPasses(s.fitScore, criteria.minAvis))
         .sort(compareScreenerRows);
 
       const tbody = document.getElementById("screener-tbody");
@@ -124,19 +127,20 @@
         return;
       }
 
-      // La couleur passe sur une pastille, jamais sur le texte (passe 6) :
-      // le mot ("Couvre"/"Manque") porte l'information, le point la
-      // double. Avis en pastille (passe 7D) : le mot est l'information,
-      // le score chiffré a quitté la liste — visible dans le tiroir
-      // (showScreenerDetail), à côté de la pastille, nulle part ailleurs.
+      // La couleur passe sur une pastille, jamais sur le texte (passe 6).
+      // Avis en pastille (passe 7D) : le score chiffré a quitté la liste
+      // — visible dans le tiroir (showScreenerDetail), à côté de la
+      // pastille, nulle part ailleurs. Cellule Dividende−décrément sans
+      // mot (passe 7D-2, point 2) : le signe porte l'information, comme
+      // partout ailleurs où un montant s'affiche (moneyShort, pctFr).
       tbody.innerHTML = scored
         .map(({ item, score: s }) => {
           const verdict = decrementVerdict(s.fitScore);
           const carryCls = s.netCarry >= 0 ? "st-safe" : "st-crit";
-          const carryWord = s.netCarry >= 0 ? "Couvre +" : "Manque ";
+          const carrySign = s.netCarry >= 0 ? "+" : "−";
           return `<tr onclick="showScreenerDetail('${item.id}')">
       <td><div class="p-name" style="font-size:11px;">${item.name}</div><div class="p-isin" style="font-size:9px;">${item.assetType} · ${regionBucket(item.region)} · ${sourceBadge(s)}</div></td>
-      <td class="num dec-metric"><span class="dec-metric-dot ${carryCls}"></span>${carryWord}${fmtPts(s.netCarry)} pts/an</td>
+      <td class="num dec-metric"><span class="dec-metric-dot ${carryCls}"></span>${carrySign}${fmtPts(s.netCarry)} pts/an</td>
       <td class="num dec-metric">${pctFr(Math.abs(s.annualDrag), 1)}/an sacrifié</td>
       <td><span class="pill-status ${verdict.tone}">${escapeHtml(verdict.label)}</span></td>
     </tr>`;
@@ -150,28 +154,109 @@
       return score >= 70 ? "st-safe" : score >= 50 ? "st-warn" : "st-crit";
     }
 
+    // Domaine propre à chaque composante (passe 7D-2, point 6) : la
+    // largeur de barre venait directement du score interne 0-100, donc
+    // deux composantes au score voisin se rendaient identiques même si
+    // leurs métriques réelles n'avaient rien à voir. min/max cadrent
+    // chaque jauge sur sa propre plage réaliste (bornée par le palier
+    // "0" du barème de decrement-engine.js) ; threshold est la valeur
+    // réelle où cette composante bascule sous 50 dans ce même barème —
+    // le repère n'est donc plus un 50 % arbitraire commun aux cinq.
+    // invert: true pour un coût (plus haut = pire), goodness va de 0
+    // (pire) à 1 (meilleur) et pilote à la fois le remplissage et le
+    // repère, sur le même axe gauche→droite.
+    function gaugeGoodness(value, min, max, invert) {
+      const clamped = Math.max(min, Math.min(max, Number(value) || 0));
+      const norm = (clamped - min) / (max - min);
+      return invert ? 1 - norm : norm;
+    }
+
     // Jauge horizontale à repère de seuil vertical (passe 7D, D.2) : le
     // même objet graphique que la distance à la barrière (Barrières,
     // Portefeuille) — .bar-wrap/.bar-track/.bar-fill/.barrier-mark de
-    // tables.css/relief.css, pas une variante. Le repère à 50% marque le
-    // même seuil que le bas de la bande "Acceptable" du barème d'avis :
-    // à gauche, la composante pèse contre le produit. La valeur affichée
-    // est la métrique réelle (ratio, %/an, points) — jamais le score
-    // interne 0-100, qui resterait un chiffre sans unité à interpréter.
-    function gaugeRow(label, desc, score, metric) {
+    // tables.css/relief.css, pas une variante. La valeur affichée est la
+    // métrique réelle (ratio, %/an, points) — jamais le score interne
+    // 0-100, qui resterait un chiffre sans unité à interpréter.
+    function gaugeRow(def, s) {
+      const score = def.score(s);
+      const value = def.value(s);
       const tone = gaugeTone(score);
-      const width = Math.max(0, Math.min(100, Number(score) || 0));
+      const fillPct = Math.round(gaugeGoodness(value, def.min, def.max, def.invert) * 100);
+      const markPct = Math.round(gaugeGoodness(def.threshold, def.min, def.max, def.invert) * 100);
+      const metric = def.format(value);
       return `<div class="dr-underlying-gauge">
-        <div class="dr-underlying-gauge-label">${escapeHtml(label)}<span>${escapeHtml(desc)}</span></div>
+        <div class="dr-underlying-gauge-label">${escapeHtml(def.label)}<span>${escapeHtml(def.desc)}</span></div>
         <div class="bar-wrap">
           <div class="bar-track">
-            <div class="bar-fill ${tone}" style="width:${width}%"></div>
-            <span class="barrier-mark" style="--at: 50%"></span>
+            <div class="bar-fill ${tone}" style="width:${fillPct}%"></div>
+            <span class="barrier-mark" style="--at: ${markPct}%"></span>
           </div>
           <span class="dist-value ${tone}">${escapeHtml(metric)}</span>
         </div>
       </div>`;
     }
+
+    // Bornes et seuils tirés des paliers de calculateDecrementScore
+    // (decrement-engine.js) : max = palier "0" de chaque composante,
+    // threshold = valeur où le palier passe sous 50. Coverage n'est pas
+    // inversé (plus haut = meilleur) ; les quatre autres sont des coûts.
+    const GAUGE_DEFS = [
+      {
+        label: "Dividende vs décrément",
+        desc: "Le dividende absorbe-t-il le coût annuel ?",
+        score: (s) => s.coverageScore,
+        value: (s) => s.coverageRatio,
+        format: (v) => `${v.toFixed(2)}x`,
+        min: 0,
+        max: 1.25,
+        invert: false,
+        threshold: 0.5,
+      },
+      {
+        label: "Performance sacrifiée",
+        desc: "Combien l'investisseur abandonne historiquement",
+        score: (s) => s.dragScore,
+        value: (s) => Math.abs(s.annualDrag),
+        format: (v) => `${v.toFixed(1)}%/an`,
+        min: 0,
+        max: 5,
+        invert: true,
+        threshold: 3.5,
+      },
+      {
+        label: "Marché stressé",
+        desc: "Amplification dans les drawdowns",
+        score: (s) => s.stressScore,
+        value: (s) => s.stressAmplification,
+        format: (v) => `×${v.toFixed(2)}`,
+        min: 1,
+        max: 1.5,
+        invert: true,
+        threshold: 1.3,
+      },
+      {
+        label: "Non-rappel",
+        desc: "Surcoût si le produit va au terme",
+        score: (s) => s.capitalLossSeverityScore,
+        value: (s) => s.capitalLossSeverity,
+        format: (v) => `+${v.toFixed(1)} pts`,
+        min: 0,
+        max: 25,
+        invert: true,
+        threshold: 15,
+      },
+      {
+        label: "Marché latéral",
+        desc: "Risque d'érosion quand l'indice stagne",
+        score: (s) => s.pathDependencyScore,
+        value: (s) => s.lateralDragMean,
+        format: (v) => `${v.toFixed(1)} pts/an`,
+        min: 0,
+        max: 15,
+        invert: true,
+        threshold: 10,
+      },
+    ];
 
     // Le texte que le CGP recopie dans son rapport d'adéquation (passe
     // 7D, D.2) : nomme le sous-jacent, le niveau de décrément, et
@@ -210,38 +295,7 @@
       if (clientContent) clientContent.style.display = "none";
       underlyingContent.style.display = "";
 
-      const gauges = [
-        gaugeRow(
-          "Dividende vs décrément",
-          "Le dividende absorbe-t-il le coût annuel ?",
-          s.coverageScore,
-          `${s.coverageRatio.toFixed(2)}x`,
-        ),
-        gaugeRow(
-          "Performance sacrifiée",
-          "Combien l'investisseur abandonne historiquement",
-          s.dragScore,
-          `${Math.abs(s.annualDrag).toFixed(1)}%/an`,
-        ),
-        gaugeRow(
-          "Marché stressé",
-          "Amplification dans les drawdowns",
-          s.stressScore,
-          `×${s.stressAmplification.toFixed(2)}`,
-        ),
-        gaugeRow(
-          "Non-rappel",
-          "Surcoût si le produit va au terme",
-          s.capitalLossSeverityScore,
-          `+${s.capitalLossSeverity.toFixed(1)} pts`,
-        ),
-        gaugeRow(
-          "Marché latéral",
-          "Risque d'érosion quand l'indice stagne",
-          s.pathDependencyScore,
-          `${s.lateralDragMean.toFixed(1)} pts/an`,
-        ),
-      ].join("");
+      const gauges = GAUGE_DEFS.map((def) => gaugeRow(def, s)).join("");
 
       underlyingContent.innerHTML = `
         <div class="dr-name">${escapeHtml(item.name)}</div>

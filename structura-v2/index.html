@@ -27,10 +27,10 @@
         <link rel="stylesheet" href="./src/design-tokens.css?v=20260728" />
         <link rel="stylesheet" href="./src/shell.css?v=20260727" />
         <link rel="stylesheet" href="./src/controls.css?v=20260728" />
-        <link rel="stylesheet" href="./src/overlays.css?v=20260730" />
+        <link rel="stylesheet" href="./src/overlays.css?v=20260730b" />
         <link rel="stylesheet" href="./src/dashboard.css?v=20260727" />
         <link rel="stylesheet" href="./src/tables.css?v=20260730" />
-        <link rel="stylesheet" href="./src/views.css?v=20260730b" />
+        <link rel="stylesheet" href="./src/views.css?v=20260730c" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260728" />
         <link rel="stylesheet" href="./src/relief.css?v=20260727" />
     </head>
@@ -1399,13 +1399,11 @@ En attente de génération...</pre
                                 <input class="f-inp" id="scr-max-dec" type="number" step="0.1" value="15" oninput="runScreener()" />
                             </div>
                             <div style="margin-bottom: 12px">
-                                <label class="f-lbl">Note minimum</label>
-                                <select class="f-inp" id="scr-min-grade" onchange="runScreener()">
-                                    <option value="E">E</option>
-                                    <option value="D">D</option>
-                                    <option value="C">C</option>
-                                    <option value="B">B</option>
-                                    <option value="A">A</option>
+                                <label class="f-lbl">Avis minimum</label>
+                                <select class="f-inp" id="scr-min-avis" onchange="runScreener()">
+                                    <option value="all">Tous</option>
+                                    <option value="acceptable">Acceptable et mieux</option>
+                                    <option value="recommended">Recommandé seulement</option>
                                 </select>
                             </div>
                             <div class="form-actions">
@@ -1415,7 +1413,7 @@ En attente de génération...</pre
 
                         <div class="panel dec-main">
                             <div class="panel-title">Table de décision</div>
-                            <div class="tbl-wrap" style="max-height: 420px">
+                            <div class="tbl-wrap dscore-table-wrap" style="max-height: 420px">
                                 <table id="dscore-table">
                                     <colgroup>
                                         <col class="dscore-col-name" />
@@ -1426,7 +1424,7 @@ En attente de génération...</pre
                                     <thead>
                                         <tr>
                                             <th onclick="sortScreener('name')">SOUS-JACENT</th>
-                                            <th class="num" onclick="sortScreener('carry')">DIVIDENDE - DÉCRÉMENT</th>
+                                            <th class="num" onclick="sortScreener('carry')">DIVIDENDE − DÉCRÉMENT (PTS/AN)</th>
                                             <th class="num" onclick="sortScreener('drag')">COÛT HISTORIQUE</th>
                                             <th onclick="sortScreener('avis')">AVIS</th>
                                         </tr>

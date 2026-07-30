@@ -352,11 +352,14 @@
     gap: var(--space-1);
 }
 
-/* Composantes en jauges (passe 7D, D.2) : le même objet graphique que
-   la distance à la barrière (tables.css .bar-wrap/.bar-track/.bar-fill,
-   relief.css .barrier-mark) — pas une variante, pas de carte ni de
-   bordure gauche colorée autour. Le repère à 50% partage le seuil bas
-   de la bande "Acceptable" du barème d'avis (decrementVerdict). */
+/* Composantes en jauges (passe 7D, D.2 ; regroupées 7D-2, point 5) :
+   le même objet graphique que la distance à la barrière (tables.css
+   .bar-wrap/.bar-track/.bar-fill, relief.css .barrier-mark) — pas une
+   variante, pas de carte ni de bordure gauche colorée autour. Groupe
+   compact (flex, pas grid 1fr) : le libellé et la jauge restent à 24px
+   l'un de l'autre au lieu de s'étirer aux deux bords du tiroir — un
+   grid 1fr/180px sur ~560px de tiroir laissait ~400px de vide entre
+   un libellé court et sa jauge poussée à droite. */
 .dr-underlying-gauges {
     display: flex;
     flex-direction: column;
@@ -365,13 +368,13 @@
 }
 
 .dr-underlying-gauge {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 180px;
+    display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-6);
 }
 
 .dr-underlying-gauge-label {
+    flex: 0 0 200px;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -386,16 +389,18 @@
     color: var(--color-text-tertiary);
 }
 
-/* La jauge du tiroir dispose de 180px, pas des 64px pensés pour une
-   cellule de tableau (tables.css .bar-track) — même composant, plus
-   de largeur disponible. .bar-track en largeur:100% de son parent
-   flex (.bar-wrap) laissait .dist-value se faire pousser hors de la
-   colonne ; flex:1 partage l'espace avec la valeur au lieu de le
-   revendiquer en entier. */
+.dr-underlying-gauge .bar-wrap {
+    flex: 0 0 auto;
+}
+
+/* La jauge du tiroir dispose de 200px fixes, pas des 64px pensés pour
+   une cellule de tableau (tables.css .bar-track) — même composant,
+   largeur propre à ce contexte. La valeur suit immédiatement (gap
+   hérité de .bar-wrap), sans se disputer l'espace avec la barre. */
 .dr-underlying-gauge .bar-track {
-    flex: 1;
-    width: auto;
+    width: 200px;
     max-width: none;
+    flex: none;
 }
 
 .dr-underlying-gauge .dist-value {
