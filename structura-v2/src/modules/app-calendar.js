@@ -86,15 +86,21 @@
       return ((Number(product?.nominal) || 0) * (Number(couponPerPeriod) || 0)) / 100;
     }
 
-    // Acquis vs conditionnel (passe 7C-3, C) : sans barrière de coupon,
-    // le versement n'a pas de condition de marché — il est acquis, quelle
-    // que soit la date. Avec barrière, seule une date déjà passée est
-    // connue (constatation faite, effet mémoire déjà comptabilisé) ; une
-    // date future reste sous réserve du franchissement à la constatation.
+    // Acquis vs conditionnel (passe 7C-3, C ; corrigé 7C-3b) : sans
+    // barrière de coupon, le versement n'a pas de condition de marché —
+    // il est acquis, quelle que soit la date. Avec barrière, chaque
+    // constatation est indépendante : une barrière franchie (ou non) en
+    // avril ne dit rien de juillet. Une date passée n'est « connue » que
+    // pour un produit à effet mémoire, où les coupons manqués
+    // s'accumulent et se rattrapent — sans mémoire, même une
+    // constatation passée reste incertaine avec les données dont on
+    // dispose ici (pas d'historique de cours simulé), donc conditionnel.
     function isCouponAcquired(product, dateIso, todayIso) {
       const barrier = Number(product?.characteristics?.couponBarrier ?? product?.barrier);
       const hasBarrier = Number.isFinite(barrier) && barrier > 0;
       if (!hasBarrier) return true;
+      const hasMemory = Boolean(product?.characteristics?.hasMemory ?? product?.hasMemory);
+      if (!hasMemory) return false;
       return dateIso <= todayIso;
     }
 
@@ -452,10 +458,23 @@
           : `${Math.round(amount)} €`;
     }
 
+    // isoDate() (app-state.js) passe par toISOString, donc par UTC : un
+    // fuseau en avance sur UTC (Europe en été) fait reculer d'un jour
+    // tout minuit local qu'on lui donne. Sur un seul appel cet écart ne
+    // se voit pas ; répété à chaque semaine dans buildFluxWeekBuckets,
+    // il désynchronise les clés de bucket du conteneur et des
+    // événements (chacun perd un jour différemment selon le chemin de
+    // calcul), et un mois qui a réellement 3+ semaines avec versement
+    // retombait en liste faute de correspondance. Un format ISO en
+    // calendrier local, sans passer par UTC, élimine l'écart.
+    function fluxLocalIso(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
     function fluxMondayOf(dateIso) {
       const d = parseIsoDate(dateIso);
       const dow = (d.getDay() + 6) % 7;
-      return isoDate(addDays(d, -dow));
+      return fluxLocalIso(addDays(d, -dow));
     }
 
     // Granularité selon le mode (passe 7C-3, D) : Année compare 12 mois
@@ -485,7 +504,7 @@
           month: "2-digit",
         });
         buckets.set(cursor, { key: cursor, label, amount: 0, acquired: 0, conditional: 0 });
-        cursor = isoDate(addDays(parseIsoDate(cursor), 7));
+        cursor = fluxLocalIso(addDays(parseIsoDate(cursor), 7));
       }
       return buckets;
     }

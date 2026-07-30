@@ -289,3 +289,53 @@ test("les overlays fermés sont en display: none", () => {
   assert.match(css, /\.modal(?![\w-])[^{]*\{[^}]*display:\s*none/,
     "la modale fermée doit être en display: none, pas seulement transparente");
 });
+
+/* ── 15. Une feuille CSS modifiée bumpe son ?v= ─────────────
+   Passe 7C-3 : views.css réécrit, ?v= laissé à l'identique. Le
+   navigateur/CDN a continué à servir l'ancienne feuille — la carte
+   Coupons rendait des tirets de 1px, pas les barres livrées. Le
+   correctif était juste ; ce test l'aurait attrapé avant le commit. */
+test("toute feuille CSS modifiée depuis HEAD a un ?v= différent de HEAD", () => {
+  const { execSync } = require("node:child_process");
+  // "./index.html" (et non "index.html") : la racine git peut être un
+  // dossier parent (ce dépôt vit dans un repo englobant) — le préfixe
+  // le résout relativement à cwd plutôt qu'à la racine du dépôt.
+  const git = (args) =>
+    execSync(`git ${args}`, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+
+  let baseHtml;
+  try {
+    baseHtml = git("show HEAD:./index.html");
+  } catch {
+    return; // pas de commit précédent à comparer — rien à vérifier
+  }
+
+  const versionsOf = (html) => {
+    const map = new Map();
+    for (const m of html.matchAll(/href="\.\/src\/([\w.-]+\.css)\?v=([\w.-]+)"/g)) {
+      map.set(m[1], m[2]);
+    }
+    return map;
+  };
+  const before = versionsOf(baseHtml);
+  const after = versionsOf(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"));
+
+  let changedFiles = [];
+  try {
+    changedFiles = git("diff HEAD --name-only -- src/*.css")
+      .split("\n")
+      .map((line) => path.basename(line.trim()))
+      .filter(Boolean);
+  } catch {
+    return;
+  }
+
+  const offenders = changedFiles.filter(
+    (file) => before.has(file) && after.has(file) && before.get(file) === after.get(file),
+  );
+  assert.equal(
+    offenders.length,
+    0,
+    `${offenders.join(", ")} : contenu modifié sans que son ?v= change dans index.html — bumper la version dans le même commit`,
+  );
+});
