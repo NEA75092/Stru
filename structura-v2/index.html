@@ -1759,11 +1759,15 @@ En attente de génération...</pre
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
         <script src="./src/issuer-registry.js" defer></script>
         <script src="./src/modules/structura-domain.js" defer></script>
+        <!-- app-utils.js avant product-schema.js et app-state.js (passe 8,
+             correctif format) : les deux construisent des champs coupon/tri
+             pré-formatés via root.pctFr dès le chargement du module, pas
+             seulement à l'usage — il faut que StructuraUtils existe déjà. -->
+        <script src="./src/modules/app-utils.js" defer></script>
         <script src="./src/modules/product-schema.js" defer></script>
         <script src="./src/modules/app-state.js" defer></script>
         <script src="./src/modules/vl-registry.js" defer></script>
         <script src="./src/modules/live-data-adapter.js" defer></script>
-        <script src="./src/modules/app-utils.js" defer></script>
         <script src="./src/modules/app-portfolio-constants.js" defer></script>
         <script src="./src/modules/app-navigation.js" defer></script>
         <script src="./src/modules/app-exports.js" defer></script>

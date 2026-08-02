@@ -140,7 +140,7 @@
           const carrySign = s.netCarry >= 0 ? "+" : "−";
           return `<tr onclick="showScreenerDetail('${item.id}')">
       <td><div class="p-name" style="font-size:11px;">${item.name}</div><div class="p-isin" style="font-size:9px;">${item.assetType} · ${regionBucket(item.region)} · ${sourceBadge(s)}</div></td>
-      <td class="num dec-metric"><span class="dec-metric-dot ${carryCls}"></span>${carrySign}${fmtPts(s.netCarry)} pts/an</td>
+      <td class="num dec-metric"><span class="dec-metric-dot ${carryCls}"></span>${carrySign}${fmtPts(s.netCarry)} pts/an</td>
       <td class="num dec-metric">${pctFr(Math.abs(s.annualDrag), 1)}/an sacrifié</td>
       <td><span class="pill-status ${verdict.tone}">${escapeHtml(verdict.label)}</span></td>
     </tr>`;
@@ -206,7 +206,7 @@
         desc: "Le dividende absorbe-t-il le coût annuel ?",
         score: (s) => s.coverageScore,
         value: (s) => s.coverageRatio,
-        format: (v) => `${v.toFixed(2)}x`,
+        format: (v) => `${fmtPts(v, 2)}x`,
         min: 0,
         max: 1.25,
         invert: false,
@@ -228,7 +228,7 @@
         desc: "Amplification dans les drawdowns",
         score: (s) => s.stressScore,
         value: (s) => s.stressAmplification,
-        format: (v) => `×${v.toFixed(2)}`,
+        format: (v) => `×${fmtPts(v, 2)}`,
         min: 1,
         max: 1.5,
         invert: true,
@@ -239,7 +239,7 @@
         desc: "Surcoût si le produit va au terme",
         score: (s) => s.capitalLossSeverityScore,
         value: (s) => s.capitalLossSeverity,
-        format: (v) => `+${v.toFixed(1)} pts`,
+        format: (v) => `+${fmtPts(v, 1)} pts`,
         min: 0,
         max: 25,
         invert: true,
@@ -250,7 +250,7 @@
         desc: "Risque d'érosion quand l'indice stagne",
         score: (s) => s.pathDependencyScore,
         value: (s) => s.lateralDragMean,
-        format: (v) => `${v.toFixed(1)} pts/an`,
+        format: (v) => `${fmtPts(v, 1)} pts/an`,
         min: 0,
         max: 15,
         invert: true,
@@ -274,7 +274,7 @@
         avoid:
           "Le coût du décrément est significatif et doit être présenté sans ambiguïté au client.",
       }[verdict.key];
-      return `<b>${escapeHtml(item.name)}</b> applique un décrément de ${s.decPctAnnual.toFixed(1)}%/an${escapeHtml(refNote)}. Le dividende historique (${item.historicalDividend.toFixed(1)}%/an) ${coverageWord} ce coût (${s.coverageRatio.toFixed(2)}x), pour une performance sacrifiée d'environ ${Math.abs(s.annualDrag).toFixed(1)}%/an et un surcoût de ${s.capitalLossSeverity.toFixed(1)} points en cas de non-rappel. Avis : ${escapeHtml(verdict.label)}. ${closing}`;
+      return `<b>${escapeHtml(item.name)}</b> applique un décrément de ${s.decPctAnnual.toFixed(1)}%/an${escapeHtml(refNote)}. Le dividende historique (${item.historicalDividend.toFixed(1)}%/an) ${coverageWord} ce coût (${fmtPts(s.coverageRatio, 2)}x), pour une performance sacrifiée d'environ ${Math.abs(s.annualDrag).toFixed(1)}%/an et un surcoût de ${fmtPts(s.capitalLossSeverity, 1)} points en cas de non-rappel. Avis : ${escapeHtml(verdict.label)}. ${closing}`;
     }
 
     // Le tiroir partagé (overlays.css), pas un panneau inline sous le
@@ -305,9 +305,9 @@
           <span class="dr-underlying-score">${s.fitScore}</span>
         </div>
         <div class="dr-underlying-kpis">
-          <div class="kpi"><div class="kpi-lbl">Couverture dividende</div><div class="kpi-val">${s.coverageRatio.toFixed(2)}x</div><div class="kpi-sub">&nbsp;</div></div>
+          <div class="kpi"><div class="kpi-lbl">Couverture dividende</div><div class="kpi-val">${fmtPts(s.coverageRatio, 2)}x</div><div class="kpi-sub">&nbsp;</div></div>
           <div class="kpi"><div class="kpi-lbl">Performance sacrifiée</div><div class="kpi-val">${Math.abs(s.annualDrag).toFixed(1)}%</div><div class="kpi-sub">par an</div></div>
-          <div class="kpi"><div class="kpi-lbl">Surcoût non-rappel</div><div class="kpi-val">+${s.capitalLossSeverity.toFixed(1)}</div><div class="kpi-sub">points</div></div>
+          <div class="kpi"><div class="kpi-lbl">Surcoût non-rappel</div><div class="kpi-val">+${fmtPts(s.capitalLossSeverity, 1)}</div><div class="kpi-sub">points</div></div>
         </div>
         <div class="divider"></div>
         <div class="dr-section-title">COMPOSANTES DU SCORE</div>

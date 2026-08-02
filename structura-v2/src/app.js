@@ -1,3 +1,13 @@
+// app-utils.js avant app-state.js (passe 8, correctif format) :
+// app-state.js construit des champs coupon/tri pré-formatés via
+// StructuraUtils.pctFr dès le chargement du module (seedProducts),
+// pas seulement à l'usage — StructuraUtils doit déjà exister.
+const StructuraUtils =
+  typeof module !== "undefined" && module.exports
+    ? require("./modules/app-utils.js")
+    : globalThis.StructuraUtils;
+const { setText, moneyShort, pctFr, notify } = StructuraUtils;
+
 const StructuraAppState =
   typeof module !== "undefined" && module.exports
     ? require("./modules/app-state.js")
@@ -42,11 +52,6 @@ let extractedDocumentData = APP_RUNTIME.extractedDocumentData;
 
 
 // ===================== MODULE BRIDGE (browser + node) =====================
-const StructuraUtils =
-  typeof module !== "undefined" && module.exports
-    ? require("./modules/app-utils.js")
-    : globalThis.StructuraUtils;
-const { setText, moneyShort, notify } = StructuraUtils;
 const { TYPE_CLASS, TYPE_SHORT } =
   (typeof module !== "undefined" && module.exports
     ? require("./modules/app-portfolio-constants.js")
@@ -207,21 +212,14 @@ function switchIngestNarrativeTab(tab) {
     );
 }
 
+// Délègue la conversion nombre → chaîne à pctFr (StructuraUtils, la
+// seule source de vérité pour virgule/insécable/signe) : ne garde ici
+// que ce qui est propre à ce contexte narratif — repli "N/A" et zéros
+// de fraction retirés (passe 8, correctif format).
 function formatPctFr(value, digits = 1) {
   const n = Number(value);
   if (!Number.isFinite(n)) return "N/A";
-  const fixed = n.toFixed(digits).replace(/\.0+$/, "").replace(".", ",");
-  return `${fixed}%`;
-}
-
-function formatNominalFr(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "N/A";
-  if (n >= 1000000)
-    return `${(n / 1000000).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} M€`;
-  if (n >= 1000)
-    return `${(n / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 0 })} K€`;
-  return `${n.toLocaleString("fr-FR")} €`;
+  return pctFr(n, digits).replace(/,0+(?=\u00a0%)/, "");
 }
 
 function gradeLabelFr(grade) {
@@ -876,7 +874,7 @@ function buildStructuredProductIntelligence(options = {}) {
     },
     {
       label: "Nominal",
-      value: nominal !== null ? formatNominalFr(nominal) : "À confirmer",
+      value: nominal !== null ? moneyShort(nominal) : "À confirmer",
       meta: settlement.label,
     },
     {
@@ -1030,7 +1028,7 @@ function buildStructuredProductIntelligence(options = {}) {
         ? `${formatPctFr(barrier, 0)} (${barrierObservation.label})`
         : "À confirmer",
     ],
-    ["Nominal", nominal !== null ? formatNominalFr(nominal) : "À confirmer"],
+    ["Nominal", nominal !== null ? moneyShort(nominal) : "À confirmer"],
     ["Échéance", maturity || "À confirmer"],
     ["Settlement", settlement.label],
     [
@@ -1174,7 +1172,10 @@ function buildSellerNarrative(
         ? formatPctFr(merged.recallPct, 0)
         : "N/A",
     ],
-    ["Nominal", formatNominalFr(merged?.nominal)],
+    [
+      "Nominal",
+      Number.isFinite(Number(merged?.nominal)) ? moneyShort(merged.nominal) : "N/A",
+    ],
     ["Maturité", merged?.maturityDate || "N/A"],
     [
       "Decrement",
@@ -1268,7 +1269,7 @@ function renderIngestionStory(payload = {}) {
     intelligence?.facts?.find((f) => f.label === "Rappel auto")?.value ||
     (merged.recallPct != null ? formatPctFr(merged.recallPct, 0) : null);
   const nominalVal =
-    merged.nominal != null ? formatNominalFr(merged.nominal) : null;
+    merged.nominal != null ? moneyShort(merged.nominal) : null;
   const maturityVal = merged.maturityDate
     ? new Date(merged.maturityDate + "T00:00:00").toLocaleDateString("fr-FR", {
         month: "short",
@@ -1869,12 +1870,6 @@ function pitchFrequencyLabel(frequency, mode = "period") {
   return labels[normalized]?.[mode] || frequency || "période";
 }
 
-function formatPitchPct(value, digits = 2) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "XX%";
-  return `${n.toFixed(digits).replace(".", ",")}%`;
-}
-
 function hydratePitchFromLastExtraction() {
   const data = APP_RUNTIME.extractedDocumentData || extractedDocumentData;
   if (!data) {
@@ -2006,14 +2001,14 @@ let pitchWizardCurrentStep = 1;
 function pitchUpdatePreviewCard() {
   if (typeof document === "undefined") return;
   const val = (id) => document.getElementById(id)?.value || "";
-  const pct = (id) => (val(id) ? `${val(id)}%` : "—");
+  const pct = (id) => (val(id) ? pctFr(val(id), 2) : "—");
   const family = val("ap-type") || "phoenix";
   const familyLabel = globalThis.StructuraDomain?.PRODUCT_FAMILIES?.[family]?.label || family;
   setText(
     "pitch-preview-product",
     val("ap-under") ? `${familyLabel} · ${val("ap-under")}` : familyLabel,
   );
-  setText("pitch-kl-coupon", val("ap-coupon") ? `${val("ap-coupon")}%/an` : "—");
+  setText("pitch-kl-coupon", val("ap-coupon") ? `${pctFr(val("ap-coupon"), 2)}/an` : "—");
   setText("pitch-kl-coupon-barrier", pct("ap-coupon-barrier"));
   setText("pitch-kl-protection", pct("ap-barrier"));
   setText("pitch-kl-recall", pct("ap-recall"));
@@ -2494,9 +2489,10 @@ function pitchFamilyConfig(p) {
     p.callable && clnCallMode === "dates"
       ? `Aux dates fixes suivantes (${clnCallDates}), l'émetteur peut rembourser le produit par anticipation à 100% du capital initial + un coupon de ${couponPeriodFmt} par ${couponPerLabel}.`
       : p.callable
-        ? `${callEveryLabel.charAt(0).toUpperCase()}${callEveryLabel.slice(1)} du ${clnCallWindow}, l'émetteur peut rembourser le produit par anticipation à 100% du capital initial + un coupon de ${formatPitchPct(
+        ? `${callEveryLabel.charAt(0).toUpperCase()}${callEveryLabel.slice(1)} du ${clnCallWindow}, l'émetteur peut rembourser le produit par anticipation à 100% du capital initial + un coupon de ${pctFr(
             globalThis.StructuraDomain?.couponPerPeriod?.(p.coupon, p.callFrequency || p.frequency) ??
               couponPerPeriod,
+            2,
           )} par ${callPerLabel} écoulé.`
         : "Aucune option de remboursement anticipé émetteur n'est renseignée.";
 
@@ -2592,7 +2588,7 @@ function pitchFamilyConfig(p) {
       summary: `Proposition Bearish Taux pour ${p.client}: la structure est conçue pour un scénario de détente ou de non-remontée du taux de référence. La chronologie distingue le coupon garanti éventuel, le rappel dès la ${startOrdinal} période, puis le coupon conditionnel à partir de la ${bearishNextPeriod} période.`,
       metrics: [
         { label: "Coupon par période", value: couponPeriodFmt, sub: `${couponEveryLabel} · logique taux inversée` },
-        { label: "Coupon garanti", value: p.bearishCouponGuaranteed ? formatPitchPct(p.bearishCouponGuaranteedAmount || couponPerPeriod) : "Non", sub: p.bearishCouponGuaranteed ? `fin de la ${bearishGuaranteedPeriod}` : "pas de période garantie" },
+        { label: "Coupon garanti", value: p.bearishCouponGuaranteed ? pctFr(p.bearishCouponGuaranteedAmount || couponPerPeriod, 2) : "Non", sub: p.bearishCouponGuaranteed ? `fin de la ${bearishGuaranteedPeriod}` : "pas de période garantie" },
         { label: "Barrière rappel", value: pctForText(p.bearishRecallBarrier || p.recall), sub: "rappel si le taux est sous le seuil" },
         { label: "Coupon conditionnel", value: pctForText(p.bearishCouponBarrier || p.couponBarrier || p.barrier), sub: `à partir de la ${bearishNextPeriod} période` },
       ],
@@ -4410,7 +4406,7 @@ function regexExtractFromText(text, opts = {}) {
     },
     docType,
     confidence: Number((confidenceScore * 100).toFixed(0)),
-    notes: `Extraction déterministe locale (${Number((confidenceScore * 100).toFixed(0))}% confiance)`,
+    notes: `Extraction déterministe locale (${pctFr(confidenceScore * 100, 0)} confiance)`,
   };
 }
 
@@ -5360,15 +5356,12 @@ const StructuraDescriptor = {
     const v = entry.value;
     switch (format) {
       case "pct":
-        return `${parseFloat(v).toFixed(1).replace(".0", "")}%`;
+        return pctFr(parseFloat(v), 1).replace(/,0+(?= %)/, "");
       case "nominal": {
         const n =
           typeof v === "number" ? v : parseFloat(String(v).replace(/\s/g, ""));
         if (!Number.isFinite(n)) return fallback;
-        if (n >= 1000000)
-          return `${(n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 2)}M€`;
-        if (n >= 1000) return `${(n / 1000).toFixed(0)}K€`;
-        return `${n}€`;
+        return moneyShort(n);
       }
       case "date": {
         const d = new Date(`${v}T00:00:00`);
@@ -5487,7 +5480,7 @@ const StructuraDescriptor = {
       rendement: [
         coupon ? `Il distribue un coupon fixe de ${coupon}/an ${freq}.` : null,
         barrier
-          ? `La protection s'applique si ${under} ne chute pas de plus de ${(100 - parseFloat(barrier)).toFixed(0)}%.`
+          ? `La protection s'applique si ${under} ne chute pas de plus de ${formatPctFr(100 - Number(fields.barrier?.value), 0)}.`
           : null,
       ],
       protection: [

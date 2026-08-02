@@ -158,13 +158,13 @@
           const segments = entries
             .map(([t, n]) => {
               const pct = total ? (n / total) * 100 : 0;
-              return `<span class="pilotage-type-segment ${TYPE_CLASS[t] || ""}" style="width:${pct.toFixed(1)}%" title="${escapeHtml(labels[t] || t)} · ${n} · ${pct.toFixed(0)}%"></span>`;
+              return `<span class="pilotage-type-segment ${TYPE_CLASS[t] || ""}" style="width:${pct.toFixed(1)}%" title="${escapeHtml(labels[t] || t)} · ${n} · ${pctFr(pct, 0)}"></span>`;
             })
             .join("");
           const legend = entries
             .map(([t, n]) => {
               const pct = total ? (n / total) * 100 : 0;
-              return `<span class="pilotage-type-legend-item"><span class="pilotage-type-dot ${TYPE_CLASS[t] || ""}"></span>${escapeHtml(labels[t] || t)} · ${pct.toFixed(0)}%</span>`;
+              return `<span class="pilotage-type-legend-item"><span class="pilotage-type-dot ${TYPE_CLASS[t] || ""}"></span>${escapeHtml(labels[t] || t)} · ${pctFr(pct, 0)}</span>`;
             })
             .join("");
           typeEl.innerHTML = `<div class="pilotage-type-histogram">${segments}</div><div class="pilotage-type-legend">${legend}</div>`;

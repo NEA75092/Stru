@@ -262,7 +262,7 @@
 
       const recallLine = hasRecallLine
         ? `<line x1="0" y1="${yAt(recallLevel).toFixed(1)}" x2="${W}" y2="${yAt(recallLevel).toFixed(1)}" stroke="var(--color-aegean-2)" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
-           <text x="${W - 4}" y="${(yAt(recallLevel) - 5).toFixed(1)}" text-anchor="end" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">AUTOCALL ${recallLevel.toFixed(0)}%</text>`
+           <text x="${W - 4}" y="${(yAt(recallLevel) - 5).toFixed(1)}" text-anchor="end" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">AUTOCALL ${pctFr(recallLevel, 0)}</text>`
         : "";
 
       // Dash pattern différent de la ligne autocall (mêmes teintes égée
@@ -276,7 +276,7 @@
         vlLine = `<path d="${smoothSvgPath(vlLinePts)}" fill="none" stroke="var(--color-aegean-2)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.8" vector-effect="non-scaling-stroke"/>`;
       } else if (hasVl) {
         vlLine = `<line x1="0" y1="${yAt(vlLevel).toFixed(1)}" x2="${W}" y2="${yAt(vlLevel).toFixed(1)}" stroke="var(--color-aegean-2)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.7"/>
-           <text x="4" y="${(yAt(vlLevel) - 5).toFixed(1)}" text-anchor="start" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">VL ÉMETTEUR ${vlLevel.toFixed(1)}%</text>`;
+           <text x="4" y="${(yAt(vlLevel) - 5).toFixed(1)}" text-anchor="start" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">VL ÉMETTEUR ${pctFr(vlLevel, 1)}</text>`;
       }
 
       const linePts = points.map((pt) => ({ x: xAt(pt.t), y: yAt(pt.level) }));
@@ -422,10 +422,10 @@
         };
       }
       return {
-        text: (p.dist < 0 ? "" : "+") + p.dist.toFixed(1) + "%",
+        text: (p.dist < 0 ? "" : "+") + pctFr(p.dist, 1),
         note: "",
         barW: Math.max(2, Math.min(98, 100 - Math.max(0, p.dist))),
-        tooltip: `Barrière ${p.barrier}% · distance actuelle ${p.dist.toFixed(1)}%`,
+        tooltip: `Barrière ${pctFr(p.barrier, 0)} · distance actuelle ${pctFr(p.dist, 1)}`,
       };
     }
 
@@ -558,13 +558,11 @@
         .map((p) => {
           const hasDist = Number.isFinite(Number(p.dist));
           const dist = distProtectionCell(p);
-          const barrierAbs = p.barrier
-            ? `${((p.nominal * p.barrier) / 100 / 1e6).toFixed(2)}M€`
-            : "";
-          const barrierAmt = p.barrier ? `${p.barrier} %` : "N/A";
+          const barrierAbs = p.barrier ? moneyShort((p.nominal * p.barrier) / 100) : "";
+          const barrierAmt = p.barrier ? pctFr(p.barrier, 0) : "N/A";
           const barTooltip = hasDist
-            ? `Barrière ${p.barrier}% (${barrierAbs}) · ${p.st.label.toLowerCase()}`
-            : `Barrière ${p.barrier}% (${barrierAbs}) · distance à confirmer`;
+            ? `Barrière ${pctFr(p.barrier, 0)} (${barrierAbs}) · ${p.st.label.toLowerCase()}`
+            : `Barrière ${pctFr(p.barrier, 0)} (${barrierAbs}) · distance à confirmer`;
           return `<tr data-row-key="${p.id}" onclick="openDrawer(${p.id})">
       <td><div class="p-name">${escapeHtml(p.name)}</div><div class="p-isin">${escapeHtml(p.isin)}</div></td>
       <td><span class="pill-category ${TYPE_CLASS[p.type]}">${escapeHtml(TYPE_SHORT[p.type] || p.type)}</span></td>
@@ -683,13 +681,13 @@
           const stats = clientStatsFn ? clientStatsFn(alloc.clientId) : null;
           const weight =
             stats?.nominal && alloc.nominal
-              ? ((Number(alloc.nominal) / stats.nominal) * 100).toFixed(0)
+              ? pctFr((Number(alloc.nominal) / stats.nominal) * 100, 0)
               : null;
           return `<div class="dr-client-card">
             <div class="dr-client-card-main">
               <span class="dr-client-kicker">Dossier client</span>
               <strong>${escapeHtml(client.name)}</strong>
-              <small>${moneyShort(alloc.nominal)} sur ce produit${weight ? ` · ${weight}% du dossier` : ""}${allocations.length > 1 ? ` · ${((Number(alloc.nominal) / Number(p.nominal || 1)) * 100).toFixed(0)}% du nominal produit` : ""}</small>
+              <small>${moneyShort(alloc.nominal)} sur ce produit${weight ? ` · ${weight} du dossier` : ""}${allocations.length > 1 ? ` · ${pctFr((Number(alloc.nominal) / Number(p.nominal || 1)) * 100, 0)} du nominal produit` : ""}</small>
               <span class="dr-client-meta">
                 <span class="env-badge env-${escapeHtml(alloc.envelope || "assurance-vie")}">${escapeHtml(envelopeLabel(alloc.envelope))}</span>
                 <span>${escapeHtml(formatSubDate(alloc.subDate))}</span>

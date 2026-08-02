@@ -28,10 +28,10 @@
       const sign = n < 0 ? "−" : "";
       const abs = Math.abs(n);
       if (abs >= 1000000)
-        return `${sign}${(abs / 1000000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })}M€`;
+        return `${sign}${(abs / 1000000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} M€`;
       if (abs >= 1000)
-        return `${sign}${Math.round(abs / 1000).toLocaleString("fr-FR")}k€`;
-      return `${sign}${Math.round(abs).toLocaleString("fr-FR")}€`;
+        return `${sign}${Math.round(abs / 1000).toLocaleString("fr-FR")} k€`;
+      return `${sign}${Math.round(abs).toLocaleString("fr-FR")} €`;
     }
 
     // Virgule décimale, espace insécable avant le signe pourcent —

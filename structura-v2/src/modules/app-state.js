@@ -261,8 +261,8 @@
           ? Math.round(((p.initialSpot * p.barrier) / 100) * 100) / 100
           : null;
       p.st = statusFromDist(p.dist, p.type);
-      p.coupon = p.coupon || `${p.cpnNum.toFixed(1)}%`;
-      p.tri = p.tri || `${p.triNum.toFixed(1)}%`;
+      p.coupon = p.coupon || root.pctFr(p.cpnNum, 1);
+      p.tri = p.tri || root.pctFr(p.triNum, 1);
       p.maturity = p.maturity || isoDate(addYears(new Date(), 2));
       p.nextEvtDate = p.nextEvtDate || isoDate(addMonths(new Date(), 1));
       p.productFamily =
@@ -348,9 +348,9 @@
           val,
           pnl: val - nom,
           pnlPct,
-          coupon: cpn.toFixed(1) + "%",
+          coupon: root.pctFr(cpn, 1),
           cpnNum: cpn,
-          tri: tri.toFixed(1) + "%",
+          tri: root.pctFr(tri, 1),
           triNum: tri,
           barrier,
           dist,

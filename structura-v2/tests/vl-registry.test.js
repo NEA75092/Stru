@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 
+require("../src/modules/app-utils.js");
 require("../src/modules/app-state.js");
 require("../src/modules/vl-registry.js");
 

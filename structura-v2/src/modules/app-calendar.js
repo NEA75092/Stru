@@ -450,14 +450,6 @@
       setText("cal-kpi-obs-sub", "Dates de constatation");
     }
 
-    function fluxAmountLabel(amount) {
-      return amount >= 1e6
-        ? `${(amount / 1e6).toFixed(2)} M€`
-        : amount >= 1e3
-          ? `${Math.round(amount / 1e3)} k€`
-          : `${Math.round(amount)} €`;
-    }
-
     // isoDate() (app-state.js) est désormais en calendrier local, plus en
     // UTC — corrigé à la source en passe 7D après l'audit qui a trouvé le
     // même décalage ailleurs que dans ce fichier (perf chart du dashboard
@@ -517,7 +509,7 @@
       const totalHeight = Math.max(4, Math.round((total / maxAmount) * maxBarPx));
       const acquiredHeight = Math.round((bucket.acquired / total) * totalHeight);
       const conditionalHeight = totalHeight - acquiredHeight;
-      const display = fluxAmountLabel(total);
+      const display = moneyShort(total);
       return `<div class="cal-flux-bar-wrap">
         <span class="cal-flux-bar-val">${escapeHtml(display)}</span>
         <div class="cal-flux-bar-stack" style="height:${totalHeight}px" title="${escapeHtml(display)}">
@@ -547,7 +539,7 @@
           (e) => `<div class="cal-flux-list-row">
             <span class="cal-flux-list-name">${escapeHtml(e.product.name)}</span>
             <span class="cal-flux-list-date">${escapeHtml(parseIsoDate(e._dateIso).toLocaleDateString("fr-FR"))}</span>
-            <span class="cal-flux-list-amt">${escapeHtml(fluxAmountLabel(e.amount))}</span>
+            <span class="cal-flux-list-amt">${escapeHtml(moneyShort(e.amount))}</span>
           </div>`,
         )
         .join("")}</div>`;

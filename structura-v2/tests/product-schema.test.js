@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 
 globalThis.StructuraDomain = require("../src/modules/structura-domain.js");
+require("../src/modules/app-utils.js");
 const schema = require("../src/modules/product-schema.js");
 
 function test(name, fn) {
