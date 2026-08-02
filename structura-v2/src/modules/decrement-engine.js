@@ -257,7 +257,6 @@
         pathDependencyScore,
         dividendTrendScore,
         source: "local",
-        sourceLabel: "● local",
         sourceTooltip:
           "Données embarquées. Le moteur complet sélectionne cache, marché ou CSV selon disponibilité.",
         nonRecalledWindows: 0,
