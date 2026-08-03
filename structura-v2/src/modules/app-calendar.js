@@ -18,21 +18,15 @@
         .toUpperCase();
     }
 
-    function evHtml(evs) {
-      return evs
-        .map(
-          (e) => `<div class="ev ev-${e.type}">
-    <div class="ev-date-box"><div class="ev-day">${escapeHtml(e.d)}</div><div class="ev-mon">${escapeHtml(e.m)}</div></div>
-    <div><div class="ev-name">${escapeHtml(e.name)}</div><div class="ev-desc">${escapeHtml(e.desc)}</div></div>
-    <div class="ev-amt ${e.type === "coupon" ? "up" : ""}">${escapeHtml(e.amt || "—")}</div>
-  </div>`,
-        )
-        .join("");
-    }
-
     const dashboardApi = root.StructuraDashboard || {};
     const monthShortFRRef = dashboardApi.monthShortFR || monthShortFR;
-    const evHtmlRef = dashboardApi.evHtml || evHtml;
+    // evHtml n'a jamais eu de copie locale distincte en pratique : cette
+    // copie (classes .ev/.ev-date-box/.ev-amt, sans aucune règle CSS nulle
+    // part) n'était jamais appelée — dashboardApi.evHtml existait toujours
+    // au moment de l'évaluer (app-dashboard.js charge avant app-calendar.js,
+    // en prod comme dans les tests). Supprimée, pas fusionnée : il n'y avait
+    // qu'une seule implémentation réellement vivante.
+    const evHtmlRef = dashboardApi.evHtml;
     let calendarSearch = "";
     // Jour sélectionné dans la grille du mois (passe 7C-2, point 1) : un
     // état local, distinct de calendarState.date (la date de référence) —
