@@ -203,6 +203,32 @@ echo "OK — push envoyé. Netlify va redéployer sous 1–2 min."
 echo "Site : https://zesty-tiramisu-e45883.netlify.app/"
 ```
 
+## « Zéro consommateur » avant de supprimer un champ (03/08)
+
+Le 02/08, `sourceLabel` a été retiré de `decrement-engine.js` avec la
+justification « vérifié par grep sur tout le repo, zéro consommateur ».
+Faux : `app-screener.js` le consommait via `score.sourceLabel` (un objet
+intermédiaire, pas le nom du champ tel quel). En production depuis ce
+commit : chaque ligne de la table Decrement Score affichait
+`undefined`. Repéré et corrigé le 03/08 (hotfix `f241a7b`).
+
+Vérification après coup : un grep texte de `sourceLabel` sur l'état
+d'avant suppression retrouve bien les trois occurrences, y compris
+`score.sourceLabel` — la recherche n'était donc pas aveugle à l'accès
+via un objet intermédiaire, contrairement à l'hypothèse la plus
+naturelle. La vraie cause : une des trois occurrences était un
+identifiant local sans rapport (`app.js`, une variable `sourceLabel`
+pour un tout autre usage, "Sources : ..."). Ce bruit a suffi à faire
+conclure « zéro consommateur réel » sans que chaque occurrence trouvée
+soit vérifiée une par une.
+
+Règle qui en découle : **« zéro consommateur » se prouve en examinant
+individuellement chaque occurrence qu'un grep retourne, jamais en
+comptant ou en survolant la liste.** Un nom de champ réutilisé ailleurs
+pour tout autre chose (variable locale, paramètre, propriété d'un objet
+sans rapport) noie le vrai consommateur dans le bruit — la seule
+parade est de lire chaque ligne, pas de se fier au nombre de résultats.
+
 ## Ce qu'il ne faut pas faire
 
 - Écrire un nouveau fichier CSS « de correction » par-dessus les autres.
