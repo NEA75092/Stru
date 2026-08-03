@@ -190,10 +190,18 @@
           },
         };
       }
+      // Montant dérivé du taux contractuel (couponCashflowAmount) — une
+      // échéance prévue au contrat, pas inventée. Mais aucune ligne de
+      // l'échéancier n'est une donnée confirmée : l'app ne suit aucun
+      // flux de marché ni paiement réel, passé ou futur. isCouponAcquired
+      // répond à une autre question (le versement dépend-il d'un seuil de
+      // marché) et reste utilisé par l'histogramme des coupons attendus
+      // (une somme prospective, contexte différent) — ici, une ligne
+      // reste toujours affichée comme attendue, jamais comme acquise.
       if (type === "coupon") {
         const amount = couponCashflowAmount(product);
         if (!(amount > 0)) return {};
-        return { amt: moneyShort(amount), acquired: isCouponAcquired(product, dateIso, todayIso) };
+        return { amt: moneyShort(amount) };
       }
       // Maturité en franchissement : ce que la ligne dit change de nature,
       // pas seulement de couleur. Une maturité saine annonce un versement
@@ -219,6 +227,12 @@
       return {};
     }
 
+    // Un repère ("landmark") n'est pas un événement : il ne porte ni
+    // montant, ni niveau, ni issue — la date d'émission et le jour
+    // présent délimitent la frise, ils ne se produisent pas dessus. Pas
+    // de nom de produit ni de description : ce n'est pas une ligne du
+    // produit, c'est un repère de lecture (passe 8, §2 — retypage vers
+    // "obs" rouvrait le trou qu'on venait de fermer).
     function pushScheduleEvent(events, seen, product, dateIso, label, type, detail) {
       if (!dateIso) return;
       const key = `${product.id}|${dateIso}|${type}|${label}`;
@@ -226,6 +240,7 @@
       seen.add(key);
       const d = new Date(`${dateIso}T00:00:00`);
       if (Number.isNaN(d.getTime())) return;
+      const isLandmark = type === "landmark";
       events.push({
         productId: product.id,
         _dateIso: dateIso,
@@ -233,8 +248,8 @@
         m: monthShortFRRef(d),
         _monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
         type,
-        name: `${product.name} — ${label}`,
-        desc: `${product.underlying || "—"} · ${product.emetteur || "—"}`,
+        name: isLandmark ? label : `${product.name} — ${label}`,
+        desc: isLandmark ? "" : `${product.underlying || "—"} · ${product.emetteur || "—"}`,
         ...detail,
       });
     }
@@ -268,7 +283,7 @@
           /coupon/i.test(product.nextEvt || "") || Number(product.cpnNum) > 0;
 
         if (start) {
-          pushScheduleEvent(events, seen, product, start, "Date d'émission", "obs", {});
+          pushScheduleEvent(events, seen, product, start, "Date d'émission", "landmark", {});
         }
         if (start && end) {
           const cursor = new Date(`${start}T00:00:00`);
@@ -315,6 +330,12 @@
           eventDetail(product, "mat", product.maturity, todayIso, false),
         );
       }
+
+      // Repère "Aujourd'hui" : un CGP qui ouvre l'échéancier cherche la
+      // prochaine échéance, pas le début de la frise — ce repère marque
+      // où lire, evHtml (StructuraDashboard) s'en sert pour positionner
+      // le tiroir dessus à l'ouverture.
+      pushScheduleEvent(events, seen, product, todayIso, "Aujourd'hui", "landmark", { marker: "today" });
 
       return events.sort((a, b) => a._dateIso.localeCompare(b._dateIso));
     }

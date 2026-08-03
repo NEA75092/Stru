@@ -912,12 +912,34 @@
     color: var(--color-text-tertiary);
 }
 
-/* Coupon conditionnel : le montant garde son plein poids, une mention
-   discrète suffit à signaler l'incertitude. */
-.timeline-conditional-note {
+/* Repère de lecture ("Aujourd'hui", "Date d'émission") : une frise, pas
+   un événement — ni date, ni montant, un simple filet de part et
+   d'autre du libellé (passe 8, §2). */
+.timeline-landmark {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-mono-data);
     font-size: var(--text-xs);
-    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--color-text-tertiary);
+}
+
+.timeline-landmark::before,
+.timeline-landmark::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--color-divider);
+}
+
+/* Ligne passée : poids réduit, même geste que l'encre secondaire de
+   Constatation — le passé est là pour être remonté, pas ce qu'on lit
+   en premier (passe 8, §2). */
+.timeline-item.is-past {
+    opacity: 0.6;
 }
 
 .timeline-item.ev-obs {

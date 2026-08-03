@@ -845,33 +845,25 @@
       document.getElementById("dr-characteristics").innerHTML = charHtml;
       const chartEl = document.getElementById("dr-price-chart");
       if (chartEl) chartEl.innerHTML = await buildPriceBarrierChart(p);
-      const tl = [
-        {
-          s: "done",
-          d: "Date d'émission",
-          l: "Émission du produit",
-          v: "Strike sur " + p.underlying,
-        },
-        {
-          s: "done",
-          d: "Multiple dates",
-          l: "Observations / Coupons passés",
-          v: "",
-        },
-        { s: "next", d: formatSubDate(p.nextEvtDate), l: p.nextEvt, v: "" },
-        {
-          s: "future",
-          d: formatSubDate(p.maturity),
-          l: "Maturité finale",
-          v: "Remboursement nominal",
-        },
-      ];
-      document.getElementById("dr-timeline").innerHTML = tl
-        .map(
-          (e) =>
-            `<div class="tl-ev ${e.s}"><div class="tl-dot"></div><div class="tl-date">${escapeHtml(e.d)}</div><div class="tl-lbl">${escapeHtml(e.l)}</div>${e.v ? `<div class="tl-detail">${escapeHtml(e.v)}</div>` : ""}</div>`,
-        )
-        .join("");
+      // Échéancier (§2) : appelle buildProductFullSchedule directement
+      // (app-calendar.js), rendu par evHtml (app-dashboard.js) — même
+      // fonction que le calendrier et la recherche produit, aucune
+      // deuxième implémentation. Le tiroir s'ouvre positionné sur le
+      // repère "Aujourd'hui" : un CGP cherche la prochaine échéance,
+      // pas le début de 30 lignes reconstituées.
+      const timelineEl = document.getElementById("dr-timeline");
+      if (timelineEl) {
+        const schedule = root.buildProductFullSchedule ? root.buildProductFullSchedule(p) : [];
+        timelineEl.innerHTML = schedule.length
+          ? root.evHtml
+            ? root.evHtml(schedule)
+            : ""
+          : `<div class="empty-inline">Aucune échéance reconstituable pour ce produit.</div>`;
+        const landmark = timelineEl.querySelector('[data-landmark="today"]');
+        if (landmark) {
+          requestAnimationFrame(() => landmark.scrollIntoView({ block: "start" }));
+        }
+      }
       document.getElementById("drawer-ov").classList.add("open");
     }
 

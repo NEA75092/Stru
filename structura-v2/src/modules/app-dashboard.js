@@ -696,21 +696,36 @@
       if (e.cashflow) {
         return `<div class="timeline-amt timeline-cashflow"><b>${escapeHtml(e.cashflow.total)}</b><small>${escapeHtml(e.cashflow.capital)} + ${escapeHtml(e.cashflow.coupon)}</small></div>`;
       }
+      // Un montant de coupon reconstitué n'est jamais une donnée
+      // confirmée (aucun flux de marché ni paiement réel suivi par
+      // l'app, passé ou futur) — toujours affiché comme attendu, jamais
+      // comme acquis, qu'importe la barrière ou la date (passe 8, §2).
       if (e.amt) {
-        return `<div class="timeline-amt">${escapeHtml(e.amt)}${e.acquired === false ? `<small class="timeline-conditional-note"> · conditionnel</small>` : ""}</div>`;
+        return `<div class="timeline-amt timeline-cashflow">${escapeHtml(e.amt)}<small class="timeline-conditional-note">conditionnel</small></div>`;
       }
       return `<div class="timeline-amt">—</div>`;
     }
 
+    // Repère de lecture ("Aujourd'hui", "Date d'émission") : une frise,
+    // pas une ligne d'événement — pas de nom de produit, pas de cellule
+    // montant. data-landmark="today" permet au tiroir de s'y positionner
+    // à l'ouverture (passe 8, §2).
+    function timelineLandmarkHtml(e) {
+      return `<div class="timeline-landmark"${e.marker === "today" ? ' data-landmark="today"' : ""}><span>${escapeHtml(e.name)}</span></div>`;
+    }
+
     function evHtml(evs) {
+      const todayStr = isoDate(new Date());
       return evs
-        .map(
-          (e) => `<div class="timeline-item ev-${e.type}" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
+        .map((e) => {
+          if (e.type === "landmark") return timelineLandmarkHtml(e);
+          const isPast = e._dateIso < todayStr;
+          return `<div class="timeline-item ev-${e.type}${isPast ? " is-past" : ""}" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
     <div class="timeline-date"><b>${escapeHtml(e.d)}</b><small>${escapeHtml(e.m)}</small></div>
     <div class="timeline-main"><b>${escapeHtml(e.name)}</b><small>${escapeHtml(e.desc)}</small></div>
     ${eventAmountCell(e)}
-  </div>`,
-        )
+  </div>`;
+        })
         .join("");
     }
 
