@@ -316,19 +316,23 @@
     gap: var(--space-1);
 }
 
-/* ── Tiroir sous-jacent — Decrement Score (passe 7D, D.2) ───────
-   En-tête (nom, type, émetteurs, pastille d'avis + score chiffré),
-   trois KPI en une rangée, composantes en jauges horizontales,
-   une seule zone de prose. Le score chiffré n'apparaît qu'ici,
-   en mono --text-sm à côté de la pastille — nulle part ailleurs. */
+/* ── Tiroir sous-jacent — Decrement Score (passe 8, §5) ──────────
+   Ordre de lecture : pastille d'avis (premier élément, --text-lg) →
+   score chiffré sur 100 (dénominateur obligatoire, jamais le nombre
+   seul) → nom du sous-jacent → type/émetteurs. Puis trois KPI en une
+   rangée, composantes en jauges horizontales, une seule zone de prose.
+   Le score chiffré n'apparaît qu'ici, nulle part ailleurs. */
 .dr-underlying-avis {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
     margin-top: var(--space-2);
 }
 
+.dr-underlying-avis .pill-status {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-lg);
+}
+
 .dr-underlying-score {
+    margin-top: var(--space-2);
     font-family: var(--font-mono-data);
     font-size: var(--text-sm);
     font-variant-numeric: tabular-nums;

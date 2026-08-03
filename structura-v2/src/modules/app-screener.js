@@ -284,12 +284,12 @@
       const gauges = GAUGE_DEFS.map((def) => gaugeRow(def, s)).join("");
 
       underlyingContent.innerHTML = `
-        <div class="dr-name">${escapeHtml(item.name)}</div>
-        <div class="dr-isin">${escapeHtml(item.assetType)} · ${escapeHtml(item.providers.join(", "))}</div>
         <div class="dr-underlying-avis">
           <span class="pill-status ${verdict.tone}">${escapeHtml(verdict.label)}</span>
-          <span class="dr-underlying-score">${s.fitScore}</span>
         </div>
+        <div class="dr-underlying-score">${s.fitScore} / 100</div>
+        <div class="dr-name">${escapeHtml(item.name)}</div>
+        <div class="dr-isin">${escapeHtml(item.assetType)} · ${escapeHtml(item.providers.join(", "))}</div>
         <div class="dr-underlying-kpis">
           <div class="kpi"><div class="kpi-lbl">Couverture dividende</div><div class="kpi-val">${fmtPts(s.coverageRatio, 2)}x</div><div class="kpi-sub">&nbsp;</div></div>
           <div class="kpi"><div class="kpi-lbl">Performance sacrifiée</div><div class="kpi-val">${Math.abs(s.annualDrag).toFixed(1)}%</div><div class="kpi-sub">par an</div></div>
