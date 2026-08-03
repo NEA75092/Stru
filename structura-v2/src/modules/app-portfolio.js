@@ -859,9 +859,22 @@
             ? root.evHtml(schedule)
             : ""
           : `<div class="empty-inline">Aucune échéance reconstituable pour ce produit.</div>`;
+        // scrollTop direct sur le conteneur du tiroir, pas scrollIntoView :
+        // scrollIntoView remonte la chaîne des ancêtres scrollables et peut
+        // décaler la page ou le tableau sous-jacent à l'ouverture, sans que
+        // ça se voie tout de suite. Le repère peut tomber en tout début de
+        // liste (produit sans historique) ou en toute fin (produit déjà à
+        // maturité, "Aujourd'hui" trié après le dernier événement) — dans
+        // les deux cas, un décalage relatif au scroll courant (0 ici, le
+        // tiroir vient de s'ouvrir) suffit ; le navigateur borne lui-même
+        // scrollTop à l'étendue réelle du conteneur.
         const landmark = timelineEl.querySelector('[data-landmark="today"]');
         if (landmark) {
-          requestAnimationFrame(() => landmark.scrollIntoView({ block: "start" }));
+          requestAnimationFrame(() => {
+            const containerRect = timelineEl.getBoundingClientRect();
+            const landmarkRect = landmark.getBoundingClientRect();
+            timelineEl.scrollTop += landmarkRect.top - containerRect.top;
+          });
         }
       }
       document.getElementById("drawer-ov").classList.add("open");
