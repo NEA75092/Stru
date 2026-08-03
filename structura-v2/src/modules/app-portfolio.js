@@ -103,25 +103,30 @@
       return root.StructuraDomain?.PRODUCT_FAMILIES?.[family]?.label || family || "—";
     }
 
-    function characteristicRows(product) {
+    // Fiche produit unique (passe 8, §2) : les champs additionnels par
+    // famille (bearish, CLN, note, panier...) ne vivent plus dans une
+    // grille "Caractéristiques" à part — chacun rejoint le bloc imposé
+    // auquel il appartient (identité / sous-jacent / barrières / coupon).
+    function characteristicGroups(product) {
       const c = product.characteristics || {};
-      const rows = [
-        ["Famille métier", productFamilyLabel(product)],
-        ["Coupon / période", formatPct(c.couponPerPeriodPct)],
-        ["Fréquence", c.frequency || "—"],
-        ["Barrière coupon", formatPct(c.couponBarrier, 0)],
-        ["PDI / seuil final", formatPct(c.finalThreshold, 0)],
-        ["Seuil rappel", formatPct(c.fixedRecallThreshold, 0)],
-        ["Mémoire", c.hasMemory ? "Oui" : "Non"],
-      ];
-      if (c.oxygenBarrier) rows.push(["Barrière oxygène", formatPct(c.oxygenBarrier, 0)]);
+      const identity = [["Famille métier", productFamilyLabel(product)]];
+      const underlying = [];
+      // Barrière coupon / PDI-seuil final / Seuil rappel ne sont pas
+      // répétés ici : ce sont les trois niveaux déjà visualisés par les
+      // réglettes de barrierGaugeRow (ci-dessous), une information un
+      // seul endroit.
+      const barriers = [];
+      // Périodicité/Effet mémoire ne sont pas répétés ici : déjà dans le
+      // bloc Coupon imposé par §2, juste en dessous.
+      const coupon = [["Coupon / période", formatPct(c.couponPerPeriodPct)]];
+      if (c.oxygenBarrier) barriers.push(["Barrière oxygène", formatPct(c.oxygenBarrier, 0)]);
       if (c.putLeveraged)
-        rows.push([
+        barriers.push([
           "Put leveraged",
           `${formatPct(c.putLeveragedPdi, 0)} · multiplicateur x${c.putLeveragedMultiplier || "—"}`,
         ]);
       if (c.basketStructure && c.underlyings?.length) {
-        rows.push([
+        underlying.push([
           "Panier",
           root.StructuraDomain?.describeUnderlyingBasket
             ? root.StructuraDomain.describeUnderlyingBasket(
@@ -133,23 +138,29 @@
         ]);
       }
       if (c.initialLevelType && root.StructuraDomain?.initialLevelWording)
-        rows.push(["Niveau initial", root.StructuraDomain.initialLevelWording(c)]);
+        underlying.push(["Niveau initial", root.StructuraDomain.initialLevelWording(c)]);
       if (c.productFamily === "bearish_taux") {
-        rows.push(["Logique Bearish", "Rappel/coupon si le sous-jacent clôture en dessous du seuil"]);
-        rows.push(["Barrière rappel bearish", formatPct(c.bearishRecallBarrier, 0)]);
-        rows.push(["Barrière coupon bearish", formatPct(c.bearishCouponBarrier, 0)]);
+        barriers.push(["Logique", "Rappel/coupon si le sous-jacent clôture en dessous du seuil"]);
+        barriers.push(["Barrière rappel bearish", formatPct(c.bearishRecallBarrier, 0)]);
+        barriers.push(["Barrière coupon bearish", formatPct(c.bearishCouponBarrier, 0)]);
       }
       if (c.productFamily === "cln") {
-        rows.push(["Entité de référence", c.referenceEntity || "—"]);
-        rows.push(["Événement crédit", c.creditEventDefinition || "ISDA"]);
-        rows.push(["Callable", c.callable ? "Oui" : "Non"]);
+        barriers.push(["Entité de référence", c.referenceEntity || "—"]);
+        barriers.push(["Événement crédit", c.creditEventDefinition || "ISDA"]);
+        barriers.push(["Callable", c.callable ? "Oui" : "Non"]);
       }
       if (c.productFamily === "note") {
-        rows.push(["Type taux", c.rateType || "—"]);
-        rows.push(["Cap / Floor", `${formatPct(c.capPct)} / ${formatPct(c.floorPct)}`]);
-        rows.push(["Spread", formatPct(c.spreadPct)]);
+        coupon.push(["Type taux", c.rateType || "—"]);
+        coupon.push(["Cap / Floor", `${formatPct(c.capPct)} / ${formatPct(c.floorPct)}`]);
+        coupon.push(["Spread", formatPct(c.spreadPct)]);
       }
-      return rows.filter(([, value]) => value !== "—" && value !== "XX%");
+      const clean = (rows) => rows.filter(([, value]) => value !== "—" && !/^XX\s*%$/.test(value));
+      return {
+        identity: clean(identity),
+        underlying: clean(underlying),
+        barriers: clean(barriers),
+        coupon: clean(coupon),
+      };
     }
 
     // Distance à un seuil quelconque (coupon/rappel/capital), dérivée du
@@ -778,12 +789,108 @@
               (item) => `<option value="${item.id}">${escapeHtml(item.name)}</option>`,
             ).join("")}
           </select>`;
-      const fields = [
-        ["SRI (KID)", productSri(p) != null ? `${productSri(p)}/7` : "—"],
+      const groups = characteristicGroups(p);
+      const renderGrid = (id, rows) => {
+        const el = document.getElementById(id);
+        if (el)
+          el.innerHTML = rows
+            .map(
+              ([k, v]) =>
+                `<div><div class="dr-field-lbl">${escapeHtml(k)}</div><div class="dr-field-val">${escapeHtml(v)}</div></div>`,
+            )
+            .join("");
+      };
+
+      // ── Identité ──
+      renderGrid("dr-identity-grid", [
         ["Type", TYPE_NAMES[p.type]],
         ["Émetteur", p.emetteur],
-        ["Nominal", moneyShort(p.nominal)],
-        ["VL émetteur", issuerVlDetail(p)],
+        ["Devise", "EUR"],
+        ["SRI (KID)", productSri(p) != null ? `${productSri(p)}/7` : "—"],
+        ["Notation émetteur", p.rating],
+        ...groups.identity,
+      ]);
+
+      // ── Sous-jacent ── currentLevelPct dérivé de la barrière capital et
+      // de sa distance déjà connues — un seul niveau, pas un flux de
+      // marché séparé par bloc (passe 8, §2).
+      const hasLevel =
+        p.type !== "CG" &&
+        Number.isFinite(Number(p.barrier)) &&
+        Number.isFinite(Number(p.dist));
+      const currentLevelPct = hasLevel ? Number(p.barrier) * (1 + Number(p.dist) / 100) : null;
+      renderGrid("dr-underlying-grid", [
+        ["Nom", p.underlying || "—"],
+        [
+          "Niveau initial",
+          p.initialSpot
+            ? `${p.initialSpot.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} pts`
+            : "—",
+        ],
+        [
+          "Niveau actuel",
+          currentLevelPct != null
+            ? p.initialSpot
+              ? `${((p.initialSpot * currentLevelPct) / 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} pts · ${formatPct(currentLevelPct, 1)} du niveau initial`
+              : `${formatPct(currentLevelPct, 1)} du niveau initial`
+            : "À confirmer",
+        ],
+        [
+          "Variation depuis l'origine",
+          currentLevelPct != null
+            ? `${currentLevelPct - 100 >= 0 ? "+" : ""}${pctFr(currentLevelPct - 100, 1)}`
+            : "—",
+        ],
+        ...groups.underlying,
+      ]);
+
+      // ── Barrières ── une réglette 200px par seuil, distance dérivée du
+      // même niveau actuel ci-dessus.
+      const c = p.characteristics || {};
+      const barrierGauges = [
+        p.type !== "CG" && p.barrier != null
+          ? barrierGaugeRow("Capital", p.barrier, currentLevelPct, p.type)
+          : "",
+        c.couponBarrier != null
+          ? barrierGaugeRow("Coupon", c.couponBarrier, currentLevelPct, p.type)
+          : "",
+        c.fixedRecallThreshold != null
+          ? barrierGaugeRow("Rappel", c.fixedRecallThreshold, currentLevelPct, p.type)
+          : "",
+      ]
+        .filter(Boolean)
+        .join("");
+      const barriersEl = document.getElementById("dr-barriers");
+      if (barriersEl) {
+        barriersEl.innerHTML = barrierGauges
+          ? `<div class="dr-underlying-gauges">${barrierGauges}</div>`
+          : `<div class="empty-inline">Capital garanti — pas de barrière de protection.</div>`;
+      }
+      if (groups.barriers.length) {
+        const extraEl = document.getElementById("dr-barriers");
+        if (extraEl)
+          extraEl.innerHTML += `<div class="dr-grid">${groups.barriers
+            .map(
+              ([k, v]) =>
+                `<div><div class="dr-field-lbl">${escapeHtml(k)}</div><div class="dr-field-val">${escapeHtml(v)}</div></div>`,
+            )
+            .join("")}</div>`;
+      }
+      const chartEl = document.getElementById("dr-price-chart");
+      if (chartEl) chartEl.innerHTML = await buildPriceBarrierChart(p);
+
+      // ── Coupon ──
+      renderGrid("dr-coupon-grid", [
+        ["Taux", Number.isFinite(p.cpnNum) && p.cpnNum > 0 ? pctFr(p.cpnNum, 1) + "/an" : formatPct(c.couponPerPeriodPct)],
+        ["Périodicité", c.frequency || "—"],
+        ["Effet mémoire", c.hasMemory ? "Oui" : "Non"],
+        ["Prochaine constatation", p.nextEvtDate ? `${formatSubDate(p.nextEvtDate)} · ${p.nextEvt || "—"}` : "—"],
+        ...groups.coupon,
+      ]);
+
+      // ── Position ──
+      renderGrid("dr-position-grid", [
+        ["Nominal investi", moneyShort(p.nominal)],
         [
           "Valorisation",
           p.dataQuality === "extracted"
@@ -791,60 +898,15 @@
             : moneyShort(p.val),
         ],
         [
-          "P&L",
+          "Plus/moins-value latente",
           p.pnl === 0
             ? "—"
-            : (p.pnl > 0 ? "+" : "") +
-              moneyShort(p.pnl) +
-              " (" +
-              p.pnlPct.toFixed(1) +
-              "%)",
+            : `${p.pnl > 0 ? "+" : ""}${moneyShort(p.pnl)} (${p.pnlPct >= 0 ? "+" : ""}${pctFr(p.pnlPct, 1)})`,
         ],
-        ["Coupon", p.coupon],
-        ["TRI estimé", p.tri],
-        ["Sous-jacent", p.underlying],
-        [
-          "Barrière protection",
-          p.barrier != null
-            ? `${p.barrier}%${p.barrierLevel ? ` = ${p.barrierLevel.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} pts` : ""}`
-            : "N/A",
-        ],
-        [
-          "Spot initial",
-          p.initialSpot
-            ? p.initialSpot.toLocaleString("fr-FR", { maximumFractionDigits: 2 }) +
-              " pts"
-            : "—",
-        ],
-        [
-          "Distance protection",
-          p.type === "CG"
-            ? "N/A"
-            : Number.isFinite(Number(p.dist))
-              ? (p.dist >= 0 ? "+" : "") + p.dist.toFixed(1) + "%"
-              : "À confirmer",
-        ],
+        ["TRI estimé", Number.isFinite(p.triNum) && p.triNum !== 0 ? pctFr(p.triNum, 1) : "—"],
+        ["VL émetteur", issuerVlDetail(p)],
         ["Maturité", formatSubDate(p.maturity)],
-        ["Notation émetteur", p.rating],
-      ];
-      document.getElementById("dr-grid").innerHTML = fields
-        .map(
-          ([k, v]) =>
-            `<div><div class="dr-field-lbl">${escapeHtml(k)}</div><div class="dr-field-val">${escapeHtml(v)}</div></div>`,
-        )
-        .join("");
-      const charRows = characteristicRows(p);
-      const charHtml = charRows.length
-        ? `<div class="divider"></div><div class="dr-section-title">CARACTÉRISTIQUES PRODUIT</div><div class="dr-char-grid">${charRows
-            .map(
-              ([k, v]) =>
-                `<div><div class="dr-field-lbl">${escapeHtml(k)}</div><div class="dr-field-val">${escapeHtml(v)}</div></div>`,
-            )
-            .join("")}</div>`
-        : "";
-      document.getElementById("dr-characteristics").innerHTML = charHtml;
-      const chartEl = document.getElementById("dr-price-chart");
-      if (chartEl) chartEl.innerHTML = await buildPriceBarrierChart(p);
+      ]);
       // Échéancier (§2) : appelle buildProductFullSchedule directement
       // (app-calendar.js), rendu par evHtml (app-dashboard.js) — même
       // fonction que le calendrier et la recherche produit, aucune
