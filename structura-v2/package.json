@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "http-server . -p 3000 -c-1",
-    "test": "node tests/domain-conventions.test.js && node tests/product-schema.test.js && node tests/decrement-engine.test.js && node tests/extraction-regressions.js && node tests/vl-registry.test.js && node tests/clients.test.js && node tests/ui-smoke.test.js && node tests/css-hygiene.test.js",
+    "test": "node tests/domain-conventions.test.js && node tests/product-schema.test.js && node tests/decrement-engine.test.js && node tests/extraction-regressions.js && node tests/vl-registry.test.js && node tests/calendar-taxonomy.test.js && node tests/clients.test.js && node tests/ui-smoke.test.js && node tests/css-hygiene.test.js",
     "test:py": "python3 tests/decrement_score_test.py",
     "test:all": "npm test && npm run test:py",
     "lint": "eslint src/**/*.js tests/**/*.js",

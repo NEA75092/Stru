@@ -106,7 +106,33 @@
       return label.charAt(0).toUpperCase() + label.slice(1);
     }
 
-    function classifyEventType(label = "") {
+    // Types venus de la source (normalizeEvents, product-schema.js, ou
+    // nextEvtType posé en dur côté seed démo) → les 4 types du calendrier.
+    // "autocall_observation" reste une Constatation : une date future
+    // avec seuil de rappel ne devient "Rappel" que si la source le
+    // confirme explicitement — aucune source aujourd'hui ne le fait,
+    // faute de flux de marché réel pour vérifier qu'un rappel a eu lieu
+    // (PASSE-8.md §3.6). C'est cette distinction qui manquait : un
+    // libellé comme "Obs. rappel (65%)" ne doit jamais suffire à classer
+    // l'événement en Rappel.
+    const SOURCE_EVENT_TYPE_MAP = {
+      observation: "obs",
+      autocall_observation: "obs",
+      obs: "obs",
+      coupon: "coupon",
+      rappel: "rappel",
+      recall: "rappel",
+      mat: "mat",
+      maturity: "mat",
+      maturite: "mat",
+    };
+
+    // Le type déclaré à la source prime toujours. Le texte du libellé
+    // n'est un repli que pour les rares cas sans type explicite — jamais
+    // pour trancher entre Constatation et Rappel, l'ambiguïté exacte qui
+    // a produit le bug du 0,0 % (passe 8, §3).
+    function classifyEventType(label = "", sourceType = null) {
+      if (sourceType && SOURCE_EVENT_TYPE_MAP[sourceType]) return SOURCE_EVENT_TYPE_MAP[sourceType];
       const t = label.toLowerCase();
       if (t.includes("matur")) return "mat";
       if (t.includes("rappel")) return "rappel";
@@ -135,7 +161,48 @@
       return 3;
     }
 
-    function pushScheduleEvent(events, seen, product, dateIso, label, type, amt) {
+    // Détail affichable, dérivé strictement du type — jamais l'inverse
+    // (passe 8, §3). Constatation ne porte jamais de montant, seulement
+    // un niveau ; Coupon porte un montant réel (pas le taux annuel —
+    // c'était le bug : product.coupon est un taux, pas une somme) plus
+    // son statut acquis/conditionnel ; Rappel et Maturité portent les
+    // trois valeurs capital/coupon/total.
+    //
+    // isLiveLevel restreint le niveau de Constatation à l'événement qui
+    // correspond au vrai nextEvtDate du produit : product.barrier/.dist
+    // sont un instantané présent, pas une projection historique ou
+    // future — les dates reconstituées (émission, observations passées
+    // ou au-delà de la prochaine réelle) n'ont pas de niveau connu, donc
+    // pas de champ level du tout plutôt qu'une distance figée répétée
+    // sur chaque ligne.
+    function eventDetail(product, type, dateIso, todayIso, isLiveLevel) {
+      if (type === "obs") {
+        if (!isLiveLevel) return {};
+        if (!Number.isFinite(Number(product.barrier)) || !Number.isFinite(Number(product.dist)))
+          return {};
+        const current = Number(product.barrier) * (1 + Number(product.dist) / 100);
+        return { level: { required: Number(product.barrier), current, distance: Number(product.dist) } };
+      }
+      if (type === "coupon") {
+        const amount = couponCashflowAmount(product);
+        if (!(amount > 0)) return {};
+        return { amt: moneyShort(amount), acquired: isCouponAcquired(product, dateIso, todayIso) };
+      }
+      if (type === "rappel" || type === "mat") {
+        const capital = Number(product.nominal) || 0;
+        const coupon = couponCashflowAmount(product);
+        return {
+          cashflow: {
+            capital: moneyShort(capital),
+            coupon: moneyShort(coupon),
+            total: moneyShort(capital + coupon),
+          },
+        };
+      }
+      return {};
+    }
+
+    function pushScheduleEvent(events, seen, product, dateIso, label, type, detail) {
       if (!dateIso) return;
       const key = `${product.id}|${dateIso}|${type}|${label}`;
       if (seen.has(key)) return;
@@ -148,29 +215,31 @@
         d: String(d.getDate()).padStart(2, "0"),
         m: monthShortFRRef(d),
         _monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
-        type: type || classifyEventType(label),
+        type,
         name: `${product.name} — ${label}`,
         desc: `${product.underlying || "—"} · ${product.emetteur || "—"}`,
-        amt: amt || "—",
+        ...detail,
       });
     }
 
     function buildProductFullSchedule(product) {
       const events = [];
       const seen = new Set();
+      const todayIso = isoDate(new Date());
 
       if (Array.isArray(product.scheduleData) && product.scheduleData.length) {
         product.scheduleData.forEach((row) => {
-          const label = row.label || row.event || row.type || row.l || "Observation";
+          const label = row.label || row.event || row.l || "Observation";
           const dateIso = row.date || row._dateIso;
+          const type = classifyEventType(label, row.type);
           pushScheduleEvent(
             events,
             seen,
             product,
             dateIso,
             label,
-            classifyEventType(label),
-            row.amount || product.coupon,
+            type,
+            eventDetail(product, type, dateIso, todayIso, dateIso === product.nextEvtDate),
           );
         });
       } else {
@@ -182,7 +251,7 @@
           /coupon/i.test(product.nextEvt || "") || Number(product.cpnNum) > 0;
 
         if (start) {
-          pushScheduleEvent(events, seen, product, start, "Date d'émission", "obs", "—");
+          pushScheduleEvent(events, seen, product, start, "Date d'émission", "obs", {});
         }
         if (start && end) {
           const cursor = new Date(`${start}T00:00:00`);
@@ -190,6 +259,7 @@
           cursor.setMonth(cursor.getMonth() + step);
           while (cursor < endDate) {
             const iso = isoDate(cursor);
+            const type = isCouponProduct ? "coupon" : "obs";
             const label = isCouponProduct ? "Coupon / observation" : "Observation";
             pushScheduleEvent(
               events,
@@ -197,21 +267,22 @@
               product,
               iso,
               label,
-              isCouponProduct ? "coupon" : "obs",
-              product.coupon,
+              type,
+              eventDetail(product, type, iso, todayIso, iso === product.nextEvtDate),
             );
             cursor.setMonth(cursor.getMonth() + step);
           }
         }
         if (product.nextEvtDate) {
+          const type = classifyEventType(product.nextEvt || "", product.nextEvtType);
           pushScheduleEvent(
             events,
             seen,
             product,
             product.nextEvtDate,
             product.nextEvt || "Prochaine observation",
-            classifyEventType(product.nextEvt || ""),
-            product.coupon,
+            type,
+            eventDetail(product, type, product.nextEvtDate, todayIso, true),
           );
         }
       }
@@ -224,7 +295,7 @@
           product.maturity,
           "Maturité",
           "mat",
-          product.nominal ? moneyShort(product.nominal) : "—",
+          eventDetail(product, "mat", product.maturity, todayIso, false),
         );
       }
 
@@ -291,16 +362,17 @@
       productsForScope().forEach((p) => {
         if (p.nextEvtDate && p.nextEvtDate >= todayStr && p.nextEvtDate <= horizon) {
           const d = new Date(p.nextEvtDate + "T00:00:00");
+          const type = classifyEventType(p.nextEvt || "", p.nextEvtType);
           events.push({
             productId: p.id,
             _dateIso: p.nextEvtDate,
             d: String(d.getDate()).padStart(2, "0"),
             m: monthShortFRRef(d),
             _monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
-            type: classifyEventType(p.nextEvt || ""),
+            type,
             name: `${p.name} — ${p.nextEvt || "Observation"}`,
             desc: `${p.underlying || "—"} · ${p.emetteur || "—"}`,
-            amt: p.coupon || "—",
+            ...eventDetail(p, type, p.nextEvtDate, todayStr, true),
           });
         }
         if (p.maturity && p.maturity >= todayStr && p.maturity <= horizon) {
@@ -314,7 +386,7 @@
             type: "mat",
             name: `${p.name} — Maturité`,
             desc: `Remboursement · ${p.underlying || "—"}`,
-            amt: p.nominal ? moneyShort(p.nominal) : "—",
+            ...eventDetail(p, "mat", p.maturity, todayStr, false),
           });
         }
       });

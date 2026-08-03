@@ -15,6 +15,17 @@
     const ALLOC_META_VERSION = 2;
     const ALLOC_META_KEY = "structura.v2.allocMetaVersion";
     const TYPES = ["AC", "AC", "AC", "CG", "RC", "LV", "AC", "RC", "CG", "AC"];
+    // Type déclaré à la source, jamais ré-inféré depuis le libellé plus
+    // loin (passe 8, §3) : "Constatation barriere" ⇒ "obs", pas de
+    // classification texte qui pourrait se tromper sur un libellé
+    // ambigu comme "Obs. rappel (65%)" (product-schema.js, nextEvent()).
+    const DEMO_NEXT_EVENTS = [
+      { label: "Obs. mensuelle", type: "obs" },
+      { label: "Coupon conditionnel", type: "coupon" },
+      { label: "Date de rappel", type: "rappel" },
+      { label: "Constatation barriere", type: "obs" },
+      { label: "Maturite", type: "mat" },
+    ];
     const EMETTEURS = [
       "BNP Paribas",
       "Société Générale",
@@ -338,6 +349,7 @@
         const underlying = pick(UNDERLYINGS);
         const barrier = type === "CG" ? 0 : rndInt(55, 75);
         const st = statusFromDist(dist, type);
+        const nextEvt = DEMO_NEXT_EVENTS[rndInt(0, DEMO_NEXT_EVENTS.length - 1)];
         products.push({
           id: i + 1,
           name: `${TYPE_NAMES[type]} ${underlying} - ${MONTHS_FR[rndInt(0, 11)]} ${today.getFullYear() + rndInt(0, 2)}`,
@@ -358,13 +370,8 @@
           maturity,
           underlying,
           rating: pick(RATINGS),
-          nextEvt: [
-            "Obs. mensuelle",
-            "Coupon conditionnel",
-            "Date de rappel",
-            "Constatation barriere",
-            "Maturite",
-          ][rndInt(0, 4)],
+          nextEvt: nextEvt.label,
+          nextEvtType: nextEvt.type,
           nextEvtDate: genDate(addDays(today, 5), addMonths(today, 5)),
           issueDate: genDate(addMonths(today, -rndInt(6, 48)), addDays(today, -15)),
           origin: "seed",
@@ -381,6 +388,7 @@
         const product = products[idx];
         if (!product) return;
         product.nextEvt = "Coupon conditionnel";
+        product.nextEvtType = "coupon";
         product.nextEvtDate = genDate(addDays(today, 2 + n * 5), addDays(today, 21));
       });
       products.sort((a, b) => {

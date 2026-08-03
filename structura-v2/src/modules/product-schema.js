@@ -242,6 +242,11 @@
       );
     }
 
+    // type porte le type d'événement structuré déjà construit par
+    // normalizeEvents ("observation"/"autocall_observation" — ou un type
+    // explicite venu de l'extraction) : à transmettre tel quel, jamais
+    // ré-inféré depuis label plus loin (passe 8, §3 — c'est cette perte
+    // qui faisait classer "Obs. rappel (65%)" en Rappel).
     function nextEvent(product, helpers = {}) {
       const today = helpers.today || new Date().toISOString().slice(0, 10);
       const next = product.events.find((event) => event.date > today);
@@ -254,6 +259,7 @@
         label: next?.recallLevelPct
           ? `Obs. rappel (${next.recallLevelPct}%)`
           : next?.label || "Prochaine observation",
+        type: next?.type || null,
       };
     }
 
@@ -289,6 +295,7 @@
         rating: "N/A",
         nextEvt: next.label,
         nextEvtDate: next.date,
+        nextEvtType: next.type,
         origin: "user",
         dataQuality: product.quality.status || "draft",
         productDescription: product.narrative.productDescription || "",
