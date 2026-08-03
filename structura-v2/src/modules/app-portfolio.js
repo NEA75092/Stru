@@ -14,6 +14,7 @@
       notify,
       escapeHtml,
       setTextFlash,
+      renderGauge,
       renderRowsWithGaugeTransition,
       buildSyntheticLevelSeries,
     } = root.StructuraUtils;
@@ -149,6 +150,33 @@
         rows.push(["Spread", formatPct(c.spreadPct)]);
       }
       return rows.filter(([, value]) => value !== "—" && value !== "XX%");
+    }
+
+    // Distance à un seuil quelconque (coupon/rappel/capital), dérivée du
+    // niveau actuel du sous-jacent — pas trois flux de marché séparés,
+    // un seul niveau (currentLevelPct) comparé à trois seuils. Piste,
+    // remplissage et repère suivent le vocabulaire réglette (§1.4) :
+    // axe fixe -20 %/+40 %, repère de seuil toujours à sa position 0 %.
+    const GAUGE_AXIS_MIN = -20;
+    const GAUGE_AXIS_MAX = 40;
+    function barrierGaugeRow(label, thresholdPct, currentLevelPct, type) {
+      if (!Number.isFinite(Number(thresholdPct)) || !Number.isFinite(Number(currentLevelPct)))
+        return "";
+      const dist = Number(currentLevelPct) - Number(thresholdPct);
+      const st = root.StructuraAppState?.statusFromDist
+        ? root.StructuraAppState.statusFromDist(dist, type)
+        : { cls: "st-none" };
+      return renderGauge({
+        scale: "drawer",
+        value: dist,
+        min: GAUGE_AXIS_MIN,
+        max: GAUGE_AXIS_MAX,
+        threshold: 0,
+        tone: st.cls,
+        display: `${dist >= 0 ? "+" : ""}${pctFr(dist, 1)}`,
+        label,
+        sublabel: `Seuil ${formatPct(thresholdPct, 0)}`,
+      });
     }
 
     /** Smooth line through points via quadratic beziers to consecutive
@@ -386,7 +414,16 @@
       <td class="num">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
       <td class="num ${pnlCol}" data-flash="pnl"><div class="pnl-cell"><span>${pnlStr}</span><small>${pnlPctStr}</small></div></td>
-      <td><div class="bar-wrap" data-tooltip="${escapeHtml(dist.tooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${dist.barW}%"></div></div><span class="dist-value ${ST_COLOR[p.st.s]}">${dist.text}${dist.note ? `<small class="dist-note">${dist.note}</small>` : ""}</span></div></td>
+      <td>${renderGauge({
+        scale: "row",
+        value: dist.value,
+        min: GAUGE_AXIS_MIN,
+        max: GAUGE_AXIS_MAX,
+        threshold: dist.threshold,
+        tone: p.st.cls,
+        display: dist.display,
+        tooltip: dist.tooltip,
+      })}</td>
       <td class="cell-muted">${escapeHtml(shortDateFr(p.maturity))}</td>
       <td class="cell-faint">${escapeHtml(shortDateFr(p.nextEvtDate))}</td>
       <td><span class="pill-status ${ST_COLOR[p.st.s]}">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></td>
@@ -403,28 +440,34 @@
     // le type de produit, jamais sur la nullité de dist : un CG n'a
     // structurellement pas de barrière, un AC sans distance a une donnée
     // absente — ce n'est pas la même situation.
+    // Axe partagé avec le tiroir (barrierGaugeRow, §1.4) : même
+    // -20 %/+40 % qu'importe l'échelle, pour que la même barrière tombe
+    // au même endroit en ligne de tableau et en tiroir. Sans donnée
+    // (CG ou distance manquante), value/threshold restent null : pas de
+    // remplissage ni de repère à afficher — un seuil sans position à
+    // comparer n'encode rien.
     function distProtectionCell(p) {
       const hasDist = Number.isFinite(Number(p.dist));
       if (p.type === "CG") {
         return {
-          text: "—",
-          note: "sans barrière",
-          barW: 0,
+          value: null,
+          threshold: null,
+          display: `—<small class="dist-note">sans barrière</small>`,
           tooltip: "Capital garanti — pas de barrière de protection",
         };
       }
       if (!hasDist) {
         return {
-          text: "À confirmer",
-          note: "donnée manquante",
-          barW: 0,
+          value: null,
+          threshold: null,
+          display: `À confirmer<small class="dist-note">donnée manquante</small>`,
           tooltip: "Barrière à confirmer",
         };
       }
       return {
-        text: (p.dist < 0 ? "" : "+") + pctFr(p.dist, 1),
-        note: "",
-        barW: Math.max(2, Math.min(98, 100 - Math.max(0, p.dist))),
+        value: p.dist,
+        threshold: 0,
+        display: (p.dist < 0 ? "" : "+") + pctFr(p.dist, 1),
         tooltip: `Barrière ${pctFr(p.barrier, 0)} · distance actuelle ${pctFr(p.dist, 1)}`,
       };
     }
@@ -571,7 +614,16 @@
       <td class="num"><div class="barrier-cell"><span>${barrierAmt}</span>${barrierAbs ? `<small>${barrierAbs}</small>` : ""}</div></td>
       <td class="num">${formatIssuerVl(p)}</td>
       <td class="num">${moneyShort(p.val)}</td>
-      <td><div class="bar-wrap" data-tooltip="${escapeHtml(barTooltip)}"><div class="bar-track"><div class="bar-fill ${p.st.cls}" style="width:${dist.barW}%"></div><span class="barrier-mark" style="--at: ${dist.barW}%"></span></div><span class="dist-value ${ST_COLOR[p.st.s]}">${dist.text}${dist.note ? `<small class="dist-note">${dist.note}</small>` : ""}</span></div></td>
+      <td>${renderGauge({
+        scale: "row",
+        value: dist.value,
+        min: GAUGE_AXIS_MIN,
+        max: GAUGE_AXIS_MAX,
+        threshold: dist.threshold,
+        tone: p.st.cls,
+        display: dist.display,
+        tooltip: barTooltip,
+      })}</td>
       <td class="cell-faint">${escapeHtml(shortDateFr(p.nextEvtDate))}</td>
       <td><span class="pill-status ${ST_COLOR[p.st.s]}">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></td>
     </tr>`;

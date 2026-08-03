@@ -66,6 +66,61 @@
         .replace(/'/g, "&#39;");
     }
 
+    // Position sur un axe min→max, 0-100, inversée si la métrique est un
+    // coût (plus haut = pire). Même calcul pour le remplissage et pour
+    // le repère de seuil — c'est ce qui garantit qu'un seuil à la même
+    // valeur tombe au même endroit qu'importe l'appelant.
+    function gaugePercent(value, min, max, invert) {
+      const clamped = Math.max(min, Math.min(max, Number(value) || 0));
+      const norm = (clamped - min) / (max - min);
+      return Math.round((invert ? 1 - norm : norm) * 100);
+    }
+
+    // Réglette de barrière unique (passe 8, §1.4) : piste + remplissage
+    // terre (tone décidé par l'appelant : st-safe/st-watch/st-breach/…)
+    // + repère de seuil en mer (relief.css .barrier-mark). Deux échelles
+    // seulement — `scale: "row"` (64px, tables.css) et `scale: "drawer"`
+    // (200px, overlays.css .dr-underlying-gauge .bar-track) — une 3e
+    // échelle pleine largeur pour Pilotage est en attente d'un cas
+    // d'usage réel (§4 de PASSE-8.md), pas ajoutée ici.
+    //
+    // Formatage hors composant : `display` est déjà la chaîne à afficher
+    // (pctFr/moneyShort/fmtPts fait par l'appelant), `tone` déjà la
+    // classe de statut. Ce composant ne fait que positionner.
+    //
+    // Sans valeur (`value` non fini) : piste vide, aucun repère — un
+    // seuil qui n'a rien à comparer n'encode rien (même principe que le
+    // seuil qui ne doit pas suivre le remplissage, cf. distProtectionCell
+    // avant ce correctif).
+    function renderGauge({
+      scale,
+      value,
+      min,
+      max,
+      threshold,
+      invert = false,
+      tone,
+      display,
+      label,
+      sublabel,
+      tooltip,
+    }) {
+      const hasValue = Number.isFinite(Number(value));
+      const fillPct = hasValue ? gaugePercent(value, min, max, invert) : 0;
+      const hasMark = hasValue && Number.isFinite(Number(threshold));
+      const mark = hasMark
+        ? `<span class="barrier-mark" style="--at: ${gaugePercent(threshold, min, max, invert)}%"></span>`
+        : "";
+      const track = `<div class="bar-track"><div class="bar-fill ${tone}" style="width:${fillPct}%"></div>${mark}</div>`;
+      const valueEl = `<span class="dist-value ${tone}">${display}</span>`;
+      const wrap = `<div class="bar-wrap"${tooltip ? ` data-tooltip="${escapeHtml(tooltip)}"` : ""}>${track}${valueEl}</div>`;
+      if (scale !== "drawer") return wrap;
+      return `<div class="dr-underlying-gauge">
+        <div class="dr-underlying-gauge-label">${escapeHtml(label)}${sublabel ? `<span>${escapeHtml(sublabel)}</span>` : ""}</div>
+        ${wrap}
+      </div>`;
+    }
+
     /** Deterministic seeded PRNG (mulberry32) — same seed always gives
      * the same sequence, so a synthetic series stays stable across
      * re-renders instead of jittering every repaint. */
@@ -289,6 +344,7 @@
       shortDateFr,
       escapeHtml,
       notify,
+      renderGauge,
       renderRowsWithGaugeTransition,
       flashText,
       setTextFlash,

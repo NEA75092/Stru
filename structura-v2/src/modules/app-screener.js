@@ -7,7 +7,7 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraScreener(root) {
-    const { notify, pctFr, escapeHtml } = root.StructuraUtils;
+    const { notify, pctFr, escapeHtml, renderGauge } = root.StructuraUtils;
     const { DECREMENT_UNIVERSE, calculateDecrementScore, decrementVerdict } =
       root.StructuraDecrementEngine;
 
@@ -161,39 +161,25 @@
     // chaque jauge sur sa propre plage réaliste (bornée par le palier
     // "0" du barème de decrement-engine.js) ; threshold est la valeur
     // réelle où cette composante bascule sous 50 dans ce même barème —
-    // le repère n'est donc plus un 50 % arbitraire commun aux cinq.
-    // invert: true pour un coût (plus haut = pire), goodness va de 0
-    // (pire) à 1 (meilleur) et pilote à la fois le remplissage et le
-    // repère, sur le même axe gauche→droite.
-    function gaugeGoodness(value, min, max, invert) {
-      const clamped = Math.max(min, Math.min(max, Number(value) || 0));
-      const norm = (clamped - min) / (max - min);
-      return invert ? 1 - norm : norm;
-    }
-
-    // Jauge horizontale à repère de seuil vertical (passe 7D, D.2) : le
-    // même objet graphique que la distance à la barrière (Barrières,
-    // Portefeuille) — .bar-wrap/.bar-track/.bar-fill/.barrier-mark de
-    // tables.css/relief.css, pas une variante. La valeur affichée est la
-    // métrique réelle (ratio, %/an, points) — jamais le score interne
-    // 0-100, qui resterait un chiffre sans unité à interpréter.
+    // le repère n'est donc plus un 50 % arbitraire commun aux cinq. Le
+    // positionnement (goodness/repère) est délégué à renderGauge
+    // (StructuraUtils, §1.4) — même réglette que Barrières/Portefeuille.
     function gaugeRow(def, s) {
       const score = def.score(s);
       const value = def.value(s);
       const tone = gaugeTone(score);
-      const fillPct = Math.round(gaugeGoodness(value, def.min, def.max, def.invert) * 100);
-      const markPct = Math.round(gaugeGoodness(def.threshold, def.min, def.max, def.invert) * 100);
-      const metric = def.format(value);
-      return `<div class="dr-underlying-gauge">
-        <div class="dr-underlying-gauge-label">${escapeHtml(def.label)}<span>${escapeHtml(def.desc)}</span></div>
-        <div class="bar-wrap">
-          <div class="bar-track">
-            <div class="bar-fill ${tone}" style="width:${fillPct}%"></div>
-            <span class="barrier-mark" style="--at: ${markPct}%"></span>
-          </div>
-          <span class="dist-value ${tone}">${escapeHtml(metric)}</span>
-        </div>
-      </div>`;
+      return renderGauge({
+        scale: "drawer",
+        value,
+        min: def.min,
+        max: def.max,
+        threshold: def.threshold,
+        invert: def.invert,
+        tone,
+        display: escapeHtml(def.format(value)),
+        label: def.label,
+        sublabel: def.desc,
+      });
     }
 
     // Bornes et seuils tirés des paliers de calculateDecrementScore
