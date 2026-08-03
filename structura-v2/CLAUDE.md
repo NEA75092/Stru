@@ -51,11 +51,25 @@ Un montant n'est jamais coloré : il est en `--font-mono-data`, encre pleine,
 aligné à droite sur une colonne commune. C'est l'alignement qui le rend
 comparable, pas la couleur.
 
-## Typographie
+## Typographie (mise à jour §1, 03/08)
 
-Inter (400–800) partout, y compris les gros chiffres. IBM Plex Mono pour tout
-chiffre, ISIN, libellé technique et micro-label en capitales. Aucun texte sous
-11 px. Pas de police display séparée.
+Trois familles, chacune un rôle, aucune ne déborde sur celui d'une autre :
+
+| Famille | Token | Sert à |
+| --- | --- | --- |
+| Newsreader | `--font-heading` | titres, display — noms de produit, en-têtes de section |
+| Instrument Sans | `--font-body` | texte courant, UI, labels, boutons |
+| IBM Plex Mono | `--font-mono-data` | tout chiffre, ISIN, libellé technique, micro-label en capitales |
+
+Échelle en six pas, aucun texte en dessous de `--text-xs` :
+`--text-xs` 12px · `--text-sm` 14px · `--text-base` 16px · `--text-lg` 20px ·
+`--text-xl` 28px · `--text-2xl` 40px.
+
+Cette section annule et remplace la version précédente (« Inter partout,
+pas de police display séparée ») : cette règle datait d'avant la direction
+typographique de §1 et n'était plus vraie depuis que Newsreader/Instrument
+Sans/IBM Plex Mono ont été actées. Une règle périmée dans ce fichier est
+pire qu'aucune règle — elle fait signaler un faux problème à chaque passe.
 
 ## La barrière
 
