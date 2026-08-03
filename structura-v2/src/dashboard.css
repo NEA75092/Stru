@@ -848,6 +848,78 @@
     color: var(--color-ink);
 }
 
+/* Constatation : une distance à une barrière est un état, pas un flux
+   — poids visuel réduit par rapport aux montants réels (passe 8, §3).
+   Le signe seul porte la teinte de risque (terre), le chiffre reste en
+   encre secondaire : l'œil qui descend la colonne trouve l'argent
+   d'abord, la distance ensuite. */
+.timeline-level {
+    display: flex;
+    gap: 2px;
+    color: var(--color-text-secondary);
+}
+
+.timeline-level-sign.st-safe {
+    color: var(--color-safe);
+}
+
+.timeline-level-sign.st-warn {
+    color: var(--color-watch);
+}
+
+.timeline-level-sign.st-crit,
+.timeline-level-sign.st-breach {
+    color: var(--color-breach);
+}
+
+.timeline-level-sign.st-none,
+.timeline-level-sign.st-unknown {
+    color: var(--color-text-secondary);
+}
+
+/* Rappel / Maturité saine : le total est le chiffre de décision (gras,
+   encre pleine), capital et coupon le détail — même patron que
+   .pnl-cell (tables.css). */
+.timeline-cashflow {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.35;
+}
+
+.timeline-cashflow small {
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: inherit;
+    opacity: 0.75;
+}
+
+/* Maturité en franchissement : la ligne ne dit plus ce qui sera versé,
+   elle dit ce qui est en jeu — nature différente, pas une nuance de
+   couleur (passe 8, §3). Jamais de coupon additionné dans un total :
+   aucun modèle de payoff par barrière n'existe pour le calculer. */
+.timeline-exposure {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.35;
+    color: var(--color-breach);
+}
+
+.timeline-exposure small {
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--color-text-tertiary);
+}
+
+/* Coupon conditionnel : le montant garde son plein poids, une mention
+   discrète suffit à signaler l'incertitude. */
+.timeline-conditional-note {
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--color-text-tertiary);
+}
+
 .timeline-item.ev-obs {
     box-shadow: inset 3px 0 0 var(--color-text-tertiary);
 }

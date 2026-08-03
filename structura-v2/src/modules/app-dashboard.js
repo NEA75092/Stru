@@ -679,13 +679,36 @@
         .toUpperCase();
     }
 
+    // La cellule montant découle du type de l'événement, jamais l'inverse
+    // (passe 8, §3) : Constatation montre un état (distance, poids réduit,
+    // §3 nuance validée à l'écran), Coupon un flux réel, Rappel/Maturité
+    // saine un total décisionnel avec son détail, Maturité en
+    // franchissement une exposition — nature différente, pas une couleur.
+    function eventAmountCell(e) {
+      if (e.level) {
+        const sign = e.level.distance < 0 ? "−" : "+";
+        const value = pctFr(Math.abs(e.level.distance), 1);
+        return `<div class="timeline-amt timeline-level"><span class="timeline-level-sign ${escapeHtml(e.level.tone)}">${sign}</span><span class="timeline-level-value">${value}</span></div>`;
+      }
+      if (e.exposure) {
+        return `<div class="timeline-amt timeline-exposure"><b>${escapeHtml(e.exposure)}</b><small>nominal exposé</small></div>`;
+      }
+      if (e.cashflow) {
+        return `<div class="timeline-amt timeline-cashflow"><b>${escapeHtml(e.cashflow.total)}</b><small>${escapeHtml(e.cashflow.capital)} + ${escapeHtml(e.cashflow.coupon)}</small></div>`;
+      }
+      if (e.amt) {
+        return `<div class="timeline-amt">${escapeHtml(e.amt)}${e.acquired === false ? `<small class="timeline-conditional-note"> · conditionnel</small>` : ""}</div>`;
+      }
+      return `<div class="timeline-amt">—</div>`;
+    }
+
     function evHtml(evs) {
       return evs
         .map(
           (e) => `<div class="timeline-item ev-${e.type}" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
     <div class="timeline-date"><b>${escapeHtml(e.d)}</b><small>${escapeHtml(e.m)}</small></div>
     <div class="timeline-main"><b>${escapeHtml(e.name)}</b><small>${escapeHtml(e.desc)}</small></div>
-    <div class="timeline-amt">${escapeHtml(e.amt || "—")}</div>
+    ${eventAmountCell(e)}
   </div>`,
         )
         .join("");

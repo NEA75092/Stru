@@ -181,12 +181,29 @@
         if (!Number.isFinite(Number(product.barrier)) || !Number.isFinite(Number(product.dist)))
           return {};
         const current = Number(product.barrier) * (1 + Number(product.dist) / 100);
-        return { level: { required: Number(product.barrier), current, distance: Number(product.dist) } };
+        return {
+          level: {
+            required: Number(product.barrier),
+            current,
+            distance: Number(product.dist),
+            tone: product.st?.cls || "st-none",
+          },
+        };
       }
       if (type === "coupon") {
         const amount = couponCashflowAmount(product);
         if (!(amount > 0)) return {};
         return { amt: moneyShort(amount), acquired: isCouponAcquired(product, dateIso, todayIso) };
+      }
+      // Maturité en franchissement : ce que la ligne dit change de nature,
+      // pas seulement de couleur. Une maturité saine annonce un versement
+      // (capital + coupon = total) ; une maturité en breach n'annonce rien
+      // de garanti — elle rappelle ce qui est en jeu. Additionner un
+      // coupon dans un total laisserait croire à un montant acquis qu'on
+      // ne peut pas calculer (aucun modèle de payoff par barrière dans
+      // l'app) — donc pas de total du tout dans ce cas, un nominal exposé.
+      if (type === "mat" && product.st?.s === "breach") {
+        return { exposure: moneyShort(Number(product.nominal) || 0) };
       }
       if (type === "rappel" || type === "mat") {
         const capital = Number(product.nominal) || 0;
