@@ -139,7 +139,7 @@
           const carryCls = s.netCarry >= 0 ? "st-safe" : "st-crit";
           const carrySign = s.netCarry >= 0 ? "+" : "−";
           return `<tr onclick="showScreenerDetail('${item.id}')">
-      <td><div class="p-name" style="font-size:11px;">${item.name}</div><div class="p-isin" style="font-size:9px;">${item.assetType} · ${regionBucket(item.region)} · ${sourceBadge(s)}</div></td>
+      <td><div class="p-name" style="font-size:11px;">${item.name}</div><div class="p-isin" style="font-size:9px;">${item.assetType} · ${regionBucket(item.region)}</div></td>
       <td class="num dec-metric"><span class="dec-metric-dot ${carryCls}"></span>${carrySign}${fmtPts(s.netCarry)} pts/an</td>
       <td class="num dec-metric">${pctFr(Math.abs(s.annualDrag), 1)}/an sacrifié</td>
       <td><span class="pill-status ${verdict.tone}">${escapeHtml(verdict.label)}</span></td>
@@ -303,10 +303,6 @@
         <div class="dr-underlying-reading">${underlyingReading(item, s, verdict)}</div>
       `;
       document.getElementById("drawer-ov")?.classList.add("open");
-    }
-
-    function sourceBadge(score) {
-      return `<span class="dec-source-badge" title="${score.sourceTooltip}">${score.sourceLabel}</span>`;
     }
 
     function createPitchFromOpportunity(asset) {
