@@ -37,7 +37,6 @@
       TYPE_SHORT,
       ST_COLOR,
       ST_LABEL_SHORT,
-      TYPE_NAMES,
     } = root.StructuraPortfolioConstants;
 
     const pfFilter = runtime.pfFilter;
@@ -109,7 +108,7 @@
     // auquel il appartient (identité / sous-jacent / barrières / coupon).
     function characteristicGroups(product) {
       const c = product.characteristics || {};
-      const identity = [["Famille métier", productFamilyLabel(product)]];
+      const identity = [["Type", productFamilyLabel(product)]];
       const underlying = [];
       // Barrière coupon / PDI-seuil final / Seuil rappel ne sont pas
       // répétés ici : ce sont les trois niveaux déjà visualisés par les
@@ -803,12 +802,10 @@
 
       // ── Identité ──
       renderGrid("dr-identity-grid", [
-        ["Type", TYPE_NAMES[p.type]],
+        ...groups.identity,
         ["Émetteur", p.emetteur],
-        ["Devise", "EUR"],
         ["SRI (KID)", productSri(p) != null ? `${productSri(p)}/7` : "—"],
         ["Notation émetteur", p.rating],
-        ...groups.identity,
       ]);
 
       // ── Sous-jacent ── currentLevelPct dérivé de la barrière capital et
