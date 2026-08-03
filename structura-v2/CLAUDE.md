@@ -139,6 +139,56 @@ page, le calendrier en liste nue, six vues sans mise en forme.
 
 Le signalement était le bon. C'est la décision de périmètre qui était mauvaise.
 
+## `deploy.sh` — à éviter en l'état (02/08)
+
+`../deploy.sh` (hors du repo `structura-v2`, à la racine `Structura/`) fait
+`git add structura-v2 ... && git add -u` avant de committer. Lancé tel quel,
+il aspire **tout** l'état non commité du moment — chantier en cours inclus —
+dans un seul commit au message générique (« Mise à jour Structura <date> »).
+Ça contredit directement la règle des commits atomiques par correctif.
+
+Constat du 02/08 : passe 8 avait un gros chantier non commité (tokens
+couleur, tables, fiche produit unique…) en même temps que deux correctifs
+prêts à pousser. `deploy.sh` aurait tout committé ensemble. Écarté au profit
+d'un `git push origin master` direct — les commits déjà faits suffisent à
+déclencher le redéploiement Netlify, `deploy.sh` ne fait rien de plus dans
+ce cas (son propre embranchement « rien à committer » le confirme : il ne
+fait qu'un push s'il n'y a rien en staging).
+
+**Avant de relancer `deploy.sh` : vérifier `git status` d'abord.** S'il y a
+autre chose que ce qu'on vient de committer explicitement, ne pas le lancer
+— pousser à la main. Version corrigée proposée (pousse sans jamais committer
+ce qui n'a pas été validé) :
+
+```bash
+#!/bin/bash
+# Pousse les commits déjà faits vers GitHub → Netlify rebuild.
+# Ne committe jamais : échoue si quelque chose traîne en staging ou modifié.
+set -e
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+
+git status -sb
+echo
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "→ Changements non commités détectés — rien poussé."
+  echo "  Committer explicitement (par correctif) avant de relancer, ou"
+  echo "  vérifier qu'il ne s'agit pas d'un chantier encore en cours."
+  exit 1
+fi
+
+if ! git status -sb | grep -q 'ahead'; then
+  echo "Déjà à jour avec GitHub. Rien à faire."
+  exit 0
+fi
+
+git push origin master
+echo
+echo "OK — push envoyé. Netlify va redéployer sous 1–2 min."
+echo "Site : https://zesty-tiramisu-e45883.netlify.app/"
+```
+
 ## Ce qu'il ne faut pas faire
 
 - Écrire un nouveau fichier CSS « de correction » par-dessus les autres.
