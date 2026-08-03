@@ -30,7 +30,7 @@
         <link rel="stylesheet" href="./src/overlays.css?v=20260803" />
         <link rel="stylesheet" href="./src/dashboard.css?v=20260803b" />
         <link rel="stylesheet" href="./src/tables.css?v=20260730" />
-        <link rel="stylesheet" href="./src/views.css?v=20260730c" />
+        <link rel="stylesheet" href="./src/views.css?v=20260803" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260728" />
         <link rel="stylesheet" href="./src/relief.css?v=20260727" />
     </head>
@@ -366,7 +366,7 @@
                 <div class="view" id="view-barriers">
                     <div class="spotlight" aria-hidden="true"></div>
                     <div class="kpi-row kpi-row-accent-top">
-                        <div class="kpi kpi-accent-breach">
+                        <div class="kpi kpi-accent-breach kpi-filterable" id="bar-kpi-breach-card" onclick="filterBarriersByStatus('breach')">
                             <div class="kpi-lbl">Barrières franchies</div>
                             <div class="kpi-val" id="bar-kpi-breach">—</div>
                             <div class="kpi-sub">
@@ -374,7 +374,7 @@
                                 <span id="bar-kpi-breach-sub">Perte de capital probable</span>
                             </div>
                         </div>
-                        <div class="kpi kpi-accent-danger">
+                        <div class="kpi kpi-accent-danger kpi-filterable" id="bar-kpi-crit-card" onclick="filterBarriersByStatus('crit')">
                             <div class="kpi-lbl">Alerte critique</div>
                             <div class="kpi-val" id="bar-kpi-crit">—</div>
                             <div class="kpi-sub">
@@ -382,7 +382,7 @@
                                 <span id="bar-kpi-crit-sub">Sous 5 % du seuil</span>
                             </div>
                         </div>
-                        <div class="kpi kpi-accent-warning">
+                        <div class="kpi kpi-accent-warning kpi-filterable" id="bar-kpi-watch-card" onclick="filterBarriersByStatus('warn')">
                             <div class="kpi-lbl">Alerte surveillance</div>
                             <div class="kpi-val" id="bar-kpi-watch">—</div>
                             <div class="kpi-sub">
@@ -390,7 +390,7 @@
                                 <span id="bar-kpi-watch-sub">Entre 5 et 15 % du seuil</span>
                             </div>
                         </div>
-                        <div class="kpi kpi-accent-safe">
+                        <div class="kpi kpi-accent-safe kpi-filterable" id="bar-kpi-safe-card" onclick="filterBarriersByStatus('safe')">
                             <div class="kpi-lbl">Zone saine</div>
                             <div class="kpi-val" id="bar-kpi-safe">—</div>
                             <div class="kpi-sub">
@@ -400,17 +400,14 @@
                         </div>
                     </div>
 
-                    <div class="panel dist-strip-panel">
+                    <div class="panel dist-strip-panel dist-strip-mini">
                         <div class="dist-strip-hdr">
                             <span class="dist-strip-title">Distribution du risque</span>
-                            <div class="status-filter-row" id="bar-status-filters"></div>
                         </div>
                         <div class="dist-strip">
                             <div class="dist-strip-track" id="bar-dist-track"></div>
-                            <div class="dist-strip-scale">
-                                <span>−20 %</span><span>0 %</span><span>+20 %</span><span>+40 %</span>
-                            </div>
                         </div>
+                        <button type="button" class="linkish dist-strip-pilotage-link" onclick="nav('analytics')">Voir la version détaillée dans Pilotage →</button>
                     </div>
 
                     <div class="sec-hdr">
@@ -598,6 +595,19 @@
                             </div>
                         </div>
                         <div id="ana-metrics" class="kpi-row kpi-row-accent-top pilotage-kpi-row"></div>
+                        <div class="panel dist-strip-panel">
+                            <div class="dist-strip-hdr">
+                                <span class="dist-strip-title">Distribution du risque</span>
+                                <div class="status-filter-row" id="ana-status-filters"></div>
+                            </div>
+                            <div class="dist-strip">
+                                <div class="dist-strip-track" id="ana-dist-track"></div>
+                                <div class="dist-strip-scale">
+                                    <span>−20 %</span><span>0 %</span><span>+20 %</span><span>+40 %</span>
+                                </div>
+                            </div>
+                            <div class="dist-strip-detail" id="ana-dist-detail"></div>
+                        </div>
                         <div class="pilotage-grid">
                             <div class="dash-module">
                                 <div class="sec-hdr">

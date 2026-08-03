@@ -319,6 +319,32 @@
     color: var(--color-text-tertiary);
 }
 
+/* Mini-graphe de Barrières (passe 8, §4) : ni échelle ni pastille, piste
+   plus fine que la version complète de Pilotage — un aperçu, pas un
+   deuxième outil de filtre. */
+.dist-strip-mini .dist-strip-hdr {
+    margin-bottom: var(--space-3);
+}
+
+.dist-strip-mini .dist-strip-track {
+    height: 18px;
+}
+
+.dist-strip-pilotage-link {
+    margin-top: var(--space-3);
+}
+
+/* Détail des produits concernés par une classe cliquée (Pilotage) — même
+   gabarit de ligne que « Actions requises » du Dashboard (.al), plafonné
+   pour ne pas faire grandir la page sans limite quand une classe compte
+   beaucoup de produits. */
+.dist-strip-detail:not(:empty) {
+    margin-top: var(--space-4);
+    max-height: 320px;
+    overflow-y: auto;
+    border-top: 1px solid var(--color-divider);
+}
+
 /* Grilles génériques 2/4 colonnes — Calendrier, Pitch Engine,
    Ingestion. Jamais stylées : leurs enfants s'empilaient en colonne
    simple faute de grid-template-columns. */
@@ -871,6 +897,19 @@
 
 .kpi-row-accent-top .kpi-accent-safe {
     border-top-color: var(--color-success);
+}
+
+/* Cartes de statut cliquables (passe 8, §4) : seul point d'entrée du
+   filtre par statut dans Barrières depuis que la frise en dessous est
+   devenue un mini-graphe non interactif — reprend le rôle des anciennes
+   pastilles sans ajouter d'élément. */
+.kpi-filterable {
+    cursor: pointer;
+}
+
+.kpi-filterable.on {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-2);
 }
 
 /* ── Vue Analytics / Pilotage (section G) ─────────────────────

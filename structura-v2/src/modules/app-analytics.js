@@ -7,7 +7,8 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraAnalytics(root) {
-    const { moneyShort, pctFr, escapeHtml } = root.StructuraUtils;
+    const { moneyShort, pctFr, escapeHtml, shortDateFr, computeRiskDistribution } =
+      root.StructuraUtils;
     const {
       productsForScope,
       getProductAllocations,
@@ -199,8 +200,84 @@
       <button type="button" class="btn pilotage-preview-all" onclick="nav('clients')">Voir tous les dossiers</button>`;
     }
 
+    // Distribution du risque — version complète et interactive (passe 8,
+    // §4) : même calcul que le mini-graphe de Barrières
+    // (computeRiskDistribution, StructuraUtils), mais ici la pastille de
+    // classe cliquée déplie la liste des produits concernés, sur le même
+    // gabarit que « Actions requises » du Dashboard (.al/.al-rail).
+    // Barrières n'a pas ce tiroir : son propre filtre agit directement sur
+    // son tableau, inutile de dupliquer un deuxième mécanisme là-bas.
+    const RISK_STATUS_DEFS = [
+      { s: "breach", label: "Franchie" },
+      { s: "crit", label: "Critique" },
+      { s: "warn", label: "Alerte" },
+      { s: "safe", label: "Sain" },
+      { s: "unknown", label: "À confirmer" },
+    ];
+    const RISK_RAIL_CLASS = {
+      breach: "al-crit",
+      crit: "al-crit",
+      warn: "al-warn",
+      safe: "al-ok",
+      unknown: "al-warn",
+    };
+    let pilotageRiskFilter = null;
+
+    function renderRiskDetailList(data) {
+      const detail = document.getElementById("ana-dist-detail");
+      if (!detail) return;
+      if (!pilotageRiskFilter) {
+        detail.innerHTML = "";
+        return;
+      }
+      const rows = data
+        .filter((p) => p.st?.s === pilotageRiskFilter)
+        .sort((a, b) => (Number(a.dist) || 0) - (Number(b.dist) || 0));
+      if (!rows.length) {
+        detail.innerHTML = `<div class="pilotage-preview-empty">Aucun produit dans cette classe.</div>`;
+        return;
+      }
+      const railCls = RISK_RAIL_CLASS[pilotageRiskFilter] || "al-warn";
+      detail.innerHTML = rows
+        .map(
+          (p) =>
+            `<div class="al ${railCls}" onclick="openDrawer(${p.id})"><span class="al-rail"></span><div class="al-txt"><strong>${escapeHtml(p.name)}</strong><span class="al-context">${escapeHtml(p.underlying || "—")} · ${Number.isFinite(Number(p.dist)) ? `${p.dist > 0 ? "+" : ""}${pctFr(p.dist)}` : "à confirmer"} · obs. ${shortDateFr(p.nextEvtDate)}</span></div><span class="pill-status ${p.st.cls}">${escapeHtml(p.st.label)}</span><span class="al-amount">${moneyShort(p.val)}<svg class="al-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5l6 5.5-6 5.5"/></svg></span></div>`,
+        )
+        .join("");
+    }
+
+    function renderRiskDistribution() {
+      const track = document.getElementById("ana-dist-track");
+      const filters = document.getElementById("ana-status-filters");
+      if (!track || !filters) return;
+      const data = productsForScope().filter((p) => p.type !== "CG");
+      const { dots, counts, zeroPct } = computeRiskDistribution(data);
+      const dotsHtml = dots
+        .map(
+          (d) =>
+            `<span class="dist-strip-dot ${d.cls}" style="left:${d.pct.toFixed(2)}%" title="${escapeHtml(d.name)} · ${d.dist.toFixed(1)}%"></span>`,
+        )
+        .join("");
+      track.innerHTML = `<div class="dist-strip-zone-danger" style="width:${zeroPct.toFixed(2)}%"></div><span class="dist-strip-zero" style="left:${zeroPct.toFixed(2)}%" title="Seuil de la barrière — 0 %"></span>${dotsHtml}`;
+
+      filters.innerHTML = RISK_STATUS_DEFS.filter((d) => counts[d.s] > 0)
+        .map(
+          (d) =>
+            `<button type="button" class="status-filter st-${d.s}${pilotageRiskFilter === d.s ? " on" : ""}" onclick="filterAnalyticsByRisk('${d.s}')">${d.label} <b>${counts[d.s]}</b></button>`,
+        )
+        .join("");
+
+      renderRiskDetailList(data);
+    }
+
+    function filterAnalyticsByRisk(status) {
+      pilotageRiskFilter = pilotageRiskFilter === status ? null : status;
+      renderRiskDistribution();
+    }
+
     function renderAnalytics() {
       renderRiskMetrics();
+      renderRiskDistribution();
       renderClientPreview();
     }
 
@@ -208,6 +285,11 @@
       renderAnalytics();
     }
 
-    return { renderAnalytics, computePortfolioMetrics, sortAnalytics };
+    return {
+      renderAnalytics,
+      computePortfolioMetrics,
+      sortAnalytics,
+      filterAnalyticsByRisk,
+    };
   },
 );

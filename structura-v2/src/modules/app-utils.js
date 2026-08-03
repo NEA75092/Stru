@@ -76,6 +76,31 @@
       return Math.round((invert ? 1 - norm : norm) * 100);
     }
 
+    // Distribution du risque (passe 8, §4) : un seul calcul pour les deux
+    // rendus — mini-graphe non interactif (Barrières) et version complète
+    // avec pastilles de filtre (Pilotage). Les classes et leurs bornes ne
+    // sont pas redécidées ici : chaque produit porte déjà son statut
+    // (p.st.s/p.st.cls) via statusFromDist (StructuraAppState), seule
+    // source de vérité pour safe/watch/breach dans toute l'app.
+    function computeRiskDistribution(data, { min = -20, max = 40 } = {}) {
+      const pctAt = (v) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100));
+      const dots = data
+        .filter((p) => Number.isFinite(Number(p.dist)))
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          dist: Number(p.dist),
+          status: p.st.s,
+          cls: p.st.cls,
+          pct: pctAt(Number(p.dist)),
+        }));
+      const counts = {};
+      data.forEach((p) => {
+        counts[p.st.s] = (counts[p.st.s] || 0) + 1;
+      });
+      return { dots, counts, zeroPct: pctAt(0) };
+    }
+
     // Réglette de barrière unique (passe 8, §1.4) : piste + remplissage
     // terre (tone décidé par l'appelant : st-safe/st-watch/st-breach/…)
     // + repère de seuil en mer (relief.css .barrier-mark). Deux échelles
@@ -345,6 +370,7 @@
       escapeHtml,
       notify,
       renderGauge,
+      computeRiskDistribution,
       renderRowsWithGaugeTransition,
       flashText,
       setTextFlash,

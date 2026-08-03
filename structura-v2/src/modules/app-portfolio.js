@@ -15,6 +15,7 @@
       escapeHtml,
       setTextFlash,
       renderGauge,
+      computeRiskDistribution,
       renderRowsWithGaugeTransition,
       buildSyntheticLevelSeries,
     } = root.StructuraUtils;
@@ -545,48 +546,41 @@
         true,
       );
       setBarrierKpi("bar-kpi-safe", safe, total, "Au-delà de 15 % du seuil", false);
+
+      // Les 4 cartes de statut sont le seul point d'entrée du filtre par
+      // statut (passe 8, §4) : la frise ci-dessous devient un mini-graphe
+      // non interactif, sa version complète avec pastilles cliquables vit
+      // désormais dans Pilotage. Reprendre ici l'ancien rôle des pastilles
+      // évite de perdre le filtrage du tableau.
+      [
+        ["bar-kpi-breach-card", "breach"],
+        ["bar-kpi-crit-card", "crit"],
+        ["bar-kpi-watch-card", "warn"],
+        ["bar-kpi-safe-card", "safe"],
+      ].forEach(([id, status]) => {
+        document.getElementById(id)?.classList.toggle("on", barrierStatusFilter === status);
+      });
     }
 
-    // Frise de distance (section E) : un point par produit à barrière
-    // sur un axe -20%/+40%, coloré par statut — la distribution du
-    // risque en un coup d'œil, ce qu'aucun tableau trié ne montre.
-    // Indépendante de la recherche/du filtre de statut : c'est la
-    // référence stable, les filtres agissent sur le tableau en dessous.
+    // Frise de distance (section E) : un point par produit à barrière sur
+    // un axe -20%/+40%, coloré par statut — la distribution du risque en
+    // un coup d'œil, ce qu'aucun tableau trié ne montre. Mini-graphe non
+    // interactif (passe 8, §4) : ni échelle ni pastille de filtre ici, la
+    // version complète et interactive vit dans Pilotage (app-analytics.js,
+    // renderRiskDistribution) — même calcul, computeRiskDistribution
+    // (StructuraUtils), pour ne jamais faire diverger les deux lectures.
     function renderDistStrip() {
       const track = document.getElementById("bar-dist-track");
-      const filters = document.getElementById("bar-status-filters");
-      if (!track || !filters) return;
+      if (!track) return;
       const data = productsForScope().filter((p) => p.type !== "CG");
-      const MIN = -20;
-      const MAX = 40;
-      const pctAt = (v) => Math.max(0, Math.min(100, ((v - MIN) / (MAX - MIN)) * 100));
-      const dots = data
-        .filter((p) => Number.isFinite(Number(p.dist)))
-        .map(
-          (p) =>
-            `<span class="dist-strip-dot ${p.st.cls}" style="left:${pctAt(p.dist).toFixed(2)}%" title="${escapeHtml(p.name)} · ${p.dist.toFixed(1)}%"></span>`,
-        )
-        .join("");
-      track.innerHTML = `<div class="dist-strip-zone-danger" style="width:${pctAt(0).toFixed(2)}%"></div><span class="dist-strip-zero" style="left:${pctAt(0).toFixed(2)}%" title="Seuil de la barrière — 0 %"></span>${dots}`;
-
-      const counts = {};
-      data.forEach((p) => {
-        counts[p.st.s] = (counts[p.st.s] || 0) + 1;
-      });
-      const defs = [
-        { s: "breach", label: "Franchie" },
-        { s: "crit", label: "Critique" },
-        { s: "warn", label: "Alerte" },
-        { s: "safe", label: "Sain" },
-        { s: "unknown", label: "À confirmer" },
-      ];
-      filters.innerHTML = defs
-        .filter((d) => counts[d.s] > 0)
+      const { dots, zeroPct } = computeRiskDistribution(data);
+      const dotsHtml = dots
         .map(
           (d) =>
-            `<button type="button" class="status-filter st-${d.s}${barrierStatusFilter === d.s ? " on" : ""}" onclick="filterBarriersByStatus('${d.s}')">${d.label} <b>${counts[d.s]}</b></button>`,
+            `<span class="dist-strip-dot ${d.cls}" style="left:${d.pct.toFixed(2)}%" title="${escapeHtml(d.name)} · ${d.dist.toFixed(1)}%"></span>`,
         )
         .join("");
+      track.innerHTML = `<div class="dist-strip-zone-danger" style="width:${zeroPct.toFixed(2)}%"></div><span class="dist-strip-zero" style="left:${zeroPct.toFixed(2)}%" title="Seuil de la barrière — 0 %"></span>${dotsHtml}`;
     }
 
     function filterBarriersByStatus(status) {
