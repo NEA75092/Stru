@@ -12,6 +12,17 @@
    Vérifiées par tests/css-hygiene.test.js (npm test).
    ============================================================ */
 
+/* Anneau de focus global (passe 8, §3.5) : un seul foyer de règle pour
+   tout élément interactif de l'app, quelle que soit sa classe — sans
+   ce sélecteur générique, chaque composant qui n'hérite pas de .btn
+   ou .f-inp/.f-sel retombe sur le bleu par défaut du navigateur.
+   Offset négatif : l'anneau se dessine à l'intérieur de la boîte,
+   jamais rogné par un conteneur en overflow:hidden. */
+:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
+}
+
 /* ── Coquille ────────────────────────────────────────────── */
 .app {
     position: relative;
@@ -216,11 +227,6 @@
 .btn:hover {
     background: var(--color-surface-2);
     border-color: var(--color-border-strong);
-}
-
-.btn:focus-visible {
-    outline: 2px solid var(--color-ink);
-    outline-offset: -2px;
 }
 
 .btn:disabled {
