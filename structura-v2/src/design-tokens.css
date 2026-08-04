@@ -17,6 +17,13 @@
      de la couleur de la carte, jamais un gris neutre — voir la
      section « Ombres » plus bas et `--gradient-card-lit`.
 
+   Typographie (passe 8, §1.1, 04/08) : Newsreader (titres/prose) et
+   Instrument Sans (interface) remplacent Inter partout — annule la
+   décision du 25/07 qui avait unifié titres et interface sur une seule
+   police. Échelle unique à 6 crans, rien entre. La couleur et le
+   relief de cette même passe suivent dans des commits séparés : ce
+   fichier ne porte encore que le changement typographique.
+
    Ce fichier ne définit QUE des variables sous des noms neufs
    (--color-*, --space-*, --radius-*, --shadow-*, --font-*, --ease-*).
    Aucun nom existant (l'alias corail mort de l'ancienne charte, --text,
@@ -103,24 +110,21 @@
     --color-danger: #c1483b;
     --color-danger-2: #a03a2f;
 
-    /* ── Typographie ── */
-    /* Unbounded retiré le 2026-07-25 : la direction "Dolce Vita Fintech"
-       veut Inter partout (400 à 800) pour tout le texte UI, y compris
-       les gros chiffres KPI — plus de police display séparée. */
-    --font-heading: "Inter", "Inter Tight", system-ui, sans-serif;
-    --font-body: "Inter", "Inter Tight", system-ui, sans-serif;
+    /* ── Typographie — pairing éditorial (passe 8, §1.1) ──
+       Newsreader porte les titres et la prose, Instrument Sans
+       l'interface, IBM Plex Mono tout nombre. Trois familles, pas
+       quatre — aucune autre ne doit apparaître dans les feuilles. */
+    --font-heading: "Newsreader", Georgia, "Times New Roman", serif;
+    --font-body: "Instrument Sans", system-ui, -apple-system, sans-serif;
     --font-mono-data: "IBM Plex Mono", monospace;
 
-    --text-2xs: 10px;
-    --text-xs: 11px;
-    --text-sm: 11px;
-    --text-base: 12.5px;
-    --text-md: 14px;
-    --text-lg: 16px;
-    --text-xl: 20px;
-    --text-2xl: 28px;
-    --text-hero: clamp(3.25rem, 6vw, 4.75rem);
-    --text-display: clamp(1.7rem, 2.6vw, 2.25rem);
+    /* Échelle unique, 6 crans, rien entre (passe 8, §1.1). */
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 20px;
+    --text-xl: 28px;
+    --text-2xl: 40px;
 
     /* ── Espacements (grille 4px) ── */
     --space-1: 4px;

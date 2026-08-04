@@ -391,14 +391,14 @@
         const y = yAt(v);
         grid += `<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W - pad.r}" y2="${y.toFixed(1)}" stroke="${gridColor}" stroke-width="1"/>`;
       }
-      grid += `<text x="${pad.l - 6}" y="${refY.toFixed(1)}" text-anchor="end" dominant-baseline="middle" fill="${labelColor}" font-size="9" font-family="IBM Plex Mono">100</text>`;
+      grid += `<text x="${pad.l - 6}" y="${refY.toFixed(1)}" text-anchor="end" dominant-baseline="middle" fill="${labelColor}" font-size="9" font-family="var(--font-mono-data)">100</text>`;
       const labelEvery = Math.max(1, Math.ceil(points.length / 5));
       const labels = points
         .filter((_, i) => i === 0 || i === points.length - 1 || i % labelEvery === 0)
         .map((p) => {
           const i = points.indexOf(p);
           const lbl = p.date.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
-          return `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${labelColor}" font-size="10" font-family="IBM Plex Mono">${escapeHtml(lbl)}</text>`;
+          return `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${labelColor}" font-size="10" font-family="var(--font-mono-data)">${escapeHtml(lbl)}</text>`;
         })
         .join("");
       const markerRing = token("--color-surface-1");
@@ -417,7 +417,7 @@
         <path d="${line}" fill="none" stroke="${lineColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
         <circle cx="${endX}" cy="${endY}" r="10" fill="${lineColor}" opacity="0.2"/>
         <circle cx="${endX}" cy="${endY}" r="6" fill="${lineColor}" stroke="${markerRing}" stroke-width="2"/>
-        <text x="${W - pad.r}" y="${pad.t}" text-anchor="end" fill="${lineColor}" font-size="13" font-weight="700" font-family="IBM Plex Mono">${currentIdx.toFixed(1)}</text>
+        <text x="${W - pad.r}" y="${pad.t}" text-anchor="end" fill="${lineColor}" font-size="13" font-weight="600" font-family="var(--font-mono-data)">${currentIdx.toFixed(1)}</text>
         ${labels}`;
 
       const rangeLabel = PERF_RANGE_LABELS[perfRange] || perfRange;
