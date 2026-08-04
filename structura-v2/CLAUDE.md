@@ -203,6 +203,35 @@ echo "OK — push envoyé. Netlify va redéployer sous 1–2 min."
 echo "Site : https://zesty-tiramisu-e45883.netlify.app/"
 ```
 
+## Portée d'un « deploie » (03/08)
+
+Un « deploie » (ou « pousse ») ne porte que sur ce qui est nommé au moment
+où il est écrit, ou à défaut sur ce qui est déjà commité à cet instant —
+jamais sur ce qui sera commité après. Un « ne pousse pas » donné plus tôt
+dans la session reste valable pour tout ce qui n'a pas encore été
+explicitement réautorisé ; il ne s'annule pas tout seul avec le temps, et
+un `/loop` ou un wakeup programmé n'est jamais une instruction de push.
+
+Constat du 03/08 qui a motivé cette règle : une consigne se terminait par
+« ne pousse pas », suivie plus tard dans la session d'un « deploie » sans
+autre précision. Le push a porté sur les commits qui existaient à l'instant
+du « deploie » — c'était la bonne lecture, mais la reconstitution après
+coup a pris un tour de dialogue pour être vérifiée. Toujours confirmer
+`git log origin/master -N --oneline` + `git status -sb` (sortie brute,
+pas une reformulation) avant d'affirmer un état de déploiement — voir
+aussi la règle de compte-rendu ci-dessous.
+
+## Rendre compte d'un état git : sortie brute + une phrase (03/08)
+
+Quand on demande un état git (poussé/pas poussé, déployé/pas déployé), la
+réponse est la sortie brute des commandes (`git log`, `git status -sb`,
+`grep` sur le site déployé) suivie d'**une** phrase qui en tire la
+conclusion — jamais un paragraphe qui reformule, résume et interprète en
+même temps. Un compte-rendu du 03/08 a annoncé « rien poussé », puis
+« déployé », puis un paragraphe qui contredisait les deux — la confusion
+venait de la rédaction, pas de l'état réel (qui était correct). Ça a coûté
+un tour de dialogue à démêler.
+
 ## « Zéro consommateur » avant de supprimer un champ (03/08)
 
 Le 02/08, `sourceLabel` a été retiré de `decrement-engine.js` avec la
