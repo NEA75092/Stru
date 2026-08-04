@@ -25,8 +25,8 @@ function test(name, fn) {
 }
 
 test("format French percentages and ordinals", () => {
-  assert.equal(formatPctFr(1.5), "1,50%");
-  assert.equal(formatPctFr(null), "XX%");
+  assert.equal(formatPctFr(1.5), "1,50 %");
+  assert.equal(formatPctFr(null), "XX %");
   assert.equal(ordinalFr(1), "1ère");
   assert.equal(ordinalFr(2), "2ème");
 });

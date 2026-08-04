@@ -176,11 +176,11 @@
       return `${Math.trunc(n)}${Math.trunc(n) === 1 ? "ère" : "ème"}`;
     }
 
-    function formatPctFr(value, digits = 2, fallback = "XX%") {
+    function formatPctFr(value, digits = 2, fallback = "XX %") {
       if (value === null || value === undefined || value === "") return fallback;
       const n = Number(value);
       if (!Number.isFinite(n)) return fallback;
-      return `${n.toFixed(digits).replace(".", ",")}%`;
+      return `${n.toFixed(digits).replace(".", ",")} %`;
     }
 
     function formatMaturityYears(years) {
