@@ -931,7 +931,7 @@
     }
 
     // Le champ date natif est un contrôle secondaire (passe 6, section F) :
-    // masqué par défaut, révélé par le bouton "Date de référence". Un seul
+    // masqué par défaut, révélé par le bouton "Valorisation au". Un seul
     // des six champs ci-dessous est pertinent pour le mode actif ; les
     // cinq autres restent cachés même quand le tiroir est ouvert.
     function syncCalendarControls() {
@@ -950,6 +950,7 @@
         button.classList.toggle("on", button.dataset.calendarMode === calendarState.mode);
       });
       if (dateBtn) dateBtn.classList.toggle("on", calendarState.datePickerOpen);
+      setText("cal-date-value", baseDate.toLocaleDateString("fr-FR"));
       const open = calendarState.datePickerOpen;
       if (dateEl) {
         dateEl.value = calendarState.date;

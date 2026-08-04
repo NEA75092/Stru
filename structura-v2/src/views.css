@@ -418,6 +418,12 @@
     border-color: var(--color-accent);
 }
 
+.cal-bar-date-value {
+    margin-left: var(--space-1);
+    font-family: var(--font-mono-data);
+    color: var(--color-text-primary);
+}
+
 .cal-bar-date-input {
     flex: none;
     height: 38px;

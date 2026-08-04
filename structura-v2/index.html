@@ -30,7 +30,7 @@
         <link rel="stylesheet" href="./src/overlays.css?v=20260804c" />
         <link rel="stylesheet" href="./src/dashboard.css?v=20260804c" />
         <link rel="stylesheet" href="./src/tables.css?v=20260804c" />
-        <link rel="stylesheet" href="./src/views.css?v=20260804c" />
+        <link rel="stylesheet" href="./src/views.css?v=20260805a" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260804c" />
         <link rel="stylesheet" href="./src/relief.css?v=20260804c" />
     </head>
@@ -482,7 +482,7 @@
                                 <kbd class="control-kbd">⌘K</kbd>
                             </div>
                             <div class="control-band-divider"></div>
-                            <button type="button" class="cal-bar-date-btn" id="cal-date-btn" onclick="toggleCalendarDatePicker()">Date de référence</button>
+                            <button type="button" class="cal-bar-date-btn" id="cal-date-btn" onclick="toggleCalendarDatePicker()" title="Recalcule le portefeuille tel qu'il était à cette date">Valorisation au <span class="cal-bar-date-value" id="cal-date-value"></span></button>
                             <input class="f-inp cal-bar-date-input" type="date" id="cal-date" onchange="setCalendarDate(this.value)" hidden />
                             <input class="f-inp cal-bar-date-input" type="week" id="cal-week" onchange="setCalendarWeek(this.value)" hidden />
                             <input class="f-inp cal-bar-date-input" type="month" id="cal-month-picker" onchange="setCalendarMonth(this.value)" hidden />
