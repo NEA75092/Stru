@@ -14,8 +14,9 @@
 
 /* ── Champs de saisie ────────────────────────────────────────
    Jamais outline: none sans remplacement visible : le focus reste
-   toujours lisible au clavier, via --shadow-focus (même anneau que
-   les boutons, cohérence du système de focus). */
+   toujours lisible au clavier. Anneau en --color-ink, offset négatif
+   pour qu'il se dessine à l'intérieur de la boîte et ne soit jamais
+   rogné par un conteneur en overflow:hidden (passe 8, §3.5). */
 .f-lbl {
     display: block;
     margin-bottom: var(--space-1);
@@ -45,9 +46,9 @@
 
 .f-inp:focus,
 .f-sel:focus {
-    outline: none;
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
     border-color: var(--color-accent);
-    box-shadow: var(--shadow-focus);
 }
 
 .f-inp::placeholder {
