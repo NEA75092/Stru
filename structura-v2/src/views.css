@@ -534,7 +534,7 @@
    jour-là, c'est cette teinte qui le signale, pas une seconde carte
    vide à côté d'une première vide. */
 .ev-focus {
-    background: color-mix(in oklch, var(--color-aegean), transparent 92%);
+    background: var(--color-accent-tint);
     border-radius: var(--radius-sm);
 }
 
@@ -861,18 +861,10 @@
     transition: width var(--duration-slow) var(--ease-standard);
 }
 
-/* Passe 6 : deux aplats saturés côte à côte se battaient pour
-   l'attention — "Zone saine" en bleu plein attirait autant l'œil que
-   "Barrières franchies" en corail plein, l'inverse de l'intention.
-   Les quatre cartes reprennent --gradient-card-lit (fond par défaut
-   de .kpi) ; seule "Barrières franchies" garde une ombre teintée. */
+/* Les quatre cartes partagent le même fond plat, sans ombre : le
+   filet du haut porte seul la sévérité (passe 8, §1.3). */
 .kpi-row-accent-top .kpi-accent-breach {
     border-top-color: var(--color-breach);
-    box-shadow: var(--lit-top), var(--shadow-card-coral);
-}
-
-.kpi-row-accent-top .kpi-accent-breach:hover {
-    box-shadow: var(--lit-top), var(--shadow-card-coral-hover);
 }
 
 .kpi-row-accent-top .kpi-accent-danger {
@@ -901,7 +893,7 @@
 }
 
 /* ── Vue Analytics / Pilotage (section G) ─────────────────────
-   Vocabulaire déjà en place (gradient-card-lit + shadow-card via
+   Vocabulaire déjà en place (fond plat, filet + gouttière via
    .panel/.dash-module-panel, .sec-hdr/.sec-title déjà migrés) —
    seules les classes pilotage-* propres à cette vue manquaient.
    Bandeau ramené de 250 à 80 px (passe 6) : titre + une phrase, sur
@@ -1101,7 +1093,7 @@
 }
 
 /* ── Vue Ingestion (section G) ────────────────────────────────
-   Reprend le markup existant tel quel — carte gradient-card-lit,
+   Reprend le markup existant tel quel — fond plat, filet + gouttière,
    titres mono capitales, tableaux dans le vocabulaire de tables.css. */
 .ingest-hero {
     display: flex;
@@ -1223,6 +1215,7 @@
 .ing-ai-note {
     margin-top: var(--space-4);
     padding: var(--space-4);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface-2);
 }

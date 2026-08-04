@@ -48,7 +48,7 @@
     max-height: 88vh;
     overflow-y: auto;
     border-radius: var(--radius-lg);
-    background: var(--gradient-card-lit);
+    background: var(--color-surface-1);
     box-shadow: var(--shadow-float);
 }
 
@@ -146,7 +146,7 @@
     z-index: 101;
     width: min(560px, 100vw);
     overflow-y: auto;
-    background: var(--gradient-card-lit);
+    background: var(--color-surface-1);
     box-shadow: var(--shadow-float);
     padding: var(--space-6);
     transform: translateX(100%);

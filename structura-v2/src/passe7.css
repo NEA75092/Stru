@@ -666,7 +666,6 @@ html:has(#view-autopitch.active) {
 }
 
 .seg-item.on {
-    background: var(--color-surface-1);
-    color: var(--color-ink);
-    box-shadow: var(--shadow-sm);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
 }

@@ -8,6 +8,11 @@
    terracotta en blocs pleins, ombres teintées, dégradés de fond).
 
    Reversements assumés par rapport à la direction précédente :
+   - Les cartes perdent ombre, dégradé interne et liserés de lumière
+     (annule la décision du 26/07 qui les avait redonnés) : la
+     séparation se fait par filet 1px + gouttière, pas par relief.
+     Seuls le tiroir, la modale et les menus gardent une ombre — ce
+     sont des surfaces réellement flottantes, pas des cartes.
    - Bleu Sidi Bou Said et corail terracotta disparaissent comme
      couleurs de marque. Le turquoise (--mer) qui les remplace ne
      décore rien : il ne marque que ce qui est actif, sélectionné ou
@@ -15,13 +20,7 @@
      strictement réservé à la distance de barrière.
    - Newsreader (titres/prose) et Instrument Sans (interface)
      remplacent Inter partout : annule la décision du 25/07 qui avait
-     unifié titres et interface sur une seule police (passe 8, §1.1,
-     déjà committé).
-
-   Relief (ombres, dégradé de carte, halo, anneau conique) suit dans un
-   commit séparé : --color-danger et --color-coral restent donc définis
-   ici avec leur ancienne valeur, le temps que ce commit arrive —
-   --ring-critical (relief.css, encore actif) en dépend directement.
+     unifié titres et interface sur une seule police.
 
    Ce fichier ne définit QUE des variables (--color-*, --space-*,
    --radius-*, --shadow-*, --font-*, --text-*, --ease-*). Les noms
@@ -100,13 +99,7 @@
     --color-breach: var(--terracotta);
     --color-breach-2: color-mix(in oklch, var(--terracotta), var(--encre) 20%);
 
-    /* --color-danger / --color-coral : conservés à leur ancienne valeur
-       pour --ring-critical (relief.css) uniquement — plus aucun autre
-       consommateur. Retirés avec --ring-critical dans le commit relief. */
-    --color-danger: #c1483b;
-    --color-coral: #f0916f;
-
-    /* ── Typographie — pairing éditorial (passe 8, §1.1) ──
+    /* ── Typographie — pairing éditorial (passe 8) ──
        Newsreader porte les titres et la prose, Instrument Sans
        l'interface, IBM Plex Mono tout nombre. Trois familles, pas
        quatre — aucune autre ne doit apparaître dans les feuilles. */
@@ -132,28 +125,25 @@
     --space-7: 32px;
     --space-8: 40px;
 
-    /* ── Rayons — cartes à 24px (16px imbriquées/secondaires), zones
-       denses (tableaux, pastilles) resserrées à 8-10px. Revu dans le
-       commit relief (§1.3, cartes plates). ── */
-    --radius-xs: 8px;
-    --radius-sm: 10px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-xl: 24px;
+    /* ── Rayons — 2px maximum (passe 8, §1.3). --radius-full reste à
+       999px : c'est une forme (pastille, avatar), pas un arrondi de
+       carte. ── */
+    --radius-xs: 0px;
+    --radius-sm: 2px;
+    --radius-md: 2px;
+    --radius-lg: 2px;
+    --radius-xl: 2px;
     --radius-full: 999px;
 
-    /* ── Ombres — teintées (passe 3, 2026-07-26). Revues dans le commit
-       relief (§1.3) : cartes plates, plus d'ombre ni de dégradé. ── */
-    --shadow-card: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(22 39 58 / 0.3);
-    --shadow-card-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(22 39 58 / 0.42);
-    --shadow-card-aegean: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(31 111 178 / 0.4);
-    --shadow-card-aegean-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(31 111 178 / 0.55);
-    --shadow-card-coral: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(193 72 59 / 0.42);
-    --shadow-card-coral-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(193 72 59 / 0.58);
+    /* ── Ombres — réservées aux surfaces réellement flottantes
+       (tiroir, modale, menu). Les cartes n'en ont plus : la
+       séparation vient du filet --color-border + gouttière, pas du
+       relief (passe 8, §1.3 — annule la décision du 26/07). */
+    --shadow-card: none;
+    --shadow-card-hover: none;
     --shadow-sm: 0 1px 2px rgba(22, 39, 58, 0.05);
     --shadow-md: 0 6px 16px rgba(22, 39, 58, 0.06);
     --shadow-lg: 0 16px 32px rgba(22, 39, 58, 0.1);
-    --shadow-float: 0 32px 64px -28px rgb(22 39 58 / 0.4);
     /* Le focus est un état actif : anneau en mer (passe 8, §1.2). */
     --shadow-focus: 0 0 0 3px color-mix(in oklch, var(--mer), transparent 65%);
 
@@ -170,29 +160,19 @@
     --duration-base: 200ms;
     --duration-slow: 320ms;
 
-    /* Liserés internes : lumière en haut, teinte en bas — revus dans le
-       commit relief (§1.3). */
-    --lit-top: inset 0 1px 0 rgb(255 255 255 / 1);
-    --lit-bottom-aegean: inset 0 -1px 0 rgb(31 111 178 / 0.09);
-    --lit-bottom-coral: inset 0 -1px 0 rgb(193 72 59 / 0.1);
-
-    /* Dégradé interne de carte — revu dans le commit relief (§1.3). */
-    --gradient-card-lit: linear-gradient(168deg, #ffffff, #fbf7ef);
+    /* Seules les surfaces réellement flottantes (tiroir, modale, menu)
+       gardent une ombre — neutre, pas teintée (passe 8, §1.3). */
+    --shadow-float: 0 32px 64px -28px rgb(22 39 58 / 0.4);
 
     /* ── Grain ───────────────────────────────────────────────
        Bruit fractal en multiply sur le fond de vue : la chaux
        devient du papier. Posé une seule fois sur .app via
-       ::after, jamais par carte (coût de composition). */
+       ::after, jamais par carte (coût de composition). Ce n'est
+       pas un dégradé de fond (texture de bruit, pas une teinte) :
+       reste autorisé sous la règle du §1.3. */
     --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
     --grain-opacity: 0.5;
     --grain-blend: multiply;
-
-    /* ── Halo au curseur — retiré dans le commit relief (§1.3). ── */
-    --spot: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%), rgb(31 111 178 / 0.1), rgb(240 145 111 / 0.05) 40%, transparent 68%);
-
-    /* ── Anneau conique de l'alerte critique — retiré dans le commit
-       relief (§1.3). ── */
-    --ring-critical: conic-gradient(from var(--ring), rgb(193 72 59 / 0.05), var(--color-danger) 18%, var(--color-coral) 30%, rgb(193 72 59 / 0.05) 52%, rgb(193 72 59 / 0.05));
 
     /* ── Mouvement ──────────────────────────────────────────
        Entrée depuis un flou de 7px, pas depuis l'opacité seule.
@@ -270,34 +250,14 @@
     --color-breach: var(--terracotta);
     --color-breach-2: color-mix(in oklch, var(--terracotta), white 15%);
 
-    /* --color-danger / --color-coral : voir le clair, même raison
-       (--ring-critical, relief.css). */
-    --color-danger: #e06a5b;
-    --color-coral: #e59274;
-
-    --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
-    --shadow-card-hover: inset 0 1px 0 rgb(255 255 255 / 0.1), 0 26px 44px -18px rgb(0 0 0 / 0.95);
-    --shadow-card-aegean: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
-    --shadow-card-aegean-hover: inset 0 1px 0 rgb(74 151 214 / 0.22), 0 26px 44px -18px rgb(0 0 0 / 0.95);
-    --shadow-card-coral: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
-    --shadow-card-coral-hover: inset 0 1px 0 rgb(229 146 116 / 0.24), 0 26px 44px -18px rgb(0 0 0 / 0.95);
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
     --shadow-md: 0 6px 16px rgb(0 0 0 / 0.38);
     --shadow-lg: 0 16px 32px rgb(0 0 0 / 0.45);
     --shadow-float: 0 36px 70px -26px rgb(0 0 0 / 0.85);
     --shadow-focus: 0 0 0 3px color-mix(in oklch, var(--mer), transparent 55%);
 
-    --lit-top: inset 0 1px 0 rgb(255 255 255 / 0.07);
-    --lit-bottom-aegean: inset 0 -1px 0 rgb(0 0 0 / 0.3);
-    --lit-bottom-coral: inset 0 -1px 0 rgb(0 0 0 / 0.3);
-
-    --gradient-card-lit: linear-gradient(168deg, #241f16, #1b1710);
-
     /* Le grain se voit trois fois plus sur du sombre : screen à très
        basse opacité, sinon la vue devient sale. */
     --grain-opacity: 0.28;
     --grain-blend: screen;
-
-    --spot: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%), rgb(74 151 214 / 0.22), rgb(240 145 111 / 0.08) 40%, transparent 68%);
-    --ring-critical: conic-gradient(from var(--ring), rgb(224 106 91 / 0.05), var(--color-danger) 18%, var(--color-coral) 30%, rgb(224 106 91 / 0.05) 52%, rgb(224 106 91 / 0.05));
 }

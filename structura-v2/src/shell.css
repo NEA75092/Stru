@@ -100,7 +100,7 @@
     top: 0;
     z-index: 0;
     border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
+    background: var(--color-accent);
     transition:
         transform var(--duration-base) var(--ease-spring),
         height var(--duration-base) var(--ease-spring);
@@ -232,15 +232,13 @@
    mer porte tout ce qui est actif, sélectionné ou cliquable. */
 .btn-primary {
     border-color: transparent;
-    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
+    background: var(--color-accent);
     color: var(--color-accent-ink);
 }
 
 .btn-primary:hover {
     border-color: transparent;
-    background: linear-gradient(135deg, var(--color-accent-hover), var(--color-accent-hover));
-    box-shadow: var(--shadow-card);
-    transform: translateY(-1px);
+    background: var(--color-accent-hover);
 }
 
 /* Secondaire : fond transparent, juste le contour. */

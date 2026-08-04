@@ -435,7 +435,6 @@
         display: dist.display,
         tooltip: dist.tooltip,
       })}</td>
-      <td class="cell-muted">${escapeHtml(shortDateFr(p.maturity))}</td>
       <td class="cell-faint">${escapeHtml(shortDateFr(p.nextEvtDate))}</td>
       <td><span class="pill-status ${ST_COLOR[p.st.s]}">${escapeHtml(ST_LABEL_SHORT[p.st.s])}</span></td>
     </tr>`;

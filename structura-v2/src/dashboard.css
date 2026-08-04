@@ -47,7 +47,6 @@
     border-radius: var(--radius-lg);
     background: var(--color-surface-1);
     padding: var(--space-6);
-    box-shadow: var(--lit-top), var(--shadow-card);
 }
 
 .empty-inline {
@@ -59,15 +58,16 @@
 
 /* ── Bandeau d'accueil ───────────────────────────────────── */
 /* 190px pour une salutation, c'était trop : le contenu de la vue doit
-   commencer dans le premier écran. Une ligne, un bloc plein bleu. */
+   commencer dans le premier écran. Une ligne, filet + gouttière — plus
+   de bloc plein bleu (passe 8, §1.2 : aucun en-tête coloré). */
 .dash-welcome {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-5);
     padding: var(--space-5) var(--space-6);
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1));
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-2);
 }
 
 .dash-welcome-copy {
@@ -85,7 +85,7 @@
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-sky);
+    color: var(--color-text-tertiary);
 }
 
 .dash-welcome-title {
@@ -95,13 +95,13 @@
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.2;
-    color: var(--color-text-on-dark);
+    color: var(--color-ink);
 }
 
 .dash-welcome-sub {
     margin: 0;
     font-size: var(--text-sm);
-    color: var(--color-sky);
+    color: var(--color-text-secondary);
 }
 
 .dash-welcome-totals {
@@ -120,7 +120,7 @@
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-sky);
+    color: var(--color-text-tertiary);
     margin-bottom: var(--space-1);
 }
 
@@ -129,7 +129,7 @@
     font-size: var(--text-lg);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: var(--color-text-on-dark);
+    color: var(--color-ink);
 }
 
 /* ── Cartes KPI ──────────────────────────────────────────── */
@@ -156,14 +156,12 @@
     border: 1px solid var(--color-border);
     border-left: 3px solid var(--color-border-strong);
     border-radius: var(--radius-md);
-    background: var(--gradient-card-lit);
-    box-shadow: var(--lit-top), var(--shadow-card);
-    transition: transform var(--duration-slow) var(--ease-spring), box-shadow var(--duration-slow) var(--ease-spring);
+    background: var(--color-surface-1);
+    transition: border-color var(--duration-fast) var(--ease-standard);
 }
 
 .kpi:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--lit-top), var(--shadow-card-hover);
+    border-color: var(--color-border-strong);
 }
 
 .kpi-lbl {
@@ -178,6 +176,9 @@
     color: var(--color-text-tertiary);
 }
 
+/* Pas de tabular-nums ici : un chiffre isolé n'a rien à aligner, et à
+   40px la case tabulaire d'IBM Plex Mono écarte visiblement le signe
+   moins du chiffre (passe 8, correctif formats). */
 .kpi-val {
     align-self: center;
     display: flex;
@@ -200,13 +201,11 @@
 
 /* La criticité se lit sur le filet et le chiffre. Pas de fond plein :
    quatre cartes forment un set, on n'en remplit pas une seule. */
+/* Cartes « Encours »/« Nombre de produits » : pas de distance à une
+   barrière, filet neutre — la couleur n'est due qu'aux deux cartes de
+   statut ci-dessous (passe 8, §1.2). */
 .kpi.k-red {
     border-left-color: var(--color-breach);
-    box-shadow: var(--lit-top), var(--lit-bottom-coral), var(--shadow-card-coral);
-}
-
-.kpi.k-red:hover {
-    box-shadow: var(--lit-top), var(--lit-bottom-coral), var(--shadow-card-coral-hover);
 }
 
 .kpi.k-red .kpi-val {
@@ -219,17 +218,6 @@
 
 .kpi.k-orange .kpi-val {
     color: var(--color-watch);
-}
-
-.kpi.k-gold,
-.kpi.k-blue {
-    border-left-color: var(--color-aegean);
-    box-shadow: var(--lit-top), var(--lit-bottom-aegean), var(--shadow-card-aegean);
-}
-
-.kpi.k-gold:hover,
-.kpi.k-blue:hover {
-    box-shadow: var(--lit-top), var(--lit-bottom-aegean), var(--shadow-card-aegean-hover);
 }
 
 
@@ -279,15 +267,15 @@
 }
 
 .al-crit .al-rail {
-    background: var(--color-danger);
+    background: var(--color-breach);
 }
 
 .al-warn .al-rail {
-    background: var(--color-warning);
+    background: var(--color-watch);
 }
 
 .al-ok .al-rail {
-    background: var(--color-success);
+    background: var(--color-safe);
 }
 
 .al-txt {
@@ -445,8 +433,8 @@
 }
 
 .pill-filter.on {
-    background: linear-gradient(135deg, var(--color-aegean), var(--color-aegean-deep-1));
-    color: var(--color-text-on-dark);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
 }
 
 .perf-chart-area {
@@ -750,7 +738,7 @@
     display: block;
     height: 100%;
     border-radius: 3px;
-    background: linear-gradient(90deg, var(--color-aegean), var(--color-aegean-deep-1));
+    background: var(--color-ink);
 }
 
 .issuer-row-sub {
