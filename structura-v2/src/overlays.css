@@ -306,6 +306,12 @@
     margin-top: var(--space-4);
 }
 
+/* Patrimoine déclaré absent (§6.2) : le 4e KPI ne s'affiche pas du tout
+   plutôt que de montrer un ratio inventé — la rangée retombe à 3. */
+.dr-kpi-row.dr-kpi-row-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .dr-kpi-row .kpi {
     min-height: 92px;
     padding: var(--space-3) var(--space-3) var(--space-2);
@@ -422,14 +428,6 @@
     color: var(--color-ink);
 }
 
-/* ── Bloc contact (passe 7C, B.4) ────────────────────────────────
-   L'e-mail n'est pas une donnée de pilotage : il descend sous les
-   notes, en texte discret plutôt qu'en sous-titre du tiroir. */
-.dr-contact {
-    margin-top: var(--space-2);
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-}
 
 /* ── Pied de tiroir (passe 7C, B.5) ───────────────────────────────
    « Rattacher un produit » est une action, pas un champ au milieu du

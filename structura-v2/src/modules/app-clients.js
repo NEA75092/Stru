@@ -51,6 +51,13 @@
       );
     }
 
+    // KPI d'adéquation DDA (§6.2) : au-delà de ce seuil, la part du
+    // patrimoine en structurés bascule en alerte. Constante unique — ne
+    // jamais écrire 25 en dur dans le rendu. Pas de réglage exposé dans
+    // l'UI : aucun écran de paramètres n'existe dans l'app pour un seul
+    // seuil, décision du 04/08.
+    const WEALTH_CONCENTRATION_WATCH_THRESHOLD = 25;
+
     function clientStats(clientId) {
       const products = clientProducts(clientId);
       const nominal = products.reduce(
@@ -202,20 +209,33 @@
       );
       const dominantEnvelope = envelopes.size === 1 ? envelopeLabel([...envelopes][0]) : null;
       const mixedEnvelopes = envelopes.size > 1;
-      const alerts = stats.breach + stats.watch;
+      // Part du patrimoine en structurés (§6.2) : la valorisation actuelle
+      // au numérateur, pas le nominal investi — le dénominateur (patrimoine
+      // déclaré) est une photo au présent, le ratio doit comparer deux
+      // choses prises au même instant. Masqué entièrement si le patrimoine
+      // est absent ou nul : pas de division par zéro habillée en 0 %, même
+      // règle que la Constatation sans montant (§3).
+      const hasWealth = Number.isFinite(Number(client.declaredWealth)) && Number(client.declaredWealth) > 0;
+      const wealthSharePct = hasWealth ? (stats.val / Number(client.declaredWealth)) * 100 : null;
+      const wealthKpi = hasWealth
+        ? `<div class="kpi${wealthSharePct >= WEALTH_CONCENTRATION_WATCH_THRESHOLD ? " kpi-accent-danger" : ""}"><div class="kpi-lbl">Part du patrimoine en structurés</div><div class="kpi-val">${pctFr(wealthSharePct, 0)}</div><div class="kpi-sub">du patrimoine déclaré · seuil ${WEALTH_CONCENTRATION_WATCH_THRESHOLD} %</div></div>`
+        : "";
       content.innerHTML = `
         <div class="dr-name">${escapeHtml(client.name)}</div>
         <div class="dr-isin">${escapeHtml(client.segment)}${dominantEnvelope ? ` · ${escapeHtml(dominantEnvelope)}` : ""}</div>
-        <div class="kpi-row kpi-row-accent-top dr-kpi-row">
+        <div class="dr-grid">
+          <div><div class="dr-field-lbl">Patrimoine total déclaré</div><div class="dr-field-val">${hasWealth ? moneyShort(Number(client.declaredWealth)) : "Non renseigné"}</div></div>
+          <div><div class="dr-field-lbl">Email</div><div class="dr-field-val">${client.email ? escapeHtml(client.email) : "—"}</div></div>
+          <div><div class="dr-field-lbl">Téléphone</div><div class="dr-field-val">${client.phone ? escapeHtml(client.phone) : "—"}</div></div>
+          <div><div class="dr-field-lbl">Adresse</div><div class="dr-field-val">${client.address ? escapeHtml(client.address) : "—"}</div></div>
+        </div>
+        <div class="kpi-row kpi-row-accent-top dr-kpi-row${hasWealth ? "" : " dr-kpi-row-3"}">
           <div class="kpi"><div class="kpi-lbl">Produits</div><div class="kpi-val">${stats.count}</div><div class="kpi-sub">Rattachés au dossier</div></div>
           <div class="kpi"><div class="kpi-lbl">Encours nominal</div><div class="kpi-val">${moneyShort(stats.nominal)}</div><div class="kpi-sub">&nbsp;</div></div>
           <div class="kpi"><div class="kpi-lbl">Valorisation</div><div class="kpi-val">${moneyShort(stats.val)}</div><div class="kpi-sub">&nbsp;</div></div>
-          <div class="kpi${alerts > 0 ? " kpi-accent-danger" : ""}"><div class="kpi-lbl">Alertes</div><div class="kpi-val">${alerts}</div><div class="kpi-sub">&nbsp;</div></div>
+          ${wealthKpi}
         </div>
         ${client.notes ? `<div class="divider"></div><div class="dr-section-title">NOTES</div><p class="dr-field-val">${escapeHtml(client.notes)}</p>` : ""}
-        <div class="divider"></div>
-        <div class="dr-section-title">CONTACT</div>
-        <div class="dr-contact">${client.email ? escapeHtml(client.email) : "Aucune adresse enregistrée"}</div>
         <div class="divider"></div>
         <div class="dr-section-title">PRODUITS DU DOSSIER</div>
         ${
@@ -353,6 +373,9 @@
       document.getElementById("c-id").value = client?.id || "";
       document.getElementById("c-name").value = client?.name || "";
       document.getElementById("c-email").value = client?.email || "";
+      document.getElementById("c-phone").value = client?.phone || "";
+      document.getElementById("c-address").value = client?.address || "";
+      document.getElementById("c-wealth").value = client?.declaredWealth || "";
       document.getElementById("c-segment").value = client?.segment || "Patrimonial";
       document.getElementById("c-notes").value = client?.notes || "";
       document.getElementById("client-modal-ov").classList.add("open");
@@ -379,6 +402,9 @@
         id: existingId || nextClientId(),
         name,
         email: document.getElementById("c-email")?.value.trim(),
+        phone: document.getElementById("c-phone")?.value.trim(),
+        address: document.getElementById("c-address")?.value.trim(),
+        declaredWealth: document.getElementById("c-wealth")?.value,
         segment: document.getElementById("c-segment")?.value || "Patrimonial",
         notes: document.getElementById("c-notes")?.value.trim(),
         createdAt: existingId

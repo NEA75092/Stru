@@ -405,6 +405,9 @@
           id: 1,
           name: "Famille Dupont",
           email: "famille.dupont@email.fr",
+          phone: "06 12 34 56 78",
+          address: "14 rue des Lilas, 75015 Paris",
+          declaredWealth: 220000000,
           segment: "Patrimonial",
           notes: "Couple, profil équilibré, focus revenus.",
           createdAt: today,
@@ -413,6 +416,9 @@
           id: 2,
           name: "SCI Horizon",
           email: "contact@sci-horizon.fr",
+          phone: "01 45 67 89 10",
+          address: "8 avenue Foch, 75116 Paris",
+          declaredWealth: 480000000,
           segment: "Professionnel",
           notes: "Trésorerie corporate, maturités courtes.",
           createdAt: today,
@@ -421,6 +427,9 @@
           id: 3,
           name: "M. Lefebvre",
           email: "lefebvre.pro@gmail.com",
+          phone: "06 98 76 54 32",
+          address: "",
+          declaredWealth: null,
           segment: "Grand public",
           notes: "Première allocation structurée.",
           createdAt: today,
@@ -429,6 +438,9 @@
           id: 4,
           name: "Trust Martin",
           email: "",
+          phone: "",
+          address: "22 boulevard Haussmann, 75009 Paris",
+          declaredWealth: 190000000,
           segment: "Patrimonial",
           notes: "Diversification indices Europe.",
           createdAt: today,
@@ -441,8 +453,17 @@
       client.id = Number(client.id) || 0;
       client.name = String(client.name || "").trim() || "Client sans nom";
       client.email = String(client.email || "").trim();
+      client.phone = String(client.phone || "").trim();
+      client.address = String(client.address || "").trim();
       client.segment = String(client.segment || "Patrimonial").trim();
       client.notes = String(client.notes || "").trim();
+      // Patrimoine total déclaré (§6.2) : absent ou nul n'est pas "0" —
+      // c'est une non-déclaration, le KPI d'adéquation doit pouvoir le
+      // distinguer d'un vrai zéro (cf. commentaire dans clientStats).
+      client.declaredWealth =
+        Number.isFinite(Number(client.declaredWealth)) && Number(client.declaredWealth) > 0
+          ? Number(client.declaredWealth)
+          : null;
       client.createdAt = client.createdAt || isoDate(new Date());
       return client;
     }
