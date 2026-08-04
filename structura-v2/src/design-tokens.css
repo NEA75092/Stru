@@ -1,114 +1,110 @@
 /* ============================================================
    DESIGN TOKENS — Structura
-   Direction (2026-07-24, refonte complète) : "Dolce Vita Fintech" —
-   densité confiante type Mercury/Ramp recolorée Méditerranée haut de
-   gamme (blanc chaux, bleu profond Sidi Bou Said, terracotta), jamais
-   pastel/touristique. Deux couleurs fortes en blocs PLEINS (dégradés),
-   tout le reste neutre — pas de dilution partout comme l'ancienne
-   palette Santorini (color-mix à 2-9%) que ce fichier remplace.
+   Direction (2026-08-01, passe 8, réécrite) : village méditerranéen en
+   pleine lumière — Cyclades, Sardaigne. Onze tokens, trois rôles :
+   la chaux porte les fonds, la mer porte l'interaction (le turquoise
+   est le sujet, pas un accent), la terre porte le risque. Remplace la
+   direction "Dolce Vita Fintech" du 24/07 (bleu Sidi Bou Said, corail
+   terracotta en blocs pleins, ombres teintées, dégradés de fond).
 
-   Reversements assumés par rapport à l'ancienne direction :
-   - Cards en blanc pur (#ffffff), plus "jamais de blanc pur".
-   - Relief par bordure + 2 blocs dégradés pleins par écran, plus par
-     ombre portée seule (les cards n'ont plus d'ombre) — règle du
-     24/07, ANNULÉE le 26/07 (passe 3) : sans ombre ni dégradé
-     interne, les cartes n'avaient pas d'épaisseur, constat direct sur
-     les captures passe 1 et passe 2. Le relief revient, mais teinté
-     de la couleur de la carte, jamais un gris neutre — voir la
-     section « Ombres » plus bas et `--gradient-card-lit`.
+   Reversements assumés par rapport à la direction précédente :
+   - Bleu Sidi Bou Said et corail terracotta disparaissent comme
+     couleurs de marque. Le turquoise (--mer) qui les remplace ne
+     décore rien : il ne marque que ce qui est actif, sélectionné ou
+     cliquable. Le risque (--olive/--ocre/--terracotta) reste
+     strictement réservé à la distance de barrière.
+   - Newsreader (titres/prose) et Instrument Sans (interface)
+     remplacent Inter partout : annule la décision du 25/07 qui avait
+     unifié titres et interface sur une seule police (passe 8, §1.1,
+     déjà committé).
 
-   Typographie (passe 8, §1.1, 04/08) : Newsreader (titres/prose) et
-   Instrument Sans (interface) remplacent Inter partout — annule la
-   décision du 25/07 qui avait unifié titres et interface sur une seule
-   police. Échelle unique à 6 crans, rien entre. La couleur et le
-   relief de cette même passe suivent dans des commits séparés : ce
-   fichier ne porte encore que le changement typographique.
+   Relief (ombres, dégradé de carte, halo, anneau conique) suit dans un
+   commit séparé : --color-danger et --color-coral restent donc définis
+   ici avec leur ancienne valeur, le temps que ce commit arrive —
+   --ring-critical (relief.css, encore actif) en dépend directement.
 
-   Ce fichier ne définit QUE des variables sous des noms neufs
-   (--color-*, --space-*, --radius-*, --shadow-*, --font-*, --ease-*).
-   Aucun nom existant (l'alias corail mort de l'ancienne charte, --text,
-   --font-display, ...) n'est redéfini ici : ces noms sont consommés par
-   des dizaines de règles dans styles.css / institutional-theme.css sur
-   TOUTES les vues.
-
-   Le remappage des anciens noms vers cette palette se fait sur un
-   :root global dans dashboard.css (chargé en dernier) — déployé à
-   toute l'app (shell + les 9 vues) depuis le 2026-07-20, pas juste
-   scopé au dashboard. Les vieux :root de styles.css et
-   institutional-theme.css ont été vidés de leurs tokens couleur/typo
-   le 2026-07-24 pour ne garder qu'une seule source de vérité.
-   ============================================================ */
+   Ce fichier ne définit QUE des variables (--color-*, --space-*,
+   --radius-*, --shadow-*, --font-*, --text-*, --ease-*). Les noms
+   --color-* existants sont conservés comme vocabulaire de consommation
+   (pas de renommage en masse à travers l'app) ; ils pointent vers les
+   onze tokens de rôle ci-dessous, seule source de vérité chromatique. */
 
 :root {
-    /* ── Neutrals — blanc chaux / bleu-nuit ── */
-    --color-bg: #f7f3ea;
-    --color-surface-1: #ffffff;
-    --color-surface-2: #f0ece0;
-    --color-surface-3: #e9e2d0;
-    --color-surface-1-hover: color-mix(in oklch, var(--color-surface-1), var(--color-bg) 12%);
-    --color-surface-2-hover: color-mix(in oklch, var(--color-surface-2), white 8%);
-    --color-surface-3-hover: color-mix(in oklch, var(--color-surface-3), white 8%);
-    --color-wash: #f7f3ea;
-    --color-border: #e8dfcd;
-    --color-border-strong: #d9cba9;
+    /* ── Les onze tokens de rôle (passe 8, §1.2) ──────────────
+       Seule source de vérité chromatique. Tout le reste de ce fichier
+       (et de l'app) pointe vers ces onze valeurs. */
+    --chaux: oklch(0.98 0.008 85);
+    --chaux-2: oklch(0.955 0.012 80);
+    --rule: oklch(0.88 0.012 80);
+    --encre: oklch(0.26 0.045 235);
+    --encre-2: oklch(0.50 0.030 235);
+    --mer: oklch(0.62 0.13 205);
+    --mer-profonde: oklch(0.42 0.11 225);
+    --lagune: oklch(0.93 0.035 200);
+    --olive: oklch(0.55 0.09 130);
+    --ocre: oklch(0.68 0.13 75);
+    --terracotta: oklch(0.52 0.15 32);
+
+    /* ── Neutrals — la chaux porte les fonds ──
+       --color-bg/--color-surface-1 valent tous deux --chaux : plus de
+       carte "blanc pur" détachée du fond, la séparation vient du
+       filet, pas d'un écart de luminance entre fond et carte. */
+    --color-bg: var(--chaux);
+    --color-surface-1: var(--chaux);
+    --color-surface-2: var(--chaux-2);
+    --color-surface-3: color-mix(in oklch, var(--chaux-2), var(--encre) 6%);
+    --color-surface-1-hover: color-mix(in oklch, var(--color-surface-1), var(--encre) 4%);
+    --color-surface-2-hover: color-mix(in oklch, var(--color-surface-2), var(--encre) 4%);
+    --color-surface-3-hover: color-mix(in oklch, var(--color-surface-3), var(--encre) 4%);
+    --color-wash: var(--chaux);
+    --color-border: var(--rule);
+    --color-border-strong: color-mix(in oklch, var(--rule), var(--encre) 24%);
     /* Filet fin dédié : grille de graphique, séparateurs de lignes de
        tableau, fond des barres de progression — plus discret que
-       --color-border, jamais gris froid. */
-    --color-divider: #f0ece0;
+       --color-border. */
+    --color-divider: color-mix(in oklch, var(--rule), var(--chaux) 45%);
     /* Fond légèrement retiré (case de calendrier hors période, zone
-       neutre) : une marche sous --color-surface-2, jamais un gris
-       froid détaché de la palette. */
-    --color-surface-sunk: #ece5d3;
+       neutre) : une marche sous --color-surface-2. */
+    --color-surface-sunk: color-mix(in oklch, var(--chaux-2), var(--encre) 3%);
     /* Fond légèrement soulevé (en-tête de tableau collant) : une marche
        au-dessus de --color-surface-2, pour rester lisible une fois
        superposé au contenu qui défile dessous. */
-    --color-surface-raised: #f7f4ea;
+    --color-surface-raised: color-mix(in oklch, var(--chaux), var(--chaux-2) 40%);
 
     /* Voile des overlays (modale, tiroir) : assez sombre pour détacher
        le premier plan sans jamais devenir un aplat noir. */
     --color-scrim: rgb(22 39 58 / 0.42);
 
-    --color-ink: #16273a;
-    --color-text-primary: #16273a;
-    --color-text-secondary: #7c8a97;
-    --color-text-tertiary: #a89a86;
+    --color-ink: var(--encre);
+    --color-text-primary: var(--encre);
+    --color-text-secondary: var(--encre-2);
+    --color-text-tertiary: color-mix(in oklch, var(--encre-2), var(--chaux) 35%);
     --color-text-on-dark: #ffffff;
-    /* Texte sur fond corail plein (bloc alerte) : pas de blanc, un
-       brun-noir chaud pour rester dans la même famille chromatique. */
-    --color-ink-on-coral: #2a1409;
 
-    /* ── Brand — bleu Sidi Bou Said / corail terracotta ──
-       Deux couleurs fortes, utilisées en blocs pleins (dégradés),
-       jamais diluées ensemble ni mélangées sur un même élément. */
-    --color-aegean: #1f6fb2;
-    --color-aegean-2: #0d3f6b;
-    --color-aegean-deep-1: #0d3f6b;
-    --color-aegean-deep-2: #0a2f52;
-    --color-aegean-tint: #e1ecf7;
-    --color-sky: #9dc2e2;
-    --color-sky-2: #7fa8ca;
-    --color-sky-tint: #9dc2e2;
-    --color-coral: #f0916f;
-    --color-coral-2: #c1522f;
-    --color-coral-deep: #c1522f;
-    --color-coral-tint: #fbe0d2;
-    /* 4e segment neutre chaud (donut, etc). */
-    --color-neutral-warm: #d8cdb6;
+    /* ── La mer porte l'interaction ──
+       Tout ce qui est actif, sélectionné ou cliquable : action
+       primaire, onglet courant, ligne sélectionnée, repère de seuil
+       de la réglette. Jamais de décoration. */
+    --color-accent: var(--mer);
+    --color-accent-hover: var(--mer-profonde);
+    --color-accent-tint: var(--lagune);
+    --color-accent-ink: var(--chaux);
 
-    /* Bleu océan — état interactif (hover/focus/sélection) et jauges de
-       proximité de barrière. Conservé tel quel : statut de donnée, pas
-       un accent d'interface, ne rentre pas dans la refonte 2 couleurs. */
-    --color-ocean: #146e9c;
-    --color-ocean-2: #0f5878;
-    --color-ocean-tint: #dcedf5;
+    /* ── La terre porte le risque — barrière uniquement ──
+       Seule couleur qui exprime une distance de barrière. Ne sert
+       jamais de couleur de marque ni de décoration. */
+    --color-safe: var(--olive);
+    --color-safe-2: color-mix(in oklch, var(--olive), var(--encre) 20%);
+    --color-watch: var(--ocre);
+    --color-watch-2: color-mix(in oklch, var(--ocre), var(--encre) 20%);
+    --color-breach: var(--terracotta);
+    --color-breach-2: color-mix(in oklch, var(--terracotta), var(--encre) 20%);
 
-    /* ── Statuts sémantiques ── */
-    --color-success: #2f8f5f;
-    --color-success-2: #226b46;
-    --color-warning: #d68a3c;
-    --color-warning-2: #b87330;
+    /* --color-danger / --color-coral : conservés à leur ancienne valeur
+       pour --ring-critical (relief.css) uniquement — plus aucun autre
+       consommateur. Retirés avec --ring-critical dans le commit relief. */
     --color-danger: #c1483b;
-    --color-danger-2: #a03a2f;
+    --color-coral: #f0916f;
 
     /* ── Typographie — pairing éditorial (passe 8, §1.1) ──
        Newsreader porte les titres et la prose, Instrument Sans
@@ -137,7 +133,8 @@
     --space-8: 40px;
 
     /* ── Rayons — cartes à 24px (16px imbriquées/secondaires), zones
-       denses (tableaux, pastilles) resserrées à 8-10px. ── */
+       denses (tableaux, pastilles) resserrées à 8-10px. Revu dans le
+       commit relief (§1.3, cartes plates). ── */
     --radius-xs: 8px;
     --radius-sm: 10px;
     --radius-md: 16px;
@@ -145,23 +142,20 @@
     --radius-xl: 24px;
     --radius-full: 999px;
 
-    /* ── Ombres — la règle du 24/07 (« les cards n'en ont plus »,
-       bordure + 2 blocs dégradés pleins par écran comme seul relief)
-       est ANNULÉE le 26/07 (passe 3) : sans épaisseur, les cartes
-       flottaient sur le fond dans les deux thèmes. --shadow-card et
-       --shadow-card-hover gardent leurs noms mais changent de valeur
-       ci-dessous (redéfinies plus bas dans ce même bloc, tout ce qui
-       les consomme déjà gagne le relief sans une ligne de plus) —
-       teintées de la couleur de la carte, jamais un gris neutre.
-       --shadow-sm/--shadow-md restent des gris neutres pour les
-       éléments flottants réels (modale, tiroir) qui doivent se
-       détacher de la page sans porter de couleur de marque. */
-    --shadow-card: none;
-    --shadow-card-hover: 0 4px 14px rgba(22, 39, 58, 0.08);
+    /* ── Ombres — teintées (passe 3, 2026-07-26). Revues dans le commit
+       relief (§1.3) : cartes plates, plus d'ombre ni de dégradé. ── */
+    --shadow-card: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(22 39 58 / 0.3);
+    --shadow-card-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(22 39 58 / 0.42);
+    --shadow-card-aegean: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(31 111 178 / 0.4);
+    --shadow-card-aegean-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(31 111 178 / 0.55);
+    --shadow-card-coral: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(193 72 59 / 0.42);
+    --shadow-card-coral-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(193 72 59 / 0.58);
     --shadow-sm: 0 1px 2px rgba(22, 39, 58, 0.05);
     --shadow-md: 0 6px 16px rgba(22, 39, 58, 0.06);
     --shadow-lg: 0 16px 32px rgba(22, 39, 58, 0.1);
-    --shadow-focus: 0 0 0 3px rgba(31, 111, 178, 0.25);
+    --shadow-float: 0 32px 64px -28px rgb(22 39 58 / 0.4);
+    /* Le focus est un état actif : anneau en mer (passe 8, §1.2). */
+    --shadow-focus: 0 0 0 3px color-mix(in oklch, var(--mer), transparent 65%);
 
     /* ── Mouvement ──
        standard : hover/focus, micro-interactions
@@ -176,27 +170,13 @@
     --duration-base: 200ms;
     --duration-slow: 320ms;
 
-    /* ── Relief : ombres teintées (passe 3, 2026-07-26) ──────
-       Deux couches par ombre : un contact serré de 1px (la carte
-       touche la page) et une diffusion large et décalée vers le
-       haut (la carte est au-dessus). La teinte vit dans la couche
-       diffuse uniquement. */
-    --shadow-card: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(22 39 58 / 0.3);
-    --shadow-card-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(22 39 58 / 0.42);
-    --shadow-card-aegean: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(31 111 178 / 0.4);
-    --shadow-card-aegean-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(31 111 178 / 0.55);
-    --shadow-card-coral: 0 1px 1px rgb(22 39 58 / 0.05), 0 14px 28px -18px rgb(193 72 59 / 0.42);
-    --shadow-card-coral-hover: 0 2px 3px rgb(22 39 58 / 0.06), 0 26px 46px -20px rgb(193 72 59 / 0.58);
-    --shadow-float: 0 32px 64px -28px rgb(22 39 58 / 0.4);
-
-    /* Liserés internes : lumière en haut, teinte en bas. C'est eux
-       qui donnent l'épaisseur, l'ombre seule ne suffit pas. */
+    /* Liserés internes : lumière en haut, teinte en bas — revus dans le
+       commit relief (§1.3). */
     --lit-top: inset 0 1px 0 rgb(255 255 255 / 1);
     --lit-bottom-aegean: inset 0 -1px 0 rgb(31 111 178 / 0.09);
     --lit-bottom-coral: inset 0 -1px 0 rgb(193 72 59 / 0.1);
 
-    /* Dégradé interne de carte : 168°, presque vertical mais pas
-       tout à fait — la lumière vient du haut-gauche. */
+    /* Dégradé interne de carte — revu dans le commit relief (§1.3). */
     --gradient-card-lit: linear-gradient(168deg, #ffffff, #fbf7ef);
 
     /* ── Grain ───────────────────────────────────────────────
@@ -207,14 +187,11 @@
     --grain-opacity: 0.5;
     --grain-blend: multiply;
 
-    /* ── Halo au curseur ────────────────────────────────────
-       --mx / --my sont posées en JS au mousemove sur .view.active.
-       Valeurs de repli au centre : sans JS, un halo statique
-       discret, pas un trou noir. */
+    /* ── Halo au curseur — retiré dans le commit relief (§1.3). ── */
     --spot: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%), rgb(31 111 178 / 0.1), rgb(240 145 111 / 0.05) 40%, transparent 68%);
 
-    /* ── Anneau conique de l'alerte critique ────────────────
-       Un seul élément de l'écran y a droit. */
+    /* ── Anneau conique de l'alerte critique — retiré dans le commit
+       relief (§1.3). ── */
     --ring-critical: conic-gradient(from var(--ring), rgb(193 72 59 / 0.05), var(--color-danger) 18%, var(--color-coral) 30%, rgb(193 72 59 / 0.05) 52%, rgb(193 72 59 / 0.05));
 
     /* ── Mouvement ──────────────────────────────────────────
@@ -227,100 +204,88 @@
 }
 
 /* ============================================================
-   DARK MODE (2026-07-26, refonte passe 2) — option via toggle, jamais
-   par défaut. L'échelle précédente (bg #1b1811 / surface-1 #242019,
-   ~4% d'écart de luminance, bordure à 12% d'opacité) ne détachait pas
-   les cartes du fond — constat direct sur capture, pas un bug de règle
-   CSS mais une échelle de neutres trop resserrée. Reprise ici avec un
-   fond nettement plus sombre que les surfaces (3 marches distinctes,
-   écart minimum de 8% de luminance entre chacune), même famille chaude
-   qu'en clair. Le corail et l'aegean sont aussi désaturés/éclaircis
-   pour rester lisibles sur fond sombre au lieu de garder leurs valeurs
-   clair — ce ne sont donc plus des teintes catégorielles identiques
-   dans les deux thèmes, contrairement à l'ancienne direction.
+   DARK MODE — option via toggle, jamais par défaut. Une nuit
+   méditerranéenne n'est pas terreuse : elle est bleu de mer profonde
+   (réécrit le 01/08 — le premier essai assombrissait la chaux, teinte
+   85, et virait au brun-olive boueux). Le fond sombre part de la
+   teinte de --encre assombrie (~235), pas d'une chaux inversée : la
+   mer et la terre s'y détachent beaucoup mieux. 3 marches distinctes
+   (bg → surface-1 → surface-2), écart minimum de 8 % de luminance
+   entre chacune, sinon les cartes disparaissent (constat capture
+   25/07).
    ============================================================ */
 :root[data-theme="dark"] {
+    --chaux: oklch(0.14 0.035 235);
+    --chaux-2: oklch(0.19 0.04 235);
+    --rule: rgb(190 210 235 / 0.14);
+    --encre: #f3efe2;
+    --encre-2: #b3a795;
+    --mer: oklch(0.7 0.11 200);
+    --mer-profonde: oklch(0.78 0.1 195);
+    --lagune: rgb(74 172 173 / 0.18);
+    --olive: oklch(0.68 0.1 130);
+    --ocre: oklch(0.75 0.13 75);
+    --terracotta: oklch(0.64 0.15 32);
+
     /* Fond nettement plus sombre que les surfaces : 3 marches
        distinctes (bg → surface-1 → surface-2), écart minimum de 8 %
        de luminance entre chacune, sinon les cartes disparaissent
-       (constat capture 25/07). Même famille chaude que le clair. */
-    --color-bg: #14110b;
-    --color-surface-1: #211d15;
-    --color-surface-2: #2b261c;
-    --color-surface-3: #383024;
-    --color-surface-1-hover: #29241a;
-    --color-surface-2-hover: #332d21;
-    --color-surface-3-hover: #423928;
-    --color-wash: #1a170f;
-    --color-border: rgb(238 228 206 / 0.16);
-    --color-border-strong: rgb(238 228 206 / 0.26);
-    --color-divider: rgb(238 228 206 / 0.1);
-    --color-surface-sunk: #191510;
+       (constat capture 25/07). Même teinte ~235 sur toute la famille. */
+    --color-bg: var(--chaux);
+    --color-surface-1: oklch(0.17 0.038 235);
+    --color-surface-2: oklch(0.2 0.04 235);
+    --color-surface-3: oklch(0.245 0.042 235);
+    --color-surface-1-hover: oklch(0.195 0.04 235);
+    --color-surface-2-hover: oklch(0.225 0.042 235);
+    --color-surface-3-hover: oklch(0.27 0.044 235);
+    --color-wash: oklch(0.135 0.032 235);
+    --color-border: var(--rule);
+    --color-border-strong: rgb(190 210 235 / 0.24);
+    --color-divider: rgb(190 210 235 / 0.09);
+    --color-surface-sunk: oklch(0.12 0.03 235);
     /* Marche au-dessus de --color-surface-2, comme en clair. */
-    --color-surface-raised: #332d20;
+    --color-surface-raised: oklch(0.235 0.04 235);
 
     /* Voile plus opaque en sombre : le fond est déjà proche du noir,
        un voile clair comme en thème jour ne détacherait rien. */
     --color-scrim: rgb(0 0 0 / 0.6);
 
-    --color-ink: #f3efe2;
-    --color-text-primary: #f3efe2;
-    --color-text-secondary: #b3a795;
-    --color-text-tertiary: #8a7f6e;
-    /* Texte sur bloc de couleur plein (bandeau bleu, alerte corail) :
-       toujours blanc, dans les deux thèmes — le bloc lui-même est déjà
-       assez saturé pour porter du texte blanc, thème clair ou sombre. */
+    --color-ink: var(--encre);
+    --color-text-primary: var(--encre);
+    --color-text-secondary: var(--encre-2);
+    --color-text-tertiary: oklch(0.58 0.025 235);
     --color-text-on-dark: #ffffff;
 
-    /* Le corail pur brûle sur fond sombre : version désaturée pour le
-       texte et les tints, le corail plein reste réservé au bloc
-       d'alerte du mode clair. */
-    --color-coral: #e59274;
-    --color-coral-2: #f0a98d;
-    --color-coral-deep: #f0a98d;
-    --color-aegean: #4a97d6;
-    --color-aegean-2: #7fb8e8;
-    --color-aegean-deep-1: #2f6f9f;
-    --color-aegean-deep-2: #235572;
-    --color-aegean-tint: rgb(74 151 214 / 0.18);
-    --color-coral-tint: rgb(229 146 116 / 0.16);
-    /* Bleu-vert du bandeau d'accueil, texte dessus : le bandeau est un
-       dégradé aegean fixe dans les deux thèmes, ce ciel clair reste
-       lisible sur les deux variantes d'aegean sans avoir besoin de
-       s'assombrir — décision explicite, pas un oubli (idem sky-2/
-       sky-tint/neutral-warm plus bas : couleurs catégorielles de
-       donut/légende, pas des neutres de surface). */
-    --color-sky: #9dc2e2;
-    --color-sky-2: #7fa8ca;
-    --color-sky-tint: #9dc2e2;
-    --color-neutral-warm: #d8cdb6;
-    --color-ocean: #4fa3c8;
-    --color-ocean-2: #7ec0dd;
-    --color-ocean-tint: rgb(20 110 156 / 0.22);
-    --color-success: #4caf7d;
-    --color-success-2: #78c99b;
-    --color-warning: #e0a25c;
-    --color-warning-2: #edbb84;
+    --color-accent: var(--mer);
+    --color-accent-hover: var(--mer-profonde);
+    --color-accent-tint: var(--lagune);
+    --color-accent-ink: var(--chaux);
+
+    /* Désaturés/éclaircis pour rester lisibles sur fond sombre sans
+       brûler — mêmes usages qu'en clair (distance à une barrière). */
+    --color-safe: var(--olive);
+    --color-safe-2: color-mix(in oklch, var(--olive), white 15%);
+    --color-watch: var(--ocre);
+    --color-watch-2: color-mix(in oklch, var(--ocre), white 15%);
+    --color-breach: var(--terracotta);
+    --color-breach-2: color-mix(in oklch, var(--terracotta), white 15%);
+
+    /* --color-danger / --color-coral : voir le clair, même raison
+       (--ring-critical, relief.css). */
     --color-danger: #e06a5b;
-    --color-danger-2: #ea8b7e;
-    --color-ink-on-coral: #2a1409;
+    --color-coral: #e59274;
 
-    --shadow-card: none;
-    --shadow-card-hover: 0 4px 14px rgb(0 0 0 / 0.4);
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
-    --shadow-md: 0 6px 16px rgb(0 0 0 / 0.38);
-    --shadow-lg: 0 16px 32px rgb(0 0 0 / 0.45);
-
-    /* ── Relief : en sombre l'ombre ne se voit plus, c'est le
-       liseré de lumière qui porte tout le relief — l'ombre ne sert
-       qu'à creuser le fond derrière la carte (passe 3, 2026-07-26). */
     --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
     --shadow-card-hover: inset 0 1px 0 rgb(255 255 255 / 0.1), 0 26px 44px -18px rgb(0 0 0 / 0.95);
     --shadow-card-aegean: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
     --shadow-card-aegean-hover: inset 0 1px 0 rgb(74 151 214 / 0.22), 0 26px 44px -18px rgb(0 0 0 / 0.95);
     --shadow-card-coral: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 34px -20px rgb(0 0 0 / 0.9);
     --shadow-card-coral-hover: inset 0 1px 0 rgb(229 146 116 / 0.24), 0 26px 44px -18px rgb(0 0 0 / 0.95);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
+    --shadow-md: 0 6px 16px rgb(0 0 0 / 0.38);
+    --shadow-lg: 0 16px 32px rgb(0 0 0 / 0.45);
     --shadow-float: 0 36px 70px -26px rgb(0 0 0 / 0.85);
+    --shadow-focus: 0 0 0 3px color-mix(in oklch, var(--mer), transparent 55%);
 
     --lit-top: inset 0 1px 0 rgb(255 255 255 / 0.07);
     --lit-bottom-aegean: inset 0 -1px 0 rgb(0 0 0 / 0.3);

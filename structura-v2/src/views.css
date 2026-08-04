@@ -159,8 +159,8 @@
     align-items: center;
     padding: 3px 9px;
     border-radius: var(--radius-full);
-    background: color-mix(in oklch, var(--color-danger), transparent 84%);
-    color: var(--color-danger);
+    background: color-mix(in oklch, var(--color-breach), transparent 84%);
+    color: var(--color-breach);
     font-size: var(--text-xs);
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -242,19 +242,19 @@
 
 .status-filter.st-breach,
 .status-filter.st-crit {
-    color: var(--color-danger);
-    background: color-mix(in oklch, var(--color-danger), transparent 84%);
+    color: var(--color-breach);
+    background: color-mix(in oklch, var(--color-breach), transparent 84%);
 }
 
 .status-filter.st-warn,
 .status-filter.st-unknown {
-    color: var(--color-warning);
-    background: color-mix(in oklch, var(--color-warning), transparent 84%);
+    color: var(--color-watch);
+    background: color-mix(in oklch, var(--color-watch), transparent 84%);
 }
 
 .status-filter.st-safe {
-    color: var(--color-success);
-    background: color-mix(in oklch, var(--color-success), transparent 84%);
+    color: var(--color-safe);
+    background: color-mix(in oklch, var(--color-safe), transparent 84%);
 }
 
 .dist-strip-track {
@@ -269,7 +269,7 @@
     inset-block: 2px;
     left: 2px;
     border-radius: var(--radius-full) 0 0 var(--radius-full);
-    background: color-mix(in oklch, var(--color-danger), transparent 92%);
+    background: color-mix(in oklch, var(--color-breach), transparent 92%);
 }
 
 /* Repère vertical au seuil de la barrière (0 %) — le texte "0 %" de
@@ -298,16 +298,16 @@
 
 .dist-strip-dot.st-breach,
 .dist-strip-dot.st-crit {
-    background: var(--color-danger);
+    background: var(--color-breach);
 }
 
 .dist-strip-dot.st-warn,
 .dist-strip-dot.st-unknown {
-    background: var(--color-warning);
+    background: var(--color-watch);
 }
 
 .dist-strip-dot.st-safe {
-    background: var(--color-success);
+    background: var(--color-safe);
 }
 
 .dist-strip-scale {
@@ -388,8 +388,8 @@
 }
 
 .cal-bar-chevron:hover {
-    color: var(--color-aegean);
-    border-color: var(--color-aegean);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
 }
 
 /* Bouton et champs de la barre 2 (recherche + date de référence) :
@@ -414,8 +414,8 @@
 
 .cal-bar-date-btn:hover,
 .cal-bar-date-btn.on {
-    color: var(--color-aegean);
-    border-color: var(--color-aegean);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
 }
 
 .cal-bar-date-input {
@@ -453,16 +453,10 @@
     background: var(--color-text-tertiary);
 }
 
-.cal-legend-dot.ev-coupon {
-    background: var(--color-success);
-}
-
-.cal-legend-dot.ev-rappel {
-    background: var(--color-aegean);
-}
-
+.cal-legend-dot.ev-coupon,
+.cal-legend-dot.ev-rappel,
 .cal-legend-dot.ev-mat {
-    background: var(--color-warning);
+    background: var(--color-text-tertiary);
 }
 
 /* ── KPI « Prochains 30 jours » (passe 7C, A.1 ; refondue en deux
@@ -596,15 +590,15 @@
 
 .cal-flux-bar-acquired {
     width: 100%;
-    background: var(--color-aegean);
+    background: var(--color-ink);
 }
 
 .cal-flux-bar-conditional {
     width: 100%;
     background: repeating-linear-gradient(
         45deg,
-        var(--color-aegean) 0,
-        var(--color-aegean) 2px,
+        var(--color-ink) 0,
+        var(--color-ink) 2px,
         transparent 2px,
         transparent 6px
     );
@@ -640,14 +634,14 @@
     width: 10px;
     height: 10px;
     border-radius: 2px;
-    background: var(--color-aegean);
+    background: var(--color-ink);
 }
 
 .cal-flux-legend-swatch.conditional {
     background: repeating-linear-gradient(
         45deg,
-        var(--color-aegean) 0,
-        var(--color-aegean) 2px,
+        var(--color-ink) 0,
+        var(--color-ink) 2px,
         transparent 2px,
         transparent 6px
     );
@@ -757,7 +751,7 @@
 }
 
 .cal-grid-cell-today {
-    background: color-mix(in oklch, var(--color-aegean), transparent 94%);
+    background: var(--color-accent-tint);
 }
 
 .cal-grid-daynum {
@@ -769,7 +763,7 @@
 
 .cal-grid-cell-today .cal-grid-daynum {
     font-weight: 600;
-    color: var(--color-aegean);
+    color: var(--color-accent-hover);
 }
 
 .cal-grid-events {
@@ -802,16 +796,10 @@
     background: var(--color-text-tertiary);
 }
 
-.cal-grid-ev.ev-coupon .cal-grid-ev-dot {
-    background: var(--color-success);
-}
-
-.cal-grid-ev.ev-rappel .cal-grid-ev-dot {
-    background: var(--color-aegean);
-}
-
+.cal-grid-ev.ev-coupon .cal-grid-ev-dot,
+.cal-grid-ev.ev-rappel .cal-grid-ev-dot,
 .cal-grid-ev.ev-mat .cal-grid-ev-dot {
-    background: var(--color-warning);
+    background: var(--color-ink);
 }
 
 .cal-grid-ev-name {
@@ -826,7 +814,7 @@
     padding: 0;
     font-family: var(--font-mono-data);
     font-size: var(--text-xs);
-    color: var(--color-aegean);
+    color: var(--color-accent);
     cursor: pointer;
     text-align: left;
 }
@@ -879,7 +867,7 @@
    Les quatre cartes reprennent --gradient-card-lit (fond par défaut
    de .kpi) ; seule "Barrières franchies" garde une ombre teintée. */
 .kpi-row-accent-top .kpi-accent-breach {
-    border-top-color: var(--color-danger);
+    border-top-color: var(--color-breach);
     box-shadow: var(--lit-top), var(--shadow-card-coral);
 }
 
@@ -888,15 +876,15 @@
 }
 
 .kpi-row-accent-top .kpi-accent-danger {
-    border-top-color: var(--color-danger);
+    border-top-color: var(--color-breach);
 }
 
 .kpi-row-accent-top .kpi-accent-warning {
-    border-top-color: var(--color-warning);
+    border-top-color: var(--color-watch);
 }
 
 .kpi-row-accent-top .kpi-accent-safe {
-    border-top-color: var(--color-success);
+    border-top-color: var(--color-safe);
 }
 
 /* Cartes de statut cliquables (passe 8, §4) : seul point d'entrée du
@@ -988,24 +976,26 @@
     height: 100%;
 }
 
+/* Le type de produit n'est pas un risque : quatre valeurs d'encre,
+   pas quatre teintes (passe 8, §1.2). */
 .pilotage-type-segment.tp-ac,
 .pilotage-type-dot.tp-ac {
-    background: var(--color-aegean);
+    background: var(--color-ink);
 }
 
 .pilotage-type-segment.tp-cg,
 .pilotage-type-dot.tp-cg {
-    background: var(--color-success);
+    background: color-mix(in oklch, var(--color-ink), transparent 25%);
 }
 
 .pilotage-type-segment.tp-rc,
 .pilotage-type-dot.tp-rc {
-    background: var(--color-warning);
+    background: color-mix(in oklch, var(--color-ink), transparent 50%);
 }
 
 .pilotage-type-segment.tp-lv,
 .pilotage-type-dot.tp-lv {
-    background: var(--color-danger);
+    background: color-mix(in oklch, var(--color-ink), transparent 72%);
 }
 
 .pilotage-type-legend {
@@ -1102,7 +1092,7 @@
     display: block;
     height: 100%;
     border-radius: var(--radius-full);
-    background: var(--color-aegean);
+    background: var(--color-ink);
 }
 
 .pilotage-preview-all {
@@ -1210,13 +1200,13 @@
 
 .ingest-dropzone:hover,
 .ingest-dropzone:focus-within {
-    border-color: var(--color-aegean);
+    border-color: var(--color-accent);
     background: var(--color-surface-2-hover);
 }
 
 .ingest-dropzone.dragover {
-    border-color: var(--color-aegean);
-    background: var(--color-aegean-tint);
+    border-color: var(--color-accent);
+    background: var(--color-accent-tint);
 }
 
 .ingest-dropzone-title {
@@ -1234,7 +1224,7 @@
     margin-top: var(--space-4);
     padding: var(--space-4);
     border-radius: var(--radius-md);
-    background: var(--color-aegean-tint);
+    background: var(--color-surface-2);
 }
 
 .ing-ai-note-title {
@@ -1244,7 +1234,7 @@
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-aegean);
+    color: var(--color-ink);
 }
 
 .ing-ai-note-body {
@@ -1394,7 +1384,7 @@
 }
 
 .ing-story-tab.active {
-    border-bottom-color: var(--color-aegean);
+    border-bottom-color: var(--color-accent);
     color: var(--color-ink);
 }
 
@@ -1536,7 +1526,7 @@
     font-family: var(--font-mono-data);
     font-size: var(--text-xs);
     letter-spacing: 0.04em;
-    color: var(--color-warning);
+    color: var(--color-watch);
 }
 
 .ing-compare {
@@ -1618,18 +1608,19 @@
 }
 
 .pitch-wizard-step.active {
-    border-color: var(--color-aegean);
+    border-color: var(--color-accent);
     color: var(--color-ink);
 }
 
 .pitch-wizard-step.active .pitch-wizard-step-num {
-    background: var(--color-aegean);
-    color: var(--color-text-on-dark);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
 }
 
 .pitch-wizard-step.done .pitch-wizard-step-num {
-    background: var(--color-success);
-    color: var(--color-text-on-dark);
+    background: var(--color-ink);
+    color: var(--color-bg);
+    opacity: 0.6;
 }
 
 /* Sous-titres de sous-groupe à l'intérieur d'une étape (passe 6,
@@ -1688,7 +1679,7 @@
     width: 8px;
     height: 8px;
     border-radius: var(--radius-full);
-    background: var(--color-aegean);
+    background: var(--color-ink);
     flex: none;
 }
 
@@ -1705,12 +1696,9 @@
     background: var(--color-text-tertiary);
 }
 
-.pitch-scen-bull .pitch-scen-bar-fill {
-    background: var(--color-success);
-}
-
+.pitch-scen-bull .pitch-scen-bar-fill,
 .pitch-scen-bear .pitch-scen-bar-fill {
-    background: var(--color-danger);
+    background: var(--color-ink);
 }
 
 .pitch-risk-dot {
@@ -1722,15 +1710,15 @@
 }
 
 .pitch-risk-dot.st-breach {
-    background: var(--color-danger);
+    background: var(--color-breach);
 }
 
 .pitch-risk-dot.st-warn {
-    background: var(--color-warning);
+    background: var(--color-watch);
 }
 
 .pitch-risk-dot.st-safe {
-    background: var(--color-success);
+    background: var(--color-safe);
 }
 
 .pitch-preview-empty {

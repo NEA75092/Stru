@@ -46,7 +46,7 @@
 .f-inp:focus,
 .f-sel:focus {
     outline: none;
-    border-color: var(--color-aegean);
+    border-color: var(--color-accent);
     box-shadow: var(--shadow-focus);
 }
 
@@ -116,7 +116,7 @@
 }
 
 .tab-item.on {
-    border-bottom-color: var(--color-aegean);
+    border-bottom-color: var(--color-accent);
     color: var(--color-ink);
 }
 

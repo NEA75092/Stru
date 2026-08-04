@@ -290,8 +290,8 @@
         ? [min, barrierLevel, couponBarrier, max]
         : [min, barrierLevel, max];
       const bandColors = hasCouponBand
-        ? ["var(--color-danger)", "var(--color-warning)", "var(--color-ocean)"]
-        : ["var(--color-danger)", "var(--color-ocean)"];
+        ? ["var(--color-breach)", "var(--color-watch)", "var(--color-safe)"]
+        : ["var(--color-breach)", "var(--color-safe)"];
       let bands = "";
       for (let i = 0; i < bandColors.length; i++) {
         const yTop = yAt(bandStops[i + 1]);
@@ -300,8 +300,8 @@
       }
 
       const recallLine = hasRecallLine
-        ? `<line x1="0" y1="${yAt(recallLevel).toFixed(1)}" x2="${W}" y2="${yAt(recallLevel).toFixed(1)}" stroke="var(--color-aegean-2)" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
-           <text x="${W - 4}" y="${(yAt(recallLevel) - 5).toFixed(1)}" text-anchor="end" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">AUTOCALL ${pctFr(recallLevel, 0)}</text>`
+        ? `<line x1="0" y1="${yAt(recallLevel).toFixed(1)}" x2="${W}" y2="${yAt(recallLevel).toFixed(1)}" stroke="var(--color-ink)" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+           <text x="${W - 4}" y="${(yAt(recallLevel) - 5).toFixed(1)}" text-anchor="end" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-ink)" opacity="0.6">AUTOCALL ${pctFr(recallLevel, 0)}</text>`
         : "";
 
       // Dash pattern différent de la ligne autocall (mêmes teintes égée
@@ -312,10 +312,10 @@
       let vlLine = "";
       if (isLiveVlHistory) {
         const vlLinePts = vlPoints.map((pt) => ({ x: xAt(pt.t), y: yAt(pt.level) }));
-        vlLine = `<path d="${smoothSvgPath(vlLinePts)}" fill="none" stroke="var(--color-aegean-2)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.8" vector-effect="non-scaling-stroke"/>`;
+        vlLine = `<path d="${smoothSvgPath(vlLinePts)}" fill="none" stroke="var(--color-ink)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.7" vector-effect="non-scaling-stroke"/>`;
       } else if (hasVl) {
-        vlLine = `<line x1="0" y1="${yAt(vlLevel).toFixed(1)}" x2="${W}" y2="${yAt(vlLevel).toFixed(1)}" stroke="var(--color-aegean-2)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.7"/>
-           <text x="4" y="${(yAt(vlLevel) - 5).toFixed(1)}" text-anchor="start" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-aegean-2)">VL ÉMETTEUR ${pctFr(vlLevel, 1)}</text>`;
+        vlLine = `<line x1="0" y1="${yAt(vlLevel).toFixed(1)}" x2="${W}" y2="${yAt(vlLevel).toFixed(1)}" stroke="var(--color-ink)" stroke-width="1.5" stroke-dasharray="1.5 3" opacity="0.6"/>
+           <text x="4" y="${(yAt(vlLevel) - 5).toFixed(1)}" text-anchor="start" font-size="9" font-family="var(--font-mono-data)" fill="var(--color-ink)" opacity="0.6">VL ÉMETTEUR ${pctFr(vlLevel, 1)}</text>`;
       }
 
       const linePts = points.map((pt) => ({ x: xAt(pt.t), y: yAt(pt.level) }));
@@ -348,8 +348,8 @@
             ${bands}
             ${recallLine}
             ${vlLine}
-            <path d="${path}" fill="none" stroke="var(--color-aegean)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-            <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.5" fill="var(--color-aegean)"/>
+            <path d="${path}" fill="none" stroke="var(--color-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+            <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.5" fill="var(--color-ink)"/>
           </svg>
         </div>
         ${legend}

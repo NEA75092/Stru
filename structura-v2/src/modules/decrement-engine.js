@@ -202,21 +202,6 @@
                 ? "D"
                 : "E";
 
-      const gradeColors = {
-        A: "#2e7d32",
-        B: "#558b2f",
-        C: "#f9a825",
-        D: "#e65100",
-        E: "#c62828",
-      };
-      const gradeBg = {
-        A: "rgba(46,125,50,.12)",
-        B: "rgba(85,139,47,.12)",
-        C: "rgba(249,168,37,.12)",
-        D: "rgba(230,81,0,.12)",
-        E: "rgba(198,40,40,.12)",
-      };
-
       let couponVerdict = null;
       if (targetCouponPct) {
         const couponGain = targetCouponPct - item.historicalReturn5Y * 0.3;
@@ -236,8 +221,6 @@
       return {
         total,
         grade,
-        gradeColor: gradeColors[grade],
-        gradeBg: gradeBg[grade],
         decPctAnnual,
         decPctRefNote,
         coverageRatio,

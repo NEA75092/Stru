@@ -531,7 +531,8 @@
 }
 
 .linkish:hover {
-    color: var(--color-aegean);
+    color: var(--color-accent);
+    text-decoration: underline;
 }
 
 .dr-price-chart-wrap {
@@ -569,12 +570,13 @@
 .dr-price-chart-legend-swatch-solid {
     height: 2px;
     border-radius: 1px;
-    background: var(--color-aegean);
+    background: var(--color-ink);
 }
 
 .dr-price-chart-legend-swatch-dotted {
     height: 0;
-    border-top: 2px dotted var(--color-aegean-2);
+    border-top: 2px dotted var(--color-ink);
+    opacity: 0.6;
 }
 
 .dr-price-chart-note {

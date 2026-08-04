@@ -63,11 +63,11 @@
 }
 
 .tbl-wrap thead th:hover {
-    color: var(--color-aegean);
+    color: var(--color-accent);
 }
 
 .tbl-wrap thead th.sorted {
-    color: var(--color-aegean);
+    color: var(--color-accent);
 }
 
 .tbl-wrap thead th.sorted::after {
@@ -94,8 +94,8 @@
 }
 
 .tbl-wrap tbody tr.selected {
-    background: var(--color-aegean-tint);
-    border-left: 3px solid var(--color-aegean);
+    background: var(--color-accent-tint);
+    border-left: 3px solid var(--color-accent);
 }
 
 /* Débordement — une seule règle, sans exception (PASSE-4.md, section
@@ -145,7 +145,7 @@
 }
 
 .cell-warn {
-    color: var(--color-warning);
+    color: var(--color-watch);
 }
 
 .tbl-empty {
@@ -170,29 +170,9 @@
     text-transform: uppercase;
 }
 
-.tp-ac {
-    color: var(--color-aegean);
-    border-color: var(--color-aegean-tint);
-    background: color-mix(in oklch, var(--color-aegean), transparent 88%);
-}
-
-.tp-cg {
-    color: var(--color-success);
-    border-color: transparent;
-    background: color-mix(in oklch, var(--color-success), transparent 88%);
-}
-
-.tp-rc {
-    color: var(--color-warning);
-    border-color: transparent;
-    background: color-mix(in oklch, var(--color-warning), transparent 88%);
-}
-
-.tp-lv {
-    color: var(--color-danger);
-    border-color: transparent;
-    background: color-mix(in oklch, var(--color-danger), transparent 88%);
-}
+/* Le type de produit n'est pas un risque : les quatre variantes
+   colorées (tp-ac/cg/rc/lv) sont supprimées, .pill-category porte la
+   même pastille neutre pour tous les types (passe 8, §1.2). */
 
 /* ── Statut : couleur sémantique partagée ────────────────────
    Classes utilisables seules (texte coloré, ex. valeur de distance)
@@ -202,16 +182,16 @@
    comme "danger" — le libellé fait la distinction, pas la teinte. */
 .st-breach,
 .st-crit {
-    color: var(--color-danger);
+    color: var(--color-breach);
 }
 
 .st-warn,
 .st-unknown {
-    color: var(--color-warning);
+    color: var(--color-watch);
 }
 
 .st-safe {
-    color: var(--color-success);
+    color: var(--color-safe);
 }
 
 .st-none {
@@ -221,11 +201,11 @@
 /* Alias génériques (vue Decrement Score, badge de nav) — même palette,
    nom neutre pour un contexte qui n'est pas un statut de barrière. */
 .st-ok {
-    color: var(--color-success);
+    color: var(--color-safe);
 }
 
 .st-bad {
-    color: var(--color-danger);
+    color: var(--color-breach);
 }
 
 /* ── Statut en pastille pleine ────────────────────────────── */
@@ -254,21 +234,21 @@
 .pill-status.st-breach,
 .pill-status.st-crit,
 .pill-status.danger {
-    color: var(--color-danger);
-    background: color-mix(in oklch, var(--color-danger), transparent 84%);
+    color: var(--color-breach);
+    background: color-mix(in oklch, var(--color-breach), transparent 84%);
 }
 
 .pill-status.st-warn,
 .pill-status.st-unknown,
 .pill-status.warning {
-    color: var(--color-warning);
-    background: color-mix(in oklch, var(--color-warning), transparent 84%);
+    color: var(--color-watch);
+    background: color-mix(in oklch, var(--color-watch), transparent 84%);
 }
 
 .pill-status.st-safe,
 .pill-status.ok {
-    color: var(--color-success);
-    background: color-mix(in oklch, var(--color-success), transparent 84%);
+    color: var(--color-safe);
+    background: color-mix(in oklch, var(--color-safe), transparent 84%);
 }
 
 .pill-status.st-none {
@@ -282,23 +262,23 @@
    Recommandé/Acceptable (les deux avis sans réserve), warning marque
    À justifier, danger marque À éviter. */
 .pill-status.av-recommended {
-    color: var(--color-success);
-    background: color-mix(in oklch, var(--color-success), transparent 84%);
+    color: var(--color-safe);
+    background: color-mix(in oklch, var(--color-safe), transparent 84%);
 }
 
 .pill-status.av-acceptable {
-    color: var(--color-success-2);
-    background: color-mix(in oklch, var(--color-success-2), transparent 84%);
+    color: var(--color-safe-2);
+    background: color-mix(in oklch, var(--color-safe-2), transparent 84%);
 }
 
 .pill-status.av-justify {
-    color: var(--color-warning);
-    background: color-mix(in oklch, var(--color-warning), transparent 84%);
+    color: var(--color-watch);
+    background: color-mix(in oklch, var(--color-watch), transparent 84%);
 }
 
 .pill-status.av-avoid {
-    color: var(--color-danger);
-    background: color-mix(in oklch, var(--color-danger), transparent 84%);
+    color: var(--color-breach);
+    background: color-mix(in oklch, var(--color-breach), transparent 84%);
 }
 
 /* ── Distance protection — jauge + valeur ─────────────────── */
@@ -314,7 +294,7 @@
     max-width: 64px;
     height: 6px;
     flex: none;
-    background: var(--color-divider);
+    background: var(--chaux-2);
     border-radius: var(--radius-full);
     overflow: hidden;
 }
@@ -327,16 +307,16 @@
 
 .bar-fill.st-breach,
 .bar-fill.st-crit {
-    background: var(--color-danger);
+    background: var(--color-breach);
 }
 
 .bar-fill.st-warn,
 .bar-fill.st-unknown {
-    background: var(--color-warning);
+    background: var(--color-watch);
 }
 
 .bar-fill.st-safe {
-    background: var(--color-success);
+    background: var(--color-safe);
 }
 
 .bar-fill.st-none {
@@ -370,15 +350,15 @@
 /* Ligne franchie/alerte : filet gauche sur la première cellule
    uniquement, pas un fond plein qui écraserait toute la ligne. */
 .row-breach td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-danger);
+    box-shadow: inset 3px 0 0 var(--color-breach);
 }
 
 .row-warn td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-warning);
+    box-shadow: inset 3px 0 0 var(--color-watch);
 }
 
 .tbl-wrap tbody tr:hover td:first-child {
-    box-shadow: inset 2px 0 0 var(--color-aegean);
+    box-shadow: inset 2px 0 0 var(--color-accent);
 }
 
 /* ── Largeurs de colonnes — Portefeuille (10 colonnes, passe 8) ──

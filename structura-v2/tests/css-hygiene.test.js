@@ -38,13 +38,17 @@ const STAGES = {
 };
 
 /* Noms de variables de l'ancienne charte. Interdits partout :
-   c'est par eux que l'orange revient là où on ne l'attend pas. */
+   c'est par eux que l'orange revient là où on ne l'attend pas.
+   --terracotta retiré le 01/08 (passe 8) : redéfini intentionnellement
+   dans design-tokens.css comme un des onze tokens de rôle (terre —
+   barrière franchie), avec sa propre valeur oklch et son propre usage
+   strict. Ce n'est plus une référence morte vers l'ancien accent
+   décoratif — c'est une source de vérité à part entière. */
 const DEAD_TOKENS = [
   "--gold",
   "--gold2",
   "--sand",
   "--purple",
-  "--terracotta",
   "--sea",
   "--sea-light",
   "--blue2",

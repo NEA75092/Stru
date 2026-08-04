@@ -201,7 +201,7 @@
 /* La criticité se lit sur le filet et le chiffre. Pas de fond plein :
    quatre cartes forment un set, on n'en remplit pas une seule. */
 .kpi.k-red {
-    border-left-color: var(--color-danger);
+    border-left-color: var(--color-breach);
     box-shadow: var(--lit-top), var(--lit-bottom-coral), var(--shadow-card-coral);
 }
 
@@ -210,15 +210,15 @@
 }
 
 .kpi.k-red .kpi-val {
-    color: var(--color-danger);
+    color: var(--color-breach);
 }
 
 .kpi.k-orange {
-    border-left-color: var(--color-warning);
+    border-left-color: var(--color-watch);
 }
 
 .kpi.k-orange .kpi-val {
-    color: var(--color-warning);
+    color: var(--color-watch);
 }
 
 .kpi.k-gold,
@@ -941,28 +941,22 @@
     opacity: 0.6;
 }
 
-.timeline-item.ev-obs {
+/* Le type d'événement n'est pas une distance à une barrière : filet
+   d'encre pour tous, sauf l'événement qui touche une barrière lui-même
+   (passe 8, §1.2 — la couleur ne reste que sur le risque réel). */
+.timeline-item.ev-obs,
+.timeline-item.ev-coupon,
+.timeline-item.ev-rappel,
+.timeline-item.ev-mat {
     box-shadow: inset 3px 0 0 var(--color-text-tertiary);
 }
 
-.timeline-item.ev-coupon {
-    box-shadow: inset 3px 0 0 var(--color-success);
-}
-
-.timeline-item.ev-rappel {
-    box-shadow: inset 3px 0 0 var(--color-aegean);
-}
-
-.timeline-item.ev-mat {
-    box-shadow: inset 3px 0 0 var(--color-warning);
-}
-
 .timeline-item.ev-bar {
-    box-shadow: inset 3px 0 0 var(--color-danger);
+    box-shadow: inset 3px 0 0 var(--color-breach);
 }
 
 .timeline-bar .timeline-date {
-    background: var(--color-coral-tint);
+    background: var(--color-surface-3);
 }
 
 /* ── Bandeau d'indices ──────────────────────────────────── */
@@ -1014,12 +1008,9 @@
     font-variant-numeric: tabular-nums;
 }
 
-.ticker-chg.up {
-    color: var(--color-success);
-}
-
+.ticker-chg.up,
 .ticker-chg.dn {
-    color: var(--color-danger);
+    color: var(--color-ink);
 }
 
 @keyframes ticker-scroll {
@@ -1034,16 +1025,14 @@
     }
 }
 
-/* Signe d'une variation chiffrée — le seul usage de vert/rouge. Relogé
-   en fin de fichier (contenu inchangé) : à spécificité égale (une
-   classe), la règle la plus tardive gagne — placées plus haut, .kpi-sub
-   (et d'autres classes combinées) les emportaient toujours sur .up/.dn,
-   qui ne s'appliquaient donc jamais malgré la classe posée par le JS. */
-.up {
-    color: var(--color-success);
-}
-
+/* Un delta de performance reste en encre : le signe et le mono
+   suffisent (passe 8, §1.2 — plus de vert/rouge décoratif sur un
+   chiffre qui ne parle pas d'une barrière). Relogé en fin de fichier
+   (contenu inchangé) : à spécificité égale (une classe), la règle la
+   plus tardive gagne — placées plus haut, .kpi-sub (et d'autres
+   classes combinées) l'emportaient toujours sur .up/.dn. */
+.up,
 .dn {
-    color: var(--color-danger);
+    color: var(--color-ink);
 }
 

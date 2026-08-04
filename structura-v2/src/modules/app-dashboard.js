@@ -364,14 +364,12 @@
       // la ligne est toujours bleue (plus de rouge/vert conditionnel sur
       // le tracé — la direction reste lisible via le %/montant textuels
       // à côté, en couleur sémantique, eux inchangés).
-      const isDarkTheme =
-        typeof globalThis.getTheme === "function" && globalThis.getTheme() === "dark";
       const css = getComputedStyle(document.documentElement);
       const token = (name) => css.getPropertyValue(name).trim();
-      const gridColor = isDarkTheme ? "rgba(255,255,255,0.10)" : "#f0ece0";
+      const gridColor = token("--color-divider");
       const labelColor = token("--color-text-tertiary");
-      const refLineColor = isDarkTheme ? "rgba(255,255,255,0.22)" : "#d9cba9";
-      const lineColor = token("--color-aegean");
+      const refLineColor = token("--color-border-strong");
+      const lineColor = token("--color-ink");
       const vals = points.map((p) => p.idx);
       const minV = Math.min(98, ...vals, currentIdx) - 1.2;
       const maxV = Math.max(102, ...vals, currentIdx) + 1.2;
@@ -465,8 +463,9 @@
     function buildIssuerDonutSvg(rows, total) {
       const css = getComputedStyle(document.documentElement);
       const token = (name) => css.getPropertyValue(name).trim();
-      const PALETTE = [token("--color-aegean"), token("--color-coral"), token("--color-sky")];
-      const REST_COLOR = token("--color-neutral-warm");
+      const ink = token("--color-ink");
+      const PALETTE = [ink, `color-mix(in oklch, ${ink}, transparent 35%)`, `color-mix(in oklch, ${ink}, transparent 60%)`];
+      const REST_COLOR = `color-mix(in oklch, ${ink}, transparent 80%)`;
       const top = rows.slice(0, 3);
       const restNominal = rows.slice(3).reduce((sum, row) => sum + row.nominal, 0);
       const segments = [

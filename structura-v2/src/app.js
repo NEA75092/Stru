@@ -1280,10 +1280,10 @@ function renderIngestionStory(payload = {}) {
   const grade = merged.grade || "LOW";
   const gradeColor =
     grade === "HIGH"
-      ? "var(--color-success)"
+      ? "var(--color-safe)"
       : grade === "MEDIUM"
-        ? "var(--color-warning)"
-        : "var(--color-warning)";
+        ? "var(--color-watch)"
+        : "var(--color-watch)";
   const coverageLabel = intelligence?.coverage?.label || "Document source";
 
   // ── Métriques
@@ -1298,7 +1298,7 @@ function renderIngestionStory(payload = {}) {
     {
       label: "Consensus",
       value: consensusPct + "%",
-      tone: consensusPct >= 70 ? "var(--color-success)" : "var(--color-warning)",
+      tone: consensusPct >= 70 ? "var(--color-safe)" : "var(--color-watch)",
     },
   ];
   const metricsHtml = metrics
@@ -1389,9 +1389,9 @@ function renderIngestionStory(payload = {}) {
         w.level === "error" ? "⚠" : w.level === "warning" ? "◉" : "◎";
       const tone =
         w.level === "error"
-          ? "var(--color-danger)"
+          ? "var(--color-breach)"
           : w.level === "warning"
-            ? "var(--color-warning)"
+            ? "var(--color-watch)"
             : "var(--color-text-secondary)";
       return `<div class="ing-note-pill tone-border" style="--tone:${tone}"><span class="tone" style="--tone:${tone}">${icon}</span> ${escapeHtml(w.message)}</div>`;
     })
@@ -5086,10 +5086,10 @@ const StructuraCleaner = {
   },
 
   CONFIDENCE: Object.freeze({
-    MISSING: { level: 0, label: "Manquant", color: "#e05555" },
-    LOW: { level: 1, label: "Faible", color: "#e8924a" },
-    WARN: { level: 2, label: "Divergent", color: "#e8c87a" },
-    CERTIFIED: { level: 3, label: "Certifie", color: "#4dbc80" },
+    MISSING: { level: 0, label: "Manquant" },
+    LOW: { level: 1, label: "Faible" },
+    WARN: { level: 2, label: "Divergent" },
+    CERTIFIED: { level: 3, label: "Certifie" },
   }),
 
   reconcile(field, sources, opts = {}) {
@@ -6098,7 +6098,7 @@ async function extractFromDocument() {
         message: `Aucun document produit-spécifique exploitable détecté. ${rejectedDocs.length ? `Les ${rejectedDocs.length} document(s) fournis semblent génériques ou hors périmètre.` : ""}`,
       });
       document.getElementById("ing-compare").innerHTML =
-        `<div class="tone" style="--tone:var(--color-warning)">Aucun document produit-specifique exploitable detecte. Les documents fournis semblent generiques ou non pertinents.</div>`;
+        `<div class="tone" style="--tone:var(--color-watch)">Aucun document produit-specifique exploitable detecte. Les documents fournis semblent generiques ou non pertinents.</div>`;
       document.getElementById("ing-compare").style.display = "block";
       notify("Aucun document produit-specifique exploitable detecte", "err");
       return;
@@ -6444,7 +6444,7 @@ if (typeof document !== "undefined") {
   pitchWizardSetupInlineValidation();
   pitchWizardSetupLiveUpdates();
   applyTheme(getTheme());
-  pitchSetBrandColor("--color-aegean");
+  pitchSetBrandColor("--color-ink");
   ["ap-recall-type", "ap-put-leveraged", "ap-rate-type"].forEach((id) => {
     document.getElementById(id)?.addEventListener("change", updatePitchProductFields);
   });
