@@ -287,7 +287,7 @@ test('build mechanism intelligence for phoenix memory worst-of structure', () =>
   assert.equal(intelligence.structure.id, 'worst_of');
   assert.equal(intelligence.frequency.id, 'quarterly');
   assert.equal(intelligence.couponStyle.id, 'memory');
-  assert.match(intelligence.retailText, /coupon de 8%/i);
+  assert.match(intelligence.retailText, /coupon de 8\u00A0%/i);
 });
 
 test('build mechanism intelligence flags physical settlement risk', () => {
