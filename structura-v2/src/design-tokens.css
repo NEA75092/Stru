@@ -44,6 +44,13 @@
     --ocre: oklch(0.68 0.13 75);
     --terracotta: oklch(0.52 0.15 32);
 
+    /* Douzième token de rôle (05/08) — l'arête de lumière. La couche
+       relief de la passe 8 n'emploie aucune ombre portée : le relief
+       vient du creux, de l'arête et de la cannelure. Cette valeur est
+       la seule lumière du système, toujours sur un bord SUPÉRIEUR ou
+       en text-shadow d'incision, jamais en fond de surface. */
+    --lumiere: oklch(0.995 0.004 85);
+
     /* ── Neutrals — la chaux porte les fonds ──
        --color-bg/--color-surface-1 valent tous deux --chaux : plus de
        carte "blanc pur" détachée du fond, la séparation vient du
@@ -232,6 +239,9 @@
     --olive: oklch(0.68 0.1 130);
     --ocre: oklch(0.75 0.13 75);
     --terracotta: oklch(0.64 0.15 32);
+    /* En nuit, la lumière ne peut pas être plus claire que la chaux :
+       elle devient un voile. */
+    --lumiere: rgb(214 226 242 / 0.10);
 
     /* Fond nettement plus sombre que les surfaces : 3 marches
        distinctes (bg → surface-1 → surface-2), écart minimum de 8 %
