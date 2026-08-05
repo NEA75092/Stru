@@ -592,17 +592,15 @@
       }).join("");
     }
 
-    // Top/Flop VL (passe 7, bloc 7b) : une seule liste, un axe unique
-    // centré sur 100 (niveau VL à l'émission), barres qui partent du
-    // centre et divergent des deux côtés — remplace les deux listes
-    // Top 5 / Flop 5 avec chacune sa propre échelle. Palette tranchée le
-    // 05/08 : encre seule des deux côtés (§1.2, "les deltas de
-    // performance restent en encre — le signe et le mono suffisent"),
-    // pas de mer/terre — un delta de VL n'est ni une interaction ni un
-    // risque de barrière, les deux seuls usages que §1.2 autorise pour
-    // ces tons. Composant distinct de la réglette de §1.4 : celle-ci
-    // exprime une distance à *un* seuil de barrière depuis un bord,
-    // pas un classement d'écarts de part et d'autre d'un centre commun.
+    // Top/Flop VL (Passe 7 reprise, bloc 7b) : une seule liste, un axe
+    // unique centré sur 100 (niveau VL à l'émission), barres qui partent
+    // du centre et divergent des deux côtés. Grille réelle à 4 colonnes
+    // (nom | moitié négative | moitié positive | valeur), l'axe est la
+    // frontière commune entre les deux colonnes centrales — mêmes
+    // largeurs sur chaque ligne, donc alignée verticalement sur toute la
+    // liste. Couleur par rôle existant (positif = --color-accent, négatif
+    // = --color-breach), tranché le 05/08 pour cette reprise structurelle
+    // — la palette générale de l'app (teal) reste hors périmètre.
     function renderVlTopFlop() {
       const c = document.getElementById("vl-top-flop");
       if (!c) return;
@@ -632,14 +630,12 @@
         const delta = p.vlLevel - 100;
         const pos = delta >= 0;
         const barPct = Math.min(100, (Math.abs(delta) / maxDev) * 100);
-        return `<button type="button" class="vl-diverge-row" onclick="openDrawer(${p.id})">
-          <span class="vl-diverge-main"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.underlying || p.emetteur || "—")}</small></span>
-          <span class="vl-diverge-axis">
-            <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
-            <span class="vl-diverge-center"></span>
-            <span class="vl-diverge-half vl-diverge-half-pos">${pos ? `<span class="vl-diverge-bar" style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
-          </span>
-          <span class="vl-diverge-value">${pos ? "+" : ""}${pctFr(delta, 2)}</span>
+        const valClass = pos ? "vl-diverge-value-pos" : "vl-diverge-value-neg";
+        return `<button type="button" class="vl-diverge-row" data-topflop-row onclick="openDrawer(${p.id})">
+          <span class="vl-diverge-main" data-topflop-name><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.underlying || p.emetteur || "—")}</small></span>
+          <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
+          <span class="vl-diverge-half vl-diverge-half-pos" data-topflop-axis>${pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
+          <span class="vl-diverge-value ${valClass}" data-topflop-val>${pos ? "+" : ""}${pctFr(delta, 2)}</span>
         </button>`;
       };
       c.innerHTML = `<div class="vl-diverge-legend">Écart à la VL d'émission (base 100) · classement Top/Flop 5</div>

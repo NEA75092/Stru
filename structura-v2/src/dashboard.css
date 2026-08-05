@@ -517,27 +517,23 @@
 .vl-rows {
     display: flex;
     flex-direction: column;
+    gap: 3px;
 }
 
 .vl-diverge-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) 76px;
+    grid-template-columns: 186px 1fr 1fr 54px;
     align-items: center;
-    gap: var(--space-3);
+    height: 30px;
     width: 100%;
-    padding: var(--space-2) var(--space-3);
+    padding: 0 var(--space-3);
     border: none;
-    border-bottom: 1px solid var(--color-divider);
-    border-radius: var(--radius-xs);
+    border-radius: var(--radius-sm);
     background: none;
     text-align: left;
     font-family: var(--font-body);
     cursor: pointer;
     transition: background-color var(--duration-fast) var(--ease-standard);
-}
-
-.vl-diverge-row:last-child {
-    border-bottom: none;
 }
 
 .vl-diverge-row:hover {
@@ -568,24 +564,21 @@
     white-space: nowrap;
 }
 
-/* Axe divergent : deux moitiés de part et d'autre d'un centre fixe
-   (--color-border-strong), chaque barre grandit depuis le centre vers
-   son bord extérieur — jamais l'inverse, sinon les deux sens ne
-   partiraient pas du même point. */
-.vl-diverge-axis {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-}
-
+/* Axe divergent : deux colonnes de grille égales de part et d'autre
+   d'une frontière commune — même grid-template-columns sur chaque
+   ligne, donc la frontière tombe au même pixel partout, sans élément
+   "centre" séparé à maintenir aligné. Chaque barre grandit depuis la
+   frontière vers son bord extérieur — jamais l'inverse. */
 .vl-diverge-half {
     display: flex;
-    flex: 1;
-    height: 4px;
+    align-items: center;
+    height: 100%;
+    min-width: 0;
 }
 
 .vl-diverge-half-neg {
     justify-content: flex-end;
+    box-shadow: inset -1px 0 0 var(--color-border-strong);
 }
 
 .vl-diverge-half-pos {
@@ -594,16 +587,17 @@
 
 .vl-diverge-bar {
     display: block;
-    height: 100%;
-    border-radius: var(--radius-full);
-    background: var(--color-ink);
+    height: 12px;
 }
 
-.vl-diverge-center {
-    flex: none;
-    width: 1px;
-    height: 12px;
-    background: var(--color-border-strong);
+.vl-diverge-half-neg .vl-diverge-bar {
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    background: var(--color-breach);
+}
+
+.vl-diverge-half-pos .vl-diverge-bar {
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: var(--color-accent);
 }
 
 .vl-diverge-value {
@@ -611,9 +605,16 @@
     font-size: var(--text-sm);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: var(--color-ink);
     text-align: right;
     white-space: nowrap;
+}
+
+.vl-diverge-value-neg {
+    color: var(--color-breach);
+}
+
+.vl-diverge-value-pos {
+    color: var(--color-accent);
 }
 
 /* ── Grille des modules bas de page ──────────────────────── */
