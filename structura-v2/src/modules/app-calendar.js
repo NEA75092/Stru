@@ -629,7 +629,7 @@
       <span class="cal-flux-legend-item"><span class="cal-flux-legend-swatch conditional"></span>Conditionnel</span>
     </div>`;
 
-    const FLUX_EMPTY_HTML = `<div class="cal-flux-list"><div class="cal-flux-list-empty">Aucun coupon attendu sur les 30 prochains jours</div></div>`;
+    const FLUX_EMPTY_HTML = `<div class="cal-flux-list"><div class="cal-flux-list-empty">Aucun coupon attendu sur la période affichée</div></div>`;
 
     // Semaine / Jour, et tout mode à barres hebdomadaires retombé en
     // liste faute d'assez de buckets (passe 7C-3b, 5-6) : la carte garde
