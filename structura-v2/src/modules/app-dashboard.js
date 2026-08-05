@@ -605,18 +605,27 @@
     }
 
     // Top/Flop VL (Passe 7 reprise, bloc 7b — rouvert après mesure de
-    // METHODE-VERIFICATION.md/REFERENCES-MESUREES.md) : une seule liste,
-    // un axe unique centré à 50 % de la zone de tracé (deux colonnes 1fr
+    // Écarts de VL (specs/dashboard.md § 2.2) : une seule liste, un axe
+    // unique centré à 50 % de la zone de tracé (deux colonnes 1fr
     // égales), qui reste au centre quelles que soient les données — si
     // tout le portefeuille est sous 100, la moitié droite reste vide,
     // c'est l'information. HEADROOM cape la barre la plus longue à 92 %
-    // de la demi-largeur (référence mesurée : 91,2 %), jamais 100 % pile.
-    // Nom sur une seule ligne (186px, ellipsis) — pas de sous-jacent
-    // empilé dessous dans cette liste, à la différence des autres
-    // listes de l'app. Couleur par rôle existant (positif =
-    // --color-accent, négatif = --color-breach), palette générale hors
-    // périmètre pour cette reprise.
+    // de la demi-largeur, jamais 100 % pile. Nom sur une seule ligne
+    // (200px, ellipsis), pas de sous-jacent empilé dessous. Valeur en
+    // points d'écart à 100 (ex. +27,4), pas un pourcentage — ni %, ni
+    // 2 décimales : pctFr ne convient pas ici, d'où ptsFr, formateur
+    // dédié qui n'ajoute aucune unité (le signe suit la même convention
+    // que pctFr/moneyShort : le "−" est géré ici, le "+" reste à la
+    // charge de l'appelant). Encre partout, jamais mer ni terre (§ 2.2,
+    // "le monochrome est correct et reste") : positif = encre pleine
+    // 0,62 d'opacité + arête haute --lumiere, négatif = encre gravée
+    // (trame 115°, 2px/5px — même réglage que § 2.1 et § 2.3).
     const VL_TOPFLOP_BAR_HEADROOM = 0.92;
+    function ptsFr(value, digits = 1) {
+      const n = Number(value) || 0;
+      const sign = n < 0 ? "−" : "";
+      return `${sign}${Math.abs(n).toFixed(digits).replace(".", ",")}`;
+    }
     function renderVlTopFlop() {
       const c = document.getElementById("vl-top-flop");
       if (!c) return;
@@ -646,16 +655,20 @@
         const delta = p.vlLevel - 100;
         const pos = delta >= 0;
         const barPct = Math.min(100, (Math.abs(delta) / maxDev) * 100 * VL_TOPFLOP_BAR_HEADROOM);
-        const valClass = pos ? "vl-diverge-value-pos" : "vl-diverge-value-neg";
         return `<button type="button" class="vl-diverge-row" data-topflop-row onclick="openDrawer(${p.id})">
           <span class="vl-diverge-main" data-topflop-name>${escapeHtml(p.name)}</span>
           <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
           <span class="vl-diverge-half vl-diverge-half-pos" data-topflop-axis>${pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
-          <span class="vl-diverge-value ${valClass}" data-topflop-val>${pos ? "+" : ""}${pctFr(delta, 2)}</span>
+          <span class="vl-diverge-value" data-topflop-val>${pos ? "+" : ""}${ptsFr(delta)}</span>
         </button>`;
       };
-      c.innerHTML = `<div class="vl-rows">${rows.map(renderRow).join("")}</div>
-        <p class="vl-diverge-note">Un axe unique, centré sur 100. Les barres partent du centre, la longueur est comparable des deux côtés. Plus de colonnes juxtaposées avec deux échelles différentes.</p>`;
+      c.innerHTML = `<div class="vl-head">
+          <span>Produit</span>
+          <span class="vl-head-neg">sous 100</span>
+          <span>au-dessus</span>
+          <span class="vl-head-neg">écart</span>
+        </div>
+        <div class="vl-rows">${rows.map(renderRow).join("")}</div>`;
     }
 
     // Distribution du risque (Dashboard, Passe 7 reprise 7b) : trois
@@ -694,16 +707,24 @@
       if (countEl) {
         countEl.textContent = `${data.length} produit${data.length > 1 ? "s" : ""}`;
       }
+      // Somme exactement 100 % (§ 2.3, sonde arithmétique) : les deux
+      // premières zones arrondissent normalement, la troisième prend le
+      // reste (100 − zone1 − zone2) — trois arrondis indépendants à
+      // 1 décimale peuvent sommer à 99,9 ou 100,1, jamais garanti à 100.
+      const pctBreach = Math.round((counts.breach / total) * 1000) / 10;
+      const pctWatch = Math.round((counts.watch / total) * 1000) / 10;
+      const pctSafe = Math.round((100 - pctBreach - pctWatch) * 10) / 10;
+      const pctByKey = { breach: pctBreach, watch: pctWatch, safe: pctSafe };
       const zones = RISK_ZONE_DEFS.map((z) => ({
         ...z,
         count: counts[z.key],
-        pct: (counts[z.key] / total) * 100,
+        pct: pctByKey[z.key],
       }));
       const bar = zones
         .filter((z) => z.count > 0)
         .map(
           (z) =>
-            `<span class="dash-risk-seg dash-risk-seg-${z.tone}" style="width:${z.pct.toFixed(2)}%">${pctFr(z.pct, 1)}</span>`,
+            `<span class="dash-risk-seg dash-risk-seg-${z.tone}" style="width:${z.pct.toFixed(1)}%">${pctFr(z.pct, 1)}</span>`,
         )
         .join("");
       const rowsHtml = zones
