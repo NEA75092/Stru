@@ -920,13 +920,35 @@
         // les deux cas, un décalage relatif au scroll courant (0 ici, le
         // tiroir vient de s'ouvrir) suffit ; le navigateur borne lui-même
         // scrollTop à l'étendue réelle du conteneur.
-        const landmark = timelineEl.querySelector('[data-landmark="today"]');
-        if (landmark) {
-          requestAnimationFrame(() => {
+        // Repositionné en absolu, pas additionné (passe 8, correctif
+        // Échéancier) : mesuré à la volée sur plusieurs produits, une
+        // seule mesure retombait par endroits 50-300px trop haut ou trop
+        // bas, coupant la ligne du haut à mi-hauteur — le layout n'avait
+        // pas fini de se stabiliser au moment de la mesure (transition
+        // d'ouverture du tiroir, polices Newsreader/Instrument Sans qui
+        // peuvent encore charger). Double rAF pour la position immédiate,
+        // puis un recalcul quand les polices sont chargées
+        // (document.fonts.ready) rattrape les cas encore décalés après
+        // le premier positionnement.
+        if (timelineEl.querySelector('[data-landmark="today"]')) {
+          // Requête refaite à chaque appel, jamais capturée dans la
+          // fermeture : si un autre produit est ouvert avant que
+          // document.fonts.ready ne se résolve, ce rappel tardif doit
+          // agir sur le repère du panneau tel qu'il est maintenant, pas
+          // sur un nœud détaché de l'ouverture précédente.
+          const positionOnLandmark = () => {
+            const currentLandmark = timelineEl.querySelector('[data-landmark="today"]');
+            if (!currentLandmark) return;
             const containerRect = timelineEl.getBoundingClientRect();
-            const landmarkRect = landmark.getBoundingClientRect();
-            timelineEl.scrollTop += landmarkRect.top - containerRect.top;
+            const landmarkRect = currentLandmark.getBoundingClientRect();
+            timelineEl.scrollTop = timelineEl.scrollTop + (landmarkRect.top - containerRect.top);
+          };
+          requestAnimationFrame(() => {
+            requestAnimationFrame(positionOnLandmark);
           });
+          if (document.fonts?.ready) {
+            document.fonts.ready.then(() => requestAnimationFrame(positionOnLandmark));
+          }
         }
       }
       document.getElementById("drawer-ov").classList.add("open");

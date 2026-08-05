@@ -590,13 +590,33 @@
    deuxième implémentation de frise. Borné et défilant : un produit
    peut avoir 30+ échéances reconstituées, la fiche ne doit pas
    s'allonger d'autant. Le tiroir se positionne sur le repère
-   "Aujourd'hui" à l'ouverture (app-portfolio.js). */
+   "Aujourd'hui" à l'ouverture (app-portfolio.js).
+
+   320px (passe 8, correctif Échéancier) ne montrait que 3-4 lignes
+   sur des rangées de 78px, et le positionnement JS sur "Aujourd'hui"
+   (app-portfolio.js) retombait à un scrollTop arbitraire, coupant
+   une ligne à mi-hauteur en haut de la boîte. Cause réelle trouvée en
+   isolant chaque piste séparément : le scroll-anchoring par défaut du
+   navigateur (overflow-anchor: auto) recalculait scrollTop après coup,
+   en réaction au moindre reflow (chargement des polices Newsreader/
+   Instrument Sans), écrasant la valeur posée par le JS. overflow-
+   anchor: none le désactive sur cette boîte précise. Remonté à 550px
+   (~7 rangées) et ancré au pixel : scroll-snap-type ici, scroll-snap-
+   align sur chaque rangée et sur le repère plus bas, pour que le
+   défilement manuel s'arrête toujours sur une ligne entière. */
 .dr-timeline-scroll {
-    max-height: 320px;
+    max-height: 550px;
     overflow-y: auto;
+    overflow-anchor: none;
     margin-top: var(--space-3);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+    scroll-snap-type: y proximity;
+}
+
+.dr-timeline-scroll .timeline-item,
+.dr-timeline-scroll .timeline-landmark {
+    scroll-snap-align: start;
 }
 
 /* La colonne montant en "auto" (dashboard.css .timeline-item) se
@@ -612,6 +632,16 @@
 .dr-timeline-scroll .timeline-amt {
     white-space: normal;
     text-align: right;
+}
+
+/* Repère noyé dans une boîte de 3-4 lignes visibles (passe 8, correctif
+   Échéancier) : au-delà de la hauteur remontée ci-dessus, le contraste
+   du libellé est repris ici pour ce contexte précis — pas dans la
+   règle partagée .timeline-landmark, qui sert aussi la frise du
+   Dashboard, non concernée par ce correctif. */
+.dr-timeline-scroll .timeline-landmark {
+    font-weight: 600;
+    color: var(--color-text-secondary);
 }
 
 /* ── 4. Le menu déroulant (profil, filtres) ──────────────────
