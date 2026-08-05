@@ -314,3 +314,22 @@ concret rencontré en vérifiant plutôt qu'en supposant l'état du code.
   élément — chercher le doublon et en supprimer un.
 - Ajouter un bloc, une métrique ou une carte non demandée. Si une information
   apparaît déjà ailleurs, elle n'est pas dupliquée : une information, un endroit.
+
+## R5, R6, R7 (handoff septembre, 05/08)
+
+### R5 — Un commentaire de code n'est pas une règle
+Toute doctrine transverse vit dans `CLAUDE.md`, ou n'existe pas. Le « §1.2 » qui
+justifie l'encre monochrome n'existait que dans deux commentaires (`dashboard.css`,
+`app-dashboard.js:595`) : invisible à la relecture, donc impossible à contester au
+bon moment. Un arbitrage de design ne se documente jamais dans un commentaire.
+
+### R6 — L'implémenteur n'arbitre jamais un conflit de doctrine
+Maquette contre tokens, spec contre code existant : tu t'arrêtes et tu remontes la
+question, **même quand ta lecture est la bonne**. C'était le cas le 05/08 : la
+lecture était juste, la décision n'appartenait pas à l'implémenteur.
+
+### R7 — La conformité se prouve sur `origin/master`, après push
+Une sonde d'invariants lancée sur un commit local ne prouve rien. Le rapport du
+05/08 annonçait « tous les invariants matchent » sur le commit `5637862`, que le
+dépôt ne contenait pas : la carte mesurée n'existait nulle part. Sortie brute de la
+sonde, sur la branche poussée, ou rien.
