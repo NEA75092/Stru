@@ -260,7 +260,7 @@ parade est de lire chaque ligne, pas de se fier au nombre de résultats.
 
 ## Ce que la passe 8 (§1 et ses correctifs) a appris (05/08)
 
-Trois habitudes prises pendant cette passe, chacune motivée par un raté
+Quatre habitudes prises pendant cette passe, chacune motivée par un raté
 concret rencontré en vérifiant plutôt qu'en supposant l'état du code.
 
 1. **Une largeur de colonne se mesure, elle ne s'estime pas.** Une
@@ -288,6 +288,13 @@ concret rencontré en vérifiant plutôt qu'en supposant l'état du code.
    consommateur » peut être branché demain ; le formater correctement
    maintenant ne coûte rien et évite de rejouer le même bug de formatage
    à retardement, silencieusement, le jour où quelqu'un le branche.
+
+4. **Cocher une case de checklist exige de vérifier le comportement, pas le
+   commit.** Un commit dont le message annonce §6.2 avait bel et bien livré
+   §6.1 et une partie de §6.2 — le KPI existait, avec le mauvais
+   comportement dans l'état vide. Relire le commit l'aurait coché ; ouvrir
+   le tiroir d'un client sans patrimoine l'a démenti. Cette case est restée
+   décochée trois jours pour cette raison.
 
 ## Ce qu'il ne faut pas faire
 

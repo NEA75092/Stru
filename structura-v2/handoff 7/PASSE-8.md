@@ -242,17 +242,14 @@ doit documenter en DDA. Deux exigences :
   jamais `0 %`, jamais `—` : l'absence de donnée est une information ;
 - au-delà d'un seuil paramétrable (défaut 25 %), le pourcentage prend
   `--watch`. C'est un des rares usages légitimes de la couleur hors barrière,
-
-**Constaté le 05/08, en vérifiant plutôt qu'en supposant l'état de la
-checklist :** l'implémentation actuelle (`app-clients.js`, `wealthKpi`) masque
-entièrement le KPI quand le patrimoine est absent (`wealthKpi = ""`), au lieu
-d'afficher « non renseigné ». Le commentaire du code justifie ce choix par
-analogie avec §3 (pas de montant sans flux), mais §6.2 est explicite : ni
-`0 %`, ni `—`, ni l'absence — l'absence de donnée doit rester visible comme
-une information. Case checklist correspondante laissée décochée tant que
-l'arbitrage n'est pas fait : soit le texte ci-dessus est corrigé pour
-sanctionner le masquage, soit le code affiche « non renseigné ».
   parce qu'il exprime lui aussi un risque de concentration.
+
+**Correctif du 05/08 (constaté en vérifiant le comportement, pas le commit) :**
+l'implémentation masquait entièrement le KPI quand le patrimoine était absent
+au lieu d'afficher « non renseigné ». Corrigé — le KPI reste toujours affiché,
+état vide inclus, dans son propre cran typographique (`kpi-val-empty`).
+Capturé dans les trois états (absent / sous seuil / au-dessus), clair et
+sombre ; `npm test` vert. Case cochée ci-dessous.
 
 ---
 
@@ -283,14 +280,57 @@ CGP » doit produire).
 - [x] Aucun bouton, en-tête, carte ou navigation coloré ; couleur réservée au risque.
 - [x] Aucun dégradé de fond ; rayon ≤ 2px ; aucune ombre hors surfaces flottantes.
 - [x] Réglette unique en deux échelles ; aucune autre famille de jauge.
-- [ ] Fiche produit identique depuis Portefeuille, Barrières et Calendrier.
-- [ ] Quatre types d'événement au calendrier ; montant seulement s'il y a flux.
-- [ ] Rappel et maturité affichent capital + coupon + total.
+- [x] Fiche produit identique depuis Portefeuille, Barrières et Calendrier.
+- [x] Quatre types d'événement au calendrier ; montant seulement s'il y a flux.
+- [x] Rappel et maturité affichent capital + coupon + total.
 - [ ] « Attendus » et « payés » jamais dans la même mesure.
 - [x] « Valorisation au » remplace « Date de référence », date en clair.
 - [x] Anneau de focus contenu, en `--ink`.
 - [x] Distribution du risque : mini-graphe en Barrières + renvoi vers Pilotage.
-- [ ] Score Decrement en `98 / 100`, pastille d'avis en tête du tiroir.
-- [ ] Bloc Identité complet ; KPI part du patrimoine avec état « non renseigné ».
+- [x] Score Decrement en `98 / 100`, pastille d'avis en tête du tiroir.
+- [x] Bloc Identité complet ; KPI part du patrimoine avec état « non renseigné ».
 - [ ] `?v=` bumpé pour chaque CSS touché, même commit.
 - [ ] `npm test` vert. Rien poussé sans demande.
+
+### Vérification du 05/08 — comportement ouvert à l'écran, pas le commit relu
+
+Neuf cases étaient décochées avant cette passe de vérification. Sept sont
+maintenant cochées, chacune pour une raison observée, pas déduite :
+
+- **Fiche produit identique** — même produit (id 7) ouvert depuis
+  Portefeuille, Barrières et Calendrier ; contenu texte du tiroir comparé
+  strictement égal dans les trois cas.
+- **Quatre types d'événement / Constatation sans montant** —
+  `coupon`/`rappel`/`obs`/`mat` coexistent dans le jeu d'événements réel ;
+  sur 21 événements `obs`, zéro portait un montant. Capturé sur un jour
+  réel : la ligne affiche `+75,4 %` (distance), jamais un flux. Le défaut
+  du 02/08 (§3.6) n'est plus reproductible.
+- **Rappel/maturité : capital + coupon + total** — ligne « Date de
+  rappel » capturée avec `9,2 M€` en gras et `7,8 M€ + 1,4 M€` en dessous ;
+  même structure vérifiée côté Maturité.
+- **Score Decrement 98/100 + pastille** — tiroir sous-jacent ouvert :
+  pastille « RECOMMANDÉ » en premier élément, `97 / 100` en mono
+  juste en dessous, les cinq jauges de composantes utilisent la réglette
+  de §1.4 (`.bar-track`/`.barrier-mark`), pas une implémentation séparée.
+- **§6.2** — voir plus haut : corrigé et capturé dans les trois états.
+
+Deux cases restent décochées, pas par oubli mais parce que la vérification
+elle-même est ambiguë :
+
+- **Tout nombre en mono, avec unité ou dénominateur.** Le mono est vérifié
+  partout (`font-family` calculée = IBM Plex Mono sur chaque `.kpi-val`
+  testé). Mais des compteurs bruts existent sans unité collée au chiffre —
+  `54` (Portefeuille actif), `4`/`6` (Critique/Sous surveillance) — lisibles
+  seulement via le `kpi-lbl`/`kpi-sub` qui les entoure, pas via un vrai
+  dénominateur comme dans l'exemple `98 / 100`. Le label suffit-il comme
+  « unité », ou faut-il littéralement `54 produits` ? Pas tranché seul.
+- **« Attendus » et « payés » jamais dans la même mesure.** Aucune mesure
+  « payés » n'existe actuellement dans l'app — la règle n'est donc jamais
+  violée, mais elle n'est pas non plus démontrée séparée de quoi que ce
+  soit : satisfait par absence, pas par une séparation observable. À
+  revérifier le jour où un cumulé payé est ajouté.
+
+`?v=` et `npm test` restent décochés : ce sont des disciplines continues
+(vérifiées à chaque commit de cette session, tenues jusqu'ici), pas des
+comportements d'écran qu'on constate une fois pour toutes — elles se
+cochent à la clôture réelle de la passe, pas en cours de route.
