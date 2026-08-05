@@ -1,80 +1,89 @@
-# Référence produits structurés
+# RÉFÉRENCE PRODUITS STRUCTURÉS — ossature
 
-Fichier de référence unique pour l'entrée de matière documentaire (§7 de
-PASSE-8.md). Les documents sources (`uploads/`) ne sont jamais lus
-directement par le code applicatif — tout passe par ce fichier.
+Ce fichier est vide de contenu produit. Il fixe la structure que §7 impose ;
+le remplissage vient une fois les documents déposés, dans l'ordre de lecture
+ci-dessous — pas avant, et jamais en le devinant entre-temps.
 
-**Statut : ossature vide.** Aucun document déposé dans `uploads/` à ce
-stade. Les sections ci-dessous reprennent l'ordre de lecture fixé par §7 ;
-chacune attend un document précis, pas un remplissage au fil de l'eau.
-Ne pas anticiper le contenu avant d'avoir le document sous les yeux — un
-vocabulaire ou une convention de calcul devinés ici referaient exactement
-l'erreur que ce fichier existe pour éviter.
+Rappel de la règle (§7) : ce fichier est la **seule** source que le code
+applicatif peut lire. Aucun `uploads/*.pdf` n'est jamais référencé ou lu par
+`src/`. Si un champ manque ici, il n'existe pas pour le code, quelle que soit
+la richesse du document source.
+
+Ordre de lecture imposé par §7 — chaque section ci-dessous n'est remplie
+qu'à son tour, jamais en anticipant sur les documents suivants :
+
+1. Term sheets → §A, §B
+2. Échéancier réel → §C
+3. Notice de décrément → §D
+4. DIC/KID → §E
+5. Rapport d'adéquation type → §F
 
 ---
 
-## 1. Vocabulaire exact
+## §A — Vocabulaire exact
 
-Source : **term sheets**.
+Table à deux colonnes : terme du document source → terme retenu dans l'app.
+Un seul terme retenu par notion, même si les term sheets varient d'un
+émetteur à l'autre (ex. « date de constatation » vs « date d'observation »).
 
-Terminologie telle qu'elle apparaît dans les documents — pas une
-traduction ni une normalisation a priori. Un même mécanisme peut porter
-des noms différents d'un émetteur à l'autre ; ce tableau doit le montrer,
-pas le lisser.
+| Terme(s) source | Terme retenu (app) | Note |
+| --- | --- | --- |
+| — à remplir depuis les term sheets — | | |
 
-*(vide — en attente de term sheets)*
+## §B — Champs d'une fiche produit
 
-## 2. Champs d'une fiche produit
+Un champ par ligne. Ne liste que ce que le code lit réellement (croiser avec
+`app-state.js` `normalizeProduct` / `normalizeAllocation` une fois rempli —
+ne pas inventer un champ que rien ne consomme).
 
-Source : **term sheets**.
+| Champ | Type | Obligatoire | Source (doc) | Convention |
+| --- | --- | --- | --- | --- |
+| — à remplir depuis les term sheets — | | | | |
 
-Liste des champs effectivement présents sur un term sheet, avec leur
-libellé exact et leur emplacement type dans le document (pour guider une
-future extraction). Distinct de la fiche produit unique de §2 (l'écran) :
-ceci documente ce qu'un document source contient, pas ce que l'app
-affiche.
+## §C — Logique acquis / conditionnel
 
-*(vide — en attente de term sheets)*
+Depuis l'échéancier réel, pas depuis le term sheet (le term sheet décrit le
+mécanisme théorique ; l'échéancier montre ce qui s'est réellement produit).
 
-## 3. Logique acquis / conditionnel
+- Conditions de déclenchement d'un coupon (barrière, mémoire, effet cliquet…)
+- Différence entre un montant **attendu** (projeté, avant la date) et **acquis**
+  (constaté, après) — vocabulaire à faire correspondre à la règle checklist
+  « Attendus et payés jamais dans la même mesure »
+- Cas de rappel anticipé : ce qui devient exigible ce jour-là (capital +
+  coupon(s), cf. checklist §2)
 
-Source : **échéancier réel**.
+À remplir : —
 
-Comment un échéancier réel distingue un coupon déjà versé (acquis) d'un
-coupon encore soumis à condition de marché (conditionnel) — vocabulaire,
-mise en forme, tout signal qui permettrait au code de faire cette
-distinction sans la deviner.
+## §D — Points fixes vs pourcentage annuel (décrément)
 
-*(vide — en attente d'un échéancier réel)*
+Distinction centrale pour le Decrement Score et ses jauges — ne pas la
+mélanger avec une performance classique.
 
-## 4. Décrément : points fixes vs % annuel
+- Définition du décrément fixe (points d'indice retirés à intervalle fixe)
+- Définition du décrément proportionnel (% annualisé)
+- Comment un sous-jacent à décrément affecte le calcul de barrière /
+  distance à barrière (déjà implémenté ailleurs — ce fichier documente la
+  règle, ne la réimplémente pas)
 
-Source : **notice de décrément**.
+À remplir : —
 
-Convention de la notice pour exprimer le décrément — en points d'indice
-fixes ou en pourcentage annuel — et comment la distinguer à la lecture.
-Directement lié à `decrement-engine.js` (points vs %/an, déjà une
-distinction active dans le moteur actuel).
+## §E — Mentions obligatoires (DIC/KID)
 
-*(vide — en attente d'une notice de décrément)*
+Ce que la réglementation impose d'afficher quelque part dans l'app pour
+chaque produit — pas nécessairement dans la fiche elle-même, mais localisé
+ici pour que rien ne soit oublié au moment de décider où.
 
-## 5. Mentions obligatoires
+- Indicateur de risque (SRI, échelle 1-7)
+- Scénarios de performance (favorable / modéré / défavorable / de tension)
+- Coûts (entrée, sortie, courants)
+- Durée de détention recommandée
 
-Source : **DIC/KID**.
+À remplir : —
 
-Mentions réglementaires qui doivent apparaître telles quelles — texte
-exact, pas une paraphrase — pour qu'une fiche produit ou un rapport
-généré par l'app ne s'expose pas à en avoir inventé ou oublié une.
+## §F — Rapport d'adéquation type (« Lecture CGP »)
 
-*(vide — en attente d'un DIC/KID)*
+Ce que la fonctionnalité « Lecture CGP » doit produire, en sortie — structure
+du rapport, pas son moteur de calcul. Sert de spec fonctionnelle pour l'outil
+qui viendra consommer ce fichier de référence en entier (§A à §E).
 
-## 6. Rapport d'adéquation type — ce que « Lecture CGP » doit produire
-
-Source : **rapport d'adéquation type**.
-
-Structure et contenu attendus d'un rapport d'adéquation DDA, pour cadrer
-ce que la fonctionnalité « Lecture CGP » de l'app doit produire en sortie.
-Dernier maillon de la chaîne de lecture (§7) : les cinq sections
-précédentes l'alimentent.
-
-*(vide — en attente d'un rapport d'adéquation type)*
+À remplir : —
