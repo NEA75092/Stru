@@ -8,8 +8,10 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraDashboard(root) {
-    const { setText, setTextFlash, moneyShort, pctFr, shortDateFr, escapeHtml } =
+    const { setText, setTextFlash, moneyShort, pctFr, shortDateFr, escapeHtml, renderGauge } =
       root.StructuraUtils;
+    const GAUGE_AXIS_MIN = -20;
+    const GAUGE_AXIS_MAX = 40;
     const {
       APP_MODE_KEY,
       productsForScope,
@@ -56,6 +58,13 @@
       { label: "UBS", re: /\bubs\b/i },
     ];
 
+    // Filtre breach/crit/warn : construit sur p.st, lui-même dérivé de
+    // p.dist/p.barrier (statusFromDist, app-state.js) — le champ que
+    // distProtectionCell (app-portfolio.js) documente explicitement comme
+    // la distance à la barrière de PROTECTION du capital (PDI), pas une
+    // barrière de rappel ou de coupon. Vérifié avant d'écrire cette
+    // fonction, pas supposé : un CG (sans PDI) retombe sur "none" et sort
+    // du filtre par construction, exactement le comportement attendu ici.
     function buildPortfolioAlerts() {
       const severity = { breach: 0, crit: 1, warn: 2 };
       return productsForScope()
@@ -72,16 +81,9 @@
           statusCls: p.st.cls,
           statusLabel: p.st.label,
           name: p.name,
-          // "Distance protection :" retiré : la valeur seule suffit
-          // une fois qu'elle est à côté du nom du sous-jacent — le
-          // libellé ne faisait que répéter ce que la colonne dit déjà
-          // (passe 6, section B.3).
-          context: `${p.underlying || "—"} · ${
-            Number.isFinite(Number(p.dist))
-              ? `${p.dist > 0 ? "+" : ""}${pctFr(p.dist)}`
-              : "à confirmer"
-          } · obs. ${shortDateFr(p.nextEvtDate)}`,
-          amount: p.val,
+          context: `${p.underlying || "—"} · ${p.emetteur || "Émetteur à confirmer"}`,
+          dist: p.dist,
+          barrier: p.barrier,
         }));
     }
 
@@ -660,14 +662,41 @@
       }
       if (!list.length) {
         c.innerHTML =
-          '<div class="al al-ok"><span class="al-rail"></span><div class="al-txt"><strong>Rien d\'urgent</strong><span class="al-context">Aucune alerte barrière ou surveillance sur le portefeuille.</span></div></div>';
+          '<div class="al al-gauge al-ok"><span class="al-rail"></span><div class="al-txt"><strong>Rien d\'urgent</strong><span class="al-context">Aucune alerte barrière ou surveillance sur le portefeuille.</span></div></div>';
         return;
       }
+      // Jauge de §1.4 (passe 7, bloc 7a) : même composant que Barrières et
+      // le tiroir Decrement (.bar-track/.bar-fill/.barrier-mark), mêmes
+      // paramètres d'axe (GAUGE_AXIS_MIN/MAX, seuil à 0) que la colonne
+      // Distance protection du tableau Portefeuille — cette carte montre
+      // la même donnée (distance à la PDI), pas une variante. Remplace le
+      // montant : le montant ne disait rien sur l'urgence, la distance si.
       c.innerHTML = list
-        .map(
-          (a) =>
-            `<div class="al al-${a.lvl}" onclick="openDrawer(${a.productId})"><span class="al-rail"></span><div class="al-txt"><strong>${escapeHtml(a.name)}</strong><span class="al-context">${escapeHtml(a.context)}</span></div><span class="pill-status ${a.statusCls}">${escapeHtml(a.statusLabel)}</span><span class="al-amount">${moneyShort(a.amount)}<svg class="al-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5l6 5.5-6 5.5"/></svg></span></div>`,
-        )
+        .map((a) => {
+          const hasDist = Number.isFinite(Number(a.dist));
+          const gauge = hasDist
+            ? renderGauge({
+                scale: "row",
+                value: a.dist,
+                min: GAUGE_AXIS_MIN,
+                max: GAUGE_AXIS_MAX,
+                threshold: 0,
+                tone: a.statusCls,
+                display: `${a.dist >= 0 ? "+" : ""}${pctFr(a.dist, 1)}`,
+                tooltip: `Barrière ${pctFr(a.barrier, 0)} · distance actuelle ${pctFr(a.dist, 1)}`,
+              })
+            : "";
+          return `<div class="al al-gauge al-${a.lvl}" onclick="openDrawer(${a.productId})">
+            <span class="al-rail"></span>
+            <div class="al-txt">
+              <strong>${escapeHtml(a.name)}</strong>
+              <span class="al-context">${escapeHtml(a.context)}</span>
+              ${gauge ? `<div class="al-gauge-row">${gauge}</div>
+              <div class="al-gauge-labels"><span>vs niveau initial</span><span>Barrière PDI ${escapeHtml(pctFr(a.barrier, 0))}</span></div>` : ""}
+            </div>
+            <span class="pill-status ${a.statusCls}">${escapeHtml(a.statusLabel)}</span>
+          </div>`;
+        })
         .join("");
     }
 
