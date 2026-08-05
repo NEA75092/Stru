@@ -592,15 +592,19 @@
       }).join("");
     }
 
-    // Top/Flop VL (Passe 7 reprise, bloc 7b) : une seule liste, un axe
-    // unique centré sur 100 (niveau VL à l'émission), barres qui partent
-    // du centre et divergent des deux côtés. Grille réelle à 4 colonnes
-    // (nom | moitié négative | moitié positive | valeur), l'axe est la
-    // frontière commune entre les deux colonnes centrales — mêmes
-    // largeurs sur chaque ligne, donc alignée verticalement sur toute la
-    // liste. Couleur par rôle existant (positif = --color-accent, négatif
-    // = --color-breach), tranché le 05/08 pour cette reprise structurelle
-    // — la palette générale de l'app (teal) reste hors périmètre.
+    // Top/Flop VL (Passe 7 reprise, bloc 7b — rouvert après mesure de
+    // METHODE-VERIFICATION.md/REFERENCES-MESUREES.md) : une seule liste,
+    // un axe unique centré à 50 % de la zone de tracé (deux colonnes 1fr
+    // égales), qui reste au centre quelles que soient les données — si
+    // tout le portefeuille est sous 100, la moitié droite reste vide,
+    // c'est l'information. HEADROOM cape la barre la plus longue à 92 %
+    // de la demi-largeur (référence mesurée : 91,2 %), jamais 100 % pile.
+    // Nom sur une seule ligne (186px, ellipsis) — pas de sous-jacent
+    // empilé dessous dans cette liste, à la différence des autres
+    // listes de l'app. Couleur par rôle existant (positif =
+    // --color-accent, négatif = --color-breach), palette générale hors
+    // périmètre pour cette reprise.
+    const VL_TOPFLOP_BAR_HEADROOM = 0.92;
     function renderVlTopFlop() {
       const c = document.getElementById("vl-top-flop");
       if (!c) return;
@@ -629,23 +633,87 @@
       const renderRow = (p) => {
         const delta = p.vlLevel - 100;
         const pos = delta >= 0;
-        const barPct = Math.min(100, (Math.abs(delta) / maxDev) * 100);
+        const barPct = Math.min(100, (Math.abs(delta) / maxDev) * 100 * VL_TOPFLOP_BAR_HEADROOM);
         const valClass = pos ? "vl-diverge-value-pos" : "vl-diverge-value-neg";
         return `<button type="button" class="vl-diverge-row" data-topflop-row onclick="openDrawer(${p.id})">
-          <span class="vl-diverge-main" data-topflop-name><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.underlying || p.emetteur || "—")}</small></span>
+          <span class="vl-diverge-main" data-topflop-name>${escapeHtml(p.name)}</span>
           <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
           <span class="vl-diverge-half vl-diverge-half-pos" data-topflop-axis>${pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
           <span class="vl-diverge-value ${valClass}" data-topflop-val>${pos ? "+" : ""}${pctFr(delta, 2)}</span>
         </button>`;
       };
-      c.innerHTML = `<div class="vl-diverge-legend">Écart à la VL d'émission (base 100) · classement Top/Flop 5</div>
-        <div class="vl-rows">${rows.map(renderRow).join("")}</div>`;
+      c.innerHTML = `<div class="vl-rows">${rows.map(renderRow).join("")}</div>
+        <p class="vl-diverge-note">Un axe unique, centré sur 100. Les barres partent du centre, la longueur est comparable des deux côtés. Plus de colonnes juxtaposées avec deux échelles différentes.</p>`;
+    }
+
+    // Distribution du risque (Dashboard, Passe 7 reprise 7b) : trois
+    // zones simples en part du portefeuille — modèle propre à cette
+    // lecture rapide, distinct des cinq statuts détaillés de Pilotage
+    // (computeRiskDistribution/statusFromDist, seuils 0/5/15). Seuils
+    // ici, tels que la maquette les nomme (lignes 137-155 du DC) : sous
+    // la barrière (dist<0), à surveiller (0 ≤ dist < 10), zone de
+    // rendement (dist ≥ 10, ou capital garanti — un CG n'a pas de
+    // barrière à franchir donc n'est jamais "sous surveillance" ; une
+    // distance manquante est traitée comme non démontrée à risque, même
+    // défaut que pour un CG).
+    const RISK_ZONE_DEFS = [
+      { key: "breach", tone: "breach", label: "Sous la barrière", rule: "Sous la barrière de protection" },
+      { key: "watch", tone: "watch", label: "À surveiller", rule: "À moins de 10 % de la barrière de protection" },
+      { key: "safe", tone: "safe", label: "Zone de rendement", rule: "Au-dessus de la barrière d'autocall, capital garanti inclus" },
+    ];
+    function riskZoneFor(p) {
+      if (p.type === "CG") return "safe";
+      const dist = Number(p.dist);
+      if (!Number.isFinite(dist)) return "safe";
+      if (dist < 0) return "breach";
+      if (dist < 10) return "watch";
+      return "safe";
+    }
+    function renderDashboardRiskDistribution() {
+      const c = document.getElementById("dashboard-risk-dist");
+      const countEl = document.getElementById("dashboard-risk-count");
+      if (!c) return;
+      const data = productsForScope();
+      const total = data.length || 1;
+      const counts = { breach: 0, watch: 0, safe: 0 };
+      data.forEach((p) => {
+        counts[riskZoneFor(p)]++;
+      });
+      if (countEl) {
+        countEl.textContent = `${data.length} produit${data.length > 1 ? "s" : ""}`;
+      }
+      const zones = RISK_ZONE_DEFS.map((z) => ({
+        ...z,
+        count: counts[z.key],
+        pct: (counts[z.key] / total) * 100,
+      }));
+      const bar = zones
+        .filter((z) => z.count > 0)
+        .map(
+          (z) =>
+            `<span class="dash-risk-seg dash-risk-seg-${z.tone}" style="width:${z.pct.toFixed(2)}%">${pctFr(z.pct, 1)}</span>`,
+        )
+        .join("");
+      const rowsHtml = zones
+        .map(
+          (z) => `<div class="dash-risk-row">
+            <span class="dash-risk-dot dash-risk-dot-${z.tone}"></span>
+            <span class="dash-risk-lbl"><strong>${escapeHtml(z.label)}</strong><small>${escapeHtml(z.rule)}</small></span>
+            <span class="dash-risk-pct dash-risk-pct-${z.tone}">${pctFr(z.pct, 1)}</span>
+            <span class="dash-risk-count">${z.count} prod.</span>
+          </div>`,
+        )
+        .join("");
+      c.innerHTML = `<p class="dash-risk-intro">Trois zones, en part du portefeuille. La question n'est pas « combien de points de marge », c'est « où est mon encours ».</p>
+        <div class="dash-risk-bar">${bar}</div>
+        <div class="dash-risk-rows">${rowsHtml}</div>`;
     }
 
     function renderDashboardModules() {
       renderIssuerExposure();
       renderDashboardTimeline();
       renderVlTopFlop();
+      renderDashboardRiskDistribution();
     }
 
     function renderAlerts() {
@@ -805,6 +873,7 @@
       renderIssuerExposure,
       renderDashboardTimeline,
       renderVlTopFlop,
+      renderDashboardRiskDistribution,
       renderAlerts,
       buildPortfolioAlerts,
       renderSessionChrome,
