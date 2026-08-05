@@ -258,6 +258,37 @@ pour tout autre chose (variable locale, paramètre, propriété d'un objet
 sans rapport) noie le vrai consommateur dans le bruit — la seule
 parade est de lire chaque ligne, pas de se fier au nombre de résultats.
 
+## Ce que la passe 8 (§1 et ses correctifs) a appris (05/08)
+
+Trois habitudes prises pendant cette passe, chacune motivée par un raté
+concret rencontré en vérifiant plutôt qu'en supposant l'état du code.
+
+1. **Une largeur de colonne se mesure, elle ne s'estime pas.** Une
+   première correction des en-têtes tronqués de Barrières et Decrement
+   Score a été faite au jugé (largeur de caractère calculée à la main) —
+   insuffisante : la colonne "Coût historique" a été retronquée dans la
+   foulée par une largeur reprise trop vite ailleurs. Le calcul correct
+   est venu d'une mesure directe dans le navigateur, colonne par colonne,
+   sur chaque en-tête, badge et cellule des trois tables
+   (`scrollWidth > clientWidth`). C'est cette mesure, pas une estimation,
+   qui a aussi révélé que Type/Émetteur/VL débordaient ailleurs —
+   invisible à l'œil et au calcul manuel.
+
+2. **Un remplacement par lot se vérifie par un grep large après coup, pas
+   seulement avant.** Le correctif du formateur de pourcentages a raté une
+   occurrence (`consensus?.status?.consensusPct ?? 0`) parce que le
+   remplacement ciblait l'opérateur `|| 0` — `??` est un opérateur
+   différent, invisible tant que le grep de vérification reste calé sur le
+   motif du remplacement plutôt que rouvert en large (`}%` sans filtre
+   d'opérateur) une fois le remplacement fait.
+
+3. **`pctFr` / `formatPctFr` sont le seul chemin pour un pourcentage
+   affiché à l'écran — jamais de `.toFixed()` + `"%"` local, même dans un
+   champ qui n'a aujourd'hui aucun consommateur.** Un champ « zéro
+   consommateur » peut être branché demain ; le formater correctement
+   maintenant ne coûte rien et évite de rejouer le même bug de formatage
+   à retardement, silencieusement, le jour où quelqu'un le branche.
+
 ## Ce qu'il ne faut pas faire
 
 - Écrire un nouveau fichier CSS « de correction » par-dessus les autres.

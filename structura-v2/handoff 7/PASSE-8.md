@@ -242,6 +242,16 @@ doit documenter en DDA. Deux exigences :
   jamais `0 %`, jamais `—` : l'absence de donnée est une information ;
 - au-delà d'un seuil paramétrable (défaut 25 %), le pourcentage prend
   `--watch`. C'est un des rares usages légitimes de la couleur hors barrière,
+
+**Constaté le 05/08, en vérifiant plutôt qu'en supposant l'état de la
+checklist :** l'implémentation actuelle (`app-clients.js`, `wealthKpi`) masque
+entièrement le KPI quand le patrimoine est absent (`wealthKpi = ""`), au lieu
+d'afficher « non renseigné ». Le commentaire du code justifie ce choix par
+analogie avec §3 (pas de montant sans flux), mais §6.2 est explicite : ni
+`0 %`, ni `—`, ni l'absence — l'absence de donnée doit rester visible comme
+une information. Case checklist correspondante laissée décochée tant que
+l'arbitrage n'est pas fait : soit le texte ci-dessus est corrigé pour
+sanctionner le masquage, soit le code affiche « non renseigné ».
   parce qu'il exprime lui aussi un risque de concentration.
 
 ---
@@ -267,11 +277,11 @@ CGP » doit produire).
 
 ## Checklist de sortie
 
-- [ ] Trois familles de polices, zéro `font-family` littéral hors tokens.
-- [ ] Zéro `font-size` littéral hors définition des 6 crans.
+- [x] Trois familles de polices, zéro `font-family` littéral hors tokens.
+- [x] Zéro `font-size` littéral hors définition des 6 crans.
 - [ ] Tout nombre en mono, toujours accompagné de son unité ou dénominateur.
-- [ ] Aucun bouton, en-tête, carte ou navigation coloré ; couleur réservée au risque.
-- [ ] Aucun dégradé de fond ; rayon ≤ 2px ; aucune ombre hors surfaces flottantes.
+- [x] Aucun bouton, en-tête, carte ou navigation coloré ; couleur réservée au risque.
+- [x] Aucun dégradé de fond ; rayon ≤ 2px ; aucune ombre hors surfaces flottantes.
 - [x] Réglette unique en deux échelles ; aucune autre famille de jauge.
 - [ ] Fiche produit identique depuis Portefeuille, Barrières et Calendrier.
 - [ ] Quatre types d'événement au calendrier ; montant seulement s'il y a flux.
