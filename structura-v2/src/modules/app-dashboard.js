@@ -8,10 +8,8 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraDashboard(root) {
-    const { setText, setTextFlash, moneyShort, pctFr, shortDateFr, escapeHtml, renderGauge } =
+    const { setText, setTextFlash, moneyShort, pctFr, shortDateFr, escapeHtml } =
       root.StructuraUtils;
-    const GAUGE_AXIS_MIN = -20;
-    const GAUGE_AXIS_MAX = 40;
     const {
       APP_MODE_KEY,
       productsForScope,
@@ -75,16 +73,30 @@
             (Number(a.dist) || 0) - (Number(b.dist) || 0),
         )
         .slice(0, 5)
-        .map((p) => ({
-          productId: p.id,
-          lvl: p.st.s === "breach" || p.st.s === "crit" ? "crit" : "warn",
-          statusCls: p.st.cls,
-          statusLabel: p.st.label,
-          name: p.name,
-          context: `${p.underlying || "—"} · ${p.emetteur || "Émetteur à confirmer"}`,
-          dist: p.dist,
-          barrier: p.barrier,
-        }));
+        .map((p) => {
+          // p.barrier est le niveau barrière en % du spot initial (ex.
+          // 72 = barrière à 72 % de l'initial) ; p.dist est l'écart au
+          // niveau barrière *en % de ce niveau barrière* (0 = pile sur
+          // la barrière), pas un écart au niveau initial. Même formule
+          // que app-portfolio.js/app-calendar.js/app-utils.js :
+          // current = barrier × (1 + dist/100). La carte § 2.1 a besoin
+          // de la performance vs *initial* (perfVsInitial) et du niveau
+          // barrière vs initial (barrierVsInitial) — deux valeurs
+          // dérivées, pas p.dist/p.barrier directement.
+          const hasBarrier = Number.isFinite(Number(p.barrier));
+          const hasDist = Number.isFinite(Number(p.dist));
+          const currentPctOfInitial = hasBarrier && hasDist ? Number(p.barrier) * (1 + Number(p.dist) / 100) : null;
+          return {
+            productId: p.id,
+            lvl: p.st.s === "breach" || p.st.s === "crit" ? "crit" : "warn",
+            statusCls: p.st.cls,
+            statusLabel: p.st.label,
+            name: p.name,
+            context: `${p.underlying || "—"} · ${p.emetteur || "Émetteur à confirmer"}`,
+            perfVsInitial: currentPctOfInitial !== null ? currentPctOfInitial - 100 : null,
+            barrierVsInitial: hasBarrier ? Number(p.barrier) - 100 : null,
+          };
+        });
     }
 
     function bankGroupName(value) {
@@ -716,6 +728,22 @@
       renderDashboardRiskDistribution();
     }
 
+    // Sous la protection du capital (specs/dashboard.md § 2.1, remplace
+    // l'ancienne jauge §1.4 sur axe −20/+40) : règle graduée dédiée, axe
+    // −60 % (gauche) à 0 % / niveau initial (droite). Rainure, encoche
+    // PDI (seuil), curseur (niveau réel), zone franchie hachurée entre
+    // l'encoche et le curseur — l'encoche seule ne dit pas l'ampleur du
+    // franchissement, la zone si. Plancher de largeur (§2.1) : sous 3 %
+    // de l'axe (~9 px sur 300), la trame ne rend plus qu'une hachure et
+    // devient invisible — un produit à peine sous sa barrière est
+    // justement le cas qu'il faut voir.
+    const CAP_AXIS_MIN = -60;
+    const CAP_AXIS_MAX = 0;
+    const CAP_ZONE_FLOOR_PCT = 3;
+    function capAxisPct(value) {
+      const clamped = Math.max(CAP_AXIS_MIN, Math.min(CAP_AXIS_MAX, Number(value) || 0));
+      return ((clamped - CAP_AXIS_MIN) / (CAP_AXIS_MAX - CAP_AXIS_MIN)) * 100;
+    }
     function renderAlerts() {
       const c = document.getElementById("alerts-list");
       const block = document.getElementById("dash-alerts-block");
@@ -725,47 +753,42 @@
       if (block) block.classList.toggle("is-empty", !list.length);
       if (meta) {
         meta.textContent = list.length
-          ? `${list.length} produit${list.length > 1 ? "s" : ""} à ouvrir`
-          : "Risque barrière : aucune alerte active";
+          ? `Dashboard · ${list.length} position${list.length > 1 ? "s" : ""}`
+          : "Aucune position sous la protection du capital";
       }
       if (!list.length) {
-        c.innerHTML =
-          '<div class="al al-gauge al-ok"><span class="al-rail"></span><div class="al-txt"><strong>Rien d\'urgent</strong><span class="al-context">Aucune alerte barrière ou surveillance sur le portefeuille.</span></div></div>';
+        c.innerHTML = '<div class="cap-empty">Rien d\'urgent — aucune position sous la protection du capital.</div>';
         return;
       }
-      // Jauge de §1.4 (passe 7, bloc 7a) : même composant que Barrières et
-      // le tiroir Decrement (.bar-track/.bar-fill/.barrier-mark), mêmes
-      // paramètres d'axe (GAUGE_AXIS_MIN/MAX, seuil à 0) que la colonne
-      // Distance protection du tableau Portefeuille — cette carte montre
-      // la même donnée (distance à la PDI), pas une variante. Remplace le
-      // montant : le montant ne disait rien sur l'urgence, la distance si.
-      c.innerHTML = list
-        .map((a) => {
-          const hasDist = Number.isFinite(Number(a.dist));
-          const gauge = hasDist
-            ? renderGauge({
-                scale: "row",
-                value: a.dist,
-                min: GAUGE_AXIS_MIN,
-                max: GAUGE_AXIS_MAX,
-                threshold: 0,
-                tone: a.statusCls,
-                display: `${a.dist >= 0 ? "+" : ""}${pctFr(a.dist, 1)}`,
-                tooltip: `Barrière ${pctFr(a.barrier, 0)} · distance actuelle ${pctFr(a.dist, 1)}`,
-              })
-            : "";
-          return `<div class="al al-gauge al-${a.lvl}" onclick="openDrawer(${a.productId})">
-            <span class="al-rail"></span>
-            <div class="al-txt">
-              <strong>${escapeHtml(a.name)}</strong>
-              <span class="al-context">${escapeHtml(a.context)}</span>
-              ${gauge ? `<div class="al-gauge-row">${gauge}</div>
-              <div class="al-gauge-labels"><span>vs niveau initial</span><span>Barrière PDI ${escapeHtml(pctFr(a.barrier, 0))}</span></div>` : ""}
-            </div>
-            <span class="pill-status ${a.statusCls}">${escapeHtml(a.statusLabel)}</span>
+      c.innerHTML = `<div class="cap-head">
+          <span>Position</span>
+          <span>vs initial</span>
+          <span class="cap-head-axis"><span>${CAP_AXIS_MIN} %</span><span>niveau initial</span></span>
+          <span>Barrière</span>
+        </div>
+        <div class="cap-rows">${list.map((a) => {
+          const hasPerf = Number.isFinite(Number(a.perfVsInitial));
+          const hasBarrier = Number.isFinite(Number(a.barrierVsInitial));
+          let rule = "";
+          if (hasPerf && hasBarrier) {
+            const spotPct = capAxisPct(a.perfVsInitial);
+            const pdiPct = capAxisPct(a.barrierVsInitial);
+            const zoneL = Math.min(spotPct, pdiPct);
+            const zoneW = Math.max(CAP_ZONE_FLOOR_PCT, Math.abs(spotPct - pdiPct));
+            rule = `<span class="cap-rule">
+              <span class="cap-groove"></span>
+              <span class="cap-breach" style="left:${zoneL.toFixed(2)}%;width:${zoneW.toFixed(2)}%"></span>
+              <span class="cap-notch" style="left:${pdiPct.toFixed(2)}%"></span>
+              <span class="cap-cursor" style="left:${spotPct.toFixed(2)}%"></span>
+            </span>`;
+          }
+          return `<div class="cap-row" onclick="openDrawer(${a.productId})">
+            <span class="cap-name"><strong>${escapeHtml(a.name)}</strong><span class="cap-meta">${escapeHtml(a.context)}</span></span>
+            <span class="cap-perf">${hasPerf ? `${a.perfVsInitial >= 0 ? "+" : ""}${pctFr(a.perfVsInitial, 1)}` : "—"}</span>
+            ${rule || '<span class="cap-rule"></span>'}
+            <span class="cap-barrier">${hasBarrier ? `${a.barrierVsInitial >= 0 ? "+" : ""}${pctFr(a.barrierVsInitial, 0)}` : "—"}</span>
           </div>`;
-        })
-        .join("");
+        }).join("")}</div>`;
     }
 
     function monthShortFR(date) {
