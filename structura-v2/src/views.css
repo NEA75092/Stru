@@ -1801,22 +1801,25 @@
    .dr-col-produit dans le tiroir) absorbe le reste ; les trois autres
    sont fixes en px, jamais de vide fantôme quel que soit le panneau. */
 #dscore-table {
-    min-width: 760px;
+    min-width: 780px;
 }
 
 .dscore-col-name {
     width: auto;
 }
 
-/* 260px (passe 8, correctif tableaux) : à la nouvelle échelle de
-   texte, 200px faisait déborder l'en-tête "Dividende − décrément
-   (pts/an)" sur la colonne Coût historique. */
+/* 292px (passe 8, correctif troncatures) : 260px tronquait encore
+   l'en-tête "Dividende − décrément (pts/an)" à l'ellipse — le plus
+   long des quatre. Coût historique gardait de la marge sur son
+   en-tête (13 caractères) mais pas sur sa donnée ("X,X %/an
+   sacrifié" déborde sous 167px) : ramené à 175px, pas 165, pour ne
+   pas déplacer la troncature de l'en-tête vers la cellule. */
 .dscore-col-carry {
-    width: 260px;
+    width: 292px;
 }
 
 .dscore-col-drag {
-    width: 190px;
+    width: 175px;
 }
 
 .dscore-col-avis {

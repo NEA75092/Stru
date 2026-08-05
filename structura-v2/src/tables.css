@@ -364,20 +364,27 @@
    l'en-tête sur Statut à la nouvelle échelle de texte, et double une
    information déjà présente dans la fiche produit unique (§2,
    bloc Identité/Échéancier) — Proch. Évt. est le champ actionnable
-   au quotidien, Maturité une donnée statique de fiche, pas de suivi. */
-#pf-table thead th:nth-child(1) { width: 19%; }
-#pf-table thead th:nth-child(2) { width: 5%; }
-#pf-table thead th:nth-child(3) { width: 8%; }
-#pf-table thead th:nth-child(4) { width: 7%; }
-#pf-table thead th:nth-child(5) { width: 5%; }
-#pf-table thead th:nth-child(6) { width: 10%; }
-#pf-table thead th:nth-child(7) { width: 8%; }
-#pf-table thead th:nth-child(8) { width: 19%; }
-#pf-table thead th:nth-child(9) { width: 9%; }
-#pf-table thead th:nth-child(10) { width: 10%; }
+   au quotidien, Maturité une donnée statique de fiche, pas de suivi.
+
+   Reprise (passe 8, correctif troncatures) : Type ("Levier"), Émetteur
+   ("Crédit Agricole CIB") et VL ("93,32 % *", allongé par le correctif
+   pourcentages) débordaient. Aucune des sept autres colonnes n'avait
+   de marge à céder — mesuré, pas estimé — donc pas de colonne
+   sacrifiée : la largeur totale du tableau grandit de 1400 à 1470px
+   au lieu d'être redistribuée. */
+#pf-table thead th:nth-child(1) { width: 17.0%; }
+#pf-table thead th:nth-child(2) { width: 6.9%; }
+#pf-table thead th:nth-child(3) { width: 9.2%; }
+#pf-table thead th:nth-child(4) { width: 7.2%; }
+#pf-table thead th:nth-child(5) { width: 6.5%; }
+#pf-table thead th:nth-child(6) { width: 9.7%; }
+#pf-table thead th:nth-child(7) { width: 8.0%; }
+#pf-table thead th:nth-child(8) { width: 17.0%; }
+#pf-table thead th:nth-child(9) { width: 8.8%; }
+#pf-table thead th:nth-child(10) { width: 9.7%; }
 
 #pf-table {
-    min-width: 1400px;
+    min-width: 1470px;
 }
 
 /* Sous 1200px de large, le tableau défile horizontalement. Le
@@ -422,20 +429,29 @@
    suivi de marché) ; Progression fusionnée dans Distance protection.
    Largeurs reprises en passe 8 (correctif tableaux) : à la nouvelle
    échelle de texte, Proch. Obs. et Statut débordaient l'un sur
-   l'autre — Distance protection et Statut récupèrent la marge. */
-#bar-table thead th:nth-child(1) { width: 18%; }
-#bar-table thead th:nth-child(2) { width: 5%; }
-#bar-table thead th:nth-child(3) { width: 7%; }
-#bar-table thead th:nth-child(4) { width: 8%; }
-#bar-table thead th:nth-child(5) { width: 11%; }
-#bar-table thead th:nth-child(6) { width: 5%; }
-#bar-table thead th:nth-child(7) { width: 10%; }
-#bar-table thead th:nth-child(8) { width: 18%; }
-#bar-table thead th:nth-child(9) { width: 8%; }
-#bar-table thead th:nth-child(10) { width: 10%; }
+   l'autre — Distance protection et Statut récupèrent la marge.
+
+   Troisième reprise (passe 8, correctif troncatures), mesurée colonne
+   par colonne via scrollWidth plutôt qu'estimée : Sous-jacent et
+   Niveau barrière étaient déjà résolues par la reprise précédente,
+   mais Type ("Levier"), Émetteur ("Crédit Agricole CIB"), VL ("92,77
+   % *", allongé par le correctif pourcentages) et Proch. Obs.
+   débordaient encore. Aucune colonne n'avait de marge à céder une
+   fois mesurée — donc pas de colonne sacrifiée : la largeur totale du
+   tableau grandit de 1360 à 1455px au lieu d'être redistribuée. */
+#bar-table thead th:nth-child(1) { width: 15.8%; }
+#bar-table thead th:nth-child(2) { width: 7.0%; }
+#bar-table thead th:nth-child(3) { width: 9.3%; }
+#bar-table thead th:nth-child(4) { width: 8.7%; }
+#bar-table thead th:nth-child(5) { width: 11.1%; }
+#bar-table thead th:nth-child(6) { width: 6.5%; }
+#bar-table thead th:nth-child(7) { width: 9.4%; }
+#bar-table thead th:nth-child(8) { width: 14.2%; }
+#bar-table thead th:nth-child(9) { width: 8.5%; }
+#bar-table thead th:nth-child(10) { width: 9.5%; }
 
 #bar-table {
-    min-width: 1360px;
+    min-width: 1455px;
 }
 
 #bar-table-wrap {

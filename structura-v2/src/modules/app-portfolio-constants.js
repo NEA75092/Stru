@@ -16,10 +16,15 @@
 
     return {
       TYPE_CLASS: { AC: "tp-ac", CG: "tp-cg", RC: "tp-rc", LV: "tp-lv" },
+      // Badges de type : jamais tronqués (passe 8, correctif troncatures) —
+      // libellés courts décidés une fois pour toutes plutôt que coupés par
+      // la largeur de colonne. "Autocall"/"Reverse Convertible"/"Capital
+      // Garanti" ne tiennent pas en 5% de la largeur du tableau une fois
+      // en capitales ; "Levier" tient déjà.
       TYPE_SHORT: {
-        AC: "Autocall",
-        CG: "Cap. Garanti",
-        RC: "Rev. Conv.",
+        AC: "Auto",
+        CG: "Cap. G",
+        RC: "Rev. C",
         LV: "Levier",
       },
       // Réduit à un mappage vers les classes de pastille de tables.css
