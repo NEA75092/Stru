@@ -137,11 +137,11 @@
         <td>
           <div class="client-name">${escapeHtml(client.name)}</div>
           <div class="client-meta">${escapeHtml(reference)}${envelope ? ` · ${escapeHtml(envelope)}` : ""}</div>
+          ${remark}
         </td>
         <td class="num">${moneyShort(stats.nominal)}</td>
         <td class="num ${perfCls}">${perfStr}</td>
         <td class="num">${stats.count}</td>
-        <td>${remark}</td>
         <td class="client-row-chevron-cell"><svg class="client-row-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5l6 5.5-6 5.5"/></svg></td>
       </tr>`;
     }
@@ -347,7 +347,7 @@
         .sort(compareClientRows);
       list.innerHTML = filtered.length
         ? filtered.map(({ client, stats }) => renderClientRow(client, stats)).join("")
-        : '<tr><td colspan="6" class="tbl-empty">Aucun client ne correspond à la recherche.</td></tr>';
+        : '<tr><td colspan="5" class="tbl-empty">Aucun client ne correspond à la recherche.</td></tr>';
       updateClientsMeta();
     }
 

@@ -105,7 +105,7 @@
    qui aide à choisir un dossier. Aucun avatar ni initiales : sans
    valeur pour des clients nommés en toutes lettres. */
 /* .tbl-wrap table impose min-width: 1400px pour les tableaux à onze
-   colonnes (portefeuille, barrières) — cette table n'en a que six et
+   colonnes (portefeuille, barrières) — cette table n'en a que cinq et
    n'a pas besoin de la largeur minimale des autres, qui ne faisait
    que pousser le chevron hors champ sans qu'aucune colonne n'en
    profite. */
@@ -113,28 +113,30 @@
     min-width: 760px;
 }
 
+/* Quatre colonnes (passe 7, bloc 7f) : CLIENT/ENCOURS/PERFORMANCE/
+   PRODUITS. La remarque n'en est plus une cinquième — elle vivait dans
+   une colonne toujours présente, vide dès qu'un client n'avait rien à
+   signaler (passe 7f, correctif). Elle est maintenant une pastille
+   conditionnelle dans la cellule Client, rendue seulement quand
+   stats.breach > 0 : ni colonne ni cellule vide sinon. */
 #clients-table .col-client {
-    width: 34%;
+    width: 52%;
 }
 
 #clients-table .col-encours {
-    width: 14%;
+    width: 15%;
 }
 
 #clients-table .col-perf {
-    width: 14%;
+    width: 15%;
 }
 
 #clients-table .col-count {
-    width: 11%;
-}
-
-#clients-table .col-remark {
-    width: 23%;
+    width: 13%;
 }
 
 #clients-table .col-chevron {
-    width: 4%;
+    width: 5%;
 }
 
 .client-name {
@@ -157,6 +159,7 @@
 .client-remark {
     display: inline-flex;
     align-items: center;
+    margin-top: var(--space-1);
     padding: 3px 9px;
     border-radius: var(--radius-full);
     background: color-mix(in oklch, var(--color-breach), transparent 84%);
