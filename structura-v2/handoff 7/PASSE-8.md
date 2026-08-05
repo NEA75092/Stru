@@ -276,7 +276,7 @@ CGP » doit produire).
 
 - [x] Trois familles de polices, zéro `font-family` littéral hors tokens.
 - [x] Zéro `font-size` littéral hors définition des 6 crans.
-- [ ] Tout nombre en mono, toujours accompagné de son unité ou dénominateur.
+- [x] Tout nombre en mono, toujours accompagné de son unité ou dénominateur.
 - [x] Aucun bouton, en-tête, carte ou navigation coloré ; couleur réservée au risque.
 - [x] Aucun dégradé de fond ; rayon ≤ 2px ; aucune ombre hors surfaces flottantes.
 - [x] Réglette unique en deux échelles ; aucune autre famille de jauge.
@@ -314,16 +314,15 @@ maintenant cochées, chacune pour une raison observée, pas déduite :
   de §1.4 (`.bar-track`/`.barrier-mark`), pas une implémentation séparée.
 - **§6.2** — voir plus haut : corrigé et capturé dans les trois états.
 
-Deux cases restent décochées, pas par oubli mais parce que la vérification
+Une case a été tranchée après coup (05/08, par le client, pas déduite
+seule) : **Tout nombre en mono, avec unité ou dénominateur** — le label
+(`kpi-lbl`/`kpi-sub`) compte comme unité pour un compteur brut (`54`,
+`4`, `6`) ; pas besoin de dénominateur littéral collé au chiffre tant que
+le label voisin dit ce qui est compté. Cochée.
+
+Une case reste décochée, pas par oubli mais parce que la vérification
 elle-même est ambiguë :
 
-- **Tout nombre en mono, avec unité ou dénominateur.** Le mono est vérifié
-  partout (`font-family` calculée = IBM Plex Mono sur chaque `.kpi-val`
-  testé). Mais des compteurs bruts existent sans unité collée au chiffre —
-  `54` (Portefeuille actif), `4`/`6` (Critique/Sous surveillance) — lisibles
-  seulement via le `kpi-lbl`/`kpi-sub` qui les entoure, pas via un vrai
-  dénominateur comme dans l'exemple `98 / 100`. Le label suffit-il comme
-  « unité », ou faut-il littéralement `54 produits` ? Pas tranché seul.
 - **« Attendus » et « payés » jamais dans la même mesure.** Aucune mesure
   « payés » n'existe actuellement dans l'app — la règle n'est donc jamais
   violée, mais elle n'est pas non plus démontrée séparée de quoi que ce
