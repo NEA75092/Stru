@@ -296,6 +296,16 @@ concret rencontré en vérifiant plutôt qu'en supposant l'état du code.
    le tiroir d'un client sans patrimoine l'a démenti. Cette case est restée
    décochée trois jours pour cette raison.
 
+5. **Une passe n'est close que si chacun de ses écrans a été rouvert et
+   comparé à la version précédente — pas si un document en amont affirme
+   qu'elle est livrée.** Passe 8 a écrit « 7A-7D livrés et déployés » comme
+   prérequis, sans que personne ne rouvre 7a et 7b pour vérifier. Les deux
+   sont restés au format Passe 6 (ancienne jauge, ancien Top/Flop VL)
+   pendant des semaines sous ce prérequis non vérifié, jusqu'à ce que
+   l'audit du 05/08 les rouvre un par un et trouve l'écart. Une mention
+   « livré » dans un fichier de suivi est une affirmation, pas une preuve ;
+   la seule preuve est l'écran ouvert, comparé à ce qu'il devait devenir.
+
 ## Ce qu'il ne faut pas faire
 
 - Écrire un nouveau fichier CSS « de correction » par-dessus les autres.
