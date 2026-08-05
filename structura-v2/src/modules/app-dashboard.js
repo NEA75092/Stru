@@ -29,7 +29,7 @@
       { l: "NASDAQ", v: 16742.8, d: +0.35 },
       { l: "VIX", v: 14.82, d: -5.2 },
       { l: "EUR/USD", v: 1.0841, d: +0.12 },
-      { l: "OAT 10a", v: "3.12%", d: null },
+      { l: "OAT 10a", v: pctFr(3.12, 2), d: null },
       { l: "TOTAL", v: 62.41, d: +1.15 },
       { l: "LVMH", v: 742.3, d: -0.42 },
       { l: "NVIDIA", v: 875.2, d: +1.8 },
@@ -96,7 +96,7 @@
       if (!c) return;
       const items = INDICES.map(
         (i) =>
-          `<div class="ticker-item"><span class="ticker-label">${i.l}</span><span class="ticker-val">${typeof i.v === "number" ? i.v.toLocaleString("fr-FR") : i.v}</span>${i.d !== null ? `<span class="ticker-chg ${i.d >= 0 ? "up" : "dn"}">${i.d >= 0 ? "▲" : "▼"}${Math.abs(i.d)}%</span>` : ""}</div>`,
+          `<div class="ticker-item"><span class="ticker-label">${i.l}</span><span class="ticker-val">${typeof i.v === "number" ? i.v.toLocaleString("fr-FR") : i.v}</span>${i.d !== null ? `<span class="ticker-chg ${i.d >= 0 ? "up" : "dn"}">${i.d >= 0 ? "▲" : "▼"}${pctFr(Math.abs(i.d), 2)}</span>` : ""}</div>`,
       ).join("");
       c.innerHTML = `<div class="ticker-track">${items}${items}</div>`;
     }
@@ -495,11 +495,11 @@
         .join("");
       const legend = segments
         .map((seg) => {
-          const pct = ((seg.value / total) * 100).toFixed(1);
+          const pct = pctFr((seg.value / total) * 100, 1);
           return `<div class="donut-legend-item">
             <span class="donut-legend-dot" style="--dot:${seg.color}"></span>
             <span class="donut-legend-label">${escapeHtml(seg.label)}</span>
-            <span class="donut-legend-value">${pct}%</span>
+            <span class="donut-legend-value">${pct}</span>
           </div>`;
         })
         .join("");
@@ -545,12 +545,12 @@
         return `<div class="issuer-row">
           <div class="issuer-row-top">
             <span class="issuer-name">${escapeHtml(row.issuer)}</span>
-            <span class="issuer-metric">${moneyShort(row.nominal)} · ${weight.toFixed(1)}%</span>
+            <span class="issuer-metric">${moneyShort(row.nominal)} · ${pctFr(weight, 1)}</span>
           </div>
           <div class="issuer-bar"><span style="width:${Math.max(2, Math.min(100, weight))}%"></span></div>
           <div class="issuer-row-sub">
             <span>${row.count} produit${row.count > 1 ? "s" : ""}</span>
-            <span class="${pnl >= 0 ? "up" : "dn"}">${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}% vs nominal</span>
+            <span class="${pnl >= 0 ? "up" : "dn"}">${pnl >= 0 ? "+" : ""}${pctFr(pnl, 2)} vs nominal</span>
             <span>${row.breach ? `${row.breach} critique${row.breach > 1 ? "s" : ""}` : "risque normal"}</span>
           </div>
         </div>`;

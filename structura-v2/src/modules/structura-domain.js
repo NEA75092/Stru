@@ -200,8 +200,8 @@
       const names = joinFr(underlyings);
       if (!names) return "Sous-jacent à confirmer";
       if (structure === "equipondere") {
-        const weight = underlyings.length ? (100 / underlyings.length).toFixed(2).replace(".", ",") : "XX";
-        return `panier équipondéré des ${type} ${names} (le poids de chaque ${type === "actions" ? "action" : "indice"} étant de ${weight}% dans la performance du panier)`;
+        const weight = underlyings.length ? formatPctFr(100 / underlyings.length, 2) : "XX %";
+        return `panier équipondéré des ${type} ${names} (le poids de chaque ${type === "actions" ? "action" : "indice"} étant de ${weight} dans la performance du panier)`;
       }
       if (structure === "worstof" && underlyings.length > 1) {
         return `${type === "actions" ? "action la moins performante" : "indice le moins performant"} entre ${names}`;

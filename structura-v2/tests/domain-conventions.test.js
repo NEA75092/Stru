@@ -46,7 +46,7 @@ test("join French lists and describe basket structures", () => {
   );
   assert.match(
     describeUnderlyingBasket(["CAC 40", "DAX 40"], "equipondere", "indices"),
-    /50,00%/,
+    /50,00 %/,
   );
 });
 

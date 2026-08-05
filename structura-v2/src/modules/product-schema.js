@@ -257,7 +257,7 @@
           helpers.isoDate?.(helpers.addMonths?.(new Date(), 1)) ||
           today,
         label: next?.recallLevelPct
-          ? `Obs. rappel (${next.recallLevelPct}%)`
+          ? `Obs. rappel (${root.pctFr(next.recallLevelPct, 0)})`
           : next?.label || "Prochaine observation",
         type: next?.type || null,
       };

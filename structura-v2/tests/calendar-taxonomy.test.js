@@ -42,7 +42,7 @@ test("autocall observation with recall level stays a constatation, never a rappe
   const legacy = schema.canonicalToPortfolioProduct(canonical, { id: 1 });
 
   // La source produit bien le libellé piégeux et le type structuré.
-  assert.equal(legacy.nextEvt, "Obs. rappel (65%)");
+  assert.equal(legacy.nextEvt, "Obs. rappel (65 %)");
   assert.equal(legacy.nextEvtType, "autocall_observation");
 
   const product = state.normalizeProduct(legacy);

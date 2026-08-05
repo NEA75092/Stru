@@ -203,7 +203,7 @@
         desc: "Combien l'investisseur abandonne historiquement",
         score: (s) => s.dragScore,
         value: (s) => Math.abs(s.annualDrag),
-        format: (v) => `${v.toFixed(1)}%/an`,
+        format: (v) => `${pctFr(v, 1)}/an`,
         min: 0,
         max: 5,
         invert: true,
@@ -260,7 +260,7 @@
         avoid:
           "Le coût du décrément est significatif et doit être présenté sans ambiguïté au client.",
       }[verdict.key];
-      return `<b>${escapeHtml(item.name)}</b> applique un décrément de ${s.decPctAnnual.toFixed(1)}%/an${escapeHtml(refNote)}. Le dividende historique (${item.historicalDividend.toFixed(1)}%/an) ${coverageWord} ce coût (${fmtPts(s.coverageRatio, 2)}x), pour une performance sacrifiée d'environ ${Math.abs(s.annualDrag).toFixed(1)}%/an et un surcoût de ${fmtPts(s.capitalLossSeverity, 1)} points en cas de non-rappel. Avis : ${escapeHtml(verdict.label)}. ${closing}`;
+      return `<b>${escapeHtml(item.name)}</b> applique un décrément de ${pctFr(s.decPctAnnual, 1)}/an${escapeHtml(refNote)}. Le dividende historique (${pctFr(item.historicalDividend, 1)}/an) ${coverageWord} ce coût (${fmtPts(s.coverageRatio, 2)}x), pour une performance sacrifiée d'environ ${pctFr(Math.abs(s.annualDrag), 1)}/an et un surcoût de ${fmtPts(s.capitalLossSeverity, 1)} points en cas de non-rappel. Avis : ${escapeHtml(verdict.label)}. ${closing}`;
     }
 
     // Le tiroir partagé (overlays.css), pas un panneau inline sous le
@@ -292,7 +292,7 @@
         <div class="dr-isin">${escapeHtml(item.assetType)} · ${escapeHtml(item.providers.join(", "))}</div>
         <div class="dr-underlying-kpis">
           <div class="kpi"><div class="kpi-lbl">Couverture dividende</div><div class="kpi-val">${fmtPts(s.coverageRatio, 2)}x</div><div class="kpi-sub">&nbsp;</div></div>
-          <div class="kpi"><div class="kpi-lbl">Performance sacrifiée</div><div class="kpi-val">${Math.abs(s.annualDrag).toFixed(1)}%</div><div class="kpi-sub">par an</div></div>
+          <div class="kpi"><div class="kpi-lbl">Performance sacrifiée</div><div class="kpi-val">${pctFr(Math.abs(s.annualDrag), 1)}</div><div class="kpi-sub">par an</div></div>
           <div class="kpi"><div class="kpi-lbl">Surcoût non-rappel</div><div class="kpi-val">+${fmtPts(s.capitalLossSeverity, 1)}</div><div class="kpi-sub">points</div></div>
         </div>
         <div class="divider"></div>

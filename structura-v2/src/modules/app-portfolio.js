@@ -68,7 +68,7 @@
         Number.isFinite(Number(product.vlPct))
       ) {
         const suffix = product.vlStatus === "mock" ? " *" : "";
-        return `${Number(product.vlPct).toFixed(2)}%${suffix}`;
+        return `${pctFr(Number(product.vlPct), 2)}${suffix}`;
       }
       if (product.vlStatus === "no_isin" || !product.isin) {
         return `<span class="cell-faint">ISIN requis</span>`;
@@ -81,7 +81,7 @@
         (product.vlStatus === "issuer" || product.vlStatus === "mock") &&
         Number.isFinite(Number(product.vlPct))
       ) {
-        const parts = [`${Number(product.vlPct).toFixed(2)}% du nominal`];
+        const parts = [`${pctFr(Number(product.vlPct), 2)} du nominal`];
         if (product.vlAsOf) parts.push(`au ${formatSubDate(product.vlAsOf)}`);
         if (product.vlSource) parts.push(product.vlSource);
         return parts.join(" · ");
@@ -94,7 +94,7 @@
       return root.StructuraDomain?.formatPctFr
         ? root.StructuraDomain.formatPctFr(value, digits, "—")
         : Number.isFinite(Number(value))
-          ? `${Number(value).toFixed(digits)}%`
+          ? pctFr(Number(value), digits)
           : "—";
     }
 
@@ -576,7 +576,7 @@
       const dotsHtml = dots
         .map(
           (d) =>
-            `<span class="dist-strip-dot ${d.cls}" style="left:${d.pct.toFixed(2)}%" title="${escapeHtml(d.name)} · ${d.dist.toFixed(1)}%"></span>`,
+            `<span class="dist-strip-dot ${d.cls}" style="left:${d.pct.toFixed(2)}%" title="${escapeHtml(d.name)} · ${pctFr(d.dist, 1)}"></span>`,
         )
         .join("");
       track.innerHTML = `<div class="dist-strip-zone-danger" style="width:${zeroPct.toFixed(2)}%"></div><span class="dist-strip-zero" style="left:${zeroPct.toFixed(2)}%" title="Seuil de la barrière — 0 %"></span>${dotsHtml}`;

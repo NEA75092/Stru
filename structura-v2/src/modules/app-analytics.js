@@ -184,13 +184,13 @@
       }
       const maxNominal = Math.max(...rows.slice(0, 5).map((row) => row.nominal), 1);
       container.innerHTML = `${rows.slice(0, 5).map((row) => {
-        const weight = totalNom ? ((row.nominal / totalNom) * 100).toFixed(1) : "0.0";
+        const weight = pctFr(totalNom ? (row.nominal / totalNom) * 100 : 0, 1);
         const share = Math.max(2, (row.nominal / maxNominal) * 100);
         return `<button type="button" class="pilotage-preview-row" onclick="openClientWorkspace(${row.client.id})">
           <span class="pilotage-preview-top">
             <span class="pilotage-preview-main">
               <span class="pilotage-preview-name">${escapeHtml(row.client.name)}</span>
-              <small>${row.products} produit${row.products > 1 ? "s" : ""} · ${weight}% du cabinet</small>
+              <small>${row.products} produit${row.products > 1 ? "s" : ""} · ${weight} du cabinet</small>
             </span>
             <span class="pilotage-preview-metric">${moneyShort(row.nominal)}</span>
           </span>
@@ -255,7 +255,7 @@
       const dotsHtml = dots
         .map(
           (d) =>
-            `<span class="dist-strip-dot ${d.cls}" style="left:${d.pct.toFixed(2)}%" title="${escapeHtml(d.name)} · ${d.dist.toFixed(1)}%"></span>`,
+            `<span class="dist-strip-dot ${d.cls}" style="left:${d.pct.toFixed(2)}%" title="${escapeHtml(d.name)} · ${pctFr(d.dist, 1)}"></span>`,
         )
         .join("");
       track.innerHTML = `<div class="dist-strip-zone-danger" style="width:${zeroPct.toFixed(2)}%"></div><span class="dist-strip-zero" style="left:${zeroPct.toFixed(2)}%" title="Seuil de la barrière — 0 %"></span>${dotsHtml}`;

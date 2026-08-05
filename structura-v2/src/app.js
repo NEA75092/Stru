@@ -689,7 +689,7 @@ function extractObservationSchedule(corpus = []) {
     rows.push({
       date,
       kind,
-      level: pct ? `${pct}%` : "",
+      level: pct ? formatPctFr(Number(pct), 2) : "",
       source: entry.docType,
       snippet: clipEvidence(entry.segment, 140),
     });
@@ -885,7 +885,7 @@ function buildStructuredProductIntelligence(options = {}) {
     {
       label: "Risque SRI",
       value: riskScore || "N/A",
-      meta: `${consensus?.status?.consensusPct || 0}% de consensus`,
+      meta: `${formatPctFr(consensus?.status?.consensusPct || 0, 0)} de consensus`,
     },
   ];
 
@@ -946,7 +946,7 @@ function buildStructuredProductIntelligence(options = {}) {
   if ((consensus?.status?.consensusPct || 0) < 70)
     watchpoints.push({
       level: "warning",
-      message: `Consensus documentaire limité à ${consensus?.status?.consensusPct || 0}%: lecture exploitable mais encore trop fragile pour une fiche produit finale.`,
+      message: `Consensus documentaire limité à ${formatPctFr(consensus?.status?.consensusPct || 0, 0)}: lecture exploitable mais encore trop fragile pour une fiche produit finale.`,
     });
   alerts.forEach((alert) => {
     const message = typeof alert === "string" ? alert : alert?.message;
@@ -988,7 +988,7 @@ function buildStructuredProductIntelligence(options = {}) {
     const protectionText =
       barrier === 100 && /capital garanti|capital protected/i.test(type)
         ? "Le capital apparaît protégé à l’échéance."
-        : `La protection reste conditionnelle: au-delà d’une baisse de ${downside}% du sous-jacent, l’investisseur redevient exposé au risque de perte en capital.`;
+        : `La protection reste conditionnelle: au-delà d’une baisse de ${formatPctFr(downside, 0)} du sous-jacent, l’investisseur redevient exposé au risque de perte en capital.`;
     retailLines.push(
       `${protectionText} À ce stade, la barrière est décrite comme ${barrierObservation.label}.`,
     );
@@ -1003,7 +1003,7 @@ function buildStructuredProductIntelligence(options = {}) {
     );
   }
   retailLines.push(
-    `Lecture fondée sur ${coverage.label.toLowerCase()} avec un consensus actuel de ${consensus?.status?.consensusPct || 0}%.`,
+    `Lecture fondée sur ${coverage.label.toLowerCase()} avec un consensus actuel de ${formatPctFr(consensus?.status?.consensusPct || 0, 0)}.`,
   );
 
   const sellerRows = [
@@ -1043,7 +1043,7 @@ function buildStructuredProductIntelligence(options = {}) {
     ],
     [
       "Consensus",
-      `${consensus?.status?.consensusPct || 0}% (${consensus?.status?.level || "LOW"})`,
+      `${formatPctFr(consensus?.status?.consensusPct || 0, 0)} (${consensus?.status?.level || "LOW"})`,
     ],
   ];
 
@@ -1131,7 +1131,7 @@ function buildRetailNarrative(merged, descriptor, consensus, intelligence) {
       `Le produit se lit comme une solution de portage jusqu’au ${maturity}, avec une promesse de lecture plus accessible que purement technique.`,
     );
   lines.push(
-    `Niveau de confiance actuel: ${grade.toLowerCase()} (${consensus?.status?.consensusPct || 0}% de consensus documentaire).`,
+    `Niveau de confiance actuel: ${grade.toLowerCase()} (${formatPctFr(consensus?.status?.consensusPct || 0, 0)} de consensus documentaire).`,
   );
   return lines.join(" ");
 }
@@ -1185,7 +1185,7 @@ function buildSellerNarrative(
     ],
     [
       "Consensus",
-      `${consensus?.status?.consensusPct || 0}% (${consensus?.status?.level || "LOW"})`,
+      `${formatPctFr(consensus?.status?.consensusPct || 0, 0)} (${consensus?.status?.level || "LOW"})`,
     ],
     ["Grade extraction", merged?.grade || "LOW"],
   ];
@@ -1297,7 +1297,7 @@ function renderIngestionStory(payload = {}) {
     { label: "Maturité", value: maturityVal },
     {
       label: "Consensus",
-      value: consensusPct + "%",
+      value: formatPctFr(consensusPct, 0),
       tone: consensusPct >= 70 ? "var(--color-safe)" : "var(--color-watch)",
     },
   ];
@@ -2446,9 +2446,9 @@ function updatePitchProductFields() {
 function pitchFamilyConfig(p) {
   const family = p.productFamily || "phoenix";
   const c = p.characteristics || {};
-  const couponFmt = `${Number(p.coupon || 0).toFixed(1)}%`;
-  const barrierFmt = `${Number(p.barrier || 0).toFixed(0)}%`;
-  const recallFmt = `${Number(p.recall || 100).toFixed(0)}%`;
+  const couponFmt = formatPctFr(p.coupon || 0, 1);
+  const barrierFmt = formatPctFr(p.barrier || 0, 0);
+  const recallFmt = formatPctFr(p.recall || 100, 0);
   const downside = Math.max(0, 100 - Number(p.barrier || 0));
   const familyLabel =
     globalThis.StructuraDomain?.PRODUCT_FAMILIES?.[family]?.label ||
@@ -2457,9 +2457,9 @@ function pitchFamilyConfig(p) {
     c.couponPerPeriodPct ??
     globalThis.StructuraDomain?.couponPerPeriod?.(p.coupon, p.frequency) ??
     p.coupon;
-  const couponPeriodFmt = `${Number(couponPerPeriod || 0).toFixed(2).replace(".", ",")}%`;
+  const couponPeriodFmt = formatPctFr(couponPerPeriod || 0, 2);
   const pctForText = (value) =>
-    Number.isFinite(Number(value)) ? `${Number(value).toFixed(0)}%` : "XX%";
+    Number.isFinite(Number(value)) ? formatPctFr(value, 0) : "XX %";
   const startOrdinal =
     globalThis.StructuraDomain?.ordinalFr?.(p.startPeriod || 1) || `${p.startPeriod || 1}ème`;
   const firstPeriodOrdinal = globalThis.StructuraDomain?.ordinalFr?.(1) || "1ère";
@@ -2532,17 +2532,17 @@ function pitchFamilyConfig(p) {
         { label: "Coupon par période", value: couponPeriodFmt, sub: `${p.frequency} · ${c.hasMemory ? "mémoire" : "non mémoire"}` },
         { label: "Barrière coupon", value: barrierFmt, sub: c.hasMemory ? "avec effet mémoire" : "sans mémoire explicite" },
         { label: "Rappel auto", value: recallFmt, sub: "observation périodique" },
-        { label: "Protection finale", value: barrierFmt, sub: `risque capital sous -${downside}%` },
+        { label: "Protection finale", value: barrierFmt, sub: `risque capital sous −${formatPctFr(downside, 0)}` },
       ],
       description: `Le Phoenix observe ${basket}. À chaque date d’observation, le coupon est versé si le niveau est supérieur ou égal à ${barrierFmt}. Si le niveau atteint ${recallFmt}, le produit est remboursé par anticipation. À maturité, la perte en capital apparaît si la barrière finale est franchie.`,
       howItWorks: [
         `À partir de la ${firstPeriodOrdinal} période écoulée, coupon de ${couponPeriodFmt} si le sous-jacent clôture au-dessus de ${pctForText(p.couponBarrier || p.barrier)}`,
         c.hasMemory ? "Effet mémoire: les coupons non versés peuvent être rattrapés" : "Coupons non acquis si la condition n'est pas respectée",
         `Rappel automatique à partir de la ${startOrdinal} période si ${p.underlying} clôture à ${recallFmt} ou plus`,
-        `Protection conditionnelle du capital jusqu'à une baisse de ${downside}%`,
+        `Protection conditionnelle du capital jusqu'à une baisse de ${formatPctFr(downside, 0)}`,
       ],
       scenarios: {
-        bull: { label: "Marché haussier", returnStr: `+${Math.max(p.coupon, p.coupon * 1.5).toFixed(1)}%`, desc: "Rappel probable avec coupon servi." },
+        bull: { label: "Marché haussier", returnStr: `+${formatPctFr(Math.max(p.coupon, p.coupon * 1.5), 1)}`, desc: "Rappel probable avec coupon servi." },
         base: { label: "Marché latéral", returnStr: `~${couponPeriodFmt}/période`, desc: "Structure adaptée si le sous-jacent reste au-dessus de la barrière coupon." },
         bear: { label: "Marché baissier", returnStr: `Barrière ${barrierFmt}`, desc: "Coupons interrompus et risque capital si la barrière finale est franchie." },
       },
@@ -2560,7 +2560,7 @@ function pitchFamilyConfig(p) {
       metrics: [
         { label: "Gain par période", value: couponPeriodFmt, sub: "accumulé jusqu'au rappel ou maturité" },
         { label: "Seuil de rappel", value: recallFmt, sub: "déclencheur principal" },
-        { label: "Protection finale", value: barrierFmt, sub: `risque sous -${downside}%` },
+        { label: "Protection finale", value: barrierFmt, sub: `risque sous −${formatPctFr(downside, 0)}` },
         { label: "Durée max.", value: p.duration, sub: "horizon de constatation" },
       ],
       description: `L’Athena verse le gain prévu lorsque ${p.underlying} atteint le seuil de rappel. Contrairement au Phoenix, le rendement est concentré au rappel ou à maturité, avec une protection finale conditionnelle.`,
@@ -2571,7 +2571,7 @@ function pitchFamilyConfig(p) {
         `Capital conditionnellement protégé à maturité au-dessus de ${barrierFmt}`,
       ],
       scenarios: {
-        bull: { label: "Rebond rapide", returnStr: `+${p.coupon.toFixed(1)}%/an`, desc: "Rappel anticipé et coupons accumulés cristallisés." },
+        bull: { label: "Rebond rapide", returnStr: `+${formatPctFr(p.coupon, 1)}/an`, desc: "Rappel anticipé et coupons accumulés cristallisés." },
         base: { label: "Stabilité", returnStr: "Gain différé", desc: "Le rendement dépend de la capacité à atteindre le seuil de rappel." },
         bear: { label: "Baisse durable", returnStr: `Risque sous ${barrierFmt}`, desc: "Capital exposé si le seuil final est franchi." },
       },
@@ -2608,7 +2608,7 @@ function pitchFamilyConfig(p) {
         "Hausse forte du taux défavorable à la mécanique",
       ],
       scenarios: {
-        bull: { label: "Taux en baisse", returnStr: `+${p.coupon.toFixed(1)}%/an`, desc: "Scénario favorable: coupon et rappel facilités." },
+        bull: { label: "Taux en baisse", returnStr: `+${formatPctFr(p.coupon, 1)}/an`, desc: "Scénario favorable: coupon et rappel facilités." },
         base: { label: "Taux stables", returnStr: "Coupon possible", desc: "Le produit peut porter le rendement si les seuils sont respectés." },
         bear: { label: "Taux en hausse", returnStr: "Risque accru", desc: "Hausse du sous-jacent défavorable à la structure." },
       },
@@ -2644,7 +2644,7 @@ function pitchFamilyConfig(p) {
         `À maturité: remboursement du capital + coupon si aucun événement de crédit n'est survenu, sinon remboursement selon le taux de recouvrement fixé par l'ISDA.`,
       ],
       scenarios: {
-        bull: { label: "Aucun événement crédit", returnStr: `+${p.coupon.toFixed(1)}%/an`, desc: "Coupon perçu jusqu'au remboursement." },
+        bull: { label: "Aucun événement crédit", returnStr: `+${formatPctFr(p.coupon, 1)}/an`, desc: "Coupon perçu jusqu'au remboursement." },
         base: { label: "Spread stable", returnStr: "Portage", desc: "La valeur secondaire peut bouger mais le portage reste central." },
         bear: { label: "Événement crédit", returnStr: "Perte possible", desc: "Remboursement lié au recouvrement." },
       },
@@ -2664,13 +2664,13 @@ function pitchFamilyConfig(p) {
       metrics: [
         { label: "Début coupon", value: `${noteCouponStartOrdinal} période`, sub: `${p.noteVersion === "in_fine" ? "enregistrement" : "distribution"} · ${couponEveryLabel}` },
         { label: "Début call", value: c.callable ? `${noteCallStartOrdinal} période` : "Non callable", sub: c.callable ? `${callEveryLabel} · option émetteur` : "pas de rappel émetteur" },
-        { label: "Cap", value: c.capPct ? `${c.capPct}%` : "N/A", sub: "plafond éventuel" },
-        { label: "Floor", value: c.floorPct ? `${c.floorPct}%` : "N/A", sub: "plancher éventuel" },
+        { label: "Cap", value: c.capPct ? formatPctFr(c.capPct, 0) : "N/A", sub: "plafond éventuel" },
+        { label: "Floor", value: c.floorPct ? formatPctFr(c.floorPct, 0) : "N/A", sub: "plancher éventuel" },
       ],
       description: `La Note doit être analysée comme une obligation structurée: coupon, maturité, call émetteur et éventuels cap/floor déterminent le profil de rendement. Le début du coupon et le début du call émetteur sont deux paramètres distincts.`,
       howItWorks: [
         c.rateType === "variable"
-          ? `À partir de la ${noteCouponStartOrdinal} période: coupon variable égal à ${p.noteUnderlying || "l'indice de taux"}${p.spreadPct ? ` + ${p.spreadPct}%` : ""}, flooré à ${p.floorPct || "XX"}% et cappé à ${p.capPct || "XX"}%`
+          ? `À partir de la ${noteCouponStartOrdinal} période: coupon variable égal à ${p.noteUnderlying || "l'indice de taux"}${p.spreadPct ? ` + ${formatPctFr(p.spreadPct, 0)}` : ""}, flooré à ${pctForText(p.floorPct)} et cappé à ${pctForText(p.capPct)}`
           : `À partir de la ${noteCouponStartOrdinal} période: coupon fixe de ${couponPeriodFmt} par ${couponPeriodLabel}, ${p.noteVersion === "in_fine" ? "enregistré et payé au rappel ou à maturité" : "distribué périodiquement"}`,
         c.noteUnderlying ? `Indexation: ${c.noteUnderlying}` : "Indexation à confirmer si taux variable",
         c.callable
@@ -2679,7 +2679,7 @@ function pitchFamilyConfig(p) {
         "Remboursement nominal attendu hors défaut émetteur et clauses spécifiques",
       ],
       scenarios: {
-        bull: { label: "Taux favorables", returnStr: `+${p.coupon.toFixed(1)}%/an`, desc: "Portage conforme au coupon attendu." },
+        bull: { label: "Taux favorables", returnStr: `+${formatPctFr(p.coupon, 1)}/an`, desc: "Portage conforme au coupon attendu." },
         base: { label: "Portage", returnStr: "Coupon", desc: "Rendement dominé par le coupon et la durée." },
         bear: { label: "Taux défavorables", returnStr: "Mark-to-market", desc: "Valeur secondaire sensible aux taux et au spread émetteur." },
       },
@@ -4505,7 +4505,7 @@ function validateBarrier(value, alerts = []) {
     alerts.push({
       level: "warning",
       field: "barrierPct",
-      message: "barrierPct=100% suspect (possible confusion recall).",
+      message: `barrierPct=${formatPctFr(100, 0)} suspect (possible confusion recall).`,
     });
     return { value: n, flag: "SUSPECT_EQUALS_RECALL" };
   }
@@ -4513,7 +4513,7 @@ function validateBarrier(value, alerts = []) {
     alerts.push({
       level: "warning",
       field: "barrierPct",
-      message: `barrierPct=${n}% hors plage attendue [40-100]`,
+      message: `barrierPct=${formatPctFr(n, 0)} hors plage attendue [40-100]`,
     });
     return { value: n, flag: "OUT_OF_RANGE" };
   }
@@ -4834,11 +4834,11 @@ const StructuraEngine = {
       "sous-jacent a identifier manuellement";
     const coupon =
       ext.coupon.value !== null
-        ? `${ext.coupon.value}% p.a.`
+        ? `${formatPctFr(ext.coupon.value, 2)} p.a.`
         : "coupon à vérifier";
     const barrier =
       ext.barrier.value !== null
-        ? `${ext.barrier.value}%`
+        ? formatPctFr(ext.barrier.value, 0)
         : "barrière à vérifier";
     const sri = ext.riskScore ? `${ext.riskScore}/7` : "N/A";
     return `Produit ${isin}, indexé sur ${underlying}, coupon ${coupon}, protection en capital jusqu'à ${barrier}, SRI ${sri}.`;
@@ -5401,7 +5401,7 @@ const StructuraDescriptor = {
       return {
         pct: null,
         staticPct: barrier,
-        label: `protection jusqu'a une baisse de ${(100 - barrier).toFixed(0)}%`,
+        label: `protection jusqu'a une baisse de ${formatPctFr(100 - barrier, 0)}`,
         severity: "unknown",
       };
     }
@@ -5415,8 +5415,8 @@ const StructuraDescriptor = {
       staticPct: barrier,
       label:
         distPct < 0
-          ? `barriere franchie (spot ${distPct.toFixed(1)}% en dessous du seuil)`
-          : `a ${distPct.toFixed(1)}% au-dessus de la barriere`,
+          ? `barriere franchie (spot ${formatPctFr(distPct, 1)} en dessous du seuil)`
+          : `a ${formatPctFr(distPct, 1)} au-dessus de la barriere`,
       severity,
     };
   },
@@ -5759,7 +5759,7 @@ const ExtractionEngine = {
       b !== null &&
       (b < this.limits.barrier.min || b >= this.limits.barrier.max)
     ) {
-      alerts.push(`Barrière détectée (${b}%) hors normes standards.`);
+      alerts.push(`Barrière détectée (${formatPctFr(b, 2)}) hors normes standards.`);
     }
     const c = this.cleanPct(data.couponPct);
     if (c !== null && (c < 0.5 || c > this.limits.coupon.max)) {
@@ -5934,7 +5934,7 @@ function renderCompareTable(compare, extractions, consensus) {
   const consensusBlock = consensus
     ? `
     <div class="ing-consensus-hdr">
-      Consensus 360°: ${consensus.status?.consensusPct || 0}% (${consensus.status?.level || "LOW"})
+      Consensus 360°: ${formatPctFr(consensus.status?.consensusPct || 0, 0)} (${consensus.status?.level || "LOW"})
     </div>
     <table><thead><tr><th>Champ</th><th>Valeur</th><th>Confiance</th><th>Sources validées</th></tr></thead><tbody>${consensusRows}</tbody></table>
   `
@@ -6318,7 +6318,7 @@ function addExtractedProductToPortfolio() {
         emetteur: x.issuer || "Non renseigné",
         nominal: Number(x.nominal) || 1000000,
         val: Number(x.nominal) || 1000000,
-        coupon: Number(x.couponPct || 0) > 0 ? `${Number(x.couponPct).toFixed(2)}%` : "0.00%",
+        coupon: formatPctFr(Number(x.couponPct) || 0, 2),
         cpnNum: Number(x.couponPct || 0),
         barrier: x.barrierPct != null ? Number(x.barrierPct) : null,
         maturity: x.maturityDate || isoDate(addYears(new Date(), 2)),
