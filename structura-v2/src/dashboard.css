@@ -495,43 +495,35 @@
     padding: var(--space-2) var(--space-3);
 }
 
-/* Deux colonnes côte à côte (passe 6, section C) : deux listes de 5
-   empilées prenaient 1300px pour dire que les VL vont de 92,39 % à
-   93,97 % — un tiers de l'écran pour un écart d'un point et demi. */
+/* Liste unique, axe divergent centré sur 100 (passe 7, bloc 7b) :
+   remplace les deux colonnes Top 5 / Flop 5, chacune avec sa propre
+   échelle — un +2,4 % et un −6,0 % ne se comparaient pas visuellement.
+   Encre seule (§1.2, "les deltas de performance restent en encre") :
+   ni mer ni terre, aucun des deux usages que §1.2 autorise pour ces
+   tons (interaction, risque de barrière) ne s'applique à un écart de
+   VL — seuls le signe et la position à gauche/droite du centre
+   portent l'information. */
 .vl-top-flop {
+    display: flex;
+    flex-direction: column;
+}
+
+.vl-diverge-legend {
+    padding: 0 var(--space-3) var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.vl-rows {
+    display: flex;
+    flex-direction: column;
+}
+
+.vl-diverge-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-5);
-}
-
-.vl-side {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.vl-side-title {
-    padding: var(--space-3) var(--space-3) 0;
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
-}
-
-/* Sans cette ligne, "93,97 %" ne dit rien de ce qu'il mesure — lisible
-   seulement par qui a construit la table. */
-.vl-side-legend {
-    padding: 2px var(--space-3) var(--space-2);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-}
-
-.vl-row {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) 76px;
+    align-items: center;
+    gap: var(--space-3);
     width: 100%;
     padding: var(--space-2) var(--space-3);
     border: none;
@@ -544,25 +536,22 @@
     transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
-.vl-row:hover {
+.vl-diverge-row:last-child {
+    border-bottom: none;
+}
+
+.vl-diverge-row:hover {
     background: var(--color-surface-1-hover);
 }
 
-.vl-row-top {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: var(--space-3);
-}
-
-.vl-main {
+.vl-diverge-main {
     display: flex;
     flex-direction: column;
     gap: 2px;
     min-width: 0;
 }
 
-.vl-main b {
+.vl-diverge-main b {
     font-size: var(--text-sm);
     font-weight: 600;
     color: var(--color-text-primary);
@@ -571,7 +560,7 @@
     white-space: nowrap;
 }
 
-.vl-main small {
+.vl-diverge-main small {
     font-size: var(--text-xs);
     color: var(--color-text-tertiary);
     overflow: hidden;
@@ -579,30 +568,52 @@
     white-space: nowrap;
 }
 
-.vl-value {
+/* Axe divergent : deux moitiés de part et d'autre d'un centre fixe
+   (--color-border-strong), chaque barre grandit depuis le centre vers
+   son bord extérieur — jamais l'inverse, sinon les deux sens ne
+   partiraient pas du même point. */
+.vl-diverge-axis {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.vl-diverge-half {
+    display: flex;
+    flex: 1;
+    height: 4px;
+}
+
+.vl-diverge-half-neg {
+    justify-content: flex-end;
+}
+
+.vl-diverge-half-pos {
+    justify-content: flex-start;
+}
+
+.vl-diverge-bar {
+    display: block;
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--color-ink);
+}
+
+.vl-diverge-center {
+    flex: none;
+    width: 1px;
+    height: 12px;
+    background: var(--color-border-strong);
+}
+
+.vl-diverge-value {
     font-family: var(--font-mono-data);
     font-size: var(--text-sm);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
     text-align: right;
     white-space: nowrap;
-}
-
-/* Barre de distribution : ce qui rend le classement visible plutôt
-   que déductible d'un chiffre à trois décimales. */
-.vl-dist-track {
-    display: block;
-    height: 3px;
-    border-radius: var(--radius-full);
-    background: var(--color-divider);
-    overflow: hidden;
-}
-
-.vl-dist-fill {
-    display: block;
-    height: 100%;
-    border-radius: var(--radius-full);
-    background: currentColor;
 }
 
 /* ── Grille des modules bas de page ──────────────────────── */

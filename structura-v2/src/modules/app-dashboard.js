@@ -592,6 +592,17 @@
       }).join("");
     }
 
+    // Top/Flop VL (passe 7, bloc 7b) : une seule liste, un axe unique
+    // centré sur 100 (niveau VL à l'émission), barres qui partent du
+    // centre et divergent des deux côtés — remplace les deux listes
+    // Top 5 / Flop 5 avec chacune sa propre échelle. Palette tranchée le
+    // 05/08 : encre seule des deux côtés (§1.2, "les deltas de
+    // performance restent en encre — le signe et le mono suffisent"),
+    // pas de mer/terre — un delta de VL n'est ni une interaction ni un
+    // risque de barrière, les deux seuls usages que §1.2 autorise pour
+    // ces tons. Composant distinct de la réglette de §1.4 : celle-ci
+    // exprime une distance à *un* seuil de barrière depuis un bord,
+    // pas un classement d'écarts de part et d'autre d'un centre commun.
     function renderVlTopFlop() {
       const c = document.getElementById("vl-top-flop");
       if (!c) return;
@@ -613,33 +624,26 @@
         c.innerHTML = `<div class="empty-inline">Aucune VL exploitable.</div>`;
         return;
       }
-      // Échelle réelle, pas 0-100 : les VL de ce portefeuille tiennent
-      // sur un point et demi (92-94 % dans l'exemple client). Sur une
-      // échelle 0-100 toutes les barres se ressembleraient — l'échelle
-      // doit montrer l'écart réel (passe 6, section C).
-      const levels = data.map((p) => p.vlLevel);
-      const scaleMin = Math.min(...levels);
-      const scaleMax = Math.max(...levels);
-      const pctAt = (v) =>
-        scaleMax > scaleMin ? ((v - scaleMin) / (scaleMax - scaleMin)) * 100 : 100;
+      const rows = [...data.slice(0, 5), ...data.slice(-5)]
+        .filter((p, i, arr) => arr.findIndex((q) => q.id === p.id) === i)
+        .sort((a, b) => b.vlLevel - a.vlLevel);
+      const maxDev = Math.max(...rows.map((p) => Math.abs(p.vlLevel - 100)), 0.01);
       const renderRow = (p) => {
-        const cls = p.vlLevel >= 100 ? "up" : "dn";
-        return `<button type="button" class="vl-row" onclick="openDrawer(${p.id})">
-          <span class="vl-row-top">
-            <span class="vl-main"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.underlying || p.emetteur || "—")}</small></span>
-            <span class="vl-value ${cls}">${pctFr(p.vlLevel, 2)}</span>
+        const delta = p.vlLevel - 100;
+        const pos = delta >= 0;
+        const barPct = Math.min(100, (Math.abs(delta) / maxDev) * 100);
+        return `<button type="button" class="vl-diverge-row" onclick="openDrawer(${p.id})">
+          <span class="vl-diverge-main"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.underlying || p.emetteur || "—")}</small></span>
+          <span class="vl-diverge-axis">
+            <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
+            <span class="vl-diverge-center"></span>
+            <span class="vl-diverge-half vl-diverge-half-pos">${pos ? `<span class="vl-diverge-bar" style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
           </span>
-          <span class="vl-dist-track"><span class="vl-dist-fill ${cls}" style="width:${pctAt(p.vlLevel).toFixed(1)}%"></span></span>
+          <span class="vl-diverge-value">${pos ? "+" : ""}${pctFr(delta, 2)}</span>
         </button>`;
       };
-      // Le montant disparaît (demande client) : ce classement n'est
-      // pas une lecture d'encours, c'est une lecture de VL.
-      const renderSide = (title, rows) => `<div class="vl-side">
-        <div class="vl-side-title">${title}</div>
-        <div class="vl-side-legend">VL en % du nominal · base 100 à l'émission</div>
-        <div class="vl-rows">${rows.map(renderRow).join("")}</div>
-      </div>`;
-      c.innerHTML = `${renderSide("Top 5 VL", data.slice(0, 5))}${renderSide("Flop 5 VL", data.slice(-5).reverse())}`;
+      c.innerHTML = `<div class="vl-diverge-legend">Écart à la VL d'émission (base 100) · classement Top/Flop 5</div>
+        <div class="vl-rows">${rows.map(renderRow).join("")}</div>`;
     }
 
     function renderDashboardModules() {
