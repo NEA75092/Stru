@@ -1878,6 +1878,25 @@
     color: var(--color-text-tertiary);
 }
 
+/* Barème des avis (passe 7, bloc 7e) : les quatre seuils étaient
+   calculés (decrementVerdict, decrement-engine.js) mais jamais
+   affichés — un CGP voyait "RECOMMANDÉ" sans savoir ce qui sépare un
+   avis du suivant. Pastilles .pill-status.av-* réutilisées telles
+   quelles (mêmes tokens que la table), pas une seconde palette. */
+.dec-bareme-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 3px 0;
+}
+
+.dec-bareme-threshold {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
 /* Quatre colonnes (passe 6, section I) : Non-rappel et Verdict
    restent dans la fiche (clic sur la ligne), pas dans le tableau —
    c'est ce qui laissait 900px de vide entre deux colonnes voisines.
