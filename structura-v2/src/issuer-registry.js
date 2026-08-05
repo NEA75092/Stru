@@ -4,6 +4,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'BNP',
       label: 'BNP Paribas',
+      brandColor: '#00875a',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/BNP(?:\s+Paribas)?/i, /BNP\s+Paribas\s+Issuance/i],
       officialSources: [
@@ -23,6 +24,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'SG',
       label: 'Société Générale',
+      brandColor: '#e4032e',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/Soci[ée]t[ée]\s+G[ée]n[ée]rale/i, /\bSG\b(?!\s*Private Banking)/i],
       officialSources: [
@@ -41,6 +43,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'MS',
       label: 'Morgan Stanley',
+      brandColor: '#002b49',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/Morgan\s+Stanley/i],
       officialSources: [
@@ -59,6 +62,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'JPM',
       label: 'JP Morgan',
+      brandColor: '#767676',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/JP\s*Morgan/i, /JPMorgan/i, /J\.P\.\s*Morgan/i],
       officialSources: [
@@ -77,6 +81,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'GS',
       label: 'Goldman Sachs',
+      brandColor: '#7399c6',
       publicSourceStatus: 'LIMITED_PUBLIC_PORTAL',
       aliases: [/Goldman\s+Sachs/i, /\bGS\s+Finance\b/i],
       officialSources: [
@@ -95,6 +100,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'DB',
       label: 'Deutsche Bank',
+      brandColor: '#0018a8',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/Deutsche\s+Bank/i],
       officialSources: [
@@ -114,6 +120,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'BARC',
       label: 'Barclays',
+      brandColor: '#00aeef',
       publicSourceStatus: 'LIMITED_PUBLIC_PORTAL',
       aliases: [/Barclays/i],
       officialSources: [
@@ -132,6 +139,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'HSBC',
       label: 'HSBC',
+      brandColor: '#db0011',
       publicSourceStatus: 'LIMITED_PUBLIC_PORTAL',
       aliases: [/HSBC/i],
       officialSources: [
@@ -149,6 +157,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'NATIXIS',
       label: 'Natixis',
+      brandColor: '#7a2e8e',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/Natixis/i, /Natixis Structured Issuance/i],
       officialSources: [
@@ -168,6 +177,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'CACIB',
       label: 'Crédit Agricole CIB',
+      brandColor: '#78be20',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/Cr[ée]dit\s+Agricole\s+CIB/i, /Credit\s+Agricole\s+CIB/i],
       officialSources: [
@@ -186,6 +196,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'CITI',
       label: 'Citigroup',
+      brandColor: '#0057b8',
       publicSourceStatus: 'LIMITED_PUBLIC_PORTAL',
       aliases: [/Citigroup/i, /\bCiti\b/i],
       officialSources: [
@@ -204,6 +215,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'UBS',
       label: 'UBS',
+      brandColor: '#d1121b',
       publicSourceStatus: 'PUBLIC_DOCUMENT_LIBRARY',
       aliases: [/\bUBS\b/i],
       officialSources: [
@@ -223,6 +235,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'VONTOBEL',
       label: 'Vontobel',
+      brandColor: '#f39200',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/Vontobel/i],
       officialSources: [
@@ -241,6 +254,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'UNICREDIT',
       label: 'UniCredit',
+      brandColor: '#ff6600',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/UniCredit/i],
       officialSources: [
@@ -260,6 +274,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'COMMERZ',
       label: 'Commerzbank',
+      brandColor: '#ffcc00',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/Commerzbank/i],
       officialSources: [
@@ -278,6 +293,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'LEONTEQ',
       label: 'Leonteq',
+      brandColor: '#009999',
       publicSourceStatus: 'PUBLIC_PORTAL',
       aliases: [/Leonteq/i],
       officialSources: [
@@ -297,6 +313,7 @@ globalThis.STRUCTURA_ISSUER_REGISTRY = {
     {
       id: 'BOFA',
       label: 'Bank of America',
+      brandColor: '#e31837',
       publicSourceStatus: 'PUBLIC_FILINGS',
       aliases: [/Bank\s+of\s+America/i, /Merrill\s+Lynch/i, /\bMLPF&S\b/i],
       officialSources: [

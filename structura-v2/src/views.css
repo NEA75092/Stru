@@ -1017,6 +1017,94 @@
     border-radius: var(--radius-full);
 }
 
+/* Exposition émetteur, version détaillée (spec Passe 7, bloc 7g) : barre
+   empilée + une ligne par émetteur, réglette de §1.4 pour chaque ligne
+   (même composant que Barrières/Decrement, pas une jauge à part). La
+   couleur de marque est la seule exception à "zéro couleur littérale" de
+   cet écran, actée en 7g pour identifier un émetteur au coup d'œil — tout
+   le reste (seuil, encre, fonds) reste sur les tokens chaux/mer. Posée
+   uniquement via une classe .issuer-xxx (JS ajoute la classe, jamais un
+   style="" — règle §3, "la couleur ne s'écrit pas dans le JS") qui
+   consomme un token --issuer-* de design-tokens.css. Émetteur non
+   couvert par la liste ci-dessous : encre neutre, --color-text-tertiary,
+   pas de brandColor inventée. */
+.pilotage-issuer-bar {
+    display: flex;
+    height: 10px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--color-divider);
+}
+
+.pilotage-issuer-bar-seg {
+    display: block;
+    height: 100%;
+    background: var(--color-text-tertiary);
+}
+
+.pilotage-issuer-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.pilotage-issuer-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.pilotage-issuer-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-text-tertiary);
+}
+
+.pilotage-issuer-bar-seg.issuer-bnp, .pilotage-issuer-dot.issuer-bnp { background: var(--issuer-bnp); }
+.pilotage-issuer-bar-seg.issuer-sg, .pilotage-issuer-dot.issuer-sg { background: var(--issuer-sg); }
+.pilotage-issuer-bar-seg.issuer-ms, .pilotage-issuer-dot.issuer-ms { background: var(--issuer-ms); }
+.pilotage-issuer-bar-seg.issuer-jpm, .pilotage-issuer-dot.issuer-jpm { background: var(--issuer-jpm); }
+.pilotage-issuer-bar-seg.issuer-gs, .pilotage-issuer-dot.issuer-gs { background: var(--issuer-gs); }
+.pilotage-issuer-bar-seg.issuer-db, .pilotage-issuer-dot.issuer-db { background: var(--issuer-db); }
+.pilotage-issuer-bar-seg.issuer-barc, .pilotage-issuer-dot.issuer-barc { background: var(--issuer-barc); }
+.pilotage-issuer-bar-seg.issuer-hsbc, .pilotage-issuer-dot.issuer-hsbc { background: var(--issuer-hsbc); }
+.pilotage-issuer-bar-seg.issuer-natixis, .pilotage-issuer-dot.issuer-natixis { background: var(--issuer-natixis); }
+.pilotage-issuer-bar-seg.issuer-cacib, .pilotage-issuer-dot.issuer-cacib { background: var(--issuer-cacib); }
+.pilotage-issuer-bar-seg.issuer-citi, .pilotage-issuer-dot.issuer-citi { background: var(--issuer-citi); }
+.pilotage-issuer-bar-seg.issuer-ubs, .pilotage-issuer-dot.issuer-ubs { background: var(--issuer-ubs); }
+.pilotage-issuer-bar-seg.issuer-vontobel, .pilotage-issuer-dot.issuer-vontobel { background: var(--issuer-vontobel); }
+.pilotage-issuer-bar-seg.issuer-unicredit, .pilotage-issuer-dot.issuer-unicredit { background: var(--issuer-unicredit); }
+.pilotage-issuer-bar-seg.issuer-commerz, .pilotage-issuer-dot.issuer-commerz { background: var(--issuer-commerz); }
+.pilotage-issuer-bar-seg.issuer-leonteq, .pilotage-issuer-dot.issuer-leonteq { background: var(--issuer-leonteq); }
+.pilotage-issuer-bar-seg.issuer-bofa, .pilotage-issuer-dot.issuer-bofa { background: var(--issuer-bofa); }
+
+.pilotage-issuer-name {
+    flex: none;
+    width: 160px;
+    font-size: var(--text-sm);
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pilotage-issuer-amount {
+    flex: none;
+    width: 84px;
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    text-align: right;
+}
+
+.pilotage-issuer-row .bar-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
 .pilotage-preview-empty {
     padding: var(--space-5);
     text-align: center;

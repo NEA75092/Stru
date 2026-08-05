@@ -7,13 +7,14 @@
 })(
   typeof globalThis !== "undefined" ? globalThis : this,
   function createStructuraAnalytics(root) {
-    const { moneyShort, pctFr, escapeHtml, shortDateFr, computeRiskDistribution } =
+    const { moneyShort, pctFr, escapeHtml, shortDateFr, computeRiskDistribution, renderGauge } =
       root.StructuraUtils;
     const {
       productsForScope,
       getProductAllocations,
       getClientById,
     } = root.StructuraAppState;
+    const { bankGroupName } = root.StructuraDashboard;
 
     function computePortfolioMetrics() {
       const data = productsForScope();
@@ -173,6 +174,85 @@
       }
     }
 
+    // Exposition émetteur — version détaillée (spec Passe 7, bloc 7g) : le
+    // Dashboard garde l'anneau compact (.issuer-exposure), Pilotage reçoit
+    // la barre empilée + une ligne par émetteur. Regroupement identique à
+    // celui du Dashboard (bankGroupName, StructuraDashboard) — sinon les
+    // deux écrans compteraient les émetteurs différemment et « 10
+    // émetteurs » voudrait dire deux choses selon l'écran.
+    const ISSUER_CONCENTRATION_WATCH_THRESHOLD = 25;
+
+    // Couleur de marque (passe 7, 7g) : seule exception à « zéro couleur
+    // littérale » de tout cet écran — actée pour identifier un émetteur au
+    // premier coup d'œil, pas pour décorer. La classe voyage depuis le JS
+    // (règle §3 : jamais un style="" portant une couleur, même via var()) ;
+    // la valeur réelle vit dans design-tokens.css (--issuer-*), consommée
+    // par la classe .issuer-xxx dans views.css. Émetteur sans entrée dans
+    // issuer-registry.js : pas de classe, encre neutre par défaut.
+    function issuerClassFor(rawLabel) {
+      const issuers = root.STRUCTURA_ISSUER_REGISTRY?.issuers || [];
+      const match = issuers.find((entry) =>
+        (entry.aliases || []).some((re) => re.test(String(rawLabel || ""))),
+      );
+      return match ? `issuer-${match.id.toLowerCase()}` : "";
+    }
+
+    function computeIssuerExposureDetail() {
+      const data = productsForScope();
+      const totalVal = data.reduce((sum, p) => sum + (Number(p.val) || 0), 0);
+      const groups = new Map();
+      data.forEach((p) => {
+        const label = bankGroupName(p.emetteur);
+        const row =
+          groups.get(label) ||
+          { label, val: 0, count: 0, issuerClass: issuerClassFor(p.emetteur) };
+        row.val += Number(p.val) || 0;
+        row.count += 1;
+        groups.set(label, row);
+      });
+      return [...groups.values()]
+        .map((row) => ({ ...row, pct: totalVal ? (row.val / totalVal) * 100 : 0 }))
+        .sort((a, b) => b.val - a.val);
+    }
+
+    function renderIssuerExposureDetail() {
+      const barEl = document.getElementById("ana-issuer-bar");
+      const listEl = document.getElementById("ana-issuer-list");
+      if (!barEl || !listEl) return;
+      const rows = computeIssuerExposureDetail();
+      if (!rows.length) {
+        barEl.innerHTML = "";
+        listEl.innerHTML = `<div class="pilotage-preview-empty">Aucune exposition à afficher.</div>`;
+        return;
+      }
+      barEl.innerHTML = rows
+        .map(
+          (row) =>
+            `<span class="pilotage-issuer-bar-seg ${row.issuerClass}" style="width:${row.pct.toFixed(2)}%" title="${escapeHtml(row.label)} · ${pctFr(row.pct, 1)}"></span>`,
+        )
+        .join("");
+      listEl.innerHTML = rows
+        .map((row) => {
+          const over = row.pct >= ISSUER_CONCENTRATION_WATCH_THRESHOLD;
+          return `<div class="pilotage-issuer-row">
+            <span class="pilotage-issuer-dot ${row.issuerClass}"></span>
+            <span class="pilotage-issuer-name">${escapeHtml(row.label)}</span>
+            <span class="pilotage-issuer-amount">${moneyShort(row.val)}</span>
+            ${renderGauge({
+              scale: "row",
+              value: row.pct,
+              min: 0,
+              max: 100,
+              threshold: ISSUER_CONCENTRATION_WATCH_THRESHOLD,
+              tone: over ? "st-warn" : "st-none",
+              display: pctFr(row.pct, 1),
+              tooltip: `${row.label} — seuil ${ISSUER_CONCENTRATION_WATCH_THRESHOLD} %`,
+            })}
+          </div>`;
+        })
+        .join("");
+    }
+
     function renderClientPreview() {
       const container = document.getElementById("ana-client-preview");
       if (!container) return;
@@ -277,6 +357,7 @@
 
     function renderAnalytics() {
       renderRiskMetrics();
+      renderIssuerExposureDetail();
       renderRiskDistribution();
       renderClientPreview();
     }

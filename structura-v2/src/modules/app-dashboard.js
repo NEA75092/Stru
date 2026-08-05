@@ -783,6 +783,7 @@
       evHtml,
       monthShortFR,
       setRange,
+      bankGroupName,
     };
   },
 );

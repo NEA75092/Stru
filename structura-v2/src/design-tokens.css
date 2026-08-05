@@ -179,6 +179,34 @@
     --duration-enter: 620ms;
     --stagger: 80ms;
     --blur-enter: 7px;
+
+    /* ── Couleurs de marque émetteur (spec Passe 7, bloc 7g) ──
+       Seule exception à "zéro couleur littérale" du système : un
+       émetteur se reconnaît à sa couleur réelle, pas à un token de
+       rôle chaux/mer/terre. Consommées uniquement via une classe
+       (.pilotage-issuer-*.issuer-xxx dans views.css), jamais en
+       style="" — la couleur ne s'écrit pas dans le JS (règle §3).
+       Identiques en clair et en sombre : une marque ne change pas de
+       couleur avec le thème, pas besoin de les redéfinir sous
+       [data-theme="dark"]. Mapping émetteur → token dans
+       issuer-registry.js (brandColor), pas dans ce fichier. */
+    --issuer-bnp: #00875a;
+    --issuer-sg: #e4032e;
+    --issuer-ms: #002b49;
+    --issuer-jpm: #767676;
+    --issuer-gs: #7399c6;
+    --issuer-db: #0018a8;
+    --issuer-barc: #00aeef;
+    --issuer-hsbc: #db0011;
+    --issuer-natixis: #7a2e8e;
+    --issuer-cacib: #78be20;
+    --issuer-citi: #0057b8;
+    --issuer-ubs: #d1121b;
+    --issuer-vontobel: #f39200;
+    --issuer-unicredit: #ff6600;
+    --issuer-commerz: #ffcc00;
+    --issuer-leonteq: #009999;
+    --issuer-bofa: #e31837;
 }
 
 /* ============================================================
