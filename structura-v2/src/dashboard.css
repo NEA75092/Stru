@@ -59,7 +59,8 @@
 /* ── Bandeau d'accueil ───────────────────────────────────── */
 /* 190px pour une salutation, c'était trop : le contenu de la vue doit
    commencer dans le premier écran. Une ligne, filet + gouttière — plus
-   de bloc plein bleu (passe 8, §1.2 : aucun en-tête coloré). */
+   de bloc plein bleu (aucun en-tête coloré, cf. CLAUDE.md, sémantique
+   des couleurs). */
 .dash-welcome {
     display: flex;
     align-items: center;
@@ -203,7 +204,7 @@
    quatre cartes forment un set, on n'en remplit pas une seule. */
 /* Cartes « Encours »/« Nombre de produits » : pas de distance à une
    barrière, filet neutre — la couleur n'est due qu'aux deux cartes de
-   statut ci-dessous (passe 8, §1.2). */
+   statut ci-dessous (cf. CLAUDE.md, sémantique des couleurs). */
 .kpi.k-red {
     border-left-color: var(--color-breach);
 }
@@ -1268,7 +1269,8 @@
 
 /* Le type d'événement n'est pas une distance à une barrière : filet
    d'encre pour tous, sauf l'événement qui touche une barrière lui-même
-   (passe 8, §1.2 — la couleur ne reste que sur le risque réel). */
+   (la couleur ne reste que sur le risque réel, cf. CLAUDE.md, sémantique
+   des couleurs). */
 .timeline-item.ev-obs,
 .timeline-item.ev-coupon,
 .timeline-item.ev-rappel,
@@ -1351,8 +1353,9 @@
 }
 
 /* Un delta de performance reste en encre : le signe et le mono
-   suffisent (passe 8, §1.2 — plus de vert/rouge décoratif sur un
-   chiffre qui ne parle pas d'une barrière). Relogé en fin de fichier
+   suffisent (plus de vert/rouge décoratif sur un chiffre qui ne parle
+   pas d'une barrière, cf. CLAUDE.md, sémantique des couleurs). Relogé
+   en fin de fichier
    (contenu inchangé) : à spécificité égale (une classe), la règle la
    plus tardive gagne — placées plus haut, .kpi-sub (et d'autres
    classes combinées) l'emportaient toujours sur .up/.dn. */
