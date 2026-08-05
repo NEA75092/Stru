@@ -730,6 +730,14 @@
         "cal-events-meta",
         `${periodEvents.length} événement${periodEvents.length > 1 ? "s" : ""}`,
       );
+      // Compteur de .control-band (specs/dashboard.md § 2.4) : même
+      // donnée que cal-events-meta, dans la bande de contrôles plutôt
+      // que dans l'en-tête de la liste — les deux ne sont pas
+      // dupliqués visuellement (jamais dans le même cadre).
+      setText(
+        "cal-bar-events-count",
+        `${periodEvents.length} événement${periodEvents.length > 1 ? "s" : ""}`,
+      );
     }
 
     // Grille mensuelle (section F) : un point par événement, coloré par

@@ -639,6 +639,10 @@ html:has(#view-autopitch.active) {
     width: auto;
 }
 
+.control-band-spacer {
+    flex: 1;
+}
+
 /* Compteur d'événements : pastille mer 6 px en pulsation lente —
    seule cellule de la bande qui n'est pas un contrôle cliquable. */
 .control-band-count {
