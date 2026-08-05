@@ -212,14 +212,18 @@
       // Part du patrimoine en structurés (§6.2) : la valorisation actuelle
       // au numérateur, pas le nominal investi — le dénominateur (patrimoine
       // déclaré) est une photo au présent, le ratio doit comparer deux
-      // choses prises au même instant. Masqué entièrement si le patrimoine
-      // est absent ou nul : pas de division par zéro habillée en 0 %, même
-      // règle que la Constatation sans montant (§3).
+      // choses prises au même instant. Le KPI reste toujours affiché, y
+      // compris sans patrimoine déclaré : le masquer supprimerait
+      // l'information « on ne sait pas », qui n'est pas « rien à
+      // afficher » — sans la carte, l'utilisateur ne peut pas distinguer
+      // un patrimoine non renseigné d'un bug d'affichage (§6.2, arbitrage
+      // du 05/08 : c'est ce comportement de masquage qui avait tort, pas
+      // le texte).
       const hasWealth = Number.isFinite(Number(client.declaredWealth)) && Number(client.declaredWealth) > 0;
       const wealthSharePct = hasWealth ? (stats.val / Number(client.declaredWealth)) * 100 : null;
       const wealthKpi = hasWealth
         ? `<div class="kpi${wealthSharePct >= WEALTH_CONCENTRATION_WATCH_THRESHOLD ? " kpi-accent-danger" : ""}"><div class="kpi-lbl">Part du patrimoine en structurés</div><div class="kpi-val">${pctFr(wealthSharePct, 0)}</div><div class="kpi-sub">du patrimoine déclaré · seuil ${WEALTH_CONCENTRATION_WATCH_THRESHOLD} %</div></div>`
-        : "";
+        : `<div class="kpi"><div class="kpi-lbl">Part du patrimoine en structurés</div><div class="kpi-val kpi-val-empty">Non renseigné</div><div class="kpi-sub">du patrimoine déclaré</div></div>`;
       content.innerHTML = `
         <div class="dr-name">${escapeHtml(client.name)}</div>
         <div class="dr-isin">${escapeHtml(client.segment)}${dominantEnvelope ? ` · ${escapeHtml(dominantEnvelope)}` : ""}</div>
@@ -229,7 +233,7 @@
           <div><div class="dr-field-lbl">Téléphone</div><div class="dr-field-val">${client.phone ? escapeHtml(client.phone) : "—"}</div></div>
           <div><div class="dr-field-lbl">Adresse</div><div class="dr-field-val">${client.address ? escapeHtml(client.address) : "—"}</div></div>
         </div>
-        <div class="kpi-row kpi-row-accent-top dr-kpi-row${hasWealth ? "" : " dr-kpi-row-3"}">
+        <div class="kpi-row kpi-row-accent-top dr-kpi-row">
           <div class="kpi"><div class="kpi-lbl">Produits</div><div class="kpi-val">${stats.count}</div><div class="kpi-sub">Rattachés au dossier</div></div>
           <div class="kpi"><div class="kpi-lbl">Encours nominal</div><div class="kpi-val">${moneyShort(stats.nominal)}</div><div class="kpi-sub">&nbsp;</div></div>
           <div class="kpi"><div class="kpi-lbl">Valorisation</div><div class="kpi-val">${moneyShort(stats.val)}</div><div class="kpi-sub">&nbsp;</div></div>
