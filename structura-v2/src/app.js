@@ -3585,7 +3585,7 @@ const SmartFrequencyEngine = {
       rawPct: Number(raw.toFixed(4)),
       period,
       annualPct: Number(annualPct.toFixed(4)),
-      display: `${raw}%/${period}`,
+      display: `${formatPctFr(raw, 2)}/${period}`,
     };
   },
 };
@@ -5208,11 +5208,11 @@ function buildConsensusReportingPayload(consensus, merged) {
   const status = consensus?.status || { level: "LOW", consensusPct: 0 };
   const barrier =
     c.barrier?.value !== null && c.barrier?.value !== undefined
-      ? `${c.barrier.value}%`
+      ? formatPctFr(c.barrier.value, 0)
       : null;
   const coupon =
     c.coupon?.value !== null && c.coupon?.value !== undefined
-      ? `${c.coupon.value}% p.a.`
+      ? `${formatPctFr(c.coupon.value, 2)} p.a.`
       : null;
   const decrement =
     c.decrement?.value !== null && c.decrement?.value !== undefined
@@ -5226,14 +5226,14 @@ function buildConsensusReportingPayload(consensus, merged) {
     ),
     isin: StructuraCleaner.cleanISIN(c.isin?.value || merged?.isin || ""),
     features: {
-      barrier: barrier || `${merged?.barrierPct || "N/A"}%`,
-      coupon: coupon || `${merged?.couponPct || "N/A"}%`,
+      barrier: barrier || (merged?.barrierPct ? formatPctFr(merged.barrierPct, 0) : "N/A"),
+      coupon: coupon || (merged?.couponPct ? formatPctFr(merged.couponPct, 2) : "N/A"),
       risk_sri: sri,
       decrement:
         decrement || (merged?.decrement ? `${merged.decrement} pts` : "N/A"),
     },
     audit: {
-      consensus_level: `${status.consensusPct || 0}%`,
+      consensus_level: formatPctFr(status.consensusPct || 0, 0),
       grade: merged?.grade || status.level || "LOW",
       warnings: merged?.alerts || [],
     },
@@ -5255,9 +5255,8 @@ function buildReportingDescription(merged, consensus) {
 
   if (Number.isFinite(Number(merged?.couponPct))) {
     const cp = Number(merged.couponPct);
-    const annual =
-      merged?.couponPeriod === "monthly" ? (cp * 12).toFixed(2) : cp.toFixed(3);
-    parts.push(`coupon de ${annual}%/an`);
+    const annual = merged?.couponPeriod === "monthly" ? cp * 12 : cp;
+    parts.push(`coupon de ${formatPctFr(annual, merged?.couponPeriod === "monthly" ? 2 : 3)}/an`);
   }
 
   if (
@@ -5265,10 +5264,10 @@ function buildReportingDescription(merged, consensus) {
     merged?.barrierFlag !== "SUSPECT_EQUALS_RECALL"
   ) {
     parts.push(
-      `protection en capital jusqu'a une baisse de ${(100 - Number(merged.barrierPct)).toFixed(0)}%`,
+      `protection en capital jusqu'a une baisse de ${formatPctFr(100 - Number(merged.barrierPct), 0)}`,
     );
   } else if (merged?.barrierFlag === "SUSPECT_EQUALS_RECALL") {
-    parts.push("barriere a verifier (valeur 100% suspecte)");
+    parts.push(`barriere a verifier (valeur ${formatPctFr(100, 0)} suspecte)`);
   }
 
   if (merged?.maturityDate) {
@@ -5285,7 +5284,7 @@ function buildReportingDescription(merged, consensus) {
       merged?.grade || "LOW"
     ] || "faible";
   parts.push(
-    `(fiabilite ${gradeLabel} - ${consensus?.status?.consensusPct ?? 0}% de consensus)`,
+    `(fiabilite ${gradeLabel} - ${formatPctFr(consensus?.status?.consensusPct ?? 0, 0)} de consensus)`,
   );
   return `${parts.join(", ")}.`;
 }
