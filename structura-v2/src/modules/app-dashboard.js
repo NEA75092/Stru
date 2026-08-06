@@ -734,11 +734,15 @@
         count: counts[z.key],
         pct: pctByKey[z.key],
       }));
+      // C11 : aucun texte dans la barre empilée, y compris la zone de
+      // rendement — la légende porte déjà le nombre, plus gros, mieux
+      // placé. Un title par segment pour le survol, pas un nœud texte
+      // (le calque de C11 lit le texte des segments, pas leur balisage).
       const bar = zones
         .filter((z) => z.count > 0)
         .map(
           (z) =>
-            `<span class="dash-risk-seg dash-risk-seg-${z.tone}" data-calque="risk-seg" style="width:${z.pct.toFixed(1)}%">${pctFr(z.pct, 1)}</span>`,
+            `<span class="dash-risk-seg dash-risk-seg-${z.tone}" data-calque="risk-seg" style="width:${z.pct.toFixed(1)}%" title="${escapeHtml(z.label)} · ${pctFr(z.pct, 1)}"></span>`,
         )
         .join("");
       const rowsHtml = zones
