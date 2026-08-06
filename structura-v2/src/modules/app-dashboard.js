@@ -605,22 +605,36 @@
     }
 
     // Top/Flop VL (Passe 7 reprise, bloc 7b — rouvert après mesure de
-    // Écarts de VL (specs/dashboard.md § 2.2) : une seule liste, un axe
+    // Écarts de VL (specs/dashboard.md § 2.2, corrigé par
+    // dashboard-correctif-01.md C1 + C6) : une seule liste, un axe
     // unique centré à 50 % de la zone de tracé (deux colonnes 1fr
     // égales), qui reste au centre quelles que soient les données — si
     // tout le portefeuille est sous 100, la moitié droite reste vide,
-    // c'est l'information. HEADROOM cape la barre la plus longue à 92 %
-    // de la demi-largeur, jamais 100 % pile. Nom sur une seule ligne
-    // (200px, ellipsis), pas de sous-jacent empilé dessous. Valeur en
-    // points d'écart à 100 (ex. +27,4), pas un pourcentage — ni %, ni
+    // c'est l'information (C2). Nom sur une seule ligne (200px,
+    // ellipsis), pas de sous-jacent empilé dessous. Valeur en points
+    // d'écart à 100 (ex. +27,4), pas un pourcentage — ni %, ni
     // 2 décimales : pctFr ne convient pas ici, d'où ptsFr, formateur
     // dédié qui n'ajoute aucune unité (le signe suit la même convention
     // que pctFr/moneyShort : le "−" est géré ici, le "+" reste à la
     // charge de l'appelant). Encre partout, jamais mer ni terre (§ 2.2,
     // "le monochrome est correct et reste") : positif = encre pleine
     // 0,62 d'opacité + arête haute --lumiere, négatif = encre gravée
-    // (trame 115°, 2px/5px — même réglage que § 2.1 et § 2.3).
-    const VL_TOPFLOP_BAR_HEADROOM = 0.92;
+    // (trame 115°, 2px/5px, C3 confirme : inchangée).
+    //
+    // C6 — sélection : classer TOUS les produits par écart à 100
+    // décroissant, prendre les 5 premiers et les 5 derniers, aucune
+    // condition de signe (les "5 meilleurs" restent les 5 premiers du
+    // classement même s'ils sont tous négatifs). Moins de 10 produits :
+    // tout afficher, une seule fois chacun — slice(0,5)+slice(-5) se
+    // chevauchent quand data.length < 10, le dédoublonnage par id après
+    // coup absorbe le chevauchement sans jamais répéter une ligne.
+    //
+    // C1 — domaine : max(abs(écart)) sur les lignes AFFICHÉES (pas tout
+    // le portefeuille), arrondi au point supérieur, plancher 4 points.
+    // Recalculé à chaque rendu puisque `rows` change avec les données.
+    // Largeur : abs(écart)/domaine en %, plancher 3px — CSS
+    // max(3px, X%) directement, comme la maquette (pas de HEADROOM
+    // arbitraire : l'arrondi au point supérieur donne déjà la marge).
     function ptsFr(value, digits = 1) {
       const n = Number(value) || 0;
       const sign = n < 0 ? "−" : "";
@@ -650,15 +664,15 @@
       const rows = [...data.slice(0, 5), ...data.slice(-5)]
         .filter((p, i, arr) => arr.findIndex((q) => q.id === p.id) === i)
         .sort((a, b) => b.vlLevel - a.vlLevel);
-      const maxDev = Math.max(...rows.map((p) => Math.abs(p.vlLevel - 100)), 0.01);
+      const domain = Math.max(4, Math.ceil(Math.max(...rows.map((p) => Math.abs(p.vlLevel - 100)))));
       const renderRow = (p) => {
         const delta = p.vlLevel - 100;
         const pos = delta >= 0;
-        const barPct = Math.min(100, (Math.abs(delta) / maxDev) * 100 * VL_TOPFLOP_BAR_HEADROOM);
-        return `<button type="button" class="vl-diverge-row" data-topflop-row onclick="openDrawer(${p.id})">
+        const barWidth = `max(3px, ${((Math.abs(delta) / domain) * 100).toFixed(1)}%)`;
+        return `<button type="button" class="vl-diverge-row vl-row" data-topflop-row onclick="openDrawer(${p.id})">
           <span class="vl-diverge-main" data-topflop-name>${escapeHtml(p.name)}</span>
-          <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
-          <span class="vl-diverge-half vl-diverge-half-pos" data-topflop-axis>${pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barPct.toFixed(1)}%"></span>` : ""}</span>
+          <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barWidth}"></span>` : ""}</span>
+          <span class="vl-diverge-half vl-diverge-half-pos" data-topflop-axis>${pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barWidth}"></span>` : ""}</span>
           <span class="vl-diverge-value" data-topflop-val>${pos ? "+" : ""}${ptsFr(delta)}</span>
         </button>`;
       };
