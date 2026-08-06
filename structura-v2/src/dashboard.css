@@ -717,6 +717,11 @@
 .vl-diverge-half-neg .vl-diverge-bar {
     background-image: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px);
     background-color: color-mix(in oklch, var(--color-ink), transparent 80%);
+    /* C7 : arête basse, pas haute — les deux barres creusent en sens
+       inverse (positive vers la gauche, négative vers la droite), la
+       lumière tombe du même côté sur les deux, c'est la matière qui
+       s'inverse. */
+    box-shadow: inset 0 -1px 0 var(--lumiere);
 }
 
 .vl-diverge-half-pos .vl-diverge-bar {

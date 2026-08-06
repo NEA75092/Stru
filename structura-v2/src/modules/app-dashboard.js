@@ -669,11 +669,11 @@
         const delta = p.vlLevel - 100;
         const pos = delta >= 0;
         const barWidth = `max(3px, ${((Math.abs(delta) / domain) * 100).toFixed(1)}%)`;
-        return `<button type="button" class="vl-diverge-row vl-row" data-topflop-row onclick="openDrawer(${p.id})">
+        return `<button type="button" class="vl-diverge-row vl-row" data-topflop-row data-calque="vl-row" onclick="openDrawer(${p.id})">
           <span class="vl-diverge-main" data-topflop-name>${escapeHtml(p.name)}</span>
-          <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barWidth}"></span>` : ""}</span>
-          <span class="vl-diverge-half vl-diverge-half-pos" data-topflop-axis>${pos ? `<span class="vl-diverge-bar" data-topflop-bar style="width:${barWidth}"></span>` : ""}</span>
-          <span class="vl-diverge-value" data-topflop-val>${pos ? "+" : ""}${ptsFr(delta)}</span>
+          <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" data-topflop-bar data-calque="vl-bar" style="width:${barWidth}"></span>` : ""}</span>
+          <span class="vl-diverge-half vl-diverge-half-pos" data-topflop-axis>${pos ? `<span class="vl-diverge-bar" data-topflop-bar data-calque="vl-bar" style="width:${barWidth}"></span>` : ""}</span>
+          <span class="vl-diverge-value" data-topflop-val data-calque="vl-val">${pos ? "+" : ""}${ptsFr(delta)}</span>
         </button>`;
       };
       c.innerHTML = `<div class="vl-head">
@@ -738,13 +738,13 @@
         .filter((z) => z.count > 0)
         .map(
           (z) =>
-            `<span class="dash-risk-seg dash-risk-seg-${z.tone}" style="width:${z.pct.toFixed(1)}%">${pctFr(z.pct, 1)}</span>`,
+            `<span class="dash-risk-seg dash-risk-seg-${z.tone}" data-calque="risk-seg" style="width:${z.pct.toFixed(1)}%">${pctFr(z.pct, 1)}</span>`,
         )
         .join("");
       const rowsHtml = zones
         .map(
           (z) => `<div class="dash-risk-row">
-            <span class="dash-risk-dot dash-risk-dot-${z.tone}"></span>
+            <span class="dash-risk-dot dash-risk-dot-${z.tone}" data-calque="risk-chip"></span>
             <span class="dash-risk-lbl"><strong>${escapeHtml(z.label)}</strong><small>${escapeHtml(z.rule)}</small></span>
             <span class="dash-risk-pct dash-risk-pct-${z.tone}">${pctFr(z.pct, 1)}</span>
             <span class="dash-risk-count">${z.count} prod.</span>
@@ -811,9 +811,9 @@
             const zoneL = Math.min(spotPct, pdiPct);
             const zoneW = Math.max(CAP_ZONE_FLOOR_PCT, Math.abs(spotPct - pdiPct));
             rule = `<span class="cap-rule">
-              <span class="cap-groove"></span>
-              <span class="cap-breach" style="left:${zoneL.toFixed(2)}%;width:${zoneW.toFixed(2)}%"></span>
-              <span class="cap-notch" style="left:${pdiPct.toFixed(2)}%"></span>
+              <span class="cap-groove" data-calque="groove"></span>
+              <span class="cap-breach" data-calque="breach" style="left:${zoneL.toFixed(2)}%;width:${zoneW.toFixed(2)}%"></span>
+              <span class="cap-notch" data-calque="notch" style="left:${pdiPct.toFixed(2)}%"></span>
               <span class="cap-cursor" style="left:${spotPct.toFixed(2)}%"></span>
             </span>`;
           }
