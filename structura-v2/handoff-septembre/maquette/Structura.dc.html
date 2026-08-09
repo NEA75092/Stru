@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  /* Tokens verbatim de structura-v2/src/design-tokens.css @9220bc1.
+     Aucune couleur ajoutée : la palette méditerranéenne y est déjà — la chaux
+     porte les fonds, la mer l'interaction, la terre le risque. Ce qui change
+     ici, c'est l'emploi : franc, et avec de l'air. */
+  :root {
+    --chaux: oklch(0.98 0.008 85);
+    --chaux-2: oklch(0.955 0.012 80);
+    --rule: oklch(0.88 0.012 80);
+    --encre: oklch(0.26 0.045 235);
+    --encre-2: oklch(0.50 0.030 235);
+    --mer: oklch(0.62 0.13 205);
+    --mer-profonde: oklch(0.42 0.11 225);
+    --lagune: oklch(0.93 0.035 200);
+    --olive: oklch(0.55 0.09 130);
+    --ocre: oklch(0.68 0.13 75);
+    --terracotta: oklch(0.52 0.15 32);
+    --lumiere: oklch(0.995 0.004 85);
+    --color-bg: var(--chaux);
+    --color-surface-2: var(--chaux-2);
+    --color-surface-3: color-mix(in oklch, var(--chaux-2), var(--encre) 6%);
+    --color-border: var(--rule);
+    --color-border-strong: color-mix(in oklch, var(--rule), var(--encre) 24%);
+    --color-divider: color-mix(in oklch, var(--rule), var(--chaux) 45%);
+    --color-surface-sunk: color-mix(in oklch, var(--chaux-2), var(--encre) 3%);
+    --color-ink: var(--encre);
+    --color-text-secondary: var(--encre-2);
+    --color-text-tertiary: color-mix(in oklch, var(--encre-2), var(--chaux) 35%);
+    --color-accent: var(--mer);
+    --color-accent-hover: var(--mer-profonde);
+    --color-accent-tint: var(--lagune);
+    --color-safe: var(--olive);
+    --color-watch: var(--ocre);
+    --color-breach: var(--terracotta);
+    --font-heading: "Newsreader", Georgia, "Times New Roman", serif;
+    --font-body: "Instrument Sans", system-ui, -apple-system, sans-serif;
+    --font-mono-data: "IBM Plex Mono", monospace;
+  }
+  body { margin: 0; background: var(--color-bg); font-family: var(--font-body); color: var(--color-ink); -webkit-font-smoothing: antialiased; }
+  a { color: var(--color-accent); text-decoration: none; }
+  a:hover { color: var(--color-accent-hover); }
+  .grain::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 40;
+    opacity: 0.42; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+  }
+  /* Mouvement — les trois valeurs viennent du dépôt (--duration-enter 620ms,
+     --stagger 80ms, --blur-enter 7px) : une vue se construit devant l'œil,
+     elle ne fait jamais attendre. */
+  @keyframes rise { from { opacity: 0; transform: translateY(9px); filter: blur(7px); } to { opacity: 1; transform: none; filter: none; } }
+  @keyframes scan { from { transform: scaleX(0); } to { transform: none; } }
+  @keyframes draw { from { stroke-dashoffset: 1500; } to { stroke-dashoffset: 0; } }
+  /* Le point LIVE respire au lieu de clignoter : une donnée qui arrive n'est
+     pas une alarme. */
+  @keyframes breathe { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.82); } }
+  /* Halo qui s'écarte du point, une fois par cycle — le signal de fraîcheur. */
+  @keyframes halo { 0% { opacity: 0.5; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(3.4); } }
+  /* Bandeau d'indices : dérive lente et continue, suspendue au survol pour
+     qu'on puisse lire. 72 s pour un tour — perceptible, jamais pressant. */
+  @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .ticker:hover .ticker-run { animation-play-state: paused; }
+  /* Reflet spéculaire qui traverse une surface au montage : la lumière
+     méditerranéenne sur la chaux. Jamais en boucle. */
+  @keyframes sheen { 0% { transform: translateX(-130%) skewX(-14deg); opacity: 0; } 14% { opacity: 0.85; } 100% { transform: translateX(340%) skewX(-14deg); opacity: 0; } }
+  /* Chaque bloc entre 80 ms après le précédent. */
+  /* Une ligne cliquable se signale par une arête de mer au bord gauche, jamais
+     par un fond seul : la mer porte l'interaction, l'arête est le vocabulaire
+     de relief du système. Même geste sur les sept écrans. */
+  .stagger > * { animation: rise var(--dur, 620ms) cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger > *:nth-child(2) { animation-delay: 80ms; }
+  .stagger > *:nth-child(3) { animation-delay: 160ms; }
+  .stagger > *:nth-child(4) { animation-delay: 240ms; }
+  .stagger > *:nth-child(5) { animation-delay: 320ms; }
+  .stagger > *:nth-child(6) { animation-delay: 400ms; }
+  .stagger > *:nth-child(7) { animation-delay: 480ms; }
+</style>
+</helmet>
+
+<div class="grain" style="position: relative; display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 1000px; width: 1560px; background: var(--color-bg); font-size: 14px;">
+
+  <aside style="display: flex; flex-direction: column; padding: 34px 0 28px; background: var(--color-surface-2); box-shadow: inset -1px 0 0 var(--color-border);">
+    <div style="padding: 0 26px 34px;">
+      <img src="assets/structura-lockup.png" alt="Structura" width="1036" height="251" style="display: block; width: 142px; height: auto;" />
+    </div>
+
+    <nav style="position: relative; display: flex; flex-direction: column;">
+      <span aria-hidden="true" style="position: absolute; left: 0; width: 2px; height: 42px; background: var(--color-accent); transition: transform 280ms cubic-bezier(0.16,1,0.3,1); transform: {{ navShift }};"></span>
+      <button onClick="{{ goDashboard }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.dashboard.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.dashboard.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M4.5 17V10a5.5 5.5 0 0 1 11 0v7"></path><path d="M10 4.7V17M4.5 12h11"></path></svg>Dashboard
+      </button>
+      <button onClick="{{ goClients }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.clients.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.clients.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><circle cx="10" cy="6.5" r="3.2"></circle><path d="M3.5 17c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"></path></svg>Clients
+      </button>
+      <button onClick="{{ goPortfolio }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.portfolio.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.portfolio.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><rect x="4.5" y="8" width="11" height="9.5" rx="4.5"></rect><rect x="8.3" y="2.5" width="3.4" height="4" rx="1"></rect><path d="M6 6.5c-1.3 0-2 1-1.6 2.2M14 6.5c1.3 0 2 1 1.6 2.2"></path></svg>Portefeuille
+      </button>
+      <button onClick="{{ goBarriers }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.barriers.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.barriers.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M4.5 17V10L10 3l5.5 7v7"></path><path d="M4.5 12.5h11"></path></svg>
+        <span style="flex: 1;">Barrières</span>
+        <span style="font-family: var(--font-mono-data); font-size: 11px; color: var(--color-breach);">11</span>
+      </button>
+      <button onClick="{{ goCalendar }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.calendar.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.calendar.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><rect x="2.5" y="4" width="15" height="13.5" rx="1.8"></rect><path d="M2.5 8.5h15"></path><path d="M6.5 2.5v3"></path><path d="M13.5 2.5v3"></path></svg>Calendrier
+      </button>
+      <button onClick="{{ goAnalytics }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.analytics.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.analytics.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M3.5 16.5h3v-3h3V10h3V6.5h3.5"></path></svg>Pilotage
+      </button>
+      <button onClick="{{ goAutopitch }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.autopitch.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.autopitch.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><rect x="2.5" y="3.5" width="15" height="10" rx="1.5"></rect><path d="M6.5 17h7"></path><path d="M10 13.5V17"></path><path d="M5.5 10l2.3-2.6 2 1.6 3-3.4"></path></svg>Pitch Engine
+      </button>
+      <button onClick="{{ goScreener }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.screener.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.screener.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M3 14a7 7 0 0 1 14 0"></path><path d="M10 14L13.2 8.8"></path><circle cx="10" cy="14" r="1.3"></circle></svg>Decrement Score
+      </button>
+      <button onClick="{{ goIngest }}" style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 26px; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: {{ nav.ingest.w }}; letter-spacing: -0.006em; text-align: left; color: {{ nav.ingest.c }}; transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><circle cx="6" cy="4.5" r="1.8"></circle><circle cx="14" cy="4.5" r="1.8"></circle><path d="M6 4.5h8v9.5c0 2-1.8 3.5-4 3.5s-4-1.5-4-3.5V4.5z"></path><path d="M8 8.3h4M8 11h4"></path></svg>Doc Reader
+      </button>
+    </nav>
+
+    <div style="flex: 1;"></div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px; padding: 0 26px;">
+      <button style="height: 40px; border: 0; background: var(--color-accent); cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--chaux); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2);" style-hover="background: var(--color-accent-hover);">Nouveau produit</button>
+      <div style="display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">
+        <span>Mode démo</span>
+        <span style="display: flex; gap: 12px;">
+          <button style="border: 0; background: none; padding: 0; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit;" style-hover="color: var(--color-ink);">CSV</button>
+          <button style="border: 0; background: none; padding: 0; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit;" style-hover="color: var(--color-ink);">Excel</button>
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <div style="display: flex; flex-direction: column; min-width: 0;">
+
+    <header style="position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; height: 56px; background: color-mix(in oklch, var(--chaux), var(--chaux-2) 40%); box-shadow: inset 0 1px 0 var(--lumiere), inset 0 -1px 0 var(--color-border);">
+      <span aria-hidden="true" style="position: absolute; top: 0; bottom: 0; left: 0; width: 26%; z-index: 2; pointer-events: none; background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.6), transparent); animation: sheen 1500ms cubic-bezier(0.16, 1, 0.3, 1) 260ms both;"></span>
+
+      <div class="ticker" style="position: relative; min-width: 0; overflow: hidden; height: 100%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 44px, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(90deg, transparent, #000 44px, #000 calc(100% - 64px), transparent);">
+        <div class="ticker-run" style="display: flex; align-items: center; gap: 40px; height: 100%; width: max-content; padding-left: 44px; animation: drift 72s linear infinite;">
+          <sc-for list="{{ tickerLoop }}" as="k" hint-placeholder-count="12">
+            <span style="display: flex; align-items: baseline; gap: 9px; white-space: nowrap;">
+              <span style="font-family: var(--font-mono-data); font-size: 9.5px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ k.name }}</span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--color-ink);">{{ k.val }}</span>
+              <span style="font-family: var(--font-mono-data); font-size: 10.5px; font-variant-numeric: tabular-nums; color: {{ k.fg }};">{{ k.arrow }}{{ k.chg }}</span>
+            </span>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0; height: 100%; padding-right: 26px;">
+        <button aria-label="Thème sombre" style="display: grid; place-items: center; width: 40px; height: 40px; margin-right: 14px; border: 0; background: none; cursor: pointer; color: var(--color-text-tertiary); transition: color 160ms ease;" style-hover="color: var(--color-ink);">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"></path></svg>
+        </button>
+
+        <span style="display: flex; align-items: center; gap: 10px; height: 26px; padding: 0 18px 0 0; box-shadow: inset -1px 0 0 var(--color-border);">
+          <span style="display: grid; place-items: center; width: 26px; height: 26px; background: var(--color-ink); font-family: var(--font-mono-data); font-size: 11px; font-weight: 500; color: var(--chaux); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16);">M</span>
+          <span style="display: flex; flex-direction: column; line-height: 1.2;">
+            <strong style="font-size: 12.5px; font-weight: 500; letter-spacing: -0.006em;">Marie</strong>
+            <small style="font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">CGP</small>
+          </span>
+        </span>
+
+        <span style="display: flex; align-items: center; gap: 8px; height: 26px; padding: 0 18px; box-shadow: inset -1px 0 0 var(--color-border);">
+          <span style="position: relative; display: grid; place-items: center; width: 7px; height: 7px;">
+            <span style="position: absolute; inset: 0; border-radius: 999px; background: var(--color-accent); animation: halo 2600ms cubic-bezier(0.16, 1, 0.3, 1) infinite;"></span>
+            <span style="position: relative; width: 7px; height: 7px; border-radius: 999px; background: var(--color-accent); animation: breathe 2600ms ease-in-out infinite;"></span>
+          </span>
+          <span style="font-family: var(--font-mono-data); font-size: 9.5px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent);">Live</span>
+        </span>
+
+        <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; padding-left: 18px; line-height: 1.2;">
+          <strong style="font-family: var(--font-mono-data); font-size: 14px; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: -0.01em;">{{ clock }}</strong>
+          <small style="font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">Jeu. 06 août 2026</small>
+        </span>
+      </div>
+    </header>
+
+  <main style="min-width: 0; padding: 40px 56px 72px;">
+
+    <!-- ══ DASHBOARD ══ -->
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 52px;">
+
+        <header style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 60px; align-items: end;">
+          <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0;">
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Jeudi 6 août · VL au 06.08</span>
+            <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">Bonjour Marie</h1>
+            <p style="margin: 4px 0 0; font-size: 15px; line-height: 1.6; color: var(--color-text-secondary);">Cinq positions sont passées sous leur barrière de protection.</p>
+          </div>
+          <div style="display: flex; gap: 52px;">
+            <span style="display: flex; flex-direction: column; gap: 7px; text-align: right;">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">Encours géré</span>
+              <strong style="font-family: var(--font-mono-data); font-size: 30px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.025em;">229,2 M€</strong>
+            </span>
+            <span style="display: flex; flex-direction: column; gap: 7px; text-align: right;">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">Actions requises</span>
+              <strong style="font-family: var(--font-mono-data); font-size: 30px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.025em; color: var(--color-breach);">5</strong>
+            </span>
+          </div>
+        </header>
+
+        <section style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--color-divider); box-shadow: 0 0 0 1px var(--color-divider);">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; gap: 12px; padding: 24px 26px 26px; background: var(--color-bg); box-shadow: inset 0 1px 0 var(--lumiere); transition: background 200ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ k.label }}</span>
+              <strong style="font-family: var(--font-mono-data); font-size: 36px; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -0.035em; line-height: 1; color: {{ k.fg }};">{{ k.value }}</strong>
+              <span style="font-size: 12.5px; line-height: 1.45; color: var(--color-text-secondary);">{{ k.sub }}</span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 22px;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Sous la protection du capital</h2>
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">5 positions</span>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 116px 320px 92px; gap: 32px; align-items: center; padding: 0 4px 10px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">
+              <span>Position</span>
+              <span style="text-align: right;">vs initial</span>
+              <span>−60 %</span>
+              <span style="text-align: right;">barrière</span>
+            </div>
+            <sc-for list="{{ breaches }}" as="b" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 116px 320px 92px; gap: 32px; align-items: center; padding: 17px 4px; box-shadow: inset 0 -1px 0 var(--color-divider);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+                <span style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                  <strong style="font-size: 14px; font-weight: 500; letter-spacing: -0.008em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.name }}</strong>
+                  <span style="font-family: var(--font-mono-data); font-size: 10.5px; color: var(--color-text-tertiary);">{{ b.meta }}</span>
+                </span>
+                <span style="font-family: var(--font-mono-data); font-size: 21px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.025em; text-align: right; color: var(--color-breach);">{{ b.perf }}</span>
+                <span style="position: relative; display: block; height: 26px;">
+                  <span data-calque="groove" style="position: absolute; left: 0; right: 0; top: 8px; height: 11px; border-radius: 1px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-border), inset 0 2px 4px -2px var(--color-border-strong);"></span>
+                  <span data-calque="breach" style="position: absolute; top: 9px; height: 9px; left: {{ b.segL }}; width: {{ b.segW }}; background: repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px), color-mix(in oklch, var(--color-breach), transparent 80%); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-breach), transparent 55%); transform-origin: right; animation: scan 680ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                  <span data-calque="notch" style="position: absolute; top: 2px; bottom: 2px; left: {{ b.pdiL }}; width: 1px; background: var(--color-ink); opacity: 0.72;"></span>
+                  <span style="position: absolute; top: 9px; height: 9px; left: {{ b.zero }}; width: 1px; background: var(--color-divider);"></span>
+                </span>
+                <span style="font-family: var(--font-mono-data); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; color: var(--color-text-secondary);">{{ b.pdi }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 22px;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Performance</h2>
+            <div style="display: flex; gap: 22px;">
+              <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="4">
+                <button onClick="{{ r.go }}" style="border: 0; background: none; padding: 0 0 3px; cursor: pointer; font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: {{ r.fg }}; box-shadow: {{ r.underline }};" style-hover="color: var(--color-ink);">{{ r.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: flex; gap: 56px; align-items: baseline;">
+            <sc-for list="{{ perfKpis }}" as="p" hint-placeholder-count="3">
+              <span style="display: flex; flex-direction: column; gap: 6px;">
+                <strong style="font-family: var(--font-mono-data); font-size: 26px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.028em; color: {{ p.fg }};">{{ p.val }}</strong>
+                <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ p.cap }}</span>
+              </span>
+            </sc-for>
+          </div>
+          <div>
+            <div style="position: relative; padding: 0 62px 0 34px;">
+              <svg viewBox="0 0 1400 210" preserveAspectRatio="none" style="display: block; width: 100%; height: 210px; overflow: visible;">
+                <line x1="0" y1="{{ baseY }}" x2="1400" y2="{{ baseY }}" stroke="var(--color-border-strong)" stroke-width="1" stroke-dasharray="4 7"></line>
+                <path d="{{ perfArea }}" fill="var(--color-accent-tint)" opacity="0.4"></path>
+                <path d="{{ perfLine }}" fill="none" stroke="var(--color-ink)" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="1500" style="animation: draw 1100ms cubic-bezier(0.16,1,0.3,1) both;"></path>
+              </svg>
+              <span style="position: absolute; left: 34px; top: {{ baseTop }}; transform: translate(-50%, -50%); width: 7px; height: 7px; border-radius: 999px; background: var(--color-ink); opacity: 0.35;"></span>
+              <span style="position: absolute; left: 0; top: {{ baseTop }}; transform: translateY(-50%); font-family: var(--font-mono-data); font-size: 11px; font-variant-numeric: tabular-nums; color: var(--color-text-tertiary);">100</span>
+              <span aria-hidden="true" style="position: absolute; right: 62px; top: {{ lastTop }}; transform: translate(50%, -50%); width: 11px; height: 11px; border-radius: 999px; background: var(--color-accent); opacity: 0.22; animation: halo 3200ms cubic-bezier(0.16,1,0.3,1) 1200ms infinite;"></span>
+              <span style="position: absolute; right: 62px; top: {{ lastTop }}; transform: translate(50%, -50%); width: 9px; height: 9px; border-radius: 999px; background: var(--color-ink); box-shadow: 0 0 0 3px var(--color-bg), inset 0 1px 0 rgb(255 255 255 / 0.3);"></span>
+              <span style="position: absolute; right: 0; top: {{ lastTop }}; transform: translateY(-50%); font-family: var(--font-mono-data); font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; color: var(--color-ink);">{{ lastVal }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 62px 0 34px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">
+              <sc-for list="{{ months }}" as="m" hint-placeholder-count="5">
+                <span>{{ m }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 56px; align-items: start;">
+          <div style="display: flex; flex-direction: column; gap: 22px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+              <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Top / Flop VL</h2>
+              <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Écart à 100</span>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ topflop }}" as="t" hint-placeholder-count="10">
+                <div data-calque="vl-row" style="display: grid; grid-template-columns: 200px minmax(0, 1fr) minmax(0, 1fr) 64px; gap: 16px; align-items: center; height: 38px; box-shadow: inset 0 -1px 0 var(--color-divider);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+                  <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ t.name }}</span>
+                  <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-divider);">
+                    <sc-if value="{{ t.isNeg }}" hint-placeholder-val="{{ true }}">
+                      <span data-calque="vl-bar" style="height: 10px; width: {{ t.w }}; background: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px), color-mix(in oklch, var(--color-ink), transparent 80%); box-shadow: inset 0 -1px 0 var(--lumiere); transform-origin: right; animation: scan 680ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                    </sc-if>
+                  </span>
+                  <span style="display: flex; align-items: center;">
+                    <sc-if value="{{ t.isPos }}" hint-placeholder-val="{{ false }}">
+                      <span data-calque="vl-bar" style="height: 10px; width: {{ t.w }}; background: color-mix(in oklch, var(--color-ink), transparent 38%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22); transform-origin: left; animation: scan 680ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                    </sc-if>
+                  </span>
+                  <span data-calque="vl-val" style="font-family: var(--font-mono-data); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right;">{{ t.val }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <p style="margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--color-text-secondary); max-width: 58ch; text-wrap: pretty;">Un axe unique, centré sur 100. Pas de rouge ni de vert : l'encre pleine monte, l'encre gravée descend. La couleur reste pour ce qui compte — une barrière.</p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 22px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+              <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Où est l'encours</h2>
+              <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">54 produits</span>
+            </div>
+            <div style="display: flex; height: 44px;">
+              <sc-for list="{{ riskZones }}" as="z" hint-placeholder-count="3">
+                <span data-calque="risk-seg" title="{{ z.title }}" style="position: relative; width: {{ z.width }}; height: 100%; background: {{ z.fill }}; box-shadow: inset -1px 0 0 var(--chaux);">
+                  <span style="position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: {{ z.edge }};"></span>
+                </span>
+              </sc-for>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ riskZones }}" as="z" hint-placeholder-count="3">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) 82px 62px; gap: 18px; align-items: baseline; padding: 16px 0; box-shadow: inset 0 -1px 0 var(--color-divider);">
+                  <span style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                    <strong style="font-size: 14px; font-weight: 500; letter-spacing: -0.008em; color: {{ z.fg }};">{{ z.label }}</strong>
+                    <span style="font-size: 12px; line-height: 1.4; color: var(--color-text-tertiary);">{{ z.rule }}</span>
+                  </span>
+                  <span style="font-family: var(--font-mono-data); font-size: 20px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.022em; text-align: right; color: {{ z.fg }};">{{ z.pct }}</span>
+                  <span style="font-family: var(--font-mono-data); font-size: 11px; text-align: right; color: var(--color-text-tertiary);">{{ z.count }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 56px; align-items: start;">
+          <div style="display: flex; flex-direction: column; gap: 22px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+              <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Exposition émetteur</h2>
+              <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Seuil interne 25 %</span>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ issuers }}" as="i" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: 152px minmax(0, 1fr) 84px 58px; gap: 18px; align-items: center; padding: 14px 0; box-shadow: inset 0 -1px 0 var(--color-divider);">
+                  <span style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                    <span style="width: 8px; height: 8px; flex: none; background: {{ i.brand }};"></span>
+                    <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ i.name }}</span>
+                  </span>
+                  <span style="position: relative; display: block; height: 9px;">
+                    <span style="position: absolute; inset: 0; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-border);"></span>
+                    <span style="position: absolute; top: 1px; bottom: 1px; left: 1px; width: {{ i.barW }}; background: {{ i.fill }}; transform-origin: left; animation: scan 800ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                    <span title="Seuil interne 25 %" style="position: absolute; top: -4px; bottom: -4px; left: {{ seuilL }}; width: 1px; background: var(--color-ink); opacity: 0.55;"></span>
+                  </span>
+                  <span style="font-family: var(--font-mono-data); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right; color: var(--color-text-secondary);">{{ i.eur }}</span>
+                  <span style="font-family: var(--font-mono-data); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; color: {{ i.fg }};">{{ i.pct }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 22px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+              <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Prochains jours</h2>
+              <button onClick="{{ goCalendar }}" style="border: 0; background: none; padding: 0; cursor: pointer; font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent);" style-hover="color: var(--color-accent-hover);">Calendrier →</button>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ agenda }}" as="e" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 20px; align-items: baseline; padding: 15px 0; box-shadow: inset 0 -1px 0 var(--color-divider);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+                  <span style="font-family: var(--font-mono-data); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); white-space: nowrap;">{{ e.date }}</span>
+                  <span style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                    <strong style="font-size: 13.5px; font-weight: 500; letter-spacing: -0.008em; text-wrap: pretty;">{{ e.title }}</strong>
+                    <span style="font-family: var(--font-mono-data); font-size: 10.5px; color: var(--color-text-tertiary);">{{ e.meta }}</span>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </sc-if>
+
+    <!-- ══ CLIENTS ══ -->
+    <sc-if value="{{ isClients }}" hint-placeholder-val="{{ false }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 40px;">
+        <header style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: end;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Relation client</span>
+            <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">Dossiers &amp; allocations</h1>
+            <p style="margin: 4px 0 0; font-size: 15px; line-height: 1.6; color: var(--color-text-secondary);">L'encours, les alertes et les produits structurés de chaque client.</p>
+          </div>
+          <button style="height: 40px; padding: 0 22px; border: 0; background: var(--color-accent); cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--chaux); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2);" style-hover="background: var(--color-accent-hover);">Nouveau client</button>
+        </header>
+
+        <div style="display: flex; align-items: center; gap: 14px; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="var(--color-text-tertiary)" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="6"></circle><path d="M17 17l-4-4"></path></svg>
+          <input placeholder="Rechercher un client" style="flex: 1; min-width: 0; border: 0; background: none; outline: none; font-family: var(--font-body); font-size: 15px; color: var(--color-ink);" />
+          <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">4 dossiers · 54 produits</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 150px 130px 100px 24px; gap: 26px; align-items: center; padding: 0 4px 12px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">
+            <span>Client</span><span style="text-align: right;">Encours</span><span style="text-align: right;">Performance</span><span style="text-align: right;">Produits</span><span></span>
+          </div>
+          <sc-for list="{{ clients }}" as="c" hint-placeholder-count="4">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 150px 130px 100px 24px; gap: 26px; align-items: center; padding: 22px 4px; cursor: pointer; box-shadow: inset 0 -1px 0 var(--color-divider);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+              <span style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                <strong style="font-size: 15px; font-weight: 500; letter-spacing: -0.01em;">{{ c.name }}</strong>
+                <span style="font-family: var(--font-mono-data); font-size: 10.5px; color: var(--color-text-tertiary);">{{ c.ref }}</span>
+                <sc-if value="{{ c.hasPdi }}" hint-placeholder-val="{{ true }}">
+                  <span style="margin-top: 3px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-breach);">{{ c.pdi }}</span>
+                </sc-if>
+              </span>
+              <span style="font-family: var(--font-mono-data); font-size: 18px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; text-align: right;">{{ c.encours }}</span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; color: var(--color-text-secondary);">{{ c.perf }}</span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; color: var(--color-text-secondary);">{{ c.n }}</span>
+              <span style="color: var(--color-text-tertiary);">›</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══ PORTEFEUILLE ══ -->
+    <sc-if value="{{ isPortfolio }}" hint-placeholder-val="{{ false }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 40px;">
+        <header style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: end;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Positions</span>
+            <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">Portefeuille</h1>
+          </div>
+          <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">54 produits · 229,2 M€</span>
+        </header>
+
+        <div style="display: flex; align-items: center; gap: 26px; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+          <span style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="var(--color-text-tertiary)" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="6"></circle><path d="M17 17l-4-4"></path></svg>
+            <input placeholder="Rechercher un produit, un ISIN, un émetteur" style="flex: 1; min-width: 0; border: 0; background: none; outline: none; font-family: var(--font-body); font-size: 15px; color: var(--color-ink);" />
+          </span>
+          <select style="border: 0; background: none; outline: none; cursor: pointer; font-family: var(--font-body); font-size: 13.5px; color: var(--color-text-secondary);">
+            <option>Tous les produits</option><option>Phoenix Autocall</option><option>Athena Autocall</option><option>Bearish Taux</option><option>CLN</option><option>Note taux fixe/variable</option>
+          </select>
+          <button style="border: 0; background: none; padding: 0; cursor: pointer; font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);" style-hover="color: var(--color-breach);">Alertes seules</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 78px 132px 76px 84px 84px 92px 132px 62px 78px; gap: 14px; align-items: center; padding: 0 4px 12px; font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">
+            <span>Produit</span><span>Type</span><span>Émetteur</span><span style="text-align: right;">Nominal</span><span style="text-align: right;">VL</span><span style="text-align: right;">Valo.</span><span style="text-align: right;">P&amp;L</span><span>Distance protection</span><span style="text-align: right;">Évt.</span><span style="text-align: right;">Statut</span>
+          </div>
+          <sc-for list="{{ portfolio }}" as="p" hint-placeholder-count="9">
+            <div style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 78px 132px 76px 84px 84px 92px 132px 62px 78px; gap: 14px; align-items: center; padding: 15px 4px; box-shadow: inset 0 -1px 0 var(--color-divider);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+              <span aria-hidden="true" style="position: absolute; left: -4px; top: 0; bottom: 0; width: 3px; background: {{ p.accent }};"></span>
+              <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                <strong style="font-size: 13.5px; font-weight: 500; letter-spacing: -0.008em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ p.name }}</strong>
+                <span style="font-family: var(--font-mono-data); font-size: 10px; color: var(--color-text-tertiary);">{{ p.isin }}</span>
+              </span>
+              <span style="justify-self: start; padding: 3px 9px; border-radius: 999px; background: var(--color-surface-2); font-family: var(--font-mono-data); font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-secondary);">{{ p.type }}</span>
+              <span style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">{{ p.issuer }}</span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right;">{{ p.nominal }}</span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right; color: var(--color-text-secondary);">{{ p.vl }}</span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right;">{{ p.val }}</span>
+              <span style="display: flex; flex-direction: column; gap: 2px; text-align: right; font-family: var(--font-mono-data); font-size: 12px; font-variant-numeric: tabular-nums;">
+                <span>{{ p.pnl }}</span>
+                <span style="font-size: 10.5px; color: var(--color-text-tertiary);">{{ p.pnlPct }}</span>
+              </span>
+              <span style="display: flex; align-items: center; gap: 9px;">
+                <span style="position: relative; flex: 1; height: 6px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-border);">
+                  <span style="position: absolute; top: 1px; bottom: 1px; left: 1px; width: {{ p.distW }}; background: {{ p.distFg }}; transform-origin: left; animation: scan 700ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                </span>
+                <span style="font-family: var(--font-mono-data); font-size: 11.5px; font-variant-numeric: tabular-nums; white-space: nowrap; color: {{ p.distFg }};">{{ p.dist }}</span>
+              </span>
+              <span style="font-family: var(--font-mono-data); font-size: 11.5px; text-align: right; color: var(--color-text-tertiary);">{{ p.evt }}</span>
+              <span style="display: inline-flex; align-items: center; gap: 5px; justify-self: end; padding: 3px 9px; border-radius: 999px; background: {{ p.statutBg }}; font-family: var(--font-mono-data); font-size: 9.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: {{ p.statutC }};"><span style="width: 6px; height: 6px; flex: none; border-radius: 999px; background: currentColor;"></span>{{ p.statut }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p style="margin: 0; font-family: var(--font-mono-data); font-size: 10.5px; color: var(--color-text-tertiary);">* VL estimée, en l'absence de flux émetteur (mode démonstration)</p>
+      </div>
+    </sc-if>
+
+    <!-- ══ BARRIÈRES ══ -->
+    <sc-if value="{{ isBarriers }}" hint-placeholder-val="{{ false }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 40px;">
+        <header style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Suivi des seuils</span>
+          <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">Barrières</h1>
+        </header>
+
+        <section style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--color-divider); box-shadow: 0 0 0 1px var(--color-divider);">
+          <sc-for list="{{ barKpis }}" as="k" hint-placeholder-count="4">
+            <button style="display: flex; flex-direction: column; gap: 12px; padding: 24px 26px 26px; border: 0; background: var(--color-bg); cursor: pointer; text-align: left; font-family: var(--font-body);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ k.label }}</span>
+              <strong style="font-family: var(--font-mono-data); font-size: 36px; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -0.035em; line-height: 1; color: {{ k.tone }};">{{ k.value }}</strong>
+              <span style="position: relative; display: block; width: 100%; height: 3px; background: var(--color-surface-sunk);">
+                <span style="position: absolute; inset: 0 auto 0 0; width: {{ k.w }}; background: {{ k.tone }}; transform-origin: left; animation: scan 700ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+              </span>
+              <span style="font-size: 12.5px; line-height: 1.45; color: var(--color-text-secondary);">{{ k.sub }}</span>
+            </button>
+          </sc-for>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Distribution du risque</h2>
+            <button onClick="{{ goAnalytics }}" style="border: 0; background: none; padding: 0; cursor: pointer; font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent);" style-hover="color: var(--color-accent-hover);">Détail dans Pilotage →</button>
+          </div>
+          <div style="position: relative; height: 30px; margin: 0 5px;">
+            <span style="position: absolute; left: 0; right: 0; top: 11px; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-border);"></span>
+            <span style="position: absolute; left: 0; width: {{ distZero }}; top: 11px; height: 8px; background: color-mix(in oklch, var(--color-breach), transparent 88%);"></span>
+            <span style="position: absolute; left: {{ distZero }}; top: 4px; bottom: 4px; width: 1px; background: var(--color-ink); opacity: 0.6;"></span>
+            <sc-for list="{{ distDots }}" as="d" hint-placeholder-count="21">
+              <span style="position: absolute; top: 10px; left: {{ d.left }}; width: 10px; height: 10px; margin-left: -5px; border-radius: 999px; background: {{ d.c }}; box-shadow: {{ d.ring }};"></span>
+            </sc-for>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; color: var(--color-text-tertiary);">
+            <sc-for list="{{ distScale }}" as="s" hint-placeholder-count="5">
+              <span>{{ s.l }}</span>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Suivi des barrières</h2>
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Distance aux seuils</span>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 132px 108px 96px 84px 92px 140px 62px 82px; gap: 16px; align-items: center; padding: 0 4px 12px; font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">
+              <span>Produit / ISIN</span><span>Émetteur</span><span>Sous-jacent</span><span style="text-align: right;">Barrière</span><span style="text-align: right;">VL</span><span style="text-align: right;">Valo.</span><span>Distance protection</span><span style="text-align: right;">Obs.</span><span style="text-align: right;">Statut</span>
+            </div>
+            <sc-for list="{{ barriers }}" as="b" hint-placeholder-count="7">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 132px 108px 96px 84px 92px 140px 62px 82px; gap: 16px; align-items: center; padding: 15px 4px; box-shadow: inset 0 -1px 0 var(--color-divider);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+                <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                  <strong style="font-size: 13.5px; font-weight: 500; letter-spacing: -0.008em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.name }}</strong>
+                  <span style="font-family: var(--font-mono-data); font-size: 10px; color: var(--color-text-tertiary);">{{ b.isin }}</span>
+                </span>
+                <span style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">{{ b.issuer }}</span>
+                <span style="font-family: var(--font-mono-data); font-size: 12px; color: var(--color-text-secondary);">{{ b.sj }}</span>
+                <span style="display: flex; flex-direction: column; gap: 2px; text-align: right; font-family: var(--font-mono-data); font-variant-numeric: tabular-nums;">
+                  <span style="font-size: 13px;">{{ b.niveau }}</span>
+                  <span style="font-size: 10.5px; color: var(--color-text-tertiary);">{{ b.nominal }}</span>
+                </span>
+                <span style="font-family: var(--font-mono-data); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right; color: var(--color-text-secondary);">{{ b.vl }}</span>
+                <span style="font-family: var(--font-mono-data); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right;">{{ b.val }}</span>
+                <span style="display: flex; align-items: center; gap: 9px;">
+                  <span style="position: relative; flex: 1; height: 6px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-border);">
+                    <span style="position: absolute; top: 1px; bottom: 1px; left: 1px; width: {{ b.distW }}; background: {{ b.statutC }}; transform-origin: left; animation: scan 700ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                  </span>
+                  <span style="font-family: var(--font-mono-data); font-size: 11.5px; font-variant-numeric: tabular-nums; white-space: nowrap; color: {{ b.statutC }};">{{ b.dist }}</span>
+                </span>
+                <span style="font-family: var(--font-mono-data); font-size: 11.5px; text-align: right; color: var(--color-text-tertiary);">{{ b.obs }}</span>
+                <span style="display: inline-flex; align-items: center; gap: 5px; justify-self: end; padding: 3px 9px; border-radius: 999px; background: {{ b.statutBg }}; font-family: var(--font-mono-data); font-size: 9.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: {{ b.statutC }};"><span style="width: 6px; height: 6px; flex: none; border-radius: 999px; background: currentColor;"></span>{{ b.statut }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ══ CALENDRIER ══ -->
+    <sc-if value="{{ isCalendar }}" hint-placeholder-val="{{ false }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 40px;">
+        <header style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: end;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">01/08 – 31/08/2026 · valorisation au 06/08</span>
+            <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">Août 2026</h1>
+          </div>
+          <div style="display: flex; align-items: center; gap: 22px;">
+            <sc-for list="{{ calModes }}" as="m" hint-placeholder-count="6">
+              <button onClick="{{ m.go }}" style="border: 0; background: none; padding: 0 0 3px; cursor: pointer; font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: {{ m.fg }}; box-shadow: {{ m.underline }};" style-hover="color: var(--color-ink);">{{ m.label }}</button>
+            </sc-for>
+          </div>
+        </header>
+
+        <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--color-divider); box-shadow: 0 0 0 1px var(--color-divider);">
+          <div style="display: flex; flex-direction: column; gap: 12px; padding: 24px 26px 26px; background: var(--color-bg); box-shadow: inset 0 1px 0 var(--lumiere); transition: background 200ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary);">Coupons attendus · 30 j</span>
+            <strong style="font-family: var(--font-mono-data); font-size: 36px; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -0.035em; line-height: 1;">120 k€</strong>
+            <span style="font-size: 12.5px; color: var(--color-text-secondary);">2 versements attendus</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px; padding: 24px 26px 26px; background: var(--color-bg); box-shadow: inset 0 1px 0 var(--lumiere); transition: background 200ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary);">Maturités / remboursements</span>
+            <strong style="font-family: var(--font-mono-data); font-size: 36px; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -0.035em; line-height: 1;">7,4 M€</strong>
+            <span style="font-size: 12.5px; color: var(--color-text-secondary);">1 produit à maturité</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px; padding: 24px 26px 26px; background: var(--color-bg); box-shadow: inset 0 1px 0 var(--lumiere); transition: background 200ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary);">Observations à venir</span>
+            <strong style="font-family: var(--font-mono-data); font-size: 36px; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -0.035em; line-height: 1;">4</strong>
+            <span style="font-size: 12.5px; color: var(--color-text-secondary);">Dates de constatation</span>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Ce qui arrive</h2>
+            <div style="display: flex; gap: 20px;">
+              <sc-for list="{{ calLegend }}" as="l" hint-placeholder-count="4">
+                <span style="display: flex; align-items: center; gap: 7px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">
+                  <span style="{{ l.c }}"></span>{{ l.l }}
+                </span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <sc-for list="{{ calAgenda }}" as="e" hint-placeholder-count="7">
+              <div style="display: grid; grid-template-columns: 66px 12px minmax(0, 1fr) 130px 96px; gap: 22px; align-items: center; padding: 15px 4px; box-shadow: inset 0 -1px 0 var(--color-divider); opacity: {{ e.op }};" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+                <span style="display: flex; align-items: baseline; gap: 7px; padding: 3px 8px; background: {{ e.dayBg }}; font-family: var(--font-mono-data); font-variant-numeric: tabular-nums;">
+                  <strong style="font-size: 17px; font-weight: 400; color: {{ e.fg }};">{{ e.day }}</strong>
+                  <span style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ e.weekday }}</span>
+                </span>
+                <span style="{{ e.c }}"></span>
+                <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                  <strong style="font-size: 14px; font-weight: 500; letter-spacing: -0.008em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{ e.fg }};">{{ e.title }}</strong>
+                  <span style="font-family: var(--font-mono-data); font-size: 10.5px; color: var(--color-text-tertiary);">{{ e.meta }}</span>
+                </span>
+                <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ e.type }}</span>
+                <span style="font-family: var(--font-mono-data); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right;">{{ e.amount }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Vue du mois</h2>
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">7 événements</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">
+            <span style="padding: 0 0 10px 12px;">Lun</span><span style="padding: 0 0 10px 12px;">Mar</span><span style="padding: 0 0 10px 12px;">Mer</span><span style="padding: 0 0 10px 12px;">Jeu</span><span style="padding: 0 0 10px 12px;">Ven</span><span style="padding: 0 0 10px 12px;">Sam</span><span style="padding: 0 0 10px 12px;">Dim</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--color-divider); box-shadow: 0 0 0 1px var(--color-divider);">
+            <sc-for list="{{ calCells }}" as="c" hint-placeholder-count="42">
+              <div style="display: flex; flex-direction: column; gap: 8px; min-height: 92px; padding: 10px 12px; background: {{ c.bg }};">
+                <span style="font-family: var(--font-mono-data); font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; color: {{ c.fg }};">{{ c.num }}</span>
+                <sc-if value="{{ c.hasEv }}" hint-placeholder-val="{{ false }}">
+                  <span style="display: flex; align-items: flex-start; gap: 6px; font-size: 11px; line-height: 1.35; color: var(--color-ink);">
+                    <span style="margin-top: 4px; {{ c.evC }}"></span>
+                    <span style="overflow: hidden; text-overflow: ellipsis;">{{ c.ev }}</span>
+                  </span>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ══ PILOTAGE ══ -->
+    <sc-if value="{{ isAnalytics }}" hint-placeholder-val="{{ false }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 40px;">
+        <header style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: end;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Concentrations</span>
+            <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">Pilotage</h1>
+            <p style="margin: 4px 0 0; font-size: 15px; line-height: 1.6; color: var(--color-text-secondary);">Concentrations, répartition par type et aperçu des dossiers clients.</p>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button onClick="{{ goBarriers }}" style="height: 38px; padding: 0 20px; border: 0; background: none; box-shadow: inset 0 0 0 1px var(--color-border-strong); cursor: pointer; font-family: var(--font-body); font-size: 13.5px; color: var(--color-ink);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">Barrières</button>
+            <button onClick="{{ goClients }}" style="height: 38px; padding: 0 20px; border: 0; background: var(--color-accent); cursor: pointer; font-family: var(--font-body); font-size: 13.5px; font-weight: 500; color: var(--chaux);" style-hover="background: var(--color-accent-hover);">Dossiers clients</button>
+          </div>
+        </header>
+
+        <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--color-divider); box-shadow: 0 0 0 1px var(--color-divider);">
+          <sc-for list="{{ anaKpis }}" as="k" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; gap: 12px; padding: 24px 26px 26px; background: var(--color-bg); box-shadow: inset 0 1px 0 var(--lumiere); transition: background 200ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ k.label }}</span>
+              <strong style="font-family: var(--font-mono-data); font-size: 36px; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -0.035em; line-height: 1;">{{ k.value }}</strong>
+              <span style="position: relative; display: block; width: 100%; height: 3px; background: var(--color-surface-sunk);">
+                <span style="position: absolute; inset: 0 auto 0 0; width: {{ k.w }}; background: {{ k.tone }}; transform-origin: left; animation: scan 700ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+              </span>
+              <span style="font-size: 12.5px; line-height: 1.45; color: var(--color-text-secondary);">{{ k.sub }}</span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Exposition émetteur</h2>
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Seuil 25 %</span>
+          </div>
+          <div style="display: flex; height: 14px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);">
+            <sc-for list="{{ expoBand }}" as="e" hint-placeholder-count="9">
+              <span title="{{ e.name }}" style="width: {{ e.w }}; height: 100%; background: {{ e.brand }}; box-shadow: inset -1px 0 0 var(--chaux); transition: filter 180ms ease;" style-hover="filter: brightness(1.15);"></span>
+            </sc-for>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <sc-for list="{{ issuers }}" as="i" hint-placeholder-count="8">
+              <div style="display: grid; grid-template-columns: 168px minmax(0, 1fr) 84px 58px; gap: 20px; align-items: center; padding: 14px 0; box-shadow: inset 0 -1px 0 var(--color-divider);">
+                <span style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                  <span style="width: 8px; height: 8px; flex: none; background: {{ i.brand }};"></span>
+                  <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ i.name }}</span>
+                </span>
+                <span style="position: relative; display: block; height: 9px;">
+                  <span style="position: absolute; inset: 0; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-border);"></span>
+                  <span style="position: absolute; top: 1px; bottom: 1px; left: 1px; width: {{ i.barW }}; background: {{ i.fill }}; transform-origin: left; animation: scan 800ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                  <span title="Seuil interne 25 %" style="position: absolute; top: -4px; bottom: -4px; left: {{ seuilL }}; width: 1px; background: var(--color-ink); opacity: 0.55;"></span>
+                </span>
+                <span style="font-family: var(--font-mono-data); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right; color: var(--color-text-secondary);">{{ i.eur }}</span>
+                <span style="font-family: var(--font-mono-data); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; color: {{ i.fg }};">{{ i.pct }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Distribution du risque</h2>
+            <div style="display: flex; gap: 20px;">
+              <sc-for list="{{ distCounts }}" as="d" hint-placeholder-count="4">
+                <span style="display: flex; align-items: baseline; gap: 7px; font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">
+                  {{ d.l }}<strong style="font-size: 13px; font-weight: 500; color: {{ d.c }};">{{ d.n }}</strong>
+                </span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="position: relative; height: 30px; margin: 0 5px;">
+            <span style="position: absolute; left: 0; right: 0; top: 11px; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-border);"></span>
+            <span style="position: absolute; left: 0; width: {{ distZero }}; top: 11px; height: 8px; background: color-mix(in oklch, var(--color-breach), transparent 88%);"></span>
+            <span style="position: absolute; left: {{ distZero }}; top: 4px; bottom: 4px; width: 1px; background: var(--color-ink); opacity: 0.6;"></span>
+            <sc-for list="{{ distDots }}" as="d" hint-placeholder-count="21">
+              <span style="position: absolute; top: 10px; left: {{ d.left }}; width: 10px; height: 10px; margin-left: -5px; border-radius: 999px; background: {{ d.c }}; box-shadow: {{ d.ring }};"></span>
+            </sc-for>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; color: var(--color-text-tertiary);">
+            <sc-for list="{{ distScale }}" as="s" hint-placeholder-count="5">
+              <span>{{ s.l }}</span>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start;">
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+              <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Répartition par type</h2>
+              <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Par famille</span>
+            </div>
+            <div style="display: flex; height: 34px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3);">
+              <sc-for list="{{ famille }}" as="f" hint-placeholder-count="4">
+                <span title="{{ f.l }}" style="display: flex; align-items: center; justify-content: center; width: {{ f.w }}; height: 100%; background: {{ f.f }}; box-shadow: inset -1px 0 0 var(--chaux); font-family: var(--font-mono-data); font-size: 11px; font-variant-numeric: tabular-nums; color: {{ f.on }};">{{ f.inBar }}</span>
+              </sc-for>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ famille }}" as="f" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 14px minmax(0, 1fr) 60px; gap: 14px; align-items: center; padding: 13px 0; box-shadow: inset 0 -1px 0 var(--color-divider);">
+                  <span style="width: 12px; height: 8px; background: {{ f.f }};"></span>
+                  <span style="font-size: 13.5px;">{{ f.l }}</span>
+                  <span style="font-family: var(--font-mono-data); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right;">{{ f.pct }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+              <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Top 5 dossiers</h2>
+              <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Encours nominal</span>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ topDossiers }}" as="d" hint-placeholder-count="4">
+                <div style="display: flex; flex-direction: column; gap: 9px; padding: 15px 0; box-shadow: inset 0 -1px 0 var(--color-divider);">
+                  <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+                    <strong style="font-size: 14px; font-weight: 500; letter-spacing: -0.008em;">{{ d.name }}</strong>
+                    <span style="font-family: var(--font-mono-data); font-size: 14px; font-variant-numeric: tabular-nums;">{{ d.eur }}</span>
+                  </span>
+                  <span style="position: relative; display: block; height: 3px; background: var(--color-surface-sunk);">
+                    <span style="position: absolute; inset: 0 auto 0 0; width: {{ d.w }}; background: var(--color-ink); transform-origin: left; animation: scan 800ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                  </span>
+                  <span style="font-family: var(--font-mono-data); font-size: 10.5px; color: var(--color-text-tertiary);">{{ d.meta }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ══ PITCH ENGINE ══ -->
+    <sc-if value="{{ isAutopitch }}" hint-placeholder-val="{{ false }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 36px;">
+        <header style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: end;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Pitch Engine</span>
+            <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">{{ pitchTitle }}</h1>
+            <p style="margin: 4px 0 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: var(--color-text-secondary); text-wrap: pretty;">{{ pitchSub }}</p>
+          </div>
+          <sc-if value="{{ isStep4 }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; gap: 12px;">
+              <button style="height: 40px; padding: 0 20px; border: 0; background: none; box-shadow: inset 0 0 0 1px var(--color-border-strong); cursor: pointer; font-family: var(--font-body); font-size: 13.5px; color: var(--color-ink);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">Exporter en PPTX</button>
+              <button style="height: 40px; padding: 0 20px; border: 0; background: var(--color-accent); cursor: pointer; font-family: var(--font-body); font-size: 13.5px; font-weight: 500; color: var(--chaux);" style-hover="background: var(--color-accent-hover);">Télécharger le PDF</button>
+            </div>
+          </sc-if>
+        </header>
+
+        <div style="display: flex; gap: 14px;">
+          <sc-for list="{{ pitchSteps }}" as="s" hint-placeholder-count="4">
+            <button onClick="{{ s.go }}" style="display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 20px; border: 0; background: none; cursor: pointer; box-shadow: {{ s.ring }}; font-family: var(--font-body); font-size: 13.5px; color: {{ s.fg }}; transition: box-shadow 180ms ease, color 180ms ease;" style-hover="color: var(--color-ink);">
+              <span style="display: grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: {{ s.numBg }}; box-shadow: inset 0 0 0 1px var(--color-border); font-family: var(--font-mono-data); font-size: 11px; color: {{ s.numFg }};">{{ s.n }}</span>
+              {{ s.label }}
+            </button>
+          </sc-for>
+        </div>
+
+        <!-- Colonne d'aperçu permanente à 460 px (#autopitch-grid) : elle vit à
+             chaque étape, pas seulement après génération. L'étape 4 en sort —
+             c'est .pitch-fullscreen, qui masque le formulaire. -->
+        <sc-if value="{{ isWizard }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 56px; align-items: start;">
+          <div style="min-width: 0;">
+
+        <!-- Étape 1 — le produit, tel que le formulaire réel le réduit pour Phoenix -->
+        <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display: flex; flex-direction: column; gap: 38px;">
+              <sc-for list="{{ pitchGroups }}" as="g" hint-placeholder-count="6">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                  <sc-if value="{{ g.title }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary); padding-bottom: 12px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">{{ g.title }}</span>
+                  </sc-if>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px 30px;">
+                    <sc-for list="{{ g.fields }}" as="f" hint-placeholder-count="4">
+                      <label style="display: flex; flex-direction: column; gap: 9px; grid-column: {{ f.span }};">
+                        <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ f.l }}</span>
+                        <span style="display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 42px; padding: 0 14px; background: var(--color-surface-2); box-shadow: inset 0 0 0 1px var(--color-border), inset 0 2px 4px -3px var(--color-border-strong); font-size: 14px; color: var(--color-ink); transition: box-shadow 160ms ease;" style-hover="box-shadow: inset 0 0 0 1px var(--color-border-strong);">
+                          {{ f.v }}
+                          <sc-if value="{{ f.sel }}" hint-placeholder-val="{{ false }}">
+                            <span style="color: var(--color-text-tertiary);">⌄</span>
+                          </sc-if>
+                        </span>
+                      </label>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+          </div>
+        </sc-if>
+
+        <!-- Étape 2 — le contenu -->
+        <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 24px; max-width: 900px;">
+            <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--color-text-secondary);">Chaque bloc coché devient une page. Décochez ce que le client n'a pas besoin de lire.</p>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ pitchBlocks }}" as="b" hint-placeholder-count="6">
+                <label style="display: grid; grid-template-columns: 20px minmax(0, 1fr) 74px; gap: 20px; align-items: center; padding: 18px 4px; cursor: pointer; box-shadow: inset 0 -1px 0 var(--color-divider);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+                  <span style="display: grid; place-items: center; width: 18px; height: 18px; background: {{ b.markBg }}; box-shadow: {{ b.ring }}; font-size: 11px; color: {{ b.markFg }};">{{ b.mark }}</span>
+                  <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                    <strong style="font-size: 14px; font-weight: 500; letter-spacing: -0.008em; color: {{ b.fg }};">{{ b.t }}</strong>
+                    <span style="font-size: 12.5px; color: var(--color-text-tertiary);">{{ b.d }}</span>
+                  </span>
+                  <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; text-align: right; color: var(--color-text-tertiary);">{{ b.p }}</span>
+                </label>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Étape 3 — la mise en forme -->
+        <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px 30px;">
+              <sc-for list="{{ pitchFormat }}" as="f" hint-placeholder-count="6">
+                <label style="display: flex; flex-direction: column; gap: 9px;">
+                  <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ f.l }}</span>
+                  <span style="display: flex; align-items: center; justify-content: space-between; height: 42px; padding: 0 14px; background: var(--color-surface-2); box-shadow: inset 0 0 0 1px var(--color-border); font-size: 14px;">{{ f.v }}<span style="color: var(--color-text-tertiary);">⌄</span></span>
+                </label>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+          </div>
+
+          <!-- Colonne d'aperçu : carte flexible + pied de navigation (.pitch-preview-pane) -->
+          <aside style="position: sticky; top: 24px; display: flex; flex-direction: column; gap: 22px; padding: 26px 28px 24px; background: var(--color-surface-2); box-shadow: inset 0 0 0 1px var(--color-border), inset 0 1px 0 var(--lumiere);">
+            <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary); padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">Termes retenus<span style="letter-spacing: 0.1em;">Étape {{ pitchStepNum }}/4</span></span>
+
+            <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+              <div style="position: relative; overflow: hidden; aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: space-between; padding: 26px 28px; background: var(--chaux); box-shadow: inset 0 0 0 1px var(--color-border);">
+                <span style="font-family: var(--font-mono-data); font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-text-tertiary);">Proposition · 06.08.2026</span>
+                <span style="display: flex; flex-direction: column; gap: 6px;">
+                  <strong style="font-family: var(--font-heading); font-size: 24px; font-weight: 300; letter-spacing: -0.028em; line-height: 1.08;">Phoenix Autocall<br />CAC 40</strong>
+                  <span style="font-size: 11px; color: var(--color-text-secondary);">Titre de créance · Société Générale · 2 ans</span>
+                </span>
+                <span style="height: 2px; width: 46px; background: var(--color-accent);"></span>
+              </div>
+            </sc-if>
+
+            <strong style="font-family: var(--font-heading); font-size: 24px; font-weight: 400; letter-spacing: -0.022em; line-height: 1.15;">Phoenix Autocall<br />CAC 40</strong>
+            <div style="display: flex; flex-direction: column;">
+              <sc-for list="{{ pitchSummary }}" as="s" hint-placeholder-count="4">
+                <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 12px 0; box-shadow: inset 0 -1px 0 var(--color-divider); font-size: 13.5px; color: var(--color-text-secondary);">
+                  {{ s.l }}<strong style="font-family: var(--font-mono-data); font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--color-ink);">{{ s.v }}</strong>
+                </span>
+              </sc-for>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 6px;">
+              <button onClick="{{ pitchPrev }}" style="height: 42px; padding: 0 20px; border: 0; background: none; cursor: pointer; box-shadow: inset 0 0 0 1px var(--color-border-strong); font-family: var(--font-body); font-size: 14px; color: {{ pitchPrevFg }};" style-hover="background: var(--color-surface-1);">Retour</button>
+              <button onClick="{{ pitchNext }}" style="flex: 1; height: 42px; border: 0; background: var(--color-accent); cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--chaux); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2);" style-hover="background: var(--color-accent-hover);">{{ pitchNextLabel }}</button>
+            </div>
+          </aside>
+        </div>
+        </sc-if>
+
+        <!-- Étape 4 — le document -->
+        <sc-if value="{{ isStep4 }}" hint-placeholder-val="{{ false }}">
+          <div class="stagger" style="display: flex; flex-direction: column; gap: 28px;">
+
+            <!-- Récapitulatif (.pitch-recap) : une ligne par décision prise plus haut,
+                 un Modifier qui y renvoie. C'est la seule étape où le CGP décide. -->
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--color-border); box-shadow: 0 0 0 1px var(--color-border);">
+              <sc-for list="{{ pitchRecap }}" as="r" hint-placeholder-count="4">
+                <span style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; background: var(--color-surface-1);">
+                  <span style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                    <span style="font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ r.l }}</span>
+                    <span style="overflow: hidden; font-size: 13.5px; white-space: nowrap; text-overflow: ellipsis; color: var(--color-ink);">{{ r.v }}</span>
+                  </span>
+                  <button onClick="{{ r.go }}" style="flex: none; padding: 0; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 12.5px; color: var(--color-accent);" style-hover="color: var(--color-accent-hover);">Modifier</button>
+                </span>
+              </sc-for>
+            </div>
+
+            <!-- Page 1 · Couverture — 1212 × 682, gabarit commun aux quatre pages -->
+            <div style="position: relative; box-sizing: border-box; height: 682px; overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; padding: 48px 62px; background: var(--chaux); box-shadow: inset 0 0 0 1px var(--color-border), inset 0 1px 0 var(--lumiere);">
+              <span aria-hidden="true" style="position: absolute; top: 0; bottom: 0; left: 0; width: 26%; pointer-events: none; background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.5), transparent); animation: sheen 1800ms cubic-bezier(0.16,1,0.3,1) 200ms both;"></span>
+              <div style="display: flex; align-items: baseline; justify-content: space-between;">
+                <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-text-tertiary);">Proposition d'investissement</span>
+                <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">06 août 2026</span>
+              </div>
+              <div style="display: flex; flex-direction: column; justify-content: center; gap: 16px;">
+                <span style="height: 2px; width: 62px; background: var(--color-accent);"></span>
+                <h2 style="margin: 0; font-family: var(--font-heading); font-size: 54px; font-weight: 200; letter-spacing: -0.032em; line-height: 1.04;">Phoenix Autocall<br />CAC&nbsp;40</h2>
+                <p style="margin: 6px 0 0; font-size: 16px; color: var(--color-text-secondary);">Titre de créance · Société Générale · durée recommandée 2 ans</p>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--color-divider); box-shadow: 0 0 0 1px var(--color-divider);">
+                <sc-for list="{{ pitchSummary }}" as="s" hint-placeholder-count="4">
+                  <span style="display: flex; flex-direction: column; gap: 7px; padding: 16px 18px; background: var(--chaux);">
+                    <span style="font-family: var(--font-mono-data); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ s.l }}</span>
+                    <strong style="font-family: var(--font-mono-data); font-size: 19px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.022em;">{{ s.v }}</strong>
+                  </span>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- Page 2 · Mécanisme -->
+            <div style="box-sizing: border-box; height: 682px; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 24px; padding: 42px 62px 36px; background: var(--chaux); box-shadow: inset 0 0 0 1px var(--color-border), inset 0 1px 0 var(--lumiere);">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 14px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+                <h2 style="margin: 0; font-family: var(--font-heading); font-size: 30px; font-weight: 300; letter-spacing: -0.024em;">Comment le capital est remboursé</h2>
+                <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">À maturité · 2 ans</span>
+              </div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 46px; align-items: center; min-height: 0;">
+                <svg viewBox="0 0 620 300" style="display: block; width: 100%; height: 100%; overflow: visible;">
+                  <sc-for list="{{ payoff.yticks }}" as="t" hint-placeholder-count="3">
+                    <line x1="0" y1="{{ t.y }}" x2="600" y2="{{ t.y }}" stroke="var(--color-divider)" stroke-width="1"></line>
+                    <text x="612" y="{{ t.y }}" dy="3.5" font-family="IBM Plex Mono" font-size="10" fill="var(--color-text-tertiary)">{{ t.l }}</text>
+                  </sc-for>
+                  <path d="{{ payoff.zone }}" fill="var(--color-breach)" opacity="0.09"></path>
+                  <line x1="{{ payoff.barriereX }}" y1="12" x2="{{ payoff.barriereX }}" y2="288" stroke="var(--color-breach)" stroke-width="1" stroke-dasharray="4 5"></line>
+                  <line x1="{{ payoff.rappelX }}" y1="12" x2="{{ payoff.rappelX }}" y2="288" stroke="var(--color-accent)" stroke-width="1" stroke-dasharray="4 5"></line>
+                  <path d="{{ payoff.perte }}" fill="none" stroke="var(--color-breach)" stroke-width="2.25" stroke-linecap="round" stroke-dasharray="1500" style="animation: draw 1000ms cubic-bezier(0.16,1,0.3,1) 200ms both;"></path>
+                  <path d="{{ payoff.saut }}" fill="none" stroke="var(--color-ink)" stroke-width="1.25" stroke-dasharray="3 4" opacity="0.5"></path>
+                  <path d="{{ payoff.plat }}" fill="none" stroke="var(--color-ink)" stroke-width="2.25" stroke-linecap="round" stroke-dasharray="1500" style="animation: draw 1000ms cubic-bezier(0.16,1,0.3,1) 500ms both;"></path>
+                  <circle cx="{{ payoff.barriereX }}" cy="{{ payoff.cent }}" r="4.5" fill="var(--color-ink)"></circle>
+                  <sc-for list="{{ payoff.ticks }}" as="t" hint-placeholder-count="6">
+                    <text x="{{ t.x }}" y="298" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--color-text-tertiary)">{{ t.l }}</text>
+                  </sc-for>
+                </svg>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                  <span style="display: flex; flex-direction: column; gap: 5px; padding-left: 14px; box-shadow: inset 2px 0 0 var(--color-breach);">
+                    <strong style="font-size: 14px; font-weight: 500;">Sous 60 %</strong>
+                    <span style="font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Le capital suit le sous-jacent, perte en capital à hauteur de la baisse.</span>
+                  </span>
+                  <span style="display: flex; flex-direction: column; gap: 5px; padding-left: 14px; box-shadow: inset 2px 0 0 var(--color-ink);">
+                    <strong style="font-size: 14px; font-weight: 500;">Entre 60 % et 100 %</strong>
+                    <span style="font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Capital remboursé intégralement, sans coupon sur la dernière période.</span>
+                  </span>
+                  <span style="display: flex; flex-direction: column; gap: 5px; padding-left: 14px; box-shadow: inset 2px 0 0 var(--color-accent);">
+                    <strong style="font-size: 14px; font-weight: 500;">Au-dessus de 100 %</strong>
+                    <span style="font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Rappel anticipé à la date d'observation, capital et coupon versés.</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Page 3 · Scénarios -->
+            <div style="box-sizing: border-box; height: 682px; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 24px; padding: 42px 62px 36px; background: var(--chaux); box-shadow: inset 0 0 0 1px var(--color-border), inset 0 1px 0 var(--lumiere);">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 14px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+                <h2 style="margin: 0; font-family: var(--font-heading); font-size: 30px; font-weight: 300; letter-spacing: -0.024em;">Scénarios de performance</h2>
+                <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">Sur la durée recommandée</span>
+              </div>
+              <div style="display: flex; flex-direction: column; justify-content: center;">
+                <sc-for list="{{ scenarios }}" as="s" hint-placeholder-count="4">
+                  <div style="display: grid; grid-template-columns: 190px minmax(0, 1fr) 108px; gap: 30px; align-items: center; padding: 18px 0; box-shadow: inset 0 -1px 0 var(--color-divider);">
+                    <span style="display: flex; flex-direction: column; gap: 3px;">
+                      <strong style="font-size: 15px; font-weight: 500; color: {{ s.c }};">{{ s.l }}</strong>
+                    </span>
+                    <span style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+                      <span style="font-size: 13px; line-height: 1.45; color: var(--color-text-secondary);">{{ s.d }}</span>
+                      <span style="position: relative; display: flex; justify-content: {{ s.side }}; width: 100%; height: 7px; background: var(--color-surface-sunk);">
+                        <span style="width: {{ s.w }}; height: 100%; background: {{ s.c }}; transform-origin: {{ s.side }}; animation: scan 700ms cubic-bezier(0.16,1,0.3,1) both;"></span>
+                      </span>
+                    </span>
+                    <span style="font-family: var(--font-mono-data); font-size: 22px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.025em; text-align: right; color: {{ s.c }};">{{ s.val }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--color-text-tertiary); max-width: 96ch;">Ces scénarios illustrent le comportement du produit dans quatre configurations de marché. Ils ne constituent pas une indication de performance future et ne tiennent pas compte de la fiscalité applicable au porteur.</p>
+            </div>
+
+            <!-- Page 4 · Caractéristiques & risques -->
+            <div style="box-sizing: border-box; height: 682px; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 24px; padding: 42px 62px 36px; background: var(--chaux); box-shadow: inset 0 0 0 1px var(--color-border), inset 0 1px 0 var(--lumiere);">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 14px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+                <h2 style="margin: 0; font-family: var(--font-heading); font-size: 30px; font-weight: 300; letter-spacing: -0.024em;">Caractéristiques &amp; risques</h2>
+                <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">FR001400ZK21</span>
+              </div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 52px; align-items: start; min-height: 0;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 44px;">
+                  <sc-for list="{{ caracs }}" as="c" hint-placeholder-count="10">
+                    <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 18px; padding: 11px 0; box-shadow: inset 0 -1px 0 var(--color-divider); font-size: 13px;">
+                      <span style="color: var(--color-text-secondary);">{{ c.l }}</span>
+                      <strong style="font-family: var(--font-mono-data); font-size: 12.5px; font-weight: 500; text-align: right; white-space: nowrap;">{{ c.v }}</strong>
+                    </span>
+                  </sc-for>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <span style="font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">Indicateur de risque</span>
+                  <div style="display: flex; gap: 3px;">
+                    <sc-for list="{{ risque }}" as="r" hint-placeholder-count="7">
+                      <span style="display: grid; place-items: center; flex: 1; height: 38px; background: {{ r.bg }}; font-family: var(--font-mono-data); font-size: 13px; color: {{ r.fg }};">{{ r.n }}</span>
+                    </sc-for>
+                  </div>
+                  <span style="font-size: 12.5px; line-height: 1.55; color: var(--color-text-secondary);">Risque élevé. Le capital n'est pas garanti : une baisse du sous-jacent de plus de 40 % à maturité entraîne une perte en capital équivalente.</span>
+                  <span style="margin-top: 8px; font-size: 12.5px; line-height: 1.55; color: var(--color-text-secondary);">S'ajoute le risque de crédit de l'émetteur : en cas de défaut, le capital et les coupons peuvent être perdus en totalité.</span>
+                </div>
+              </div>
+              <p style="margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--color-text-tertiary);">Document à caractère promotionnel, non contractuel. Avant toute souscription, prenez connaissance du prospectus et du document d'informations clés.</p>
+            </div>
+
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ══ DECREMENT SCORE ══ —
+         La terre ne parle que de barrière. Le carry (dividende − décrément) est
+         une quantité, pas une distance à un seuil : il reste en encre, son signe
+         suffit. Seul l'avis, qui est un jugement de risque, porte la couleur —
+         en pastille teintée, pas en texte pur. -->
+    <sc-if value="{{ isScreener }}" hint-placeholder-val="{{ false }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 40px;">
+        <header style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Structuration</span>
+          <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">Decrement Score</h1>
+          <p style="margin: 4px 0 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: var(--color-text-secondary); text-wrap: pretty;">Lire rapidement si le décrément est payé par le dividende, s'il mange la performance et si le coupon mérite le risque.</p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 56px; align-items: start;">
+          <aside style="display: flex; flex-direction: column; gap: 32px;">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary); padding-bottom: 11px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">Lecture simple</span>
+              <span style="display: flex; gap: 12px; font-size: 13.5px; line-height: 1.5;"><span style="font-family: var(--font-mono-data); color: var(--color-text-tertiary);">1</span>Le dividende couvre-t-il le décrément ?</span>
+              <span style="display: flex; gap: 12px; font-size: 13.5px; line-height: 1.5;"><span style="font-family: var(--font-mono-data); color: var(--color-text-tertiary);">2</span>Combien de performance est sacrifiée ?</span>
+              <span style="display: flex; gap: 12px; font-size: 13.5px; line-height: 1.5;"><span style="font-family: var(--font-mono-data); color: var(--color-text-tertiary);">3</span>Que se passe-t-il si le produit n'est pas rappelé ?</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary); padding-bottom: 11px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">Barème des avis</span>
+              <sc-for list="{{ bareme }}" as="b" hint-placeholder-count="4">
+                <span style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; box-shadow: inset 0 -1px 0 var(--color-divider);">
+                  <span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: {{ b.c }};">
+                    <span style="width: 5px; height: 5px; border-radius: 999px; background: {{ b.c }};"></span>{{ b.l }}
+                  </span>
+                  <span style="font-family: var(--font-mono-data); font-size: 11.5px; color: var(--color-text-tertiary);">{{ b.r }}</span>
+                </span>
+              </sc-for>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+              <sc-for list="{{ decFilters }}" as="f" hint-placeholder-count="5">
+                <label style="display: flex; flex-direction: column; gap: 8px;">
+                  <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--color-text-tertiary);">{{ f.l }}</span>
+                  <span style="display: flex; align-items: center; height: 38px; padding: 0 13px; background: var(--color-surface-2); box-shadow: inset 0 0 0 1px var(--color-border); font-size: 13.5px;">{{ f.v }}</span>
+                </label>
+              </sc-for>
+              <button style="height: 40px; border: 0; background: var(--color-accent); cursor: pointer; font-family: var(--font-body); font-size: 13.5px; font-weight: 500; color: var(--chaux);" style-hover="background: var(--color-accent-hover);">Recalculer</button>
+            </div>
+          </aside>
+
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">
+              <h2 style="margin: 0; font-family: var(--font-heading); font-size: 25px; font-weight: 300; letter-spacing: -0.022em;">Table de décision</h2>
+              <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Meilleur compromis en haut</span>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 176px 168px 132px; gap: 20px; align-items: center; padding: 0 4px 12px; font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">
+                <span>Sous-jacent</span><span style="text-align: right;">Dividende − décrément</span><span style="text-align: right;">Coût historique</span><span style="text-align: right;">Avis</span>
+              </div>
+              <sc-for list="{{ decRows }}" as="d" hint-placeholder-count="7">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) 176px 168px 132px; gap: 20px; align-items: center; padding: 17px 4px; box-shadow: inset 0 -1px 0 var(--color-divider);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">
+                  <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                    <strong style="font-size: 14px; font-weight: 500; letter-spacing: -0.008em;">{{ d.name }}</strong>
+                    <span style="font-family: var(--font-mono-data); font-size: 10.5px; color: var(--color-text-tertiary);">{{ d.meta }}</span>
+                  </span>
+                  <span style="font-family: var(--font-mono-data); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right;">{{ d.carry }}</span>
+                  <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right; color: var(--color-text-secondary);">{{ d.drag }}</span>
+                  <span style="display: inline-flex; align-items: center; gap: 5px; justify-self: end; padding: 3px 9px; border-radius: 999px; background: {{ d.avisBg }}; font-family: var(--font-mono-data); font-size: 9.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: {{ d.avisC }};"><span style="width: 6px; height: 6px; flex: none; border-radius: 999px; background: currentColor;"></span>{{ d.avis }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══ DOC READER ══ -->
+    <sc-if value="{{ isIngest }}" hint-placeholder-val="{{ false }}">
+      <div class="stagger" style="display: flex; flex-direction: column; gap: 40px;">
+        <header style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: end;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Doc Reader</span>
+            <h1 style="margin: 0; font-family: var(--font-heading); font-size: 46px; font-weight: 200; letter-spacing: -0.03em; line-height: 1.02;">Importer. Lire. Valider.</h1>
+            <p style="margin: 4px 0 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: var(--color-text-secondary); text-wrap: pretty;">Déposez un document produit. Structura prépare une fiche claire, à contrôler avant intégration.</p>
+          </div>
+          <span style="display: flex; flex-direction: column; gap: 6px; text-align: right;">
+            <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Mémoire</span>
+            <strong style="font-family: var(--font-mono-data); font-size: 14px; font-weight: 500;">Mémoire locale</strong>
+          </span>
+        </header>
+
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start;">
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary); padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">Document</span>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 54px 0; background: var(--color-surface-2); box-shadow: inset 0 0 0 1px var(--color-border);">
+              <strong style="font-size: 15px; font-weight: 500;">Déposer un fichier</strong>
+              <span style="font-family: var(--font-mono-data); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">PDF · TXT · HTML · DOCX</span>
+            </div>
+            <button style="height: 44px; border: 0; background: var(--color-accent); cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--chaux); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2);" style-hover="background: var(--color-accent-hover);">Analyser</button>
+            <div style="display: flex; flex-direction: column; gap: 7px; padding: 18px 20px; background: var(--color-surface-2);">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Mémoire produit</span>
+              <span style="font-size: 13px; line-height: 1.55; color: var(--color-text-secondary);">Les validations enrichissent une mémoire privée de caractéristiques produit.</span>
+            </div>
+            <button style="align-self: flex-end; height: 40px; padding: 0 22px; border: 0; background: none; box-shadow: inset 0 0 0 1px var(--color-border-strong); cursor: pointer; font-family: var(--font-body); font-size: 13.5px; color: var(--color-ink);" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent), inset 0 -1px 0 var(--color-divider);">Ajouter au portefeuille</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-text-tertiary); padding-bottom: 13px; box-shadow: inset 0 -1px 0 var(--color-border-strong);">Fiche produit</span>
+            <p style="margin: 0; padding: 120px 0; text-align: center; font-size: 14px; color: var(--color-text-tertiary); box-shadow: inset 0 0 0 1px var(--color-border);">La fiche apparaîtra ici.</p>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </main>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1560,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  state = { view: "dashboard", range: "ytd", calMode: "Mois", pitchStep: 1 };
+
+  componentDidMount() { this.t = setInterval(() => this.forceUpdate(), 1000); }
+  componentWillUnmount() { clearInterval(this.t); }
+
+  renderVals() {
+    const go = (v) => () => this.setState({ view: v });
+    const IDS = ["dashboard", "clients", "portfolio", "barriers", "calendar",
+                 "analytics", "autopitch", "screener", "ingest"];
+    const nav = {};
+    for (const id of IDS) {
+      const on = id === this.state.view;
+      nav[id] = { c: on ? "var(--color-ink)" : "var(--color-text-secondary)", w: on ? 500 : 400 };
+    }
+
+    const fr = (v, d = 1) => (v > 0 ? "+" : "−") + Math.abs(v).toFixed(d).replace(".", ",");
+    // Un statut est une pastille teintée, pas du texte en couleur pure : le
+    // fond porte le signal, l'encre reste lisible. Un tableau de 54 lignes en
+    // texte coloré vibre ; les mêmes 54 lignes en pastilles se balaient.
+    const tinte = (c) => `color-mix(in oklch, ${c}, transparent 84%)`;
+    const ST = (l, c) => ({ l, c, bg: tinte(c) });
+    const STATUT = {
+      sain: ST("Sain", "var(--color-safe)"),
+      alerte: ST("Alerte", "var(--color-watch)"),
+      critique: ST("Critique", "var(--color-breach)"),
+      franchie: ST("Franchie", "var(--color-breach)"),
+    };
+
+    // ── Clients — colonnes et libellés d'index.html l.653-711 ────────────────
+    const clients = [
+      ["Trust Martin", "DOS-0004 · PEA", "69,2 M€", -6.8, 13, 1],
+      ["Famille Dupont", "DOS-0001 · Assurance-vie", "64,5 M€", -6.8, 14, 1],
+      ["SCI Horizon", "DOS-0002 · Compte-titres (CTO)", "59,3 M€", -6.7, 15, 2],
+      ["M. Lefebvre", "DOS-0003 · Contrat de capitalisation", "53,0 M€", -6.8, 13, 1],
+    ].map(([name, ref, encours, perf, n, pdi]) => ({
+      name, ref, encours, perf: fr(perf) + " %", n: String(n),
+      pdi: pdi ? `${pdi} produit${pdi > 1 ? "s" : ""} sous PDI` : "",
+      hasPdi: pdi > 0,
+    }));
+
+    // ── Portefeuille — colonnes exactes du <thead> d'index.html l.343-368 ────
+    const PF = [
+      ["Autocall / Phoenix Airbus – Nov 2027", "DEMO-00021", "Auto", "Deutsche Bank", "6,7 M€", "93,01", "6,2 M€", -468, -7.0, 81.4, "30.09", "sain"],
+      ["Autocall / Phoenix BNP Paribas – Déc 2027", "DEMO-00042", "Auto", "Natixis", "1,7 M€", "93,64", "1,6 M€", -108, -6.4, 8.0, "29.09", "alerte"],
+      ["Autocall / Phoenix BNP Paribas – Fév 2028", "DEMO-00031", "Auto", "Crédit Agricole CIB", "7,0 M€", "93,32", "6,5 M€", -468, -6.7, 94.0, "19.09", "sain"],
+      ["Autocall / Phoenix BNP Paribas – Mai 2027", "DEMO-00043", "Auto", "Société Générale", "6,0 M€", "93,65", "5,6 M€", -381, -6.3, 41.8, "04.11", "sain"],
+      ["Autocall / Phoenix CAC 40 – Mar 2029", "DEMO-00041", "Auto", "Deutsche Bank", "2,4 M€", "93,63", "2,2 M€", -153, -6.4, 31.1, "12.10", "sain"],
+      ["Autocall / Phoenix DAX 40 – Jun 2026", "DEMO-00030", "Auto", "Deutsche Bank", "6,0 M€", "93,31", "5,6 M€", -401, -6.7, -11.8, "19.08", "franchie"],
+      ["Autocall / Phoenix EURO STOXX 50 – Jul 2027", "DEMO-00012", "Auto", "HSBC", "7,4 M€", "92,71", "6,9 M€", -539, -7.3, 54.5, "06.08", "sain"],
+      ["Reverse Convertible CAC 40 – Sep 2026", "DEMO-00018", "Rev. conv.", "Natixis", "3,0 M€", "92,41", "2,8 M€", -212, -7.1, -10.8, "17.10", "franchie"],
+      ["Capital Garanti STOXX Banks – Nov 2028", "DEMO-00007", "Cap. gar.", "BNP Paribas", "4,2 M€", "94,10", "4,0 M€", -248, -5.9, 62.3, "21.08", "sain"],
+    ];
+    const DIST_MAX = 100;
+    const portfolio = PF.map(([name, isin, type, issuer, nominal, vl, val, pnl, pnlPct, dist, evt, st]) => ({
+      name, isin, type, issuer, nominal, vl: vl.replace(".", ",") + " % *", val,
+      pnl: fr(pnl / 1000, 0).replace(",0", "") + " k€",
+      pnlPct: fr(pnlPct) + " %",
+      dist: fr(dist) + " %", evt,
+      distW: `${Math.min(100, (Math.abs(dist) / DIST_MAX) * 100).toFixed(1)}%`,
+      distFg: STATUT[st].c, statut: STATUT[st].l, statutC: STATUT[st].c, statutBg: STATUT[st].bg,
+      accent: st === "sain" ? "transparent" : STATUT[st].c,
+    }));
+
+    // ── Barrières — compteurs et colonnes d'index.html l.374-462 ────────────
+    const barKpis = [
+      { label: "Barrières franchies", value: "4", sub: "Perte de capital probable", tone: "var(--color-breach)", w: "36%" },
+      { label: "Alerte critique", value: "1", sub: "Sous 5 % du seuil · prochaine obs. 10.07", tone: "var(--color-breach)", w: "9%" },
+      { label: "Alerte surveillance", value: "6", sub: "Entre 5 et 15 % du seuil · prochaine obs. 11.08", tone: "var(--color-watch)", w: "55%" },
+      { label: "Zone saine", value: "31", sub: "Au-delà de 15 % du seuil", tone: "var(--color-safe)", w: "100%" },
+    ];
+    const BAR = [
+      ["Autocall / Phoenix DAX 40 – Jun 2026", "DEMO-00030", "Deutsche Bank", "DAX 40", "55 %", "3,3 M€", "93,31", "5,6 M€", -11.8, "19.08", "franchie"],
+      ["Reverse Convertible CAC 40 – Sep 2026", "DEMO-00018", "Natixis", "CAC 40", "60 %", "1,1 M€", "92,74", "1,7 M€", -10.8, "17.10", "franchie"],
+      ["Autocall / Phoenix IBEX 35 – Jul 2027", "DEMO-00025", "Goldman Sachs", "IBEX 35", "61 %", "4,8 M€", "93,95", "7,3 M€", -5.5, "18.12", "franchie"],
+      ["Autocall / Phoenix NIKKEI 225 – Feb 2028", "DEMO-00033", "Morgan Stanley", "NIKKEI 225", "70 %", "2,0 M€", "92,44", "2,7 M€", -2.3, "22.02", "franchie"],
+      ["Levier CAC 40 – Oct 2027", "DEMO-00016", "Natixis", "CAC 40", "75 %", "2,4 M€", "92,41", "3,0 M€", 4.1, "10.07", "critique"],
+      ["Autocall / Phoenix LVMH – Jun 2027", "DEMO-00022", "Goldman Sachs", "LVMH", "74 %", "1,3 M€", "93,03", "1,6 M€", 5.7, "11.08", "alerte"],
+      ["Autocall / Phoenix BNP Paribas – Déc 2027", "DEMO-00042", "Natixis", "BNP Paribas", "58 %", "986 k€", "93,64", "1,6 M€", 8.0, "29.09", "alerte"],
+    ];
+    const barriers = BAR.map(([name, isin, issuer, sj, niveau, nominal, vl, val, dist, obs, st]) => ({
+      name, isin, issuer, sj, niveau, nominal, vl: vl.replace(".", ",") + " % *", val,
+      dist: fr(dist) + " %", obs,
+      distW: `${Math.min(100, (Math.abs(dist) / 30) * 100).toFixed(1)}%`,
+      statut: STATUT[st].l, statutC: STATUT[st].c, statutBg: STATUT[st].bg,
+    }));
+    // Distribution : une pastille par produit, position = distance au seuil.
+    //
+    // L'axe est DÉRIVÉ des données, il n'est pas écrit. La v1 posait un axe
+    // −20/+40 en dur alors que deux produits sont à +41,8 et +54,5 : leurs
+    // pastilles sortaient à 103 % et 124 %, débordaient de 242 px, et surtout
+    // se plaçaient là où elles ne valaient rien. Sur un écran de risque, une
+    // pastille hors échelle ment sur sa valeur — la borner aurait menti aussi.
+    const DIST_VALS = [
+      -18, -16.5, -11.8, -10.8, -5.5, -2.3, 4.1, 5.7, 8.0, 9.2, 11.4, 12.8, 14.1,
+      18.6, 22.3, 23.1, 24.0, 31.1, 36.5, 41.8, 54.5,
+    ];
+    // Axe FIXE, repris de GAUGE_AXIS_MIN/MAX (app-portfolio.js) : une position
+    // sur la frise doit vouloir dire la même chose ici, dans le tableau et dans
+    // le tiroir. Un axe dérivé rend chaque écran auto-cohérent et les rend tous
+    // incomparables entre eux — sur un écran de risque, une pastille qui bouge
+    // sans que la donnée bouge est un piège. Les valeurs au-delà de +40 sont
+    // ramenées à la borne ET signalées comme telles, jamais placées en silence.
+    const DMIN = -20, DMAX = 40;
+    const dspan = DMAX - DMIN;
+    const distDots = DIST_VALS.map((v) => {
+      const horsAxe = v > DMAX;
+      return {
+        left: `${(((Math.min(v, DMAX) - DMIN) / dspan) * 100).toFixed(2)}%`,
+        c: v < 5 ? "var(--color-breach)" : v < 15 ? "var(--color-watch)" : "var(--color-safe)",
+        // Une pastille bornée porte un liseré : elle dit « au moins +40 »,
+        // elle ne prétend pas dire +54,5.
+        ring: horsAxe ? "0 0 0 2px var(--color-bg), 0 0 0 3px var(--color-safe)" : "0 0 0 2px var(--color-bg)",
+      };
+    });
+    const distScale = [];
+    for (let v = DMIN; v <= DMAX; v += 20)
+      distScale.push({ l: (v > 0 ? "+" : v < 0 ? "\u2212" : "") + Math.abs(v) + " %" });
+    const distZero = `${(((0 - DMIN) / dspan) * 100).toFixed(2)}%`;
+
+    // ── Calendrier — modes et blocs d'index.html l.463-593 ──────────────────
+    const calModes = ["Jour", "Semaine", "Mois", "Année", "Plage", "Glissant"].map((l) => ({
+      label: l,
+      fg: l === this.state.calMode ? "var(--color-ink)" : "var(--color-text-tertiary)",
+      underline: l === this.state.calMode ? "inset 0 -2px 0 var(--color-accent)" : "none",
+      go: () => this.setState({ calMode: l }),
+    }));
+    // UNE seule source d'événements, triée une fois, qui alimente la liste ET
+    // la grille. La v1 tenait deux listes séparées : rien ne garantissait
+    // qu'elles racontent la même chose, et c'est exactement le désordre de tri
+    // signalé. Ici la grille est une projection de la liste, pas un doublon.
+    // Un type d'événement se distingue par la FORME, pas par la teinte. La v1
+    // codait observation/coupon/rappel/maturité sur toute la palette de risque —
+    // or aucune de ces quatre dates n'est une distance de barrière. C'est la
+    // contradiction K1, commise dans la maquette qui la dénonce.
+    // Quatre marques en encre : anneau, disque, disque cerclé, carré.
+    const marque = (style) => "width: 7px; height: 7px; flex: none; " + style;
+    const EVT = {
+      obs: ["Observation", marque("border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--color-ink);")],
+      coupon: ["Coupon", marque("border-radius: 999px; background: var(--color-ink);")],
+      rappel: ["Rappel", marque("border-radius: 999px; background: var(--color-ink); box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 3px var(--color-ink);")],
+      mat: ["Maturité", marque("background: var(--color-ink);")],
+    };
+    const TODAY = 6;
+    const EVENTS = [
+      [21, "obs", "Capital Garanti STOXX Banks – Nov 2028", "STOXX Banks · BNP Paribas", ""],
+      [6, "mat", "Autocall / Phoenix EURO STOXX 50 – Jul 2027", "EURO STOXX 50 · HSBC", "7,4 M€"],
+      [11, "coupon", "Autocall / Phoenix LVMH – Jun 2027", "LVMH · Goldman Sachs", "120 k€"],
+      [25, "coupon", "Levier SMI – Dec 2026", "SMI · HSBC", "48 k€"],
+      [10, "obs", "Capital Garanti BNP Paribas – Jun 2026", "BNP Paribas · Deutsche Bank", ""],
+      [19, "obs", "Autocall / Phoenix DAX 40 – Jun 2026", "DAX 40 · Deutsche Bank", ""],
+      [16, "rappel", "Levier TOTAL SA – Nov 2027", "TOTAL SA · Natixis", ""],
+    ].sort((a, b) => a[0] - b[0]);
+
+    const JOURS = ["mer", "jeu", "ven", "sam", "dim", "lun", "mar"]; // 1er août 2026 = samedi
+    const jourDe = (d) => JOURS[(d + 2) % 7];
+    const calAgenda = EVENTS.map(([d, t, title, meta, amount]) => ({
+      day: String(d).padStart(2, "0"), weekday: jourDe(d),
+      type: EVT[t][0], c: EVT[t][1], title, meta, amount,
+      isToday: d === TODAY,
+      // Un événement passé s'efface au lieu de disparaître : le CGP doit
+      // pouvoir vérifier ce qui vient de tomber sans changer de période.
+      op: d < TODAY ? "0.45" : "1",
+      fg: d < TODAY ? "var(--color-text-tertiary)" : "var(--color-ink)",
+      dayBg: d === TODAY ? "var(--color-accent-tint)" : "transparent",
+    }));
+
+    // Projection de la même liste sur la grille. Août 2026 commence un samedi :
+    // la grille démarre au lundi 27 juillet.
+    const byDay = {};
+    for (const [d, t, title] of EVENTS) (byDay[d] ??= []).push([title, EVT[t][1]]);
+    const calCells = [];
+    for (let i = 0; i < 42; i++) {
+      const d = i - 4;
+      const inMonth = d >= 1 && d <= 31;
+      const evs = inMonth ? byDay[d] : null;
+      calCells.push({
+        num: inMonth ? String(d) : String(d < 1 ? 27 + i : d - 31),
+        fg: d === TODAY ? "var(--color-ink)" : inMonth ? "var(--color-text-secondary)" : "var(--color-text-tertiary)",
+        weight: d === TODAY ? 600 : 400,
+        bg: d === TODAY ? "var(--color-accent-tint)" : inMonth ? "transparent" : "var(--color-surface-2)",
+        ev: evs ? evs[0][0] : "",
+        evC: evs ? evs[0][1] : "display: none;",
+        hasEv: !!evs,
+      });
+    }
+    const calLegend = Object.values(EVT).map(([l, c]) => ({ l, c }));
+
+    // ── Pilotage — blocs d'index.html l.594-652 ────────────────────────────
+    const anaKpis = [
+      { label: "Concentration produit max", value: "3,2 %", sub: "Autocall / Phoenix Nikkei 225 – Oct 2028", tone: "var(--color-safe)", w: "13%" },
+      { label: "Coupon moyen pondéré", value: "9,39 %/an", sub: "Pondéré par l'encours valorisé", tone: "var(--color-ink)", w: "62%" },
+      { label: "Concentration émetteur max", value: "20,0 %", sub: "Société Générale", tone: "var(--color-watch)", w: "80%" },
+    ];
+    // Une seule encre, quatre densités : la famille se lit par la matière, pas
+    // par quatre teintes de plus. Le pourcentage n'entre dans le segment que
+    // s'il y tient — sinon il reste dans la liste, jamais tronqué.
+    const famille = [
+      ["Autocall", 54, 0], ["Cap. garanti", 22, 35], ["Rev. conv.", 17, 60], ["Levier", 7, 78],
+    ].map(([l, p, t]) => ({
+      l, pct: p + " %", w: p + "%",
+      f: t ? `color-mix(in oklch, var(--color-ink), transparent ${t}%)` : "var(--color-ink)",
+      inBar: p >= 15 ? p + " %" : "",
+      on: t >= 60 ? "var(--color-ink)" : "var(--chaux)",
+    }));
+    const topDossiers = [
+      ["Trust Martin", "13 produits · 28,1 % du cabinet", "69,2 M€", "100%"],
+      ["Famille Dupont", "14 produits · 26,2 % du cabinet", "64,5 M€", "93%"],
+      ["SCI Horizon", "15 produits · 24,1 % du cabinet", "59,3 M€", "86%"],
+      ["M. Lefebvre", "13 produits · 21,6 % du cabinet", "53,0 M€", "77%"],
+    ].map(([name, meta, eur, w]) => ({ name, meta, eur, w }));
+    const distCounts = [["Franchie", "4", "var(--color-breach)"], ["Critique", "1", "var(--color-breach)"],
+      ["Alerte", "6", "var(--color-watch)"], ["Sain", "31", "var(--color-safe)"]]
+      .map(([l, n, c]) => ({ l, n, c }));
+
+    // ── Pitch Engine — étapes et champs relevés sur les captures du 06/08 ───
+    const PS = this.state.pitchStep;
+    const pitchSteps = ["Le produit", "Le contenu", "La mise en forme", "Présenter"].map((l, i) => ({
+      n: String(i + 1), label: l,
+      go: () => this.setState({ pitchStep: i + 1 }),
+      fg: i + 1 === PS ? "var(--color-ink)" : "var(--color-text-tertiary)",
+      ring: i + 1 === PS ? "inset 0 0 0 1px var(--color-accent)" : "inset 0 0 0 1px var(--color-border)",
+      numBg: i + 1 === PS ? "var(--color-accent)" : "transparent",
+      numFg: i + 1 === PS ? "var(--chaux)" : "var(--color-text-tertiary)",
+    }));
+
+    const pitchGo = (n) => () => this.setState({ pitchStep: n });
+    const pitchNext = pitchGo(Math.min(4, PS + 1));
+    const pitchPrev = PS > 1 ? pitchGo(PS - 1) : () => {};
+    const pitchNextLabel = PS === 3 ? "Générer le document" : "Continuer";
+    const pitchRecap = [
+      ["Produit", "Phoenix Autocall · CAC 40", 1],
+      ["Blocs retenus", "4 blocs · 4 pages", 2],
+      ["Mise en forme", "16:9 · aérée", 3],
+      ["Émetteur", "Société Générale", 1],
+    ].map(([l, v, s]) => ({ l, v, go: pitchGo(s) }));
+
+    // ── Étape 2 : chaque bloc coché devient une page du document ────────────
+    const pitchBlocks = [
+      ["Couverture & termes clés", "Nom, sous-jacent, émetteur, coupon, barrières", "1 page", true],
+      ["Mécanisme de remboursement", "Diagramme de gain à maturité et rappel anticipé", "1 page", true],
+      ["Scénarios de performance", "Tensions, défavorable, intermédiaire, favorable", "1 page", true],
+      ["Caractéristiques & risques", "Indicateur de risque, durée recommandée, frais", "1 page", true],
+      ["Calendrier d'observation", "Dates de constatation et de coupon", "1 page", false],
+      ["Historique du sous-jacent", "Cours sur la durée recommandée", "1 page", false],
+    ].map(([t, d, p, on]) => ({
+      t, d, p, on,
+      mark: on ? "✓" : "",
+      markBg: on ? "var(--color-accent)" : "transparent",
+      markFg: on ? "var(--chaux)" : "transparent",
+      ring: on ? "inset 0 0 0 1px var(--color-accent)" : "inset 0 0 0 1px var(--color-border-strong)",
+      fg: on ? "var(--color-ink)" : "var(--color-text-tertiary)",
+    }));
+
+    // ── Étape 3 : mise en forme ─────────────────────────────────────────────
+    const pitchFormat = [
+      ["Format", "16:9 · présentation"], ["Couverture", "Sobre, titre seul"],
+      ["Logo cabinet", "En pied de page"], ["Densité", "Aérée"],
+      ["Mentions réglementaires", "Page finale"], ["Export", "PDF + PPTX"],
+    ].map(([l, v]) => ({ l, v }));
+
+    // ── Étape 4 : le document ───────────────────────────────────────────────
+    // Diagramme de remboursement à maturité — la signature du genre.
+    // Sous la barrière de protection (60 %), le capital suit le sous-jacent
+    // point pour point ; au-dessus, il est remboursé à 100 %. La discontinuité
+    // à 60 % EST le produit : elle se dessine, elle ne se lisse pas.
+    const PDI = 60, RAPPEL = 100, XMAX = 150, YMAX = 130;
+    const px = (lvl) => (lvl / XMAX) * 600;
+    const py = (r) => 280 - (r / YMAX) * 258;
+    const payoff = {
+      perte: `M${px(0)} ${py(0)} L${px(PDI)} ${py(PDI)}`,
+      saut: `M${px(PDI)} ${py(PDI)} L${px(PDI)} ${py(RAPPEL)}`,
+      plat: `M${px(PDI)} ${py(RAPPEL)} L${px(XMAX)} ${py(RAPPEL)}`,
+      zone: `M${px(0)} ${py(0)} L${px(PDI)} ${py(PDI)} L${px(PDI)} ${py(0)} Z`,
+      barriereX: px(PDI), rappelX: px(RAPPEL),
+      cent: py(RAPPEL), zeroY: py(0),
+      ticks: [0, 30, 60, 90, 120, 150].map((l) => ({ x: px(l), l: l + " %" })),
+      yticks: [0, 50, 100].map((r) => ({ y: py(r), l: r + " %" })),
+    };
+
+    const scenarios = [
+      ["Tensions", "Le sous-jacent perd plus de 40 % à maturité", -52.0, "var(--color-breach)"],
+      ["Défavorable", "Aucun coupon, rappel à maturité au pair", 0.0, "var(--color-watch)"],
+      ["Intermédiaire", "Rappel à la 1ʳᵉ observation, un coupon", 9.5, "var(--color-safe)"],
+      ["Favorable", "Deux coupons puis rappel", 19.0, "var(--color-safe)"],
+    ].map(([l, d, v, c]) => ({
+      l, d, c, val: fr(v) + " %",
+      w: `${((Math.abs(v) / 52) * 100).toFixed(1)}%`,
+      side: v < 0 ? "flex-end" : "flex-start",
+      neg: v < 0,
+    }));
+
+    const risque = [1, 2, 3, 4, 5, 6, 7].map((n) => ({
+      n: String(n),
+      bg: n === 6 ? "var(--color-ink)" : "var(--color-surface-sunk)",
+      fg: n === 6 ? "var(--chaux)" : "var(--color-text-tertiary)",
+    }));
+
+    const caracs = [
+      ["Émetteur", "Société Générale"], ["Sous-jacent", "CAC 40 (price return)"],
+      ["Devise", "EUR"], ["Nominal", "1 000 € par titre"],
+      ["Durée recommandée", "2 ans"], ["Fréquence d'observation", "Annuelle"],
+      ["Coupon conditionnel", "9,50 % par an"], ["Barrière de coupon", "60 % du niveau initial"],
+      ["Protection du capital", "60 % à maturité, européenne"], ["Seuil de rappel", "100 % du niveau initial"],
+    ].map(([l, v]) => ({ l, v }));
+    // Champs et regroupements relevés dans index.html l.744-1061, filtrés sur
+    // `data-families="phoenix"` — le type par défaut. Le formulaire réel se
+    // réduit selon la famille choisie ; c'est cet état-là qui est dessiné.
+    const mkF = (l, v, sel, wide) => ({ l, v, sel: !!sel, span: wide ? "1 / -1" : "auto" });
+    const pitchGroups = [
+      { title: "", fields: [
+        mkF("Nom client", "Client Professionnel"), mkF("Type produit", "Phoenix Autocall", true),
+        mkF("Sous-jacent(s)", "CAC 40", false, true), mkF("Durée", "2 ans"),
+        mkF("Coupon (%/an)", "9,5"), mkF("PDI / barrière protection (%)", "60"),
+        mkF("Rappel (%)", "100"),
+      ] },
+      { title: "Fréquence & observation", fields: [
+        mkF("Fréquence", "Annuelle", true), mkF("Mémoire", "Non", true),
+        mkF("Niveau initial", "Cours de clôture", true),
+        mkF("Date d'émission", "jj/mm/aaaa"), mkF("Fin commercialisation", "jj/mm/aaaa"),
+        mkF("Date de maturité", "jj/mm/aaaa"),
+      ] },
+      { title: "Mécanique du sous-jacent", fields: [
+        mkF("Nature sous-jacent", "Indice standard", true), mkF("Nombre de sous-jacents", "1"),
+        mkF("Décrément type", "Points", true), mkF("Décrément (pts)", "50"),
+        mkF("Barrière coupon (%)", "60"),
+      ] },
+      { title: "Rappel & dégressivité", fields: [mkF("Type rappel", "Fixe", true)] },
+      { title: "Mécanismes optionnels", fields: [mkF("Put Leveraged", "Non", true)] },
+      { title: "Calendrier de call & périodes", fields: [
+        mkF("Période de non-call", "1ère période écoulée", true),
+        mkF("Dates niveau initial", "ex: 01/03/2026; 05/03/2026", false, true),
+      ] },
+    ];
+    const pitchSummary = [["Coupon", "9,50 %/an"], ["Barrière coupon", "60,00 %"],
+      ["Protection capital", "60,00 %"], ["Premier rappel", "100,00 %"]]
+      .map(([l, v]) => ({ l, v }));
+
+    // ── Decrement Score — barème et table d'index.html l.1374-1473 ─────────
+    const bareme = [["Recommandé", "≥ 85", "var(--color-safe)"], ["Acceptable", "70 – 84", "var(--color-safe)"],
+      ["À justifier", "50 – 69", "var(--color-watch)"], ["À éviter", "< 50", "var(--color-breach)"]]
+      .map(([l, r, c]) => ({ l, r, c }));
+    const decRows = [
+      ["TotalEnergies Dec", "Action · Europe", 1.61, "0,6 %/an sacrifié", "Recommandé", "var(--color-safe)"],
+      ["BNP Paribas Dec", "Action · Europe", 0.26, "1,1 %/an sacrifié", "Recommandé", "var(--color-safe)"],
+      ["Siemens Dec", "Action · Europe", 0.14, "1,2 %/an sacrifié", "Recommandé", "var(--color-safe)"],
+      ["Euro Stoxx 50 Dec 50", "Indice · Europe", 2.09, "1,4 %/an sacrifié", "Acceptable", "var(--color-safe)"],
+      ["Euro Stoxx 50 Dec 80", "Indice · Europe", 1.42, "2,2 %/an sacrifié", "Acceptable", "var(--color-safe)"],
+      ["STOXX 600 Dec 30", "Indice · Europe", -2.46, "0,6 %/an sacrifié", "Acceptable", "var(--color-safe)"],
+      ["Euro Stoxx Banks Dec20", "Indice · Europe", -4.20, "2,8 %/an sacrifié", "À justifier", "var(--color-watch)"],
+    ].map(([name, meta, carry, drag, avis, c]) => ({
+      name, meta, carry: fr(carry, 2) + " pts/an", drag, avis, avisC: c,
+      avisBg: `color-mix(in oklch, ${c}, transparent 84%)`,
+    }));
+    const decFilters = [["Type d'actif", "Indices"], ["Région", "Toutes"],
+      ["Dividende historique min. (%/an)", "0"], ["Décrément max (%/an)", "15"], ["Avis minimum", "Tous"]]
+      .map(([l, v]) => ({ l, v }));
+
+    // Top/Flop : 5 meilleures valorisations, 5 pires, écart décroissant.
+    // Domaine calculé sur les lignes affichées, plancher 4 points.
+    const VL = [
+      ["Phoenix Mémoire ES50", 27.4], ["Athena Or & Mines", 18.9],
+      ["Autocall TotalEnergies", 14.1], ["Phoenix Santé Europe", 9.8],
+      ["Autocall Air Liquide", 5.2], ["Athena Stellantis", -3.9],
+      ["Phoenix Kering", -6.4], ["Autocall LVMH", -8.2],
+      ["Phoenix NVIDIA", -15.6], ["Athena Banques EU", -24.3],
+    ];
+    const dom = Math.max(4, Math.ceil(Math.max(...VL.map(([, v]) => Math.abs(v)))));
+    const topflop = VL.map(([name, v]) => ({
+      name, val: fr(v), w: `max(3px, ${((Math.abs(v) / dom) * 100).toFixed(1)}%)`,
+      isPos: v > 0, isNeg: v < 0,
+    }));
+
+    // Règle graduée commune : −60 % à gauche, +20 % à droite.
+    const L = -60, R = 20, span = R - L;
+    const pos = (v) => `${(((v - L) / span) * 100).toFixed(2)}%`;
+    const breaches = [
+      ["Autocall / Phoenix DAX 40 – Jun 2026", "DAX 40 · Deutsche Bank", -51.5, -45],
+      ["Reverse Convertible CAC 40 – Sep 2026", "CAC 40 · Natixis", -46.5, -40],
+      ["Autocall / Phoenix IBEX 35 – Jul 2027", "IBEX 35 · Goldman Sachs", -42.3, -39],
+      ["Autocall / Phoenix NIKKEI 225 – Feb 2028", "NIKKEI 225 · Morgan Stanley", -33.8, -30],
+      ["Levier CAC 40 – Oct 2027", "CAC 40 · Natixis", -28.4, -25],
+    ].map(([name, meta, perf, pdi]) => ({
+      name, meta, perf: fr(perf) + " %", pdi: fr(pdi, 0) + " %",
+      zero: pos(0), pdiL: pos(pdi), segL: pos(perf),
+      segW: `${(((pdi - perf) / span) * 100).toFixed(2)}%`,
+    }));
+
+    const riskZones = [
+      { label: "Sous la barrière", rule: "Sous la protection du capital", pct: "7,4 %", width: "7.4%", count: "4 prod.",
+        fill: "repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px), color-mix(in oklch, var(--color-breach), transparent 80%)",
+        edge: "var(--color-breach)", fg: "var(--color-breach)", title: "Sous la barrière — 7,4 %, 4 produits" },
+      { label: "À surveiller", rule: "À moins de 10 % de la barrière", pct: "7,4 %", width: "7.4%", count: "4 prod.",
+        fill: "repeating-linear-gradient(115deg, var(--color-watch) 0 2px, transparent 2px 5px), color-mix(in oklch, var(--color-watch), transparent 80%)",
+        edge: "var(--color-watch)", fg: "var(--color-watch)", title: "À surveiller — 7,4 %, 4 produits" },
+      { label: "Zone de rendement", rule: "Au-dessus de la barrière d'autocall", pct: "85,2 %", width: "85.2%", count: "46 prod.",
+        fill: "var(--color-surface-3)", edge: "var(--color-border)", fg: "var(--color-ink)",
+        title: "Zone de rendement — 85,2 %, 46 produits" },
+    ];
+
+    // Seuil et barres partagent le même domaine — un repère de seuil faux sur
+    // un écran de risque est pire que pas de repère.
+    const SEUIL = 25;
+    const EXPO = [
+      ["Société Générale", "#e4032e", 45.7, 20.0], ["Goldman Sachs", "#7399c6", 35.6, 15.5],
+      ["Crédit Agricole", "#78be20", 33.4, 14.6], ["HSBC", "#db0011", 24.9, 10.8],
+      ["BNP Paribas", "#00875a", 24.0, 10.5], ["Deutsche Bank", "#0018a8", 22.8, 10.0],
+      ["Natixis", "#7a2e8e", 18.1, 7.9], ["Barclays", "#00aeef", 11.6, 5.1],
+    ];
+    const domExpo = Math.max(SEUIL, Math.ceil(Math.max(...EXPO.map(([, , , p]) => p)) / 5) * 5);
+    const issuers = EXPO.map(([name, brand, eur, pct]) => ({
+      name, brand, eur: eur.toFixed(1).replace(".", ",") + " M€",
+      pct: pct.toFixed(1).replace(".", ",") + " %",
+      barW: `calc(${((pct / domExpo) * 100).toFixed(2)}% - 2px)`,
+      fill: pct > SEUIL ? "var(--color-breach)" : "var(--color-ink)",
+      fg: pct > SEUIL ? "var(--color-breach)" : "var(--color-ink)",
+    }));
+    const seuilL = `${((SEUIL / domExpo) * 100).toFixed(2)}%`;
+    // Bandeau d'exposition : la même donnée lue autrement — la part de chacun
+    // dans le tout, là où les barres donnent la distance au seuil. Deux
+    // questions différentes, deux dessins, pas deux fois le même.
+    const totalExpo = EXPO.reduce((a, [, , , p]) => a + p, 0);
+    const expoBand = [
+      ...EXPO.map(([name, brand, , pct]) => ({ name, brand, w: `${((pct / 100) * 100).toFixed(2)}%` })),
+      { name: "Autres émetteurs", brand: "var(--color-border-strong)", w: `${(100 - totalExpo).toFixed(2)}%` },
+    ];
+
+    const agenda = [
+      ["06 août", "Autocall / Phoenix EURO STOXX 50 – Jul 2027", "Maturité · HSBC"],
+      ["10 août", "Capital Garanti BNP Paribas – Jun 2026", "Observation mensuelle · BNP Paribas"],
+      ["11 août", "Autocall / Phoenix LVMH – Jun 2027", "Coupon conditionnel · Goldman Sachs"],
+      ["16 août", "Levier TOTAL SA – Nov 2027", "Constatation barrière · Natixis"],
+      ["19 août", "Autocall / Phoenix DAX 40 – Jun 2026", "Observation mensuelle · Deutsche Bank"],
+      ["21 août", "Capital Garanti STOXX Banks – Nov 2028", "Constatation barrière · BNP Paribas"],
+    ].map(([date, title, meta]) => ({ date, title, meta }));
+
+    const RANGES = [["ytd", "YTD"], ["6m", "6M"], ["1a", "1A"], ["all", "Tout"]];
+    const ranges = RANGES.map(([id, label]) => ({
+      id, label, go: () => this.setState({ range: id }),
+      fg: id === this.state.range ? "var(--color-ink)" : "var(--color-text-tertiary)",
+      underline: id === this.state.range ? "inset 0 -2px 0 var(--color-accent)" : "none",
+    }));
+
+    const SERIES = {
+      ytd: [100, 99.4, 98.9, 98.6, 98.2, 98.0, 97.9, 97.8],
+      "6m": [100, 99.1, 98.4, 98.7, 98.1, 97.9, 97.8],
+      "1a": [100, 101.2, 99.6, 98.8, 99.3, 98.2, 97.6, 97.8],
+      all: [100, 103.4, 101.2, 99.8, 102.1, 99.4, 98.6, 97.8],
+    };
+    const s = SERIES[this.state.range];
+    const lo = Math.min(...s) - 0.8, hi = Math.max(...s) + 0.8;
+    const X = (i) => (i / (s.length - 1)) * 1400;
+    const Y = (v) => 200 - ((v - lo) / (hi - lo)) * 190;
+    const perfLine = s.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(" ");
+
+    const MONTHS = {
+      ytd: ["janv. 26", "mars 26", "mai 26", "juil. 26", "août 26"],
+      "6m": ["févr. 26", "avr. 26", "juin 26", "août 26"],
+      "1a": ["août 25", "nov. 25", "févr. 26", "mai 26", "août 26"],
+      all: ["2023", "2024", "2025", "2026"],
+    };
+    const PERF = {
+      ytd: ["−2,27 %", "−73 k€"], "6m": ["−1,84 %", "−59 k€"],
+      "1a": ["−2,18 %", "−70 k€"], all: ["−2,20 %", "−71 k€"],
+    };
+
+    // Bandeau : la liste est doublée pour que la dérive boucle sans couture
+    // (translateX(-50 %) ramène exactement sur la copie).
+    const TICK = [
+      ["CAC 40", "7 893,42", 0.48], ["EURO STOXX 50", "4 487,12", -0.31],
+      ["DAX 40", "17 920,34", 0.62], ["S&P 500", "5 284,12", 0.22],
+      ["NASDAQ", "16 742,8", 0.35], ["NIKKEI 225", "38 204,50", 1.04],
+      ["VIX", "14,20", -2.10], ["OAT 10A", "3,12 %", 0.12],
+      ["LVMH", "742,3", -0.42], ["NVIDIA", "875,2", 1.80],
+      ["TOTAL", "62,41", 1.15], ["EUR/USD", "1,0842", -0.08],
+    ].map(([name, val, chg]) => ({
+      name, val,
+      // Direction par le signe, jamais par la teinte. `design-tokens.css` réserve
+      // la terre à une distance de barrière ; une variation du CAC n'en est pas
+      // une. C'est l'arbitrage déjà rendu en § 2.2 sur les écarts de VL,
+      // appliqué là où je l'avais moi-même enfreint.
+      arrow: chg >= 0 ? "▲ " : "▼ ",
+      chg: Math.abs(chg).toFixed(2).replace(".", ",") + " %",
+      fg: "var(--color-text-secondary)",
+    }));
+
+    return {
+      nav,
+      clock: new Date().toLocaleTimeString("fr-FR"),
+      tickerLoop: [...TICK, ...TICK],
+      navShift: `translateY(${IDS.indexOf(this.state.view) * 42}px)`,
+      goDashboard: go("dashboard"), goClients: go("clients"), goPortfolio: go("portfolio"),
+      goBarriers: go("barriers"), goCalendar: go("calendar"), goAnalytics: go("analytics"),
+      goAutopitch: go("autopitch"), goScreener: go("screener"), goIngest: go("ingest"),
+      pitchNext, pitchPrev, pitchNextLabel, pitchRecap,
+      pitchStepNum: String(PS),
+      isWizard: PS < 4,
+      pitchPrevFg: PS > 1 ? "var(--color-ink)" : "var(--color-text-tertiary)",
+      isDashboard: this.state.view === "dashboard",
+      isClients: this.state.view === "clients",
+      isPortfolio: this.state.view === "portfolio",
+      isBarriers: this.state.view === "barriers",
+      isCalendar: this.state.view === "calendar",
+      isAnalytics: this.state.view === "analytics",
+      isAutopitch: this.state.view === "autopitch",
+      isScreener: this.state.view === "screener",
+      isIngest: this.state.view === "ingest",
+      clients, portfolio, barKpis, barriers, distDots, distScale, distZero,
+      calModes, calCells, calLegend, calAgenda,
+      anaKpis, famille, topDossiers, distCounts, expoBand,
+      pitchSteps, pitchGroups, pitchSummary, pitchBlocks, pitchFormat,
+      payoff, scenarios, risque, caracs,
+      isStep1: PS === 1, isStep2: PS === 2, isStep3: PS === 3, isStep4: PS === 4,
+      goStep2: () => this.setState({ pitchStep: 2 }),
+      goStep3: () => this.setState({ pitchStep: 3 }),
+      goStep4: () => this.setState({ pitchStep: 4 }),
+      pitchTitle: ["Quel produit structurez-vous ?", "Que met-on dans le document ?",
+                   "Comment il se présente", "Phoenix Autocall CAC 40"][PS - 1],
+      pitchSub: ["Famille et sous-jacent d'abord — le reste du formulaire s'ajuste au type choisi.",
+                 "Chaque bloc coché devient une page du document remis au client.",
+                 "Format, couverture, densité. La mise en forme suit le cabinet, pas l'émetteur.",
+                 "Quatre pages · prêt à présenter"][PS - 1],
+      bareme, decRows, decFilters,
+      kpis: [
+        { label: "Performance latente", value: "−6,79 %", sub: "−16,7 M€ vs encours initial", fg: "var(--color-ink)" },
+        { label: "Barrière franchie", value: "4", sub: "Action immédiate requise", fg: "var(--color-breach)" },
+        { label: "Sous surveillance", value: "7", sub: "Critique < 5 % · alerte 5–15 %", fg: "var(--color-watch)" },
+        { label: "Portefeuille actif", value: "54", sub: "4 types · 11 émetteurs", fg: "var(--color-ink)" },
+      ],
+      perfKpis: [
+        { val: "245,9 M€", cap: "Encours initial", fg: "var(--color-ink)" },
+        { val: "229,2 M€", cap: "Valorisation", fg: "var(--color-ink)" },
+        { val: PERF[this.state.range][0], cap: `Performance · ${PERF[this.state.range][1]}`, fg: "var(--color-ink)" },
+      ],
+      ranges, perfLine, perfArea: `${perfLine} L1400 210 L0 210 Z`,
+      baseY: Y(100).toFixed(1),
+      // Repère de fin et valeur courante, positionnés en % de la boîte pour
+      // rester ronds malgré le `preserveAspectRatio="none"` du tracé.
+      baseTop: `${((Y(100) / 210) * 100).toFixed(2)}%`,
+      lastTop: `${((Y(s[s.length - 1]) / 210) * 100).toFixed(2)}%`,
+      lastVal: s[s.length - 1].toFixed(1).replace(".", ","),
+      months: MONTHS[this.state.range],
+      breaches, topflop, riskZones, issuers, seuilL, agenda,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
