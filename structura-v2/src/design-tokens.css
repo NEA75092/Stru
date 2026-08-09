@@ -32,17 +32,17 @@
     /* ── Les onze tokens de rôle (passe 8, §1.2) ──────────────
        Seule source de vérité chromatique. Tout le reste de ce fichier
        (et de l'app) pointe vers ces onze valeurs. */
-    --chaux: oklch(0.98 0.008 85);
-    --chaux-2: oklch(0.955 0.012 80);
-    --rule: oklch(0.88 0.012 80);
-    --encre: oklch(0.26 0.045 235);
-    --encre-2: oklch(0.50 0.030 235);
-    --mer: oklch(0.62 0.13 205);
-    --mer-profonde: oklch(0.42 0.11 225);
-    --lagune: oklch(0.93 0.035 200);
-    --olive: oklch(0.55 0.09 130);
-    --ocre: oklch(0.68 0.13 75);
-    --terracotta: oklch(0.52 0.15 32);
+    --chaux: oklch(0.976 0.011 85);
+    --chaux-2: oklch(0.955 0.016 80);
+    --rule: oklch(0.882 0.016 80);
+    --encre: oklch(0.245 0.055 240);
+    --encre-2: oklch(0.485 0.038 238);
+    --mer: oklch(0.600 0.155 212);
+    --mer-profonde: oklch(0.400 0.135 232);
+    --lagune: oklch(0.915 0.055 202);
+    --olive: oklch(0.550 0.115 132);
+    --ocre: oklch(0.720 0.155 73);
+    --terracotta: oklch(0.545 0.175 32);
 
     /* Douzième token de rôle (05/08) — l'arête de lumière. La couche
        relief de la passe 8 n'emploie aucune ombre portée : le relief
@@ -214,6 +214,13 @@
     --issuer-commerz: #ffcc00;
     --issuer-leonteq: #009999;
     --issuer-bofa: #e31837;
+
+    /* ── Bandeau d'encre pleine largeur (spec design-tokens-v2, 07/08) ──
+       Rôle : porte les trois chiffres de tête d'un écran, une seule bande
+       par vue. Ni une carte ni une surface — un aplat d'encre. Interdits
+       dessus : token de risque en fond, dégradé de teinte, ombre. */
+    --color-band: var(--encre);
+    --color-on-band: oklch(0.965 0.012 85);
 }
 
 /* ============================================================
@@ -228,17 +235,17 @@
    25/07).
    ============================================================ */
 :root[data-theme="dark"] {
-    --chaux: oklch(0.14 0.035 235);
-    --chaux-2: oklch(0.19 0.04 235);
+    --chaux: oklch(0.145 0.042 240);
+    --chaux-2: oklch(0.195 0.046 240);
     --rule: rgb(190 210 235 / 0.14);
     --encre: #f3efe2;
     --encre-2: #b3a795;
-    --mer: oklch(0.7 0.11 200);
-    --mer-profonde: oklch(0.78 0.1 195);
+    --mer: oklch(0.735 0.135 198);
+    --mer-profonde: oklch(0.815 0.125 195);
     --lagune: rgb(74 172 173 / 0.18);
-    --olive: oklch(0.68 0.1 130);
-    --ocre: oklch(0.75 0.13 75);
-    --terracotta: oklch(0.64 0.15 32);
+    --olive: oklch(0.690 0.125 132);
+    --ocre: oklch(0.780 0.150 73);
+    --terracotta: oklch(0.665 0.170 32);
     /* En nuit, la lumière ne peut pas être plus claire que la chaux :
        elle devient un voile. */
     --lumiere: rgb(214 226 242 / 0.10);
@@ -295,4 +302,7 @@
        basse opacité, sinon la vue devient sale. */
     --grain-opacity: 0.28;
     --grain-blend: screen;
+
+    --color-band: oklch(0.115 0.038 240);
+    --color-on-band: #f3efe2;
 }
