@@ -367,7 +367,7 @@
     }
 }
 
-/* ── Vue Calendrier — chevrons de la barre période (passe 7, section C) ──
+/* ── Vue Calendrier — chevrons de la barre période (00-doctrine.md, D8) ──
    .cal-bar (une seule ligne de 56 px, tout dessus) est remplacée par
    le gabarit partagé .control-band / .control-band-sub (passe7.css) :
    période + modes sur la première barre, recherche + date de
@@ -881,7 +881,7 @@
 }
 
 /* Les quatre cartes partagent le même fond plat, sans ombre : le
-   filet du haut porte seul la sévérité (passe 8, §1.3). */
+   filet du haut porte seul la sévérité (00-doctrine.md, D6). */
 .kpi-row-accent-top .kpi-accent-breach {
     border-top-color: var(--color-breach);
 }

@@ -101,7 +101,7 @@
       return { dots, counts, zeroPct: pctAt(0) };
     }
 
-    // Réglette de barrière unique (passe 8, §1.4) : piste + remplissage
+    // Réglette de barrière unique (00-doctrine.md, D1) : piste + remplissage
     // terre (tone décidé par l'appelant : st-safe/st-watch/st-breach/…)
     // + repère de seuil en mer (relief.css .barrier-mark). Deux échelles
     // seulement — `scale: "row"` (64px, tables.css) et `scale: "drawer"`

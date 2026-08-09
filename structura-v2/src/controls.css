@@ -52,7 +52,7 @@
     color: var(--color-text-tertiary);
 }
 
-/* ── Champ de recherche de .control-search (passe 7, section C) ──
+/* ── Champ de recherche de .control-search (00-doctrine.md, D8) ──
    Plat, sans bordure ni fond propres : la carte .control-band-sub
    porte déjà le fond --color-wash et le filet, un champ bordé par
    dessus aurait doublé le cadre. 38 px, pas 44 — c'est la hauteur de
