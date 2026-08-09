@@ -18,36 +18,20 @@ la seule interprétation valable :
 | `--arete` (séparation structurelle entre cellules du gabarit de contrôles) | `--color-border` | Une arête de structure, pas un filet de tableau. Deux rôles distincts, deux tokens — c'est ce que le nom unique masquait |
 | `--creux` | `--color-surface-sunk` | Déjà déclaré : « fond légèrement retiré, une marche sous `--color-surface-2` » |
 | `--encre-douce` | `--color-text-tertiary` | Déjà déclaré |
-| `--chaux-haut` | **`--lumiere`, à ajouter** | Voir § 0.1 |
+| `--chaux-haut` | **`--lumiere`** — fait, voir § 0.1 | Voir § 0.1 |
 
-### 0.1 Un seul token à ajouter : `--lumiere`
+### 0.1 `--lumiere` — **fait**, ne pas réimplémenter (marqué le 09/08)
 
-C'est le douzième token de rôle, et le seul que la couche relief exige. Rôle :
-**l'arête de lumière**, quand la lumière tombe d'en haut — bord supérieur d'un panneau
-creusé, incision d'un chiffre gravé. Aucun token existant ne le porte : `--chaux` est
-un fond, pas une arête, et une arête de lumière doit être plus claire que le fond
-qu'elle borde.
+Posé au dépôt depuis le lot 0 (`specs/design-tokens-v2.md`, commit `a1c3c30`) :
+douzième token de rôle, déjà dans `src/design-tokens.css` en clair et en sombre. Ce
+qui suit est gardé pour mémoire — le rôle et le raisonnement — pas comme une tâche
+restante.
 
-À ajouter dans `src/design-tokens.css`, dans le bloc des tokens de rôle, avec ce commentaire :
-
-```css
-/* Douzième token de rôle (05/08) — l'arête de lumière. La couche
-   relief de la passe 8 n'emploie aucune ombre portée : le relief
-   vient du creux, de l'arête et de la cannelure. Cette valeur est
-   la seule lumière du système, toujours sur un bord SUPÉRIEUR ou
-   en text-shadow d'incision, jamais en fond de surface. */
---lumiere: oklch(0.995 0.004 85);
-```
-
-Et sous `:root[data-theme="dark"]` — en nuit, la lumière ne peut pas être plus claire
-que la chaux, elle devient un voile :
-
-```css
---lumiere: rgb(214 226 242 / 0.10);
-```
-
-Les deux autres valeurs de la couche relief n'ont **pas** besoin de nouveau token :
-l'ombre basse d'un panneau est `--rule`, le fond de creux profond est
+Rôle : **l'arête de lumière**, quand la lumière tombe d'en haut — bord supérieur d'un
+panneau creusé, incision d'un chiffre gravé. Aucun autre token ne le porte : `--chaux`
+est un fond, pas une arête, et une arête de lumière doit être plus claire que le fond
+qu'elle borde. Les deux autres valeurs de la couche relief n'ont **pas** besoin de
+nouveau token : l'ombre basse d'un panneau est `--rule`, le fond de creux profond est
 `--color-border-strong`.
 
 Aucune autre couleur n'est à ajouter. Si un invariant ci-dessous semble en demander une,
@@ -55,9 +39,9 @@ c'est une faute de spec : arrête-toi et remonte-la (R6). Tu as eu raison de le 
 
 ---
 
-## 1. Rendu cible
+## 1. Rendu cible — corrigé le 09/08 (périmait `Direction Mediterranee v3.dc.html`)
 
-`Direction Mediterranee v3.dc.html`, sections **A**, **B** et **C**.
+`Dashboard.dc.html`, sections **A**, **B** et **C**.
 Ouvre-la et travaille à côté. Elle est dessinée à 1560 px, l'app est à 1400 px minimum :
 seules les colonnes en `minmax(0, 1fr)` absorbent la différence, toutes les autres
 largeurs sont fixes et se transposent au pixel.

@@ -1,8 +1,8 @@
 # spec — Gabarit de contrôles (composant partagé)
 
-Version 1 · 09/08/2026 · doctrine : `specs/00-doctrine.md` (D8)
+Version 2 · 09/08/2026 · doctrine : `specs/00-doctrine.md` (D8)
 **À implémenter en premier.** Aucun autre écran de ce lot ne part avant que ce
-composant soit poussé : les six écrans suivants l'importent.
+composant soit poussé : les quatre écrans suivants l'importent.
 
 Rendu cible : `Dashboard.dc.html` + section 7c de la refonte validée.
 
@@ -37,14 +37,22 @@ c'est le défaut constaté sur Calendrier, Portefeuille et Barrières.
 `src/modules/app-calendar.js` : aucun doublon. Ils passent tels quels sur le gabarit.
 Toute proposition de les réduire est hors périmètre (R6).
 
-## 4. Portée
+## 4. Portée — révisée le 09/08 (v2)
 
-Le composant est monté sur : Calendrier, Portefeuille, Barrières, Clients, Pilotage,
-Doc Reader. Aucun de ces écrans ne redéclare de hauteur, de rayon ou de couleur de
+Le composant est monté sur quatre écrans : Calendrier, Portefeuille, Barrières,
+Clients. Aucun de ces écrans ne redéclare de hauteur, de rayon ou de couleur de
 bouton de contrôle en local — s'il en reste une, elle est supprimée, pas surchargée.
 
-## 5. Preuve de fin
+**Pilotage et Doc Reader retirés de la portée.** La v1 les nommait tous les deux ;
+ni l'un ni l'autre n'a de barre de recherche, de période ou de mode à migrer —
+constaté par Claude Code le 09/08 en confrontant cette spec au dépôt avant d'écrire
+du code. Pilotage n'a aucune spec écrite à ce jour ; Doc Reader est traité au lot 7.
+Perdant nommé : c'est la v1 de cette portée qui était fausse, pas le constat.
 
-Sonde : les six vues rendent le même `offsetHeight` de rang 1 (62) et de rang 2 (54),
-et `document.querySelectorAll('[class*=control] [style*=border-radius]')` ne renvoie
-aucune valeur > 0.
+## 5. Preuve de fin — sonde manuelle (v2)
+
+`calque.mjs` n'instrumente pas cette zone (§ 2.4 non câblé — voir
+`constats-ouverts.md` O3 et O4) : pas de sonde automatisée tant que la maquette ne
+porte pas les ancres `data-calque` correspondantes. Vérification manuelle sur les
+quatre vues : même `offsetHeight` de rang 1 (62) et de rang 2 (54) à l'inspecteur,
+et aucun `border-radius` calculé > 0 sur les éléments du gabarit.

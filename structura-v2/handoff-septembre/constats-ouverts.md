@@ -82,3 +82,23 @@ La maquette n'a pas d'ancre `data-calque` sur le gabarit de contrôles. § 2.4 e
 conforme sur la foi de la sonde du 06/08, ce qui vaut moins qu'une mesure. À instrumenter
 à la prochaine retouche de cette zone, pas avant — un plan qui prétend couvrir ce qu'il
 ne couvre pas est pire que rien.
+
+---
+
+## O4 — 09/08 · Le message de lot 1 inventait une preuve, précisément sur ce qu'O3 déclare non mesuré
+
+**Le fait.** Le message-type du lot 1 (`messages-claude-code.md`) demandait
+`node handoff-septembre/tools/calque.mjs controles` comme preuve de fin. Cette commande
+n'existe pas : `calque.mjs` n'a pas de mode `controles`, prend `--app <url>` en argument,
+et son PLAN ne couvre que § 2.1/2.2/2.3 — § 2.4, le gabarit de contrôles, n'a aucune
+ancre `data-calque`. Exactement ce qu'O3 constate depuis le 06/08. Relevé par
+Claude Code le 09/08, avant d'exécuter le message tel quel plutôt qu'après, sur l'erreur
+d'usage.
+
+**Ce que ça dit.** Le message inventait une preuve sur la seule zone que ce fichier
+déclare déjà non instrumentée. Un message-type qui prescrit une sonde se vérifie contre
+l'outil réel avant d'être envoyé, pas après.
+
+**Non tranché.** L'instrumentation de § 2.4 reste due à la prochaine retouche de la
+maquette sur cette zone, pas maintenant — inchangé depuis O3. `specs/controles.md`
+passe en v2 avec une preuve de fin en sonde manuelle, quatre vues.

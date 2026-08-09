@@ -22,6 +22,21 @@ Un message par lot. On ne joint jamais la maquette ni l'historique (§ 4 du cont
 > dans ces vues — supprime, ne surcharge pas. Ne touche à aucun autre bloc de ces écrans
 > (R6). `check-tokens.mjs` + `calque.mjs controles`, bump des `?v=`, push, rapport.
 
+## Lot 2 — Dashboard
+
+> Lis `handoff-septembre/specs/dashboard.md`, `handoff-septembre/specs/dashboard-correctif-02.md`
+> et `handoff-septembre/specs/00-doctrine.md`. Implémente les deux specs d'écran
+> ensemble — **`dashboard-correctif-02.md` gagne en cas d'écart** avec `dashboard.md`
+> (elle la complète et la corrige, elle ne la remplace pas). `dashboard-correctif-01.md`
+> et tout document « PASSE-7 » (racine du dépôt, `handoff 7/`) sont **explicitement
+> hors jeu** — périmés par R3, ne pas les lire pour arbitrer un doute. Les invariants du
+> § 2 sont mesurables à 0 px près ; les règles du § 3 sont à **supprimer**, pas à
+> surcharger. Tout ce que la spec ne nomme pas est hors périmètre. Si un invariant te
+> paraît faux, ou demande une couleur qui n'existe pas dans `src/design-tokens.css`,
+> **arrête-toi et remonte-le** au lieu d'inventer. `check-tokens.mjs`, puis
+> `node handoff-septembre/tools/calque.mjs --app <url> --only 2.1` (répéter pour `2.2`
+> et `2.3`), bump des `?v=`, push, sortie brute des sondes dans le rapport.
+
 ## Lots suivants
 
 Même forme, une spec à la fois, dans l'ordre de `plan-septembre.md`. Le message type :
