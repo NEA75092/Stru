@@ -23,6 +23,14 @@
 //
 // Sans argument : vérifie toutes les specs + toutes les feuilles de src/.
 // Sortie 0 = vert. Sortie 1 = un nom n'existe pas, avec fichier et ligne.
+//
+// 09/08 — passage d'une liste noire à une liste blanche. La liste noire
+// laissait passer deux bruits : la notation générique de prose (`--color-*`,
+// `--color-surface-*`, écrite en toutes lettres dans une spec ou un
+// commentaire) et les propriétés CSS locales posées à l'exécution par JS
+// (`--tone`, `--dot`, `--at`, `--mx`, `--my`, `--pitch-header-h`,
+// `--view-enter-y`, `--dur`) — ce ne sont pas des tokens de design, elles
+// n'ont jamais eu à être déclarées dans design-tokens.css.
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -30,8 +38,16 @@ import { join, relative } from "node:path";
 const ROOT = process.cwd();
 const TOKENS_FILE = "src/design-tokens.css";
 
-// Familles non chromatiques déjà déclarées ailleurs ou légitimement locales.
-const IGNORED_PREFIXES = ["--space-", "--text-", "--radius-", "--font-", "--ease-", "--duration-", "--shadow-", "--issuer-", "--grain", "--blur-", "--stagger", "--signal", "--row", "--grid"];
+// Liste blanche : seuls ces noms sont des tokens de rôle, donc les seuls
+// que ce script contrôle. Tout le reste (propriétés locales posées par JS,
+// notation générique de prose) est hors de son périmètre par construction.
+const ALLOWED_PREFIXES = ["--color-", "--font-", "--space-", "--radius-"];
+const ALLOWED_EXACT = new Set(["--lumiere", "--chaux", "--encre", "--mer", "--ocre", "--terracotta", "--olive", "--rule", "--grain"]);
+
+function isRoleToken(name) {
+  if (name.endsWith("-") || name.includes("*")) return false; // notation générique de prose
+  return ALLOWED_PREFIXES.some((p) => name.startsWith(p)) || ALLOWED_EXACT.has(name);
+}
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -67,10 +83,10 @@ const localProblems = [];
 for (const file of files) {
   const text = readFileSync(file, "utf8");
   text.split("\n").forEach((line, i) => {
-    for (const m of line.matchAll(/--[a-z0-9-]{2,}/g)) {
+    for (const m of line.matchAll(/--[a-z0-9*-]{2,}/g)) {
       const name = m[0];
+      if (!isRoleToken(name)) continue;
       if (declared.has(name)) continue;
-      if (IGNORED_PREFIXES.some((p) => name.startsWith(p))) continue;
       // Une ligne de mapping documente volontairement un nom fautif.
       if (/nom fautif|à utiliser|à ajouter|fautif \(v1\)/i.test(line)) continue;
       problems.push({ file: relative(ROOT, file), line: i + 1, name, text: line.trim().slice(0, 110) });
@@ -87,8 +103,8 @@ for (const file of files) {
     const counts = new Map();
     for (const m of text.matchAll(/var\((--[a-z0-9-]+)/g)) counts.set(m[1], (counts.get(m[1]) || 0) + 1);
     for (const [name, count] of counts) {
+      if (!isRoleToken(name)) continue;
       if (localDecl.has(name)) continue;
-      if (IGNORED_PREFIXES.some((p) => name.startsWith(p))) continue;
       localProblems.push({ file: relative(ROOT, file), name, count });
     }
   }
