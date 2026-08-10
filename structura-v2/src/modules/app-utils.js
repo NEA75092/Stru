@@ -103,7 +103,7 @@
 
     // Réglette de barrière unique (00-doctrine.md, D1) : piste + remplissage
     // terre (tone décidé par l'appelant : st-safe/st-watch/st-breach/…)
-    // + repère de seuil en mer (relief.css .barrier-mark). Deux échelles
+    // + repère de seuil en encre (relief.css .barrier-mark). Deux échelles
     // seulement — `scale: "row"` (64px, tables.css) et `scale: "drawer"`
     // (200px, overlays.css .dr-underlying-gauge .bar-track) — une 3e
     // échelle pleine largeur pour Pilotage est en attente d'un cas

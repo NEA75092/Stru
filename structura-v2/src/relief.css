@@ -36,17 +36,17 @@
 }
 
 /* ── Repère de barrière ──────────────────────────────────────
-   Le seuil lui-même sur la jauge, en mer (passe 8, §1.4 — la mer
-   marque le point de référence, la terre la position par rapport à
-   lui). --at est posé en JS avec la distance de protection. */
+   Le seuil lui-même sur la jauge, en encre (00-doctrine.md, D1 : filet
+   1px vertical, encre, opacité 0.72, dépassant la gorge de 4 px). --at
+   est posé en JS avec la distance de protection. */
 .barrier-mark {
     position: absolute;
-    top: -3px;
-    bottom: -3px;
+    top: -4px;
+    bottom: -4px;
     left: var(--at, 50%);
-    width: 2px;
-    border-radius: 1px;
-    background: var(--color-accent);
+    width: 1px;
+    opacity: 0.72;
+    background: var(--color-ink);
 }
 
 /* ── Entrées décalées ────────────────────────────────────────
