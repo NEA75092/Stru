@@ -45,7 +45,15 @@ l'historique des passes : deux sources = arbitrage improvisé = divergence.
 ## 6. Avant tout push
 
 ```
-node handoff-septembre/tools/check-tokens.mjs   # refuse tout token de couleur non déclaré
-node handoff-septembre/tools/calque.mjs <ecran> # divergences maquette / rendu
+node structura-v2/handoff-septembre/tools/check-sources.mjs   # depuis n'importe où dans le dépôt
+cd structura-v2 && node handoff-septembre/tools/check-tokens.mjs   # exige structura-v2/
+cd structura-v2 && node handoff-septembre/tools/calque.mjs --app <url>
 ```
+
+Les origines diffèrent : check-tokens.mjs et calque.mjs se lancent depuis
+structura-v2/, check-sources.mjs trouve la racine tout seul. Tant que les
+deux premiers exigent une origine, la commande n'est pas copiable-collable
+sans réfléchir — c'est-à-dire sans se tromper. À corriger dans un lot
+dédié : ils doivent trouver la racine comme check-sources.mjs le fait.
+
 Le `?v=` de toute feuille CSS éditée est bumpé **dans le même commit**.
