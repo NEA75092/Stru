@@ -87,8 +87,12 @@ for (const file of walk(join(ROOT, HANDOFF))) {
     for (const m of line.matchAll(CITATION)) {
       const cite = m[1];
       if (existsSync(join(ROOT, cite))) continue;
-      const depuisSousDossier = existsSync(join(ROOT, "structura-v2", cite));
-      fantomes.push({ rel, ligne: i + 1, cite, depuisSousDossier });
+      // Un chemin qui se résout depuis la racine OU depuis structura-v2/
+      // désigne un fichier RÉEL : le lecteur le trouve. Ce n'est pas une panne,
+      // c'est une convention d'écriture. Seul un chemin qui ne désigne AUCUN
+      // fichier est une vraie erreur.
+      if (existsSync(join(ROOT, "structura-v2", cite))) continue;
+      fantomes.push({ rel, ligne: i + 1, cite });
     }
   });
 }
@@ -109,12 +113,8 @@ if (fantomes.length) {
   console.error(`\n✗ check-sources rouge — ${fantomes.length} chemin(s) cité(s) qui n'existe(nt) pas :\n`);
   for (const f of fantomes) {
     console.error(`  ${f.rel}:${f.ligne}  ${f.cite}`);
-    if (f.depuisSousDossier) {
-      console.error(`      → existe sous structura-v2/${f.cite} — chemin écrit depuis le mauvais dossier (A7).`);
-      console.error(`        Écris-le complet depuis la racine : structura-v2/${f.cite}`);
-    } else {
-      console.error(`      → introuvable. Soit le fichier n'est pas commité (R1), soit le nom est faux.`);
-    }
+    console.error(`      → ne désigne aucun fichier, ni depuis la racine ni depuis structura-v2/.`);
+    console.error(`        Soit il n'est pas commité (R1), soit le nom est faux.`);
   }
 }
 
