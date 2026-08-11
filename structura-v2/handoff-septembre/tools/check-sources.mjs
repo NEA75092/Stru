@@ -98,10 +98,13 @@ for (const file of walk(join(ROOT, HANDOFF))) {
       const cite = m[1];
       if (estPerime(cite)) continue;
       if (existsSync(join(ROOT, cite))) continue;
-      // Deux origines seulement : la racine du dépôt, et handoff-septembre/.
-      // PAS structura-v2/ — `structura-v2/specs/` était un doublon périmé du
-      // poste, et l'accepter faisait valider l'arbre mort par le contrôle.
       if (existsSync(join(ROOT, HANDOFF, cite))) continue;
+      // Résolution depuis structura-v2/ — légitime pour src/, assets/, tests/,
+      // scripts/, screenshots/, qui n'existent qu'à cet endroit. Refusée pour
+      // specs/, maquette/ et tools/, qui ont existé en double sur le poste :
+      // les accepter là faisait valider l'arbre mort par le contrôle.
+      const DOUBLONS = /^(specs|maquette|tools)\//;
+      if (!DOUBLONS.test(cite) && existsSync(join(ROOT, "structura-v2", cite))) continue;
       fantomes.push({ rel, ligne: i + 1, cite });
     }
   });

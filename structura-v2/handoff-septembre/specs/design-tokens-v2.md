@@ -64,7 +64,7 @@ Même statut que `--lumiere` ajouté le 05/08 : un rôle réel, pas une commodit
 Une seule bande par vue. Ce n'est ni une carte ni une surface — c'est un aplat d'encre.
 Interdits dessus : token de risque en fond, dégradé de teinte, ombre.
 
-`handoff-septembre/tools/check-tokens.mjs` refusera ces deux noms tant qu'ils ne sont pas
+`structura-v2/handoff-septembre/tools/check-tokens.mjs` refusera ces deux noms tant qu'ils ne sont pas
 déclarés : **les poser dans `design-tokens.css` est la première étape**, avant tout écran.
 
 ## 4. Invariants du bandeau (mesurables)
