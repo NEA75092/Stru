@@ -60,6 +60,16 @@ const PERIMES = [
   `${HANDOFF}/specs/dashboard-correctif-01.md`,
 ];
 
+// ── Un périmé est cité pour être déclaré mort, jamais comme cible à ouvrir. On
+//    compare donc sur le NOM DE FICHIER, pas sur le chemin exact : comparer les
+//    chemins littéraux, c'est corriger le contrôle une fois par graphie — sans fin.
+const NOMS_PERIMES = new Set(PERIMES.map((p) => p.split("/").pop()));
+function estPerime(cite) {
+  const nom = cite.split("/").pop();
+  if (NOMS_PERIMES.has(nom)) return true;
+  return /^PASSE-[0-9]/.test(nom); // raccourcis de plage : PASSE-1..6.md, PASSE-7A-…
+}
+
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (name === "node_modules" || name.startsWith(".")) continue;
@@ -86,7 +96,7 @@ for (const file of walk(join(ROOT, HANDOFF))) {
     if (/périmé|perime|à jeter|n'existe pas|jamais|supprim/i.test(line)) return;
     for (const m of line.matchAll(CITATION)) {
       const cite = m[1];
-      if (PERIMES.includes(cite)) continue;   // cité pour être déclaré mort
+      if (estPerime(cite)) continue;
       if (existsSync(join(ROOT, cite))) continue;
       // Un chemin qui se résout depuis la racine, depuis structura-v2/ OU
       // depuis handoff-septembre/ désigne un fichier RÉEL : le lecteur le
