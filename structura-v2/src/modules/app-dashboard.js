@@ -63,6 +63,8 @@
     // barrière de rappel ou de coupon. Vérifié avant d'écrire cette
     // fonction, pas supposé : un CG (sans PDI) retombe sur "none" et sort
     // du filtre par construction, exactement le comportement attendu ici.
+    // 3 positions (dashboard-correctif-02.md § 2, gagnant sur le
+    // placeholder à 5 de la maquette — spec sur comportement d'écran).
     function buildPortfolioAlerts() {
       const severity = { breach: 0, crit: 1, warn: 2 };
       return productsForScope()
@@ -72,7 +74,7 @@
             (severity[a.st?.s] ?? 9) - (severity[b.st?.s] ?? 9) ||
             (Number(a.dist) || 0) - (Number(b.dist) || 0),
         )
-        .slice(0, 5)
+        .slice(0, 3)
         .map((p) => {
           // p.barrier est le niveau barrière en % du spot initial (ex.
           // 72 = barrière à 72 % de l'initial) ; p.dist est l'écart au
@@ -769,15 +771,17 @@
 
     // Sous la protection du capital (specs/dashboard.md § 2.1, remplace
     // l'ancienne jauge §1.4 sur axe −20/+40) : règle graduée dédiée, axe
-    // −60 % (gauche) à 0 % / niveau initial (droite). Rainure, encoche
-    // PDI (seuil), curseur (niveau réel), zone franchie hachurée entre
-    // l'encoche et le curseur — l'encoche seule ne dit pas l'ampleur du
-    // franchissement, la zone si. Plancher de largeur (§2.1) : sous 3 %
-    // de l'axe (~9 px sur 300), la trame ne rend plus qu'une hachure et
-    // devient invisible — un produit à peine sous sa barrière est
-    // justement le cas qu'il faut voir.
+    // −60 % à +20 % pour toute l'application (D2, tranché le 05/08) — le
+    // niveau initial (0 %) est un repère INTÉRIEUR à 75 % de l'axe, pas
+    // le bord droit : un produit qui a gagné a droit à une place sur la
+    // règle. Rainure, encoche PDI (seuil), curseur (niveau réel), zone
+    // franchie hachurée entre l'encoche et le curseur — l'encoche seule
+    // ne dit pas l'ampleur du franchissement, la zone si. Plancher de
+    // largeur (§2.1) : sous 3 % de l'axe (~9 px sur 300), la trame ne
+    // rend plus qu'une hachure et devient invisible — un produit à peine
+    // sous sa barrière est justement le cas qu'il faut voir.
     const CAP_AXIS_MIN = -60;
-    const CAP_AXIS_MAX = 0;
+    const CAP_AXIS_MAX = 20;
     const CAP_ZONE_FLOOR_PCT = 3;
     function capAxisPct(value) {
       const clamped = Math.max(CAP_AXIS_MIN, Math.min(CAP_AXIS_MAX, Number(value) || 0));
@@ -802,7 +806,7 @@
       c.innerHTML = `<div class="cap-head">
           <span>Position</span>
           <span>vs initial</span>
-          <span class="cap-head-axis"><span>${CAP_AXIS_MIN} %</span><span>niveau initial</span></span>
+          <span class="cap-head-axis"><span>${CAP_AXIS_MIN} %</span><span>+${CAP_AXIS_MAX} %</span></span>
           <span>Barrière</span>
         </div>
         <div class="cap-rows">${list.map((a) => {

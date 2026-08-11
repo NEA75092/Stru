@@ -62,7 +62,7 @@ de pastille de statut, pas de sparkline. Le nominal vit dans la fiche produit.
 
 `box-shadow` portée sur une carte : **aucune**. Le relief vient du creux
 (`--color-surface-sunk`), de l'arête (`--lumiere`, toujours sur un bord **supérieur**),
-de la cannelure et du reflet spéculaire. `border-radius` maximum **2 px** hors niches.
+de la cannelure et du reflet spéculaire. `border-radius` maximum **2 px**. Deux niches nommées, et deux seulement : les **pastilles d'état** (avis, alerte, compteur) et les **avatars**, qui gardent un rayon plein. Une pastille n'est pas un bouton de contrôle.
 Chiffres > 24 px : `text-shadow: 0 1px 0 var(--lumiere)`, jamais de glow.
 
 ## D7. Contraste, formulé par rôle

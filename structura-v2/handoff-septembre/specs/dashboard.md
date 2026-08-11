@@ -1,12 +1,17 @@
 # spec — Dashboard
 
-Version 2 · 05/08/2026 (soir) · tokens de référence : `src/design-tokens.css` (passe 8, 01/08)
+Version 2 · 05/08/2026 (soir) · tokens de référence : `src/design-tokens.css` (tokens v2, poussés à `a1c3c30`)
+**Se lit avec `specs/dashboard-correctif-02.md`, qui la complète et gagne en cas d'écart.**
 La v1 nommait quatre tokens inexistants — voir § 0.
 Ce fichier **écrase** toute spec Dashboard antérieure, y compris tout document « PASSE-7 ».
 
 ---
 
 ## 0. Tokens — mapping (correction du 05/08, soir)
+
+> **Statut au 09/08 : le § 0.1 est fait.** `--lumiere` est déclaré dans
+> `src/design-tokens.css` (jour et nuit) depuis le lot 0. Rien à ajouter — le § 0.1
+> reste ici pour la trace du mapping, pas comme tâche.
 
 La version 1 de cette spec nommait quatre tokens qui n'existent pas. Faute de rédaction,
 signalée par l'implémenteur au titre de R6, et corrigée ici. Le mapping ci-dessous est
@@ -18,20 +23,36 @@ la seule interprétation valable :
 | `--arete` (séparation structurelle entre cellules du gabarit de contrôles) | `--color-border` | Une arête de structure, pas un filet de tableau. Deux rôles distincts, deux tokens — c'est ce que le nom unique masquait |
 | `--creux` | `--color-surface-sunk` | Déjà déclaré : « fond légèrement retiré, une marche sous `--color-surface-2` » |
 | `--encre-douce` | `--color-text-tertiary` | Déjà déclaré |
-| `--chaux-haut` | **`--lumiere`** — fait, voir § 0.1 | Voir § 0.1 |
+| `--chaux-haut` | **`--lumiere`, à ajouter** | Voir § 0.1 |
 
-### 0.1 `--lumiere` — **fait**, ne pas réimplémenter (marqué le 09/08)
+### 0.1 Un seul token à ajouter : `--lumiere`
 
-Posé au dépôt depuis le lot 0 (`specs/design-tokens-v2.md`, commit `a1c3c30`) :
-douzième token de rôle, déjà dans `src/design-tokens.css` en clair et en sombre. Ce
-qui suit est gardé pour mémoire — le rôle et le raisonnement — pas comme une tâche
-restante.
+C'est le douzième token de rôle, et le seul que la couche relief exige. Rôle :
+**l'arête de lumière**, quand la lumière tombe d'en haut — bord supérieur d'un panneau
+creusé, incision d'un chiffre gravé. Aucun token existant ne le porte : `--chaux` est
+un fond, pas une arête, et une arête de lumière doit être plus claire que le fond
+qu'elle borde.
 
-Rôle : **l'arête de lumière**, quand la lumière tombe d'en haut — bord supérieur d'un
-panneau creusé, incision d'un chiffre gravé. Aucun autre token ne le porte : `--chaux`
-est un fond, pas une arête, et une arête de lumière doit être plus claire que le fond
-qu'elle borde. Les deux autres valeurs de la couche relief n'ont **pas** besoin de
-nouveau token : l'ombre basse d'un panneau est `--rule`, le fond de creux profond est
+À ajouter dans `src/design-tokens.css`, dans le bloc des tokens de rôle, avec ce commentaire :
+
+```css
+/* Douzième token de rôle (05/08) — l'arête de lumière. La couche
+   relief de la passe 8 n'emploie aucune ombre portée : le relief
+   vient du creux, de l'arête et de la cannelure. Cette valeur est
+   la seule lumière du système, toujours sur un bord SUPÉRIEUR ou
+   en text-shadow d'incision, jamais en fond de surface. */
+--lumiere: oklch(0.995 0.004 85);
+```
+
+Et sous `:root[data-theme="dark"]` — en nuit, la lumière ne peut pas être plus claire
+que la chaux, elle devient un voile :
+
+```css
+--lumiere: rgb(214 226 242 / 0.10);
+```
+
+Les deux autres valeurs de la couche relief n'ont **pas** besoin de nouveau token :
+l'ombre basse d'un panneau est `--rule`, le fond de creux profond est
 `--color-border-strong`.
 
 Aucune autre couleur n'est à ajouter. Si un invariant ci-dessous semble en demander une,
@@ -39,10 +60,11 @@ c'est une faute de spec : arrête-toi et remonte-la (R6). Tu as eu raison de le 
 
 ---
 
-## 1. Rendu cible — corrigé le 09/08 (périmait `Direction Mediterranee v3.dc.html`)
+## 1. Rendu cible
 
-`Dashboard.dc.html`, sections **A**, **B** et **C**.
-Ouvre-la et travaille à côté. Elle est dessinée à 1560 px, l'app est à 1400 px minimum :
+**`Dashboard.dc.html` (1440 px, jour + nuit)** — voir `dashboard-correctif-02.md` § 1.
+`Direction Mediterranee v3.dc.html`, nommée par la v2 de cette spec, est **périmée** (R3).
+Ouvre la maquette de référence et travaille à côté. Elle est dessinée à 1440 px, l'app est à 1400 px minimum :
 seules les colonnes en `minmax(0, 1fr)` absorbent la différence, toutes les autres
 largeurs sont fixes et se transposent au pixel.
 
@@ -165,23 +187,18 @@ définition de zones.
 | Comptage produits | `11.5px`, `--color-text-tertiary` |
 | Somme des trois zones | **exactement 100 %** — sonde arithmétique, pas visuelle |
 
-### 2.4 Gabarit de contrôles (section C) — **fait une fois, sert partout**
+### 2.4 Gabarit de contrôles — **déplacé, hors périmètre de cette spec**
 
-C'est celui qui règle tous les décalages de boutons de l'application. À sortir en
-composant réutilisable avant les autres écrans.
+Ce § décrivait le gabarit de contrôles en entier. Il faisait doublon avec
+`specs/controles.md`, qui est désormais la **seule** source sur ce composant.
 
-| Invariant | Valeur attendue |
-|---|---|
-| Rang 1 (période) | hauteur `62px` |
-| Rang 2 (recherche) | hauteur `54px` |
-| Flèches ← → | `50px` de large, séparées par 1 px `--color-border` |
-| Bloc mois | `min-width: 208px`, `padding: 0 22px` |
-| Boutons de période | `padding: 0 20px`, séparés par 1 px `--color-border`, **aucun** `border-radius` |
-| Période active | trait bas `2px` en `--color-accent`, jamais un fond plein |
-| Périodes inactives | libellé `--encre-2` (§ 2.5), jamais `--color-text-tertiary` |
-| `border-radius` sur tout le gabarit | `0` |
-| Champ de recherche | `⌘K` en `kbd`, bordure 1 px, `10px` |
-| Compteur d'événements | pastille `--color-accent` `6px`, `pulse` 2600 ms |
+**Arbitrage du 09/08, perdant nommé : ce § 2.4.** Deux specs concurrentes sur le même
+composant, dont une citée en commentaire dans le code (`src/views.css:376`,
+`src/modules/app-calendar.js:733`) — voir `handoff-septembre/audit-09-08.md` § A1.
+Les commentaires de code qui renvoient ici seront réécrits au prochain lot qui touche
+cette zone, pas avant (R6).
+
+Le gabarit est **clos** (lot 1). Rien à y faire dans le lot Dashboard.
 
 ### 2.5 Global
 

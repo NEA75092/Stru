@@ -28,9 +28,11 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // La maquette est désormais l'app entière (`Structura.dc.html`), une vue à la
 // fois, Dashboard par défaut — d'où la disparition des préfixes `data-screen-label`
 // dans le plan : les ancres § 2.1 à § 2.3 sont toutes sur la vue de départ.
-const MAQUETTE = pathToFileURL(
-  resolve(HERE, "../maquette/Structura.dc.html"),
-).href;
+// 09/08 — la maquette de référence est `Dashboard.dc.html` (CLAUDE.md, 00-doctrine).
+// Elle était mesurée en dur sur `Structura.dc.html`, que la doctrine ne reconnaît pas
+// comme référence : le contrôle certifiait le mauvais fichier (audit-09-08.md § A3).
+// `--maquette <fichier>` pour en viser une autre, relatif à handoff-septembre/maquette/.
+const MAQUETTE_DEFAUT = "Dashboard.dc.html";
 const LARGEUR = 1560; // largeur de dessin de la maquette ($preview)
 
 const args = Object.fromEntries(
@@ -40,9 +42,14 @@ const args = Object.fromEntries(
   }, []),
 );
 if (!args.app) {
-  console.error("usage : node tools/calque.mjs --app <url de l'app> [--only 2.2]");
+  console.error(
+    "usage : node tools/calque.mjs --app <url de l'app> [--only 2.2] [--maquette <fichier>]",
+  );
   process.exit(2);
 }
+const MAQUETTE = pathToFileURL(
+  resolve(HERE, "../maquette", typeof args.maquette === "string" ? args.maquette : MAQUETTE_DEFAUT),
+).href;
 
 // ── Ce qui est comparé ───────────────────────────────────────────────────────────
 //

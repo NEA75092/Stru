@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..600&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* Vocabulaire du dépôt (src/design-tokens.css, lu à master le 07/08) : les noms
+     --color-* / --font-* NE CHANGENT PAS. Seules les VALEURS des onze tokens de rôle
+     sont remontées en chroma (Méditerranée v2). Delta chiffré :
+     handoff-septembre/specs/design-tokens-v2.md.
+     Deux tokens à ajouter au dépôt, comme --lumiere l'a été : --color-band, --color-on-band. */
+  :root {
+    --chaux: oklch(0.976 0.011 85);
+    --chaux-2: oklch(0.955 0.016 80);
+    --rule: oklch(0.882 0.016 80);
+    --encre: oklch(0.245 0.055 240);
+    --encre-2: oklch(0.485 0.038 238);
+    --mer: oklch(0.600 0.155 212);
+    --mer-profonde: oklch(0.400 0.135 232);
+    --lagune: oklch(0.915 0.055 202);
+    --olive: oklch(0.550 0.115 132);
+    --ocre: oklch(0.720 0.155 73);
+    --terracotta: oklch(0.545 0.175 32);
+    --lumiere: oklch(0.995 0.004 85);
+
+    --color-bg: var(--chaux);
+    --color-surface-1: var(--chaux);
+    --color-surface-2: var(--chaux-2);
+    --color-surface-sunk: color-mix(in oklch, var(--chaux-2), var(--encre) 3%);
+    --color-border: var(--rule);
+    --color-border-strong: color-mix(in oklch, var(--rule), var(--encre) 24%);
+    --color-divider: color-mix(in oklch, var(--rule), var(--chaux) 45%);
+
+    --color-ink: var(--encre);
+    --color-text-secondary: var(--encre-2);
+    --color-text-tertiary: color-mix(in oklch, var(--encre-2), var(--chaux) 35%);
+
+    --color-accent: var(--mer);
+    --color-accent-hover: var(--mer-profonde);
+    --color-accent-tint: var(--lagune);
+    --color-accent-ink: var(--chaux);
+
+    --color-safe: var(--olive);
+    --color-watch: var(--ocre);
+    --color-breach: var(--terracotta);
+
+    /* Nouveaux — bandeau d'encre pleine largeur (à ajouter au dépôt) */
+    --color-band: var(--encre);
+    --color-on-band: oklch(0.965 0.012 85);
+
+    --font-heading: "Newsreader", Georgia, "Times New Roman", serif;
+    --font-body: "Instrument Sans", system-ui, -apple-system, sans-serif;
+    --font-mono-data: "IBM Plex Mono", monospace;
+
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-base: 200ms;
+    --duration-slow: 320ms;
+    --duration-enter: 620ms;
+
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+    --grain-opacity: 0.5;
+    --grain-blend: multiply;
+
+    --view-pad: 44px;
+  }
+
+  [data-theme="dark"] {
+    --chaux: oklch(0.145 0.042 240);
+    --chaux-2: oklch(0.195 0.046 240);
+    --rule: rgb(190 210 235 / 0.14);
+    --encre: #f3efe2;
+    --encre-2: #b3a795;
+    --mer: oklch(0.735 0.135 198);
+    --mer-profonde: oklch(0.815 0.125 195);
+    --lagune: rgb(74 172 173 / 0.18);
+    --olive: oklch(0.690 0.125 132);
+    --ocre: oklch(0.780 0.150 73);
+    --terracotta: oklch(0.665 0.170 32);
+    --lumiere: rgb(214 226 242 / 0.10);
+
+    --color-bg: var(--chaux);
+    --color-surface-1: oklch(0.175 0.044 240);
+    --color-surface-2: oklch(0.205 0.046 240);
+    --color-surface-sunk: oklch(0.125 0.036 240);
+    --color-border: var(--rule);
+    --color-border-strong: rgb(190 210 235 / 0.24);
+    --color-divider: rgb(190 210 235 / 0.09);
+
+    --color-ink: var(--encre);
+    --color-text-secondary: var(--encre-2);
+    --color-text-tertiary: oklch(0.58 0.025 238);
+
+    --color-accent-ink: var(--chaux);
+    --color-band: oklch(0.115 0.038 240);
+    --color-on-band: #f3efe2;
+
+    --grain-opacity: 0.28;
+    --grain-blend: screen;
+  }
+
+  [data-band="mer"] { --color-band: var(--mer-profonde); }
+  [data-band="terre"] { --color-band: oklch(0.355 0.115 34); }
+  [data-density="compact"] { --view-pad: 30px; }
+
+  body { margin: 0; background: oklch(0.90 0.010 82); font-family: "Instrument Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--color-accent); text-decoration: none; }
+  a:hover { color: var(--color-accent-hover); }
+
+  @keyframes dcRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes dcGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes dcSweep { from { transform: translateX(-60%); } to { transform: translateX(320%); } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" data-band="{{ bandTone }}" data-density="{{ density }}" data-screen-label="Dashboard" style="position: relative; display: grid; grid-template-columns: 236px minmax(0, 1fr); width: 1440px; min-height: 980px; background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); font-size: 14px; overflow: hidden; transition: background var(--duration-slow) ease, color var(--duration-slow) ease;" style-after="content: ''; position: absolute; inset: 0; z-index: 40; pointer-events: none; opacity: var(--grain-opacity); mix-blend-mode: var(--grain-blend); background-image: var(--grain);">
+
+  <aside style="display: flex; flex-direction: column; padding: 32px 0 26px; background: var(--color-surface-2); box-shadow: inset -1px 0 0 var(--color-border); transition: background var(--duration-slow) ease;">
+    <div style="padding: 0 24px 32px;">
+      <img src="{{ logoSrc }}" alt="Structura" style="display: block; width: 138px; height: auto;" />
+    </div>
+
+    <nav style="display: flex; flex-direction: column;">
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; font-weight: 500; background: var(--color-surface-1); box-shadow: inset 3px 0 0 var(--color-accent), inset 0 1px 0 var(--lumiere);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M4.5 17V10a5.5 5.5 0 0 1 11 0v7"></path><path d="M10 4.7V17M4.5 12h11"></path></svg>Dashboard
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; color: var(--color-text-secondary); transition: color var(--duration-fast, 120ms) ease, box-shadow var(--duration-fast, 120ms) ease;" style-hover="color: var(--color-ink); box-shadow: inset 3px 0 0 var(--color-border-strong);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><circle cx="10" cy="6.5" r="3.2"></circle><path d="M3.5 17c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"></path></svg>Clients
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; color: var(--color-text-secondary); transition: color 120ms ease, box-shadow 120ms ease;" style-hover="color: var(--color-ink); box-shadow: inset 3px 0 0 var(--color-border-strong);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><rect x="4.5" y="8" width="11" height="9.5" rx="4.5"></rect><rect x="8.3" y="2.5" width="3.4" height="4" rx="1"></rect><path d="M6 6.5c-1.3 0-2 1-1.6 2.2M14 6.5c1.3 0 2 1 1.6 2.2"></path></svg>Portefeuille
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; color: var(--color-text-secondary); transition: color 120ms ease, box-shadow 120ms ease;" style-hover="color: var(--color-ink); box-shadow: inset 3px 0 0 var(--color-border-strong);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M4.5 17V10L10 3l5.5 7v7"></path><path d="M4.5 12.5h11"></path></svg>
+        <span style="flex: 1;">Barrières</span>
+        <span style="font-family: var(--font-mono-data); font-size: 11px; color: var(--color-breach);">11</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; color: var(--color-text-secondary); transition: color 120ms ease, box-shadow 120ms ease;" style-hover="color: var(--color-ink); box-shadow: inset 3px 0 0 var(--color-border-strong);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><rect x="2.5" y="4" width="15" height="13.5" rx="1.8"></rect><path d="M2.5 8.5h15"></path><path d="M6.5 2.5v3"></path><path d="M13.5 2.5v3"></path></svg>Calendrier
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; color: var(--color-text-secondary); transition: color 120ms ease, box-shadow 120ms ease;" style-hover="color: var(--color-ink); box-shadow: inset 3px 0 0 var(--color-border-strong);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M3.5 16.5h3v-3h3V10h3V6.5h3.5"></path></svg>Pilotage
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; color: var(--color-text-secondary); transition: color 120ms ease, box-shadow 120ms ease;" style-hover="color: var(--color-ink); box-shadow: inset 3px 0 0 var(--color-border-strong);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><rect x="2.5" y="3.5" width="15" height="10" rx="1.5"></rect><path d="M6.5 17h7"></path><path d="M10 13.5V17"></path><path d="M5.5 10l2.3-2.6 2 1.6 3-3.4"></path></svg>Pitch Engine
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; color: var(--color-text-secondary); transition: color 120ms ease, box-shadow 120ms ease;" style-hover="color: var(--color-ink); box-shadow: inset 3px 0 0 var(--color-border-strong);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M3 14a7 7 0 0 1 14 0"></path><path d="M10 14L13.2 8.8"></path><circle cx="10" cy="14" r="1.3"></circle></svg>Decrement Score
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; height: 42px; padding: 0 24px; letter-spacing: -0.006em; color: var(--color-text-secondary); transition: color 120ms ease, box-shadow 120ms ease;" style-hover="color: var(--color-ink); box-shadow: inset 3px 0 0 var(--color-border-strong);">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><circle cx="6" cy="4.5" r="1.8"></circle><circle cx="14" cy="4.5" r="1.8"></circle><path d="M6 4.5h8v9.5c0 2-1.8 3.5-4 3.5s-4-1.5-4-3.5V4.5z"></path><path d="M8 8.3h4M8 11h4"></path></svg>Doc Reader
+      </div>
+    </nav>
+
+    <div style="flex: 1;"></div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px; padding: 0 24px;">
+      <div style="display: flex; height: 34px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-border), inset 0 2px 4px -3px var(--color-border-strong);">
+        <button onClick="{{ setJour }}" style="flex: 1; border: 0; cursor: pointer; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; background: {{ jourBg }}; color: {{ jourFg }}; transition: background 200ms ease, color 200ms ease;">Jour</button>
+        <button onClick="{{ setNuit }}" style="flex: 1; border: 0; cursor: pointer; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; background: {{ nuitBg }}; color: {{ nuitFg }}; transition: background 200ms ease, color 200ms ease;">Nuit</button>
+      </div>
+      <div style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Mode démo</div>
+    </div>
+  </aside>
+
+  <main style="display: flex; flex-direction: column; overflow: hidden;">
+
+    <header style="display: flex; align-items: flex-end; justify-content: space-between; padding: 40px var(--view-pad) 28px; animation: dcRise var(--duration-enter) var(--ease-spring) both;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <span style="font-family: var(--font-mono-data); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-tertiary);">Vendredi 7 août 2026</span>
+        <h1 style="margin: 0; font-family: var(--font-heading); font-size: 52px; font-weight: 200; letter-spacing: -0.035em; line-height: 0.95;">Trois produits sont sous protection.</h1>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button style="height: 42px; padding: 0 20px; border: 0; cursor: pointer; background: var(--color-surface-1); color: var(--color-ink); font-family: var(--font-body); font-size: 14px; box-shadow: inset 0 0 0 1px var(--color-border); transition: box-shadow 180ms ease;" style-hover="box-shadow: inset 0 0 0 1px var(--color-border-strong);">Exporter</button>
+        <button style="height: 42px; padding: 0 20px; border: 0; cursor: pointer; background: var(--color-accent); color: var(--color-accent-ink); font-family: var(--font-body); font-size: 14px; font-weight: 500; box-shadow: inset 0 1px 0 color-mix(in oklch, white, transparent 72%); transition: background 180ms ease;" style-hover="background: var(--color-accent-hover);">Nouveau pitch</button>
+      </div>
+    </header>
+
+    <section style="position: relative; overflow: hidden; margin: 0 var(--view-pad); background: var(--color-band); color: var(--color-on-band); box-shadow: inset 0 1px 0 color-mix(in oklch, var(--color-on-band), transparent 80%); animation: dcRise var(--duration-enter) var(--ease-spring) 80ms both; transition: background var(--duration-slow) ease;" style-before="content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 26%; pointer-events: none; background: linear-gradient(100deg, transparent, color-mix(in oklch, var(--color-on-band), transparent 88%), transparent); animation: dcSweep 2200ms cubic-bezier(0.22,1,0.36,1) 460ms both;">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); padding: 30px 36px 32px;">
+        <div style="display: flex; flex-direction: column; gap: 12px; padding-right: 36px;">
+          <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in oklch, var(--color-on-band), transparent 42%);">Encours conseillé</span>
+          <span style="font-family: var(--font-heading); font-size: 54px; font-weight: 200; letter-spacing: -0.04em; line-height: 0.9;">48,2 M€</span>
+          <span style="display: flex; align-items: center; gap: 10px; font-family: var(--font-mono-data); font-size: 12.5px; color: var(--color-watch);"><span style="display: block; width: 30px; height: 3px; background: var(--color-watch);"></span>+3,1 % sur 12 mois</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; padding: 0 36px; box-shadow: inset 1px 0 0 color-mix(in oklch, var(--color-on-band), transparent 84%);">
+          <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in oklch, var(--color-on-band), transparent 42%);">Clients suivis</span>
+          <span style="font-family: var(--font-heading); font-size: 54px; font-weight: 200; letter-spacing: -0.04em; line-height: 0.9;">63</span>
+          <span style="font-size: 13.5px; color: color-mix(in oklch, var(--color-on-band), transparent 34%);">4 revues annuelles en retard</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; padding-left: 36px; box-shadow: inset 1px 0 0 color-mix(in oklch, var(--color-on-band), transparent 84%);">
+          <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in oklch, var(--color-on-band), transparent 42%);">Coupons ce trimestre</span>
+          <span style="font-family: var(--font-heading); font-size: 54px; font-weight: 200; letter-spacing: -0.04em; line-height: 0.9;">312 k€</span>
+          <span style="font-size: 13.5px; color: color-mix(in oklch, var(--color-on-band), transparent 34%);">dont 240 k€ déjà acquis</span>
+        </div>
+      </div>
+      <span style="display: block; height: 4px; background: var(--color-watch); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 620ms both;"></span>
+    </section>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 1.32fr) minmax(0, 1fr); gap: 40px; padding: 40px var(--view-pad) 44px;">
+
+      <div style="display: flex; flex-direction: column; gap: 44px; min-width: 0;">
+
+        <section style="display: flex; flex-direction: column; animation: dcRise var(--duration-enter) var(--ease-spring) 160ms both;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 27px; font-weight: 300; letter-spacing: -0.025em;">Marge avant la barrière</h2>
+            <a href="#" style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;">Tout voir</a>
+          </div>
+          <p style="margin: 8px 0 22px; font-size: 13.5px; color: var(--color-text-secondary); text-wrap: pretty;">En points d'indice, par rapport au niveau barrière. Sous zéro, la protection ne joue plus. Les cinq plus serrés, les cinq plus au large.</p>
+
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 0 12px 9px; margin: 0 -12px;">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-breach);">Les plus serrés</span>
+              <span style="position: relative; display: block; height: 10px;"><span style="position: absolute; left: 25%; top: 2px; bottom: -4px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; left: 25%; top: -2px; transform: translateX(-50%); font-family: var(--font-mono-data); font-size: 9px; letter-spacing: 0.1em; color: var(--color-text-tertiary); background: var(--color-surface-1); padding: 0 4px;">0</span></span>
+              <span></span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Phoenix Memory ESTX</span><span style="font-size: 12px; color: var(--color-text-tertiary);">9 clients · 3,4 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 11.9%; width: 13.1%; background: var(--color-breach); transform-origin: right; animation: dcGrow 900ms var(--ease-spring) 300ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right; color: var(--color-breach);">−4,2</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Athena Stellantis 2027</span><span style="font-size: 12px; color: var(--color-text-tertiary);">6 clients · 2,1 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 20%; width: 5%; background: var(--color-breach); transform-origin: right; animation: dcGrow 900ms var(--ease-spring) 340ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right; color: var(--color-breach);">−1,6</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Autocall TotalEnergies 2026</span><span style="font-size: 12px; color: var(--color-text-tertiary);">4 clients · 1,2 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 1.3%; background: var(--color-ink); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 380ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right;">+0,4</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Athena BNP Auto</span><span style="font-size: 12px; color: var(--color-text-tertiary);">7 clients · 2,6 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 5.6%; background: var(--color-ink); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 420ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right;">+1,8</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Phoenix Vinci Kering</span><span style="font-size: 12px; color: var(--color-text-tertiary);">5 clients · 1,8 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 7.8%; background: var(--color-ink); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 460ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right;">+2,5</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 22px 12px 9px; margin: 0 -12px;">
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Les plus au large</span>
+              <span></span>
+              <span></span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Note Capital Protégé</span><span style="font-size: 12px; color: var(--color-text-tertiary);">11 clients · 4,7 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 66.9%; background: var(--color-ink); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 500ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right;">+21,4</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Autocall Natixis 2029</span><span style="font-size: 12px; color: var(--color-text-tertiary);">8 clients · 3,1 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 52.8%; background: var(--color-ink); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 540ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right;">+16,9</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Phoenix Air Liquide</span><span style="font-size: 12px; color: var(--color-text-tertiary);">6 clients · 2,2 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 44.4%; background: var(--color-ink); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 580ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right;">+14,2</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Athena Sanofi 2030</span><span style="font-size: 12px; color: var(--color-text-tertiary);">5 clients · 1,6 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 36.9%; background: var(--color-ink); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 620ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right;">+11,8</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 196px minmax(0, 1fr) 72px; align-items: center; gap: 20px; padding: 13px 12px; margin: 0 -12px; transition: background 160ms ease, box-shadow 160ms ease;" style-hover="background: var(--color-surface-2); box-shadow: inset 2px 0 0 var(--color-accent);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 500;">Autocall CAC Décrément</span><span style="font-size: 12px; color: var(--color-text-tertiary);">7 clients · 2,4 M€</span></span>
+              <span style="position: relative; display: block; height: 8px; background: var(--color-surface-sunk); box-shadow: inset 0 0 0 1px var(--color-divider);"><span style="position: absolute; left: 25%; top: -3px; bottom: -3px; width: 1px; background: var(--color-border-strong);"></span><span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 30%; background: var(--color-ink); transform-origin: left; animation: dcGrow 900ms var(--ease-spring) 660ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 14px; text-align: right;">+9,6</span>
+            </div>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; animation: dcRise var(--duration-enter) var(--ease-spring) 240ms both;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 27px; font-weight: 300; letter-spacing: -0.025em;">Top / Flop VL</h2>
+            <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Écart à 100</span>
+          </div>
+          <p style="margin: 8px 0 20px; font-size: 13.5px; color: var(--color-text-secondary); text-wrap: pretty;">Un axe unique, centré sur 100. Les barres partent du centre, la longueur se compare des deux côtés. Cinq en haut, cinq en bas.</p>
+
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Phoenix Mémoire ES50</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"></span>
+              <span style="display: flex; align-items: center;"><span style="height: 10px; width: 91%; background: color-mix(in oklch, var(--color-ink), transparent 38%); box-shadow: inset 0 1px 0 var(--lumiere); transform-origin: left; animation: dcGrow 760ms var(--ease-spring) 260ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">+27,4</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Athena Or &amp; Mines</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"></span>
+              <span style="display: flex; align-items: center;"><span style="height: 10px; width: 63%; background: color-mix(in oklch, var(--color-ink), transparent 38%); box-shadow: inset 0 1px 0 var(--lumiere); transform-origin: left; animation: dcGrow 760ms var(--ease-spring) 300ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">+18,9</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Autocall TotalEnergies</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"></span>
+              <span style="display: flex; align-items: center;"><span style="height: 10px; width: 47%; background: color-mix(in oklch, var(--color-ink), transparent 38%); box-shadow: inset 0 1px 0 var(--lumiere); transform-origin: left; animation: dcGrow 760ms var(--ease-spring) 340ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">+14,1</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Phoenix Santé Europe</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"></span>
+              <span style="display: flex; align-items: center;"><span style="height: 10px; width: 33%; background: color-mix(in oklch, var(--color-ink), transparent 38%); box-shadow: inset 0 1px 0 var(--lumiere); transform-origin: left; animation: dcGrow 760ms var(--ease-spring) 380ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">+9,8</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Autocall Air Liquide</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"></span>
+              <span style="display: flex; align-items: center;"><span style="height: 10px; width: 17%; background: color-mix(in oklch, var(--color-ink), transparent 38%); box-shadow: inset 0 1px 0 var(--lumiere); transform-origin: left; animation: dcGrow 760ms var(--ease-spring) 420ms both;"></span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">+5,2</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Athena Stellantis</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"><span style="height: 10px; width: 13%; background-color: color-mix(in oklch, var(--color-ink), transparent 80%); background-image: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px); transform-origin: right; animation: dcGrow 760ms var(--ease-spring) 460ms both;"></span></span>
+              <span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">−3,9</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Phoenix Kering</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"><span style="height: 10px; width: 21%; background-color: color-mix(in oklch, var(--color-ink), transparent 80%); background-image: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px); transform-origin: right; animation: dcGrow 760ms var(--ease-spring) 500ms both;"></span></span>
+              <span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">−6,4</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Autocall LVMH</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"><span style="height: 10px; width: 27%; background-color: color-mix(in oklch, var(--color-ink), transparent 80%); background-image: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px); transform-origin: right; animation: dcGrow 760ms var(--ease-spring) 540ms both;"></span></span>
+              <span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">−8,2</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Phoenix NVIDIA</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"><span style="height: 10px; width: 52%; background-color: color-mix(in oklch, var(--color-ink), transparent 80%); background-image: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px); transform-origin: right; animation: dcGrow 760ms var(--ease-spring) 580ms both;"></span></span>
+              <span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">−15,6</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 186px 1fr 1fr 54px; align-items: center; height: 30px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="padding-right: 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary);">Athena Banques EU</span>
+              <span style="display: flex; align-items: center; justify-content: flex-end; height: 100%; box-shadow: inset -1px 0 0 var(--color-border-strong);"><span style="height: 10px; width: 81%; background-color: color-mix(in oklch, var(--color-ink), transparent 80%); background-image: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px); transform-origin: right; animation: dcGrow 760ms var(--ease-spring) 620ms both;"></span></span>
+              <span></span>
+              <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right;">−24,3</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 40px; min-width: 0;">
+
+        <section style="display: flex; flex-direction: column; animation: dcRise var(--duration-enter) var(--ease-spring) 200ms both;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 6px;">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 27px; font-weight: 300; letter-spacing: -0.025em;">Sous la protection du capital</h2>
+            <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-breach);">3 produits</span>
+          </div>
+          <p style="margin: 0 0 20px; font-size: 13.5px; line-height: 1.55; color: var(--color-text-secondary); text-wrap: pretty;">Performance du sous-jacent depuis le niveau initial, barrière PDI en repère. La seule question : où est le sous-jacent par rapport à sa barrière.</p>
+
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: var(--color-surface-2); box-shadow: inset 0 0 0 1px var(--color-border), inset 3px 0 0 var(--color-breach), inset 0 1px 0 var(--lumiere); transition: box-shadow 180ms ease;" style-hover="box-shadow: inset 0 0 0 1px var(--color-border-strong), inset 3px 0 0 var(--color-breach), inset 0 1px 0 var(--lumiere);">
+              <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                <span style="font-size: 14.5px; font-weight: 500; letter-spacing: -0.012em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Athena Worst-Of Auto EU — Déc. 2029</span>
+                <span style="font-family: var(--font-mono-data); font-size: 11px; color: var(--color-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Stellantis · Renault — émetteur Natixis</span>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px;">
+                <span style="font-family: var(--font-mono-data); font-size: 21px; letter-spacing: -0.025em; color: var(--color-breach);">−47,4 %</span>
+                <span style="font-size: 12px; color: var(--color-text-secondary);">depuis 12 j</span>
+              </div>
+              <span style="position: relative; display: block; height: 11px; overflow: hidden; background: var(--color-surface-sunk); box-shadow: inset 0 1px 0 var(--color-border-strong), inset 0 -1px 0 var(--lumiere);">
+                <span style="position: absolute; top: 0; bottom: 0; left: 15.75%; width: 9.25%; background-color: color-mix(in oklch, var(--color-breach), transparent 80%); background-image: repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-breach), transparent 55%); transform-origin: right; animation: dcGrow 840ms var(--ease-spring) 300ms both;"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 75%; width: 1px; background: var(--color-border-strong);"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 25%; width: 1px; background: var(--encre); opacity: 0.72;"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 15.75%; width: 3px; background: var(--color-breach);"></span>
+              </span>
+              <div style="position: relative; display: block; height: 12px; font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--encre-2);">
+                <span style="position: absolute; left: 0;">−60 %</span>
+                <span style="position: absolute; left: 75%; transform: translateX(-50%);">initial</span>
+                <span style="position: absolute; right: 0;">+20 %</span>
+              </div>
+              <div style="font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--encre-2);">Barrière PDI −40 %</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: var(--color-surface-2); box-shadow: inset 0 0 0 1px var(--color-border), inset 3px 0 0 var(--color-breach), inset 0 1px 0 var(--lumiere); transition: box-shadow 180ms ease;" style-hover="box-shadow: inset 0 0 0 1px var(--color-border-strong), inset 3px 0 0 var(--color-breach), inset 0 1px 0 var(--lumiere);">
+              <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                <span style="font-size: 14.5px; font-weight: 500; letter-spacing: -0.012em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Phoenix Mémoire NVIDIA — Sep. 2028</span>
+                <span style="font-family: var(--font-mono-data); font-size: 11px; color: var(--color-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">NVIDIA — émetteur Crédit Agricole CIB</span>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px;">
+                <span style="font-family: var(--font-mono-data); font-size: 21px; letter-spacing: -0.025em; color: var(--color-breach);">−53,1 %</span>
+                <span style="font-size: 12px; color: var(--color-text-secondary);">depuis 4 j</span>
+              </div>
+              <span style="position: relative; display: block; height: 11px; overflow: hidden; background: var(--color-surface-sunk); box-shadow: inset 0 1px 0 var(--color-border-strong), inset 0 -1px 0 var(--lumiere);">
+                <span style="position: absolute; top: 0; bottom: 0; left: 5.6%; width: 6.9%; background-color: color-mix(in oklch, var(--color-breach), transparent 80%); background-image: repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-breach), transparent 55%); transform-origin: right; animation: dcGrow 840ms var(--ease-spring) 360ms both;"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 75%; width: 1px; background: var(--color-border-strong);"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 12.5%; width: 1px; background: var(--encre); opacity: 0.72;"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 8.6%; width: 3px; background: var(--color-breach);"></span>
+              </span>
+              <div style="position: relative; display: block; height: 12px; font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--encre-2);">
+                <span style="position: absolute; left: 0;">−60 %</span>
+                <span style="position: absolute; left: 75%; transform: translateX(-50%);">initial</span>
+                <span style="position: absolute; right: 0;">+20 %</span>
+              </div>
+              <div style="font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--encre-2);">Barrière PDI −50 %</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: var(--color-surface-2); box-shadow: inset 0 0 0 1px var(--color-border), inset 3px 0 0 var(--color-watch), inset 0 1px 0 var(--lumiere); transition: box-shadow 180ms ease;" style-hover="box-shadow: inset 0 0 0 1px var(--color-border-strong), inset 3px 0 0 var(--color-watch), inset 0 1px 0 var(--lumiere);">
+              <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                <span style="font-size: 14.5px; font-weight: 500; letter-spacing: -0.012em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Autocall LVMH — Nov. 2027</span>
+                <span style="font-family: var(--font-mono-data); font-size: 11px; color: var(--color-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">LVMH — émetteur BNP Paribas</span>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px;">
+                <span style="font-family: var(--font-mono-data); font-size: 21px; letter-spacing: -0.025em; color: var(--color-breach);">−35,8 %</span>
+                <span style="font-size: 12px; color: var(--color-text-secondary);">aujourd'hui</span>
+              </div>
+              <span style="position: relative; display: block; height: 11px; overflow: hidden; background: var(--color-surface-sunk); box-shadow: inset 0 1px 0 var(--color-border-strong), inset 0 -1px 0 var(--lumiere);">
+                <span style="position: absolute; top: 0; bottom: 0; left: 28.4%; width: 2.85%; background-color: color-mix(in oklch, var(--color-breach), transparent 80%); background-image: repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-breach), transparent 55%); transform-origin: right; animation: dcGrow 840ms var(--ease-spring) 420ms both;"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 75%; width: 1px; background: var(--color-border-strong);"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 31.25%; width: 1px; background: var(--encre); opacity: 0.72;"></span>
+                <span style="position: absolute; top: 0; bottom: 0; left: 30.25%; width: 3px; background: var(--color-watch);"></span>
+              </span>
+              <div style="position: relative; display: block; height: 12px; font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--encre-2);">
+                <span style="position: absolute; left: 0;">−60 %</span>
+                <span style="position: absolute; left: 75%; transform: translateX(-50%);">initial</span>
+                <span style="position: absolute; right: 0;">+20 %</span>
+              </div>
+              <div style="font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--encre-2);">Barrière PDI −35 %</div>
+            </div>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; animation: dcRise var(--duration-enter) var(--ease-spring) 280ms both;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 6px;">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-size: 27px; font-weight: 300; letter-spacing: -0.025em;">Ce qui arrive</h2>
+            <a href="#" style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;">Calendrier complet</a>
+          </div>
+          <p style="margin: 0 0 18px; font-size: 13.5px; color: var(--color-text-secondary); text-wrap: pretty;">Six semaines à venir. Les dates qui engagent un appel client sont marquées.</p>
+
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; column-gap: 16px; padding: 9px 12px; margin: 0 -12px; background: var(--color-surface-2); box-shadow: inset 3px 0 0 var(--color-accent), inset 0 1px 0 var(--lumiere);">
+              <span style="font-family: var(--font-mono-data); font-size: 12px; color: var(--color-ink);">08 AOÛ</span>
+              <span style="font-size: 13px; color: var(--color-text-secondary);">Aujourd'hui</span>
+              <span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">Vendredi</span>
+            </div>
+
+            <span style="margin: 20px 0 8px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">Août</span>
+
+            <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: baseline; column-gap: 16px; padding: 14px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-family: var(--font-mono-data); font-size: 15px; letter-spacing: -0.01em;">12</span><span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">dans 4 j</span></span>
+              <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;"><span style="font-weight: 500;">Constatation Athena BNP Auto</span><span style="font-size: 13px; color: var(--color-text-secondary); text-wrap: pretty;">Rappel anticipé possible — 7 clients à prévenir.</span></span>
+              <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;"><span style="font-family: var(--font-mono-data); font-size: 13.5px;">2,6 M€</span><span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent);">Appel client</span></span>
+            </div>
+            <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: baseline; column-gap: 16px; padding: 14px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-family: var(--font-mono-data); font-size: 15px; letter-spacing: -0.01em;">28</span><span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">dans 20 j</span></span>
+              <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;"><span style="font-weight: 500;">Coupon Phoenix Memory ESTX</span><span style="font-size: 13px; color: var(--color-text-secondary); text-wrap: pretty;">Versement automatique, 9 clients.</span></span>
+              <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;"><span style="font-family: var(--font-mono-data); font-size: 13.5px;">86 k€</span><span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">Coupon</span></span>
+            </div>
+
+            <span style="margin: 20px 0 8px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-tertiary);">Septembre</span>
+
+            <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: baseline; column-gap: 16px; padding: 14px 12px; margin: 0 -12px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 160ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-family: var(--font-mono-data); font-size: 15px; letter-spacing: -0.01em;">03</span><span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">dans 26 j</span></span>
+              <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;"><span style="font-weight: 500;">Rappel possible Autocall Natixis 2029</span><span style="font-size: 13px; color: var(--color-text-secondary); text-wrap: pretty;">Le produit peut s'arrêter ce jour-là — prévoir le remploi.</span></span>
+              <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;"><span style="font-family: var(--font-mono-data); font-size: 13.5px;">3,1 M€</span><span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent);">Appel client</span></span>
+            </div>
+            <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: baseline; column-gap: 16px; padding: 14px 12px; margin: 0 -12px; transition: background 160ms ease;" style-hover="background: var(--color-surface-2);">
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-family: var(--font-mono-data); font-size: 15px; letter-spacing: -0.01em;">15</span><span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-tertiary);">dans 38 j</span></span>
+              <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;"><span style="font-weight: 500;">Échéance Note Capital Protégé</span><span style="font-size: 13px; color: var(--color-text-secondary); text-wrap: pretty;">Remboursement prévu, 11 clients.</span></span>
+              <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;"><span style="font-family: var(--font-mono-data); font-size: 13.5px;">4,7 M€</span><span style="font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-tertiary);">Échéance</span></span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <section style="display: grid; grid-template-columns: 296px minmax(0, 1fr); align-items: center; gap: 48px; margin: 0 var(--view-pad) 56px; padding: 34px 0 0; box-shadow: inset 0 1px 0 var(--color-border); animation: dcRise var(--duration-enter) var(--ease-spring) 320ms both;">
+      <div style="display: flex; flex-direction: column;">
+        <h2 style="margin: 0; font-family: var(--font-heading); font-size: 27px; font-weight: 300; letter-spacing: -0.025em;">Répartition émetteurs</h2>
+        <p style="margin: 12px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--color-text-secondary); text-wrap: pretty;">Chaque groupe garde la couleur de sa marque : le CGP reconnaît son émetteur sans lire la légende.</p>
+        <a href="#" style="margin-top: 16px; font-family: var(--font-mono-data); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;">Exposition détaillée dans Pilotage</a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 212px minmax(0, 1fr); align-items: center; gap: 44px; min-width: 0;">
+        <div style="position: relative; display: grid; place-items: center; width: 212px; height: 212px; animation: dcRise 640ms var(--ease-spring) 400ms both;">
+          <span style="position: absolute; inset: 0; border-radius: 999px; background: conic-gradient(#e4032e 0 19.9%, #00875a 19.9% 36.1%, #7a2e8e 36.1% 49.4%, #78be20 49.4% 60.2%, #7399c6 60.2% 68.6%, color-mix(in oklch, var(--color-ink), var(--color-bg) 78%) 68.6% 100%);"></span>
+          <span style="position: absolute; inset: 34px; border-radius: 999px; background: var(--color-bg); box-shadow: inset 0 0 0 1px var(--color-divider), inset 0 2px 0 var(--lumiere);"></span>
+          <span style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <span style="font-family: var(--font-heading); font-size: 34px; font-weight: 200; letter-spacing: -0.04em; line-height: 1;">48,2 M€</span>
+            <span style="font-family: var(--font-mono-data); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-tertiary);">19 émetteurs</span>
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; min-width: 0;">
+          <div style="display: grid; grid-template-columns: 10px minmax(0, 1fr) 78px 60px; align-items: center; gap: 14px; padding: 9px 10px; margin: 0 -10px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="width: 10px; height: 10px; background: #e4032e;"></span>
+            <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Société Générale</span>
+            <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right; color: var(--color-text-secondary);">9 592 k€</span>
+            <span style="font-family: var(--font-mono-data); font-size: 13.5px; text-align: right;">19,9 %</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 10px minmax(0, 1fr) 78px 60px; align-items: center; gap: 14px; padding: 9px 10px; margin: 0 -10px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="width: 10px; height: 10px; background: #00875a;"></span>
+            <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">BNP Paribas</span>
+            <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right; color: var(--color-text-secondary);">7 808 k€</span>
+            <span style="font-family: var(--font-mono-data); font-size: 13.5px; text-align: right;">16,2 %</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 10px minmax(0, 1fr) 78px 60px; align-items: center; gap: 14px; padding: 9px 10px; margin: 0 -10px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="width: 10px; height: 10px; background: #7a2e8e;"></span>
+            <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Natixis</span>
+            <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right; color: var(--color-text-secondary);">6 411 k€</span>
+            <span style="font-family: var(--font-mono-data); font-size: 13.5px; text-align: right;">13,3 %</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 10px minmax(0, 1fr) 78px 60px; align-items: center; gap: 14px; padding: 9px 10px; margin: 0 -10px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="width: 10px; height: 10px; background: #78be20;"></span>
+            <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Crédit Agricole CIB</span>
+            <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right; color: var(--color-text-secondary);">5 206 k€</span>
+            <span style="font-family: var(--font-mono-data); font-size: 13.5px; text-align: right;">10,8 %</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 10px minmax(0, 1fr) 78px 60px; align-items: center; gap: 14px; padding: 9px 10px; margin: 0 -10px; box-shadow: inset 0 -1px 0 var(--color-divider); transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="width: 10px; height: 10px; background: #7399c6;"></span>
+            <span style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Goldman Sachs</span>
+            <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right; color: var(--color-text-secondary);">4 049 k€</span>
+            <span style="font-family: var(--font-mono-data); font-size: 13.5px; text-align: right;">8,4 %</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 10px minmax(0, 1fr) 78px 60px; align-items: center; gap: 14px; padding: 9px 10px; margin: 0 -10px; transition: background 150ms ease;" style-hover="background: var(--color-surface-2);">
+            <span style="width: 10px; height: 10px; background: color-mix(in oklch, var(--color-ink), var(--color-bg) 78%);"></span>
+            <span style="font-size: 13.5px; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">14 autres émetteurs</span>
+            <span style="font-family: var(--font-mono-data); font-size: 12.5px; text-align: right; color: var(--color-text-tertiary);">15 134 k€</span>
+            <span style="font-family: var(--font-mono-data); font-size: 13.5px; text-align: right; color: var(--color-text-secondary);">31,4 %</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:980},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;jour&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;jour&quot;,&quot;tsType&quot;:&quot;\&quot;jour\&quot; | \&quot;dark\&quot;&quot;,&quot;section&quot;:&quot;Apparence&quot;},&quot;bandTone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;encre&quot;,&quot;mer&quot;,&quot;terre&quot;],&quot;default&quot;:&quot;encre&quot;,&quot;tsType&quot;:&quot;\&quot;encre\&quot; | \&quot;mer\&quot; | \&quot;terre\&quot;&quot;,&quot;section&quot;:&quot;Apparence&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;aere&quot;,&quot;compact&quot;],&quot;default&quot;:&quot;aere&quot;,&quot;tsType&quot;:&quot;\&quot;aere\&quot; | \&quot;compact\&quot;&quot;,&quot;section&quot;:&quot;Apparence&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null };
+
+  get theme() {
+    // Le dépôt nomme le thème sombre "dark" (:root[data-theme="dark"]) — on garde ce nom.
+    return this.state.theme ?? this.props.theme ?? "jour";
+  }
+
+  renderVals() {
+    const t = this.theme;
+    const on = "var(--color-accent)", onFg = "var(--color-accent-ink)";
+    const off = "transparent", offFg = "var(--color-text-tertiary)";
+    return {
+      theme: t,
+      logoSrc: t === "dark" ? "assets/structura-lockup-dark.png" : "assets/structura-lockup.png",
+      bandTone: this.props.bandTone ?? "encre",
+      density: this.props.density ?? "aere",
+      setJour: () => this.setState({ theme: "jour" }),
+      setNuit: () => this.setState({ theme: "dark" }),
+      jourBg: t === "jour" ? on : off,
+      jourFg: t === "jour" ? onFg : offFg,
+      nuitBg: t === "dark" ? on : off,
+      nuitFg: t === "dark" ? onFg : offFg
+    };
+  }
+}
+
+</script>
+</body>
+</html>

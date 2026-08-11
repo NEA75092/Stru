@@ -83,22 +83,20 @@ conforme sur la foi de la sonde du 06/08, ce qui vaut moins qu'une mesure. À in
 à la prochaine retouche de cette zone, pas avant — un plan qui prétend couvrir ce qu'il
 ne couvre pas est pire que rien.
 
+
 ---
 
-## O4 — 09/08 · Le message de lot 1 inventait une preuve, précisément sur ce qu'O3 déclare non mesuré
+## O4 — 09/08 · `calque.mjs controles` n'existe pas, et le message du lot 1 le demandait
 
-**Le fait.** Le message-type du lot 1 (`messages-claude-code.md`) demandait
-`node handoff-septembre/tools/calque.mjs controles` comme preuve de fin. Cette commande
-n'existe pas : `calque.mjs` n'a pas de mode `controles`, prend `--app <url>` en argument,
-et son PLAN ne couvre que § 2.1/2.2/2.3 — § 2.4, le gabarit de contrôles, n'a aucune
-ancre `data-calque`. Exactement ce qu'O3 constate depuis le 06/08. Relevé par
-Claude Code le 09/08, avant d'exécuter le message tel quel plutôt qu'après, sur l'erreur
-d'usage.
+**Le fait.** `messages-claude-code.md` demandait `calque.mjs controles`. Le script
+n'accepte que `--app <url> [--only <section>]` ; toute autre forme sort en `exit=2`.
+Signalé par l'implémenteur avant de commencer le lot, pas découvert après.
 
-**Ce que ça dit.** Le message inventait une preuve sur la seule zone que ce fichier
-déclare déjà non instrumentée. Un message-type qui prescrit une sonde se vérifie contre
-l'outil réel avant d'être envoyé, pas après.
+**Ce que ça révèle, et qui est pire que la faute de frappe.** Le gabarit de contrôles
+est le § 2.4 du plan de calque — exactement celui que O3 déclare non instrumenté faute
+d'ancre `data-calque` dans la maquette. Le message inventait donc une preuve pour la
+seule zone que l'outil ne sait pas mesurer.
 
-**Non tranché.** L'instrumentation de § 2.4 reste due à la prochaine retouche de la
-maquette sur cette zone, pas maintenant — inchangé depuis O3. `specs/controles.md`
-passe en v2 avec une preuve de fin en sonde manuelle, quatre vues.
+**Tranché.** Le § 5 de `controles.md` passe en sonde manuelle nommée, et le message du
+lot ne cite plus `calque.mjs` pour ce composant. L'instrumentation du § 2.4 reste due
+au moment où cette zone sera retouchée en maquette (O3), pas avant.
