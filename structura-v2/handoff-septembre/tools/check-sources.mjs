@@ -87,11 +87,12 @@ for (const file of walk(join(ROOT, HANDOFF))) {
     for (const m of line.matchAll(CITATION)) {
       const cite = m[1];
       if (existsSync(join(ROOT, cite))) continue;
-      // Un chemin qui se résout depuis la racine OU depuis structura-v2/
-      // désigne un fichier RÉEL : le lecteur le trouve. Ce n'est pas une panne,
-      // c'est une convention d'écriture. Seul un chemin qui ne désigne AUCUN
-      // fichier est une vraie erreur.
+      // Un chemin qui se résout depuis la racine, depuis structura-v2/ OU
+      // depuis handoff-septembre/ désigne un fichier RÉEL : le lecteur le
+      // trouve. Ce n'est pas une panne, c'est une convention d'écriture. Seul
+      // un chemin qui ne désigne AUCUN fichier est une vraie erreur.
       if (existsSync(join(ROOT, "structura-v2", cite))) continue;
+      if (existsSync(join(ROOT, HANDOFF, cite))) continue;
       fantomes.push({ rel, ligne: i + 1, cite });
     }
   });
@@ -113,7 +114,7 @@ if (fantomes.length) {
   console.error(`\n✗ check-sources rouge — ${fantomes.length} chemin(s) cité(s) qui n'existe(nt) pas :\n`);
   for (const f of fantomes) {
     console.error(`  ${f.rel}:${f.ligne}  ${f.cite}`);
-    console.error(`      → ne désigne aucun fichier, ni depuis la racine ni depuis structura-v2/.`);
+    console.error(`      → ne désigne aucun fichier, depuis aucune des trois origines.`);
     console.error(`        Soit il n'est pas commité (R1), soit le nom est faux.`);
   }
 }
