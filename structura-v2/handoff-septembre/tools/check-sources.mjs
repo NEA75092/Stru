@@ -86,6 +86,7 @@ for (const file of walk(join(ROOT, HANDOFF))) {
     if (/périmé|perime|à jeter|n'existe pas|jamais|supprim/i.test(line)) return;
     for (const m of line.matchAll(CITATION)) {
       const cite = m[1];
+      if (PERIMES.includes(cite)) continue;   // cité pour être déclaré mort
       if (existsSync(join(ROOT, cite))) continue;
       // Un chemin qui se résout depuis la racine, depuis structura-v2/ OU
       // depuis handoff-septembre/ désigne un fichier RÉEL : le lecteur le
