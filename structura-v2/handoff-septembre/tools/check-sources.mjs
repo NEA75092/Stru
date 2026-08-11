@@ -98,11 +98,9 @@ for (const file of walk(join(ROOT, HANDOFF))) {
       const cite = m[1];
       if (estPerime(cite)) continue;
       if (existsSync(join(ROOT, cite))) continue;
-      // Un chemin qui se résout depuis la racine, depuis structura-v2/ OU
-      // depuis handoff-septembre/ désigne un fichier RÉEL : le lecteur le
-      // trouve. Ce n'est pas une panne, c'est une convention d'écriture. Seul
-      // un chemin qui ne désigne AUCUN fichier est une vraie erreur.
-      if (existsSync(join(ROOT, "structura-v2", cite))) continue;
+      // Deux origines seulement : la racine du dépôt, et handoff-septembre/.
+      // PAS structura-v2/ — `structura-v2/specs/` était un doublon périmé du
+      // poste, et l'accepter faisait valider l'arbre mort par le contrôle.
       if (existsSync(join(ROOT, HANDOFF, cite))) continue;
       fantomes.push({ rel, ligne: i + 1, cite });
     }
