@@ -44,3 +44,26 @@ ici. Le Dashboard donne la synthèse, Pilotage l'analyse.
 
 Sonde : aucune occurrence de `25` en repère ou libellé dans le bloc émetteurs ;
 la carte Top/Flop rend exactement **10 lignes**, 5 positives et 5 négatives.
+
+## 5. Grille de page — mesurée sur Dashboard.dc.html (ajout du 15/08)
+
+Trou de la v1 : le § 2 listait les blocs sans dire leur disposition. Sans cette
+grille, chaque bloc occupe toute la largeur utile et la piste centrale des lignes
+absorbe seule le surplus — les colonnes fixes ne bougent pas, la piste double.
+
+| Zone | Valeur (l. de la maquette) |
+|---|---|
+| En-tête + bandeau de KPI | pleine largeur, `margin: 0 var(--view-pad)` (176, 187) |
+| Corps | `grid-template-columns: minmax(0,1.32fr) minmax(0,1fr)`, `gap: 40px`, `padding: 40px var(--view-pad) 44px` (208) |
+| Colonne gauche (1.32fr) | `flex column`, `gap: 44px` (210) : « Marge avant la barrière », puis « Top / Flop VL » |
+| Colonne droite (1fr) | `flex column`, `gap: 40px` (357) : « Sous la protection du capital », puis « Ce qui arrive » |
+| Répartition émetteurs | hors du corps, bande pleine largeur `296px minmax(0,1fr)`, `gap: 48px`, `margin: 0 var(--view-pad) 56px`, `padding: 34px 0 0`, filet haut `inset 0 1px 0 var(--color-border)` (482) |
+| Titres de bloc | `--font-heading` `27px` poids 300, `letter-spacing: -0.025em` |
+
+Arbitrage : « Distribution du risque » (`dashboard.md` § 2.3) n'est pas dans la
+maquette. Il **reste** au Dashboard mais passe en colonne gauche sous Top/Flop,
+sur toute la largeur de la colonne. Perdant nommé : `.dash-vl-grid`, la paire
+côte à côte — elle compressait Top/Flop pendant que le reste s'étalait.
+
+Preuve de fin : à 1440 px, la piste de `.cap-margin-row` mesure la largeur de la
+colonne gauche moins 196 − 72 − 2×20, pas la largeur de la vue.
