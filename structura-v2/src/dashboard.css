@@ -758,20 +758,30 @@
     white-space: nowrap;
 }
 
-/* ── Deux cartes 7b côte à côte : Top/Flop VL + Distribution du risque
-   (Passe 7 reprise). La seconde était absente — cartesDansSection:1 au
-   lieu de 2 l'a révélé. ────────────────────────────────────────── */
-.dash-vl-grid {
+/* ── Corps du Dashboard — deux colonnes (dashboard-correctif-02.md § 5,
+   mesuré sur Dashboard.dc.html l. 208-357). Remplace .dash-vl-grid (perdant
+   nommé) : la paire Top/Flop + Distribution côte à côte compressait
+   Top/Flop pendant que le reste de la page s'étalait en pleine largeur —
+   sans cette grille, seule la piste centrale des lignes absorbait le
+   surplus. ── */
+.dash-body {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-    align-items: start;
+    grid-template-columns: minmax(0, 1.32fr) minmax(0, 1fr);
+    gap: 40px;
+    padding: 40px 44px 44px;
 }
 
-.dash-vl-col {
+.dash-body-left {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: 44px;
+    min-width: 0;
+}
+
+.dash-body-right {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
     min-width: 0;
 }
 
