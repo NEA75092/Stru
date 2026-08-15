@@ -107,6 +107,22 @@
       return match?.label || src.trim() || "Émetteur à confirmer";
     }
 
+    // Couleurs de marque émetteur — une seule table (00-PROTOCOLE.md §8,
+    // invariants transversaux). src/issuer-registry.js
+    // (STRUCTURA_ISSUER_REGISTRY) est déjà la source des 17 hex de marque
+    // (design-tokens.css --issuer-*), déjà lue par Pilotage
+    // (app-analytics.js, issuerClassFor). On ne la duplique pas : ce
+    // n'est qu'un second accesseur vers la même table, posé ici à côté de
+    // GUARANTOR_ALIASES. Couleur jamais en dur dans le rendu — la classe
+    // .issuer-<id> porte var(--issuer-<id>) en CSS (dashboard.css).
+    function issuerBrandClass(rawLabel) {
+      const issuers = root.STRUCTURA_ISSUER_REGISTRY?.issuers || [];
+      const match = issuers.find((entry) =>
+        (entry.aliases || []).some((re) => re.test(String(rawLabel || ""))),
+      );
+      return match ? `issuer-${match.id.toLowerCase()}` : "";
+    }
+
     function initTicker() {
       const c = document.getElementById("ticker");
       if (!c) return;
@@ -471,32 +487,21 @@
       drawPerfHistory(totalNom, totalVal);
     }
 
-    // Donut de répartition (refonte Dolce Vita Fintech, 2026-07-25) :
-    // regroupe les lignes déjà calculées par renderIssuerExposure en
-    // top 3 + "Autres" (4 segments max, comme spécifié) — pure
-    // présentation, aucun recalcul de nominal/poids, juste un regroupement
-    // d'affichage des mêmes valeurs "rows"/"total" déjà agrégées.
-    function buildIssuerDonutSvg(rows, total) {
-      const css = getComputedStyle(document.documentElement);
-      const token = (name) => css.getPropertyValue(name).trim();
-      const ink = token("--color-ink");
-      const PALETTE = [ink, `color-mix(in oklch, ${ink}, transparent 35%)`, `color-mix(in oklch, ${ink}, transparent 60%)`];
-      const REST_COLOR = `color-mix(in oklch, ${ink}, transparent 80%)`;
-      const top = rows.slice(0, 3);
-      const restNominal = rows.slice(3).reduce((sum, row) => sum + row.nominal, 0);
+    // Anneau de répartition émetteurs (dashboard-correctif-02.md § 3) :
+    // arcs SVG colorés par classe .issuer-<id> (jamais un stroke inline —
+    // la couleur ne s'écrit pas dans le JS), top 5 + un arc "reste" gris.
+    // Même agrégation que buildIssuerTableRows : les deux lisent "rows"/
+    // "total" déjà calculés par renderIssuerExposure, aucun recalcul.
+    function buildIssuerRing(rows, total) {
+      const top = rows.slice(0, 5);
+      const restNominal = rows.slice(5).reduce((sum, row) => sum + row.nominal, 0);
       const segments = [
-        ...top.map((row, i) => ({
-          label: row.issuer,
-          value: row.nominal,
-          color: PALETTE[i],
-        })),
-        ...(restNominal > 0
-          ? [{ label: "Autres émetteurs", value: restNominal, color: REST_COLOR }]
-          : []),
+        ...top.map((row) => ({ value: row.nominal, cls: row.issuerClass })),
+        ...(restNominal > 0 ? [{ value: restNominal, cls: "" }] : []),
       ].filter((s) => s.value > 0);
-      const r = 48;
-      const cx = 60;
-      const cy = 60;
+      const r = 89;
+      const cx = 106;
+      const cy = 106;
       const circumference = 2 * Math.PI * r;
       let offset = 0;
       const arcs = segments
@@ -506,27 +511,47 @@
           const dasharray = `${len.toFixed(2)} ${(circumference - len).toFixed(2)}`;
           const dashoffset = (-offset).toFixed(2);
           offset += len;
-          return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="16" stroke-dasharray="${dasharray}" stroke-dashoffset="${dashoffset}" stroke-linecap="round"/>`;
-        })
-        .join("");
-      const legend = segments
-        .map((seg) => {
-          const pct = pctFr((seg.value / total) * 100, 1);
-          return `<div class="donut-legend-item">
-            <span class="donut-legend-dot" style="--dot:${seg.color}"></span>
-            <span class="donut-legend-label">${escapeHtml(seg.label)}</span>
-            <span class="donut-legend-value">${pct}</span>
-          </div>`;
+          const cls = seg.cls ? ` ${escapeHtml(seg.cls)}` : "";
+          return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" class="issuer-ring-seg${cls}" stroke-width="34" stroke-dasharray="${dasharray}" stroke-dashoffset="${dashoffset}"/>`;
         })
         .join("");
       const bankCount = rows.length;
-      return `<div class="donut-wrap">
-        <div class="donut-figure">
-          <svg viewBox="0 0 120 120" class="donut-svg" transform="rotate(-90)" style="transform:rotate(-90deg)">${arcs}</svg>
-          <div class="donut-center"><strong>${bankCount}</strong><span>banque${bankCount > 1 ? "s" : ""}</span></div>
-        </div>
-        <div class="donut-legend">${legend}</div>
+      return `<div class="issuer-ring">
+        <svg viewBox="0 0 212 212" class="issuer-ring-svg" style="transform:rotate(-90deg)">${arcs}</svg>
+        <div class="issuer-ring-hole"></div>
+        <div class="issuer-ring-center"><strong>${escapeHtml(moneyShort(total))}</strong><span>${bankCount} émetteur${bankCount > 1 ? "s" : ""}</span></div>
       </div>`;
+    }
+
+    // Tableau part/encours (dashboard-correctif-02.md § 3) : top 5 nommés,
+    // puis une ligne "N autres émetteurs" — couleurs de texte reprises de
+    // Dashboard.dc.html l. 500-535 (la ligne "reste" y est trois tons plus
+    // pâle que les lignes nommées, pas seulement le nom).
+    function buildIssuerTableRows(rows, total) {
+      const top = rows.slice(0, 5);
+      const rest = rows.slice(5);
+      const restNominal = rest.reduce((sum, row) => sum + row.nominal, 0);
+      const topHtml = top
+        .map((row) => {
+          const pct = (row.nominal / total) * 100;
+          const cls = row.issuerClass ? ` ${row.issuerClass}` : "";
+          return `<div class="issuer-table-row">
+            <span class="issuer-swatch${cls}"></span>
+            <span class="issuer-table-name">${escapeHtml(row.issuer)}</span>
+            <span class="issuer-table-amt">${moneyShort(row.nominal)}</span>
+            <span class="issuer-table-pct">${pctFr(pct, 1)}</span>
+          </div>`;
+        })
+        .join("");
+      const restHtml = rest.length
+        ? `<div class="issuer-table-row issuer-table-rest">
+            <span class="issuer-swatch"></span>
+            <span class="issuer-table-name">${rest.length} autres émetteurs</span>
+            <span class="issuer-table-amt">${moneyShort(restNominal)}</span>
+            <span class="issuer-table-pct">${pctFr((restNominal / total) * 100, 1)}</span>
+          </div>`
+        : "";
+      return topHtml + restHtml;
     }
 
     function renderIssuerExposure() {
@@ -539,44 +564,42 @@
       }
       const rows = [...data.reduce((map, p) => {
         const issuer = bankGroupName(p.emetteur);
-        const row = map.get(issuer) || { issuer, nominal: 0, val: 0, breach: 0, count: 0 };
+        const row = map.get(issuer) || { issuer, nominal: 0, issuerClass: issuerBrandClass(p.emetteur) };
         row.nominal += Number(p.nominal) || 0;
-        row.val += Number(p.val) || 0;
-        row.count += 1;
-        if (["breach", "crit"].includes(p.st?.s)) row.breach += 1;
         map.set(issuer, row);
         return map;
       }, new Map()).values()].sort((a, b) => b.nominal - a.nominal);
       const total = rows.reduce((sum, row) => sum + row.nominal, 0) || 1;
-      const donut = buildIssuerDonutSvg(rows, total);
-      // Liste complète (plus de plafond à 8) : le donut au-dessus reste
-      // lisible à 4 segments max quel que soit le nombre d'émetteurs
-      // réels, mais la liste détaillée doit montrer TOUTES les banques
-      // du portefeuille (5 comme 30) — un conteneur scrollable à
-      // hauteur fixe absorbe la longueur au lieu de tronquer les
-      // données ou de pousser la hauteur de la carte indéfiniment.
-      const rowsHtml = rows.map((row) => {
-        const weight = (row.nominal / total) * 100;
-        const pnl = row.nominal ? ((row.val - row.nominal) / row.nominal) * 100 : 0;
-        return `<div class="issuer-row">
-          <div class="issuer-row-top">
-            <span class="issuer-name">${escapeHtml(row.issuer)}</span>
-            <span class="issuer-metric">${moneyShort(row.nominal)} · ${pctFr(weight, 1)}</span>
-          </div>
-          <div class="issuer-bar"><span style="width:${Math.max(2, Math.min(100, weight))}%"></span></div>
-          <div class="issuer-row-sub">
-            <span>${row.count} produit${row.count > 1 ? "s" : ""}</span>
-            <span class="${pnl >= 0 ? "up" : "dn"}">${pnl >= 0 ? "+" : ""}${pctFr(pnl, 2)} vs nominal</span>
-            <span>${row.breach ? `${row.breach} critique${row.breach > 1 ? "s" : ""}` : "risque normal"}</span>
-          </div>
-        </div>`;
-      }).join("");
-      c.innerHTML = `${donut}<div class="issuer-list-scroll">${rowsHtml}</div>`;
+      c.innerHTML = `${buildIssuerRing(rows, total)}<div class="issuer-table">${buildIssuerTableRows(rows, total)}</div>`;
+    }
+
+    function fullMonthFR(date) {
+      return date.toLocaleDateString("fr-FR", { month: "long" });
+    }
+
+    function weekdayLongFR(date) {
+      return date.toLocaleDateString("fr-FR", { weekday: "long" }).toUpperCase();
+    }
+
+    // Marque « Appel client » (dashboard-correctif-02.md § 2) : rappel
+    // anticipé possible (type "rappel") ou franchissement de barrière lu
+    // à une observation (type "obs", e.level.tone === "st-breach"). Ce
+    // sont les deux seuls types que buildProductCalendarEvents distingue
+    // pour ça — une maturité en franchissement (e.exposure) n'est pas
+    // incluse : c'est une échéance déjà là, pas un appel à passer.
+    function eventCallsClient(e) {
+      if (e.type === "rappel") return true;
+      if (e.type === "obs" && e.level?.tone === "st-breach") return true;
+      return false;
     }
 
     function renderDashboardTimeline() {
       const c = document.getElementById("dashboard-timeline");
       if (!c) return;
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const horizon = new Date(now);
+      horizon.setDate(horizon.getDate() + 42);
       const events = (root.buildProductCalendarEvents?.() || [])
         .slice()
         .sort((a, b) => String(a._dateIso || "").localeCompare(String(b._dateIso || "")));
@@ -590,20 +613,47 @@
           desc: `${p.name} · ${p.underlying || "—"}`,
           type: p.st?.s === "breach" ? "bar" : p.nextEvt?.toLowerCase().includes("coupon") ? "coupon" : "obs",
         }));
-      const list = (events.length ? events : fallback).slice(0, 7);
+      // Horizon : six semaines à venir (dashboard-correctif-02.md § 2),
+      // pas un nombre fixe de lignes — s'applique aussi au repli, qui
+      // n'a plus de _monthKey propre : le mois du groupe est dérivé de la
+      // date à l'affichage, pas relu sur l'objet événement.
+      const list = (events.length ? events : fallback).filter((e) => {
+        const d = new Date(`${e._dateIso || ""}T00:00:00`);
+        return !Number.isNaN(d.getTime()) && d >= now && d <= horizon;
+      });
+
+      const todayRow = `<div class="dash-agenda-today">
+          <span class="dash-agenda-today-day">${String(now.getDate()).padStart(2, "0")} ${monthShortFR(now)}</span>
+          <span class="dash-agenda-today-lbl">Aujourd'hui</span>
+          <span class="dash-agenda-today-weekday">${weekdayLongFR(now)}</span>
+        </div>`;
+
       if (!list.length) {
-        c.innerHTML = `<div class="empty-inline">Aucune constatation à venir.</div>`;
+        c.innerHTML = `${todayRow}<div class="empty-inline">Aucune échéance dans les six prochaines semaines.</div>`;
         return;
       }
-      c.innerHTML = list.map((e) => {
-        const date = new Date(`${e._dateIso || e.date || e.iso || ""}T00:00:00`);
-        const day = Number.isNaN(date.getTime()) ? "—" : String(date.getDate()).padStart(2, "0");
-        const month = Number.isNaN(date.getTime()) ? "" : monthShortFR(date);
-        return `<button class="timeline-item timeline-${escapeHtml(e.type || "obs")}" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
-          <span class="timeline-date"><b>${day}</b><small>${month}</small></span>
-          <span class="timeline-main"><b>${escapeHtml(e.name || "Événement")}</b><small>${escapeHtml(e.desc || "")}</small></span>
+
+      let lastMonthKey = "";
+      const rows = list
+        .map((e) => {
+          const d = new Date(`${e._dateIso}T00:00:00`);
+          const days = Math.round((d.getTime() - now.getTime()) / 86400000);
+          const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
+          const monthHtml =
+            monthKey !== lastMonthKey
+              ? `<span class="dash-agenda-month">${escapeHtml(fullMonthFR(d))}</span>`
+              : "";
+          lastMonthKey = monthKey;
+          const tag = eventCallsClient(e) ? `<span class="dash-agenda-tag">Appel client</span>` : "";
+          return `${monthHtml}<button type="button" class="dash-agenda-row" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
+          <span class="dash-agenda-date"><b>${String(d.getDate()).padStart(2, "0")}</b><small>dans ${days} j</small></span>
+          <span class="dash-agenda-main"><strong>${escapeHtml(e.name || "Événement")}</strong><small>${escapeHtml(e.desc || "")}</small></span>
+          <span class="dash-agenda-amt-wrap">${eventAmountCell(e)}${tag}</span>
         </button>`;
-      }).join("");
+        })
+        .join("");
+
+      c.innerHTML = todayRow + rows;
     }
 
     // Top/Flop VL (Passe 7 reprise, bloc 7b — rouvert après mesure de
@@ -762,7 +812,67 @@
         <div class="dash-risk-rows">${rowsHtml}</div>`;
     }
 
+    // Marge avant la barrière (dashboard-correctif-02.md § 2, D1) : 5
+    // marges les plus serrées puis 5 plus larges, marge = p.dist (points
+    // d'indice vs niveau barrière). Axe fixe −8/+24 (32 points), zéro à
+    // 25 % — cet axe n'est nommé nulle part dans la spec, il est mesuré
+    // sur Dashboard.dc.html (ex. −4,2 pt → left 11,9 %/largeur 13,1 %,
+    // +21,4 pt → left 25 %/largeur 66,9 %, cohérent sur les dix lignes de
+    // la maquette : min −8, max +24, zéro à (0−(−8))/32 = 25 %).
+    const CAP_MARGIN_AXIS_MIN = -8;
+    const CAP_MARGIN_AXIS_MAX = 24;
+    function capMarginAxisPct(value) {
+      const clamped = Math.max(CAP_MARGIN_AXIS_MIN, Math.min(CAP_MARGIN_AXIS_MAX, Number(value) || 0));
+      return ((clamped - CAP_MARGIN_AXIS_MIN) / (CAP_MARGIN_AXIS_MAX - CAP_MARGIN_AXIS_MIN)) * 100;
+    }
+    function renderCapMargin() {
+      const c = document.getElementById("cap-margin");
+      if (!c) return;
+      // Capital garanti n'a pas de barrière : p.dist vaut 999, un sentinel
+      // (app-state.js:343), pas une marge — même exclusion que riskZoneFor
+      // (p.type === "CG") plus haut dans ce fichier.
+      const data = productsForScope().filter((p) => p.type !== "CG" && Number.isFinite(Number(p.dist)));
+      if (!data.length) {
+        c.innerHTML = `<div class="empty-inline">Aucune marge de barrière exploitable.</div>`;
+        return;
+      }
+      const sorted = [...data].sort((a, b) => Number(a.dist) - Number(b.dist));
+      const tight = sorted.slice(0, 5);
+      const wide = sorted.slice(-5).reverse();
+      const zeroPct = capMarginAxisPct(0);
+      const renderRow = (p) => {
+        const dist = Number(p.dist);
+        const pct = capMarginAxisPct(dist);
+        const left = Math.min(pct, zeroPct);
+        const width = Math.max(0, Math.abs(pct - zeroPct));
+        const neg = dist < 0;
+        const clientCount = new Set(getProductAllocations(p).map((a) => a.clientId)).size;
+        return `<button type="button" class="cap-margin-row" onclick="openDrawer(${p.id})">
+          <span class="cap-margin-name"><strong>${escapeHtml(p.name)}</strong><span class="cap-margin-meta">${clientCount} client${clientCount > 1 ? "s" : ""} · ${moneyShort(Number(p.nominal) || 0)}</span></span>
+          <span class="cap-margin-track">
+            <span class="cap-margin-zero"></span>
+            <span class="cap-margin-bar ${neg ? "cap-margin-bar-neg" : "cap-margin-bar-pos"}" style="left:${left.toFixed(2)}%;width:${width.toFixed(2)}%"></span>
+          </span>
+          <span class="cap-margin-val${neg ? " cap-margin-val-neg" : ""}">${dist >= 0 ? "+" : ""}${ptsFr(dist)}</span>
+        </button>`;
+      };
+      c.innerHTML = `
+        <div class="cap-margin-hdr">
+          <span class="cap-margin-hdr-lbl cap-margin-hdr-lbl-tight">Les plus serrés</span>
+          <span class="cap-margin-hdr-zero"><span class="cap-margin-hdr-zero-mark"></span><span class="cap-margin-hdr-zero-label">0</span></span>
+          <span></span>
+        </div>
+        ${tight.map(renderRow).join("")}
+        <div class="cap-margin-hdr">
+          <span class="cap-margin-hdr-lbl">Les plus au large</span>
+          <span></span>
+          <span></span>
+        </div>
+        ${wide.map(renderRow).join("")}`;
+    }
+
     function renderDashboardModules() {
+      renderCapMargin();
       renderIssuerExposure();
       renderDashboardTimeline();
       renderVlTopFlop();
@@ -803,35 +913,40 @@
         c.innerHTML = '<div class="cap-empty">Rien d\'urgent — aucune position sous la protection du capital.</div>';
         return;
       }
-      c.innerHTML = `<div class="cap-head">
-          <span>Position</span>
-          <span>vs initial</span>
-          <span class="cap-head-axis"><span>${CAP_AXIS_MIN} %</span><span>+${CAP_AXIS_MAX} %</span></span>
-          <span>Barrière</span>
-        </div>
-        <div class="cap-rows">${list.map((a) => {
-          const hasPerf = Number.isFinite(Number(a.perfVsInitial));
-          const hasBarrier = Number.isFinite(Number(a.barrierVsInitial));
-          let rule = "";
-          if (hasPerf && hasBarrier) {
-            const spotPct = capAxisPct(a.perfVsInitial);
-            const pdiPct = capAxisPct(a.barrierVsInitial);
-            const zoneL = Math.min(spotPct, pdiPct);
-            const zoneW = Math.max(CAP_ZONE_FLOOR_PCT, Math.abs(spotPct - pdiPct));
-            rule = `<span class="cap-rule">
+      // Forme en cartes (dashboard-correctif-02.md § 2) : <ton> = breach si
+      // la position a franchi (statusCls "st-breach"), watch sinon (crit ou
+      // warn, non franchi) — même source que le filet gauche de la carte.
+      // « depuis N j » n'est pas rendu : aucun champ du modèle ne porte la
+      // date d'entrée dans l'état breach/watch (RÈGLE ABSOLUE, trou nommé
+      // dans le rapport).
+      c.innerHTML = `<div class="cap-cards">${list.map((a) => {
+        const hasPerf = Number.isFinite(Number(a.perfVsInitial));
+        const hasBarrier = Number.isFinite(Number(a.barrierVsInitial));
+        const toneClass = a.statusCls === "st-breach" ? "" : " tone-watch";
+        let rule = "";
+        if (hasPerf && hasBarrier) {
+          const spotPct = capAxisPct(a.perfVsInitial);
+          const pdiPct = capAxisPct(a.barrierVsInitial);
+          const zoneL = Math.min(spotPct, pdiPct);
+          const zoneW = Math.max(CAP_ZONE_FLOOR_PCT, Math.abs(spotPct - pdiPct));
+          rule = `<span class="cap-rule">
               <span class="cap-groove" data-calque="groove"></span>
               <span class="cap-breach" data-calque="breach" style="left:${zoneL.toFixed(2)}%;width:${zoneW.toFixed(2)}%"></span>
+              <span class="cap-zero"></span>
               <span class="cap-notch" data-calque="notch" style="left:${pdiPct.toFixed(2)}%"></span>
               <span class="cap-cursor" style="left:${spotPct.toFixed(2)}%"></span>
             </span>`;
-          }
-          return `<div class="cap-row" onclick="openDrawer(${a.productId})">
+        }
+        return `<div class="cap-card${toneClass}" onclick="openDrawer(${a.productId})">
             <span class="cap-name"><strong>${escapeHtml(a.name)}</strong><span class="cap-meta">${escapeHtml(a.context)}</span></span>
-            <span class="cap-perf">${hasPerf ? `${a.perfVsInitial >= 0 ? "+" : ""}${pctFr(a.perfVsInitial, 1)}` : "—"}</span>
+            <span class="cap-perf-row">
+              <span class="cap-perf">${hasPerf ? `${a.perfVsInitial >= 0 ? "+" : ""}${pctFr(a.perfVsInitial, 1)}` : "\u2014"}</span>
+            </span>
             ${rule || '<span class="cap-rule"></span>'}
-            <span class="cap-barrier">${hasBarrier ? `${a.barrierVsInitial >= 0 ? "+" : ""}${pctFr(a.barrierVsInitial, 0)}` : "—"}</span>
+            <span class="cap-axis-row"><span>${CAP_AXIS_MIN} %</span><span>initial</span><span>+${CAP_AXIS_MAX} %</span></span>
+            <span class="cap-legend">${hasBarrier ? `Barrière PDI ${a.barrierVsInitial >= 0 ? "+" : ""}${pctFr(a.barrierVsInitial, 0)}` : "Barrière PDI \u2014"}</span>
           </div>`;
-        }).join("")}</div>`;
+      }).join("")}</div>`;
     }
 
     function monthShortFR(date) {
@@ -847,6 +962,12 @@
     // saine un total décisionnel avec son détail, Maturité en
     // franchissement une exposition — nature différente, pas une couleur.
     function eventAmountCell(e) {
+      // Capital garanti n'a pas de barrière : e.level.distance vaut 999
+      // (sentinel, app-state.js:343, tone "st-none" — statusFromDist),
+      // pas un écart réel. Même exclusion que renderCapMargin plus haut.
+      if (e.level && e.level.tone === "st-none") {
+        return `<div class="timeline-amt">—</div>`;
+      }
       if (e.level) {
         const sign = e.level.distance < 0 ? "−" : "+";
         const value = pctFr(Math.abs(e.level.distance), 1);
@@ -936,6 +1057,7 @@
       toggleAppMode,
       drawPerfChart,
       renderDashboardModules,
+      renderCapMargin,
       renderIssuerExposure,
       renderDashboardTimeline,
       renderVlTopFlop,
