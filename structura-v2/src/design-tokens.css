@@ -1,128 +1,195 @@
 /* ============================================================
    DESIGN TOKENS — Structura
-   Direction (2026-08-01, passe 8, réécrite) : village méditerranéen en
-   pleine lumière — Cyclades, Sardaigne. Onze tokens, trois rôles :
-   la chaux porte les fonds, la mer porte l'interaction (le turquoise
-   est le sujet, pas un accent), la terre porte le risque. Remplace la
-   direction "Dolce Vita Fintech" du 24/07 (bleu Sidi Bou Said, corail
-   terracotta en blocs pleins, ombres teintées, dégradés de fond).
+   Direction (25/08/2026, « Liquide ») : deux plans, jamais mélangés — la
+   nappe (l'eau, premier plan) et le plâtre (les dalles mates, sous la
+   nappe). Remplace la direction "village méditerranéen" du 01/08 (passe 8 :
+   chaux, mer, terre) — supprimée dans ce lot, l'historique reste en git log.
+   Source : specs/design-tokens-v3-liquide.md, specs/00-doctrine-liquide.md.
+   Rendu cible et seule source de mesure : Dashboard - Liquide.dc.html.
 
-   Reversements assumés par rapport à la direction précédente :
-   - Les cartes perdent ombre, dégradé interne et liserés de lumière
-     (annule la décision du 26/07 qui les avait redonnés) : la
-     séparation se fait par filet 1px + gouttière, pas par relief.
-     Seuls le tiroir, la modale et les menus gardent une ombre — ce
-     sont des surfaces réellement flottantes, pas des cartes.
-   - Bleu Sidi Bou Said et corail terracotta disparaissent comme
-     couleurs de marque. Le turquoise (--mer) qui les remplace ne
-     décore rien : il ne marque que ce qui est actif, sélectionné ou
-     cliquable. Le risque (--olive/--ocre/--terracotta) reste
-     strictement réservé à la distance de barrière.
-   - Newsreader (titres/prose) et Instrument Sans (interface)
-     remplacent Inter partout : annule la décision du 25/07 qui avait
-     unifié titres et interface sur une seule police.
+   Rien de structurel ne change. Seule la peinture change : l'app consomme
+   toujours trente et un noms --color-*, six --radius-*, six --shadow-*,
+   trois --font-* et sept --text-* (le septième, --text-verre, est un ajout
+   assumé du § 4 de la spec). Ces noms restent ; ce fichier réécrit
+   uniquement ce vers quoi ils pointent.
 
-   Ce fichier ne définit QUE des variables (--color-*, --space-*,
-   --radius-*, --shadow-*, --font-*, --text-*, --ease-*). Les noms
-   --color-* existants sont conservés comme vocabulaire de consommation
-   (pas de renommage en masse à travers l'app) ; ils pointent vers les
-   onze tokens de rôle ci-dessous, seule source de vérité chromatique. */
+   Deux couches, dans cet ordre : d'abord les tokens Liquide (source de
+   vérité, noms nouveaux), puis les alias hérités (les noms que l'app
+   consomme déjà ; uniquement des var() et color-mix() vers la première
+   couche, zéro littéral).
+
+   --space-* (grille 4px) et --issuer-* (couleurs de marque émetteur) sont
+   hors périmètre de ce lot : conservés tels quels. */
 
 :root {
-    /* ── Les onze tokens de rôle (passe 8, §1.2) ──────────────
-       Seule source de vérité chromatique. Tout le reste de ce fichier
-       (et de l'app) pointe vers ces onze valeurs. */
-    --chaux: oklch(0.976 0.011 85);
-    --chaux-2: oklch(0.955 0.016 80);
-    --rule: oklch(0.882 0.016 80);
-    --encre: oklch(0.245 0.055 240);
-    --encre-2: oklch(0.485 0.038 238);
-    --mer: oklch(0.600 0.155 212);
-    --mer-profonde: oklch(0.400 0.135 232);
-    --lagune: oklch(0.915 0.055 202);
-    --olive: oklch(0.550 0.115 132);
-    --ocre: oklch(0.720 0.155 73);
-    --terracotta: oklch(0.545 0.175 32);
+    /* ── Couche 1 — Liquide, jour ──────────────────────────── */
 
-    /* Douzième token de rôle (05/08) — l'arête de lumière. La couche
-       relief (00-doctrine.md, D6) n'emploie aucune ombre portée : le relief
-       vient du creux, de l'arête et de la cannelure. Cette valeur est
-       la seule lumière du système, toujours sur un bord SUPÉRIEUR ou
-       en text-shadow d'incision, jamais en fond de surface. */
-    --lumiere: oklch(0.995 0.004 85);
+    /* Le fond de bureau */
+    --desk: #E1E4E3;
 
-    /* ── Neutrals — la chaux porte les fonds ──
-       --color-bg/--color-surface-1 valent tous deux --chaux : plus de
-       carte "blanc pur" détachée du fond, la séparation vient du
-       filet, pas d'un écart de luminance entre fond et carte. */
-    --color-bg: var(--chaux);
-    --color-surface-1: var(--chaux);
-    --color-surface-2: var(--chaux-2);
-    --color-surface-3: color-mix(in oklch, var(--chaux-2), var(--encre) 6%);
-    --color-surface-1-hover: color-mix(in oklch, var(--color-surface-1), var(--encre) 4%);
-    --color-surface-2-hover: color-mix(in oklch, var(--color-surface-2), var(--encre) 4%);
-    --color-surface-3-hover: color-mix(in oklch, var(--color-surface-3), var(--encre) 4%);
-    --color-wash: var(--chaux);
-    --color-border: var(--rule);
-    --color-border-strong: color-mix(in oklch, var(--rule), var(--encre) 24%);
-    /* Filet fin dédié : grille de graphique, séparateurs de lignes de
-       tableau, fond des barres de progression — plus discret que
-       --color-border. */
-    --color-divider: color-mix(in oklch, var(--rule), var(--chaux) 45%);
-    /* Fond légèrement retiré (case de calendrier hors période, zone
-       neutre) : une marche sous --color-surface-2. */
-    --color-surface-sunk: color-mix(in oklch, var(--chaux-2), var(--encre) 3%);
-    /* Fond légèrement soulevé (en-tête de tableau collant) : une marche
-       au-dessus de --color-surface-2, pour rester lisible une fois
-       superposé au contenu qui défile dessous. */
-    --color-surface-raised: color-mix(in oklch, var(--chaux), var(--chaux-2) 40%);
+    /* L'eau — quatre profondeurs */
+    --azur: #4696B3;
+    --azur-clair: #8FD3E6;
+    --azur-profond: #136C95;
+    --marine: #073D5D;
 
-    /* Voile des overlays (modale, tiroir) : assez sombre pour détacher
-       le premier plan sans jamais devenir un aplat noir. */
-    --color-scrim: rgb(22 39 58 / 0.42);
+    /* L'encre — trois niveaux, jamais plus */
+    --encre: #111111;
+    --encre-2: #5B6577;
+    --encre-3: #7C8790;
+    --trait: rgba(17, 17, 17, 0.08);
+    --rail: rgba(17, 17, 17, 0.08);
+    --encre-faible: rgba(17, 17, 17, 0.16);
 
-    --color-ink: var(--encre);
-    --color-text-primary: var(--encre);
-    --color-text-secondary: var(--encre-2);
-    --color-text-tertiary: color-mix(in oklch, var(--encre-2), var(--chaux) 35%);
-    --color-text-on-dark: #ffffff;
+    /* Sur la nappe — le seul texte qui vit sur l'eau */
+    --sur-azur: #FFFFFF;
+    --sur-azur-2: rgba(255, 255, 255, 0.74);
 
-    /* ── La mer porte l'interaction ──
-       Tout ce qui est actif, sélectionné ou cliquable : action
-       primaire, onglet courant, ligne sélectionnée, repère de seuil
-       de la réglette. Jamais de décoration. */
-    --color-accent: var(--mer);
-    --color-accent-hover: var(--mer-profonde);
-    --color-accent-tint: var(--lagune);
-    --color-accent-ink: var(--chaux);
+    /* Le risque — réservé à la distance de barrière */
+    --vert: #1F6B41;
+    --rouge: #FF5557;
+    --ambre: #E0972A;
+    --rouge-encre: #3A0A0B;
 
-    /* ── La terre porte le risque — barrière uniquement ──
-       Seule couleur qui exprime une distance de barrière. Ne sert
-       jamais de couleur de marque ni de décoration. */
-    --color-safe: var(--olive);
-    --color-safe-2: color-mix(in oklch, var(--olive), var(--encre) 20%);
-    --color-watch: var(--ocre);
-    --color-watch-2: color-mix(in oklch, var(--ocre), var(--encre) 20%);
-    --color-breach: var(--terracotta);
-    --color-breach-2: color-mix(in oklch, var(--terracotta), var(--encre) 20%);
+    /* Le verre — premier plan uniquement */
+    --flottant: rgba(255, 255, 255, 0.22);
+    --flottant-brd: rgba(255, 255, 255, 0.42);
+    --verre: linear-gradient(155deg, rgba(255,255,255,.95), rgba(238,246,247,.87));
+    --verre-brd: rgba(255, 255, 255, 0.92);
 
-    /* ── Typographie — pairing éditorial (passe 8) ──
-       Newsreader porte les titres et la prose, Instrument Sans
-       l'interface, IBM Plex Mono tout nombre. Trois familles, pas
-       quatre — aucune autre ne doit apparaître dans les feuilles. */
-    --font-heading: "Newsreader", Georgia, "Times New Roman", serif;
-    --font-body: "Instrument Sans", system-ui, -apple-system, sans-serif;
-    --font-mono-data: "IBM Plex Mono", monospace;
+    /* Le plâtre — trois dalles mates */
+    --dalle-a: linear-gradient(150deg, #F2F8F9 0%, #FBFCFB 48%, #FDF5EB 100%);
+    --dalle-b: linear-gradient(160deg, #FEF7EE 0%, #FDF5EB 60%, #FCEFE0 100%);
+    --dalle-c: linear-gradient(190deg, #FDF6EC 0%, #FCFBF8 58%, #FAFCFC 100%);
 
-    /* Échelle unique, 6 crans, rien entre (passe 8, §1.1). */
-    --text-xs: 12px;
-    --text-sm: 14px;
-    --text-base: 16px;
-    --text-lg: 20px;
-    --text-xl: 28px;
-    --text-2xl: 40px;
+    /* Équivalents plats des trois dalles — le stop médian de chaque dégradé.
+       Nécessaires parce qu'un dégradé ne peut pas servir de background-color.
+       Relevés, pas inventés : ce sont les stops 48% / 60% / 58% ci-dessus. */
+    --dalle-a-plat: #FBFCFB;
+    --dalle-b-plat: #FDF5EB;
+    --dalle-c-plat: #FCFBF8;
 
-    /* ── Espacements (grille 4px) ── */
+    /* Pastilles pleines */
+    --puck: #FFFFFF;
+    --chip: #FFFFFF;
+    --chip-encre: #111111;
+
+    /* Survol de ligne */
+    --survol: color-mix(in oklab, var(--azur) 7%, transparent);
+
+    /* Marque émetteur : teinte seule, clarté et chroma du système */
+    --em-l: .575;
+    --em-c: .165;
+
+    /* Voile des overlays. AJOUT ASSUMÉ : la maquette n'a ni tiroir ni modale,
+       la valeur est dérivée de --marine, pas reprise de la passe 8. */
+    --voile: rgb(7 61 93 / 0.42);
+
+    /* Rayons — cinq valeurs, pas une de plus */
+    --r-min: 2px;
+    --r-nav: 8px;
+    --r-dalle: 20px;
+    --r-verre: 24px;
+    --r-plein: 999px;
+
+    /* Mouvement */
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* ── couche 2 : vocabulaire de consommation hérité ──
+       Ne contient que des var() vers la couche 1. Zéro littéral. */
+
+    /* Fonds */
+    --color-bg:               var(--desk);
+    --color-surface-1:        var(--dalle-a-plat);
+    --color-surface-2:        var(--dalle-b-plat);
+    --color-surface-3:        var(--dalle-c-plat);
+    --color-surface-1-hover:  color-mix(in oklab, var(--dalle-a-plat), var(--azur) 7%);
+    --color-surface-2-hover:  color-mix(in oklab, var(--dalle-b-plat), var(--azur) 7%);
+    --color-surface-3-hover:  color-mix(in oklab, var(--dalle-c-plat), var(--azur) 7%);
+    --color-wash:             var(--desk);
+    --color-surface-sunk:     var(--desk);
+    --color-surface-raised:   var(--puck);
+
+    /* Traits */
+    --color-border:           var(--trait);
+    --color-border-strong:    var(--encre-faible);
+    --color-divider:          var(--rail);
+
+    /* Voile */
+    --color-scrim:            var(--voile);
+
+    /* Encre */
+    --color-ink:              var(--encre);
+    --color-text-primary:     var(--encre);
+    --color-text-secondary:   var(--encre-2);
+    --color-text-tertiary:    var(--encre-3);
+    --color-text-on-dark:     var(--sur-azur);
+
+    /* Interaction — azur-profond porte le texte et les liens (contraste),
+       azur porte les aplats. C'est ce que fait la maquette : a{--azur-profond},
+       a:hover{--azur}. */
+    --color-accent:           var(--azur-profond);
+    --color-accent-hover:     var(--azur);
+    --color-accent-tint:      var(--survol);
+    --color-accent-ink:       var(--sur-azur);
+
+    /* Risque */
+    --color-safe:             var(--vert);
+    --color-safe-2:           color-mix(in oklab, var(--vert), var(--encre) 20%);
+    --color-watch:            var(--ambre);
+    --color-watch-2:          color-mix(in oklab, var(--ambre), var(--encre) 20%);
+    --color-breach:           var(--rouge);
+    --color-breach-2:         color-mix(in oklab, var(--rouge), var(--encre) 20%);
+
+    /* Bandeau — devient la marine du rail, plus l'encre de la passe 8 */
+    --color-band:             var(--marine);
+    --color-on-band:          var(--sur-azur);
+
+    /* Rayons — l'échelle Liquide, sous les anciens noms */
+    --radius-xs:              0px;
+    --radius-sm:              var(--r-min);
+    --radius-md:              var(--r-nav);
+    --radius-lg:              var(--r-dalle);
+    --radius-xl:              var(--r-verre);
+    --radius-full:            var(--r-plein);
+
+    /* Ombres — aucune, sauf la surface réellement flottante */
+    --shadow-card:            none;
+    --shadow-card-hover:      none;
+    --shadow-sm:              none;
+    --shadow-md:              none;
+    --shadow-lg:              none;
+    --shadow-float:           0 32px 64px -28px rgb(7 61 93 / 0.42);
+
+    /* Typographie — deux familles. --font-mono-data devient Jost : les chiffres
+       sont tabulaires par font-variant-numeric, pas par une famille mono.
+       Garder l'alias évite d'éditer les fichiers qui le consomment. */
+    --font-heading:           'Jost', system-ui, sans-serif;
+    --font-body:              'Instrument Sans', system-ui, sans-serif;
+    --font-mono-data:         'Jost', system-ui, sans-serif;
+
+    /* Échelle de type — relevée à la maquette, sous les anciens noms */
+    --text-xs:                11.5px;
+    --text-sm:                13px;
+    --text-base:               14px;
+    --text-lg:                16.5px;
+    --text-xl:                44px;
+    --text-2xl:                54px;
+    /* Septième cran, ajout assumé : le grand chiffre d'une carte de verre,
+       plus petit que celui d'une dalle (40 vs 44). Relevé l. 167. */
+    --text-verre:              40px;
+
+    /* Mouvement — les anciens noms pointent tous sur la courbe Liquide */
+    --ease-standard:          var(--ease);
+    --ease-out:               var(--ease);
+    --ease-spring:            var(--ease);
+    --duration-fast:          120ms;
+    --duration-base:          220ms;
+    --duration-slow:          280ms;
+    --duration-enter:         700ms;
+    --stagger:                80ms;
+
+    /* ── Espacements (grille 4px) — hors périmètre, conservés tels quels ── */
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -132,71 +199,10 @@
     --space-7: 32px;
     --space-8: 40px;
 
-    /* ── Rayons — 2px maximum (00-doctrine.md, D6). --radius-full reste à
-       999px : c'est une forme (pastille, avatar), pas un arrondi de
-       carte. ── */
-    --radius-xs: 0px;
-    --radius-sm: 2px;
-    --radius-md: 2px;
-    --radius-lg: 2px;
-    --radius-xl: 2px;
-    --radius-full: 999px;
-
-    /* ── Ombres — réservées aux surfaces réellement flottantes
-       (tiroir, modale, menu). Les cartes n'en ont plus : la
-       séparation vient du filet --color-border + gouttière, pas du
-       relief (00-doctrine.md, D6 — annule la décision du 26/07). */
-    --shadow-card: none;
-    --shadow-card-hover: none;
-    --shadow-sm: 0 1px 2px rgba(22, 39, 58, 0.05);
-    --shadow-md: 0 6px 16px rgba(22, 39, 58, 0.06);
-    --shadow-lg: 0 16px 32px rgba(22, 39, 58, 0.1);
-
-    /* ── Mouvement ──
-       standard : hover/focus, micro-interactions
-       out      : éléments qui entrent depuis un état neutre (fade de vue)
-       spring   : panneaux qui prennent possession de l'écran (modale,
-                  tiroir) — décélération franche avec un tout petit
-                  dépassement, sensation "premium", pas mécanique. */
-    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-out: cubic-bezier(0, 0, 0.2, 1);
-    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-    --duration-fast: 120ms;
-    --duration-base: 200ms;
-    --duration-slow: 320ms;
-
-    /* Seules les surfaces réellement flottantes (tiroir, modale, menu)
-       gardent une ombre — neutre, pas teintée (00-doctrine.md, D6). */
-    --shadow-float: 0 32px 64px -28px rgb(22 39 58 / 0.4);
-
-    /* ── Grain ───────────────────────────────────────────────
-       Bruit fractal en multiply sur le fond de vue : la chaux
-       devient du papier. Posé une seule fois sur .app via
-       ::after, jamais par carte (coût de composition). Ce n'est
-       pas un dégradé de fond (texture de bruit, pas une teinte) :
-       reste autorisé sous la règle du §1.3. */
-    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
-    --grain-opacity: 0.5;
-    --grain-blend: multiply;
-
-    /* ── Mouvement ──────────────────────────────────────────
-       Entrée depuis un flou de 7px, pas depuis l'opacité seule.
-       70ms d'écart entre blocs voisins : la vue se construit
-       devant l'œil sans jamais faire attendre. */
-    --duration-enter: 620ms;
-    --stagger: 80ms;
-    --blur-enter: 7px;
-
-    /* ── Couleurs de marque émetteur (spec Passe 7, bloc 7g) ──
-       Seule exception à "zéro couleur littérale" du système : un
-       émetteur se reconnaît à sa couleur réelle, pas à un token de
-       rôle chaux/mer/terre. Consommées uniquement via une classe
-       (.pilotage-issuer-*.issuer-xxx dans views.css), jamais en
-       style="" — la couleur ne s'écrit pas dans le JS (règle §3).
-       Identiques en clair et en sombre : une marque ne change pas de
-       couleur avec le thème, pas besoin de les redéfinir sous
-       [data-theme="dark"]. Mapping émetteur → token dans
-       issuer-registry.js (brandColor), pas dans ce fichier. */
+    /* ── Couleurs de marque émetteur — hors périmètre, conservées telles
+       quelles (spec Passe 7, bloc 7g). Seule exception à "zéro couleur
+       littérale" du système : un émetteur se reconnaît à sa couleur réelle,
+       pas à un token de rôle. Identiques en clair et en sombre. ── */
     --issuer-bnp: #00875a;
     --issuer-sg: #e4032e;
     --issuer-ms: #002b49;
@@ -214,95 +220,66 @@
     --issuer-commerz: #ffcc00;
     --issuer-leonteq: #009999;
     --issuer-bofa: #e31837;
-
-    /* ── Bandeau d'encre pleine largeur (spec design-tokens-v2, 07/08) ──
-       Rôle : porte les trois chiffres de tête d'un écran, une seule bande
-       par vue. Ni une carte ni une surface — un aplat d'encre. Interdits
-       dessus : token de risque en fond, dégradé de teinte, ombre. */
-    --color-band: var(--encre);
-    --color-on-band: oklch(0.965 0.012 85);
 }
 
 /* ============================================================
-   DARK MODE — option via toggle, jamais par défaut. Une nuit
-   méditerranéenne n'est pas terreuse : elle est bleu de mer profonde
-   (réécrit le 01/08 — le premier essai assombrissait la chaux, teinte
-   85, et virait au brun-olive boueux). Le fond sombre part de la
-   teinte de --encre assombrie (~235), pas d'une chaux inversée : la
-   mer et la terre s'y détachent beaucoup mieux. 3 marches distinctes
-   (bg → surface-1 → surface-2), écart minimum de 8 % de luminance
-   entre chacune, sinon les cartes disparaissent (constat capture
-   25/07).
+   NUIT — sélecteur inchangé : :root[data-theme="dark"]. Le nom "dark" du
+   dépôt est conservé, il n'est visible de personne et le renommer touche
+   trois langages pour rien.
    ============================================================ */
 :root[data-theme="dark"] {
-    --chaux: oklch(0.145 0.042 240);
-    --chaux-2: oklch(0.195 0.046 240);
-    --rule: rgb(190 210 235 / 0.14);
-    --encre: #f3efe2;
-    --encre-2: #b3a795;
-    --mer: oklch(0.735 0.135 198);
-    --mer-profonde: oklch(0.815 0.125 195);
-    --lagune: rgb(74 172 173 / 0.18);
-    --olive: oklch(0.690 0.125 132);
-    --ocre: oklch(0.780 0.150 73);
-    --terracotta: oklch(0.665 0.170 32);
-    /* En nuit, la lumière ne peut pas être plus claire que la chaux :
-       elle devient un voile. */
-    --lumiere: rgb(214 226 242 / 0.10);
+    /* ── Couche 1 — Liquide, nuit ── */
+    --desk: #0B0F13;
 
-    /* Fond nettement plus sombre que les surfaces : 3 marches
-       distinctes (bg → surface-1 → surface-2), écart minimum de 8 %
-       de luminance entre chacune, sinon les cartes disparaissent
-       (constat capture 25/07). Même teinte ~235 sur toute la famille. */
-    --color-bg: var(--chaux);
-    --color-surface-1: oklch(0.17 0.038 235);
-    --color-surface-2: oklch(0.2 0.04 235);
-    --color-surface-3: oklch(0.245 0.042 235);
-    --color-surface-1-hover: oklch(0.195 0.04 235);
-    --color-surface-2-hover: oklch(0.225 0.042 235);
-    --color-surface-3-hover: oklch(0.27 0.044 235);
-    --color-wash: oklch(0.135 0.032 235);
-    --color-border: var(--rule);
-    --color-border-strong: rgb(190 210 235 / 0.24);
-    --color-divider: rgb(190 210 235 / 0.09);
-    --color-surface-sunk: oklch(0.12 0.03 235);
-    /* Marche au-dessus de --color-surface-2, comme en clair. */
-    --color-surface-raised: oklch(0.235 0.04 235);
+    --azur: #1E5F7C;
+    --azur-clair: #4EA8C4;
+    --azur-profond: #0B3F5C;
+    --marine: #04222F;
 
-    /* Voile plus opaque en sombre : le fond est déjà proche du noir,
-       un voile clair comme en thème jour ne détacherait rien. */
-    --color-scrim: rgb(0 0 0 / 0.6);
+    --encre: #F0F3F2;
+    --encre-2: #A9B5C0;
+    --encre-3: #8792A0;
+    --trait: rgba(255, 255, 255, 0.10);
+    --rail: rgba(255, 255, 255, 0.10);
+    --encre-faible: rgba(255, 255, 255, 0.22);
 
-    --color-ink: var(--encre);
-    --color-text-primary: var(--encre);
-    --color-text-secondary: var(--encre-2);
-    --color-text-tertiary: oklch(0.58 0.025 235);
-    --color-text-on-dark: #ffffff;
+    --vert: #4FA87A;
+    --rouge: #FF7A7C;
+    --ambre: #EDB65C;
+    --rouge-encre: #2A0708;
 
-    --color-accent: var(--mer);
-    --color-accent-hover: var(--mer-profonde);
-    --color-accent-tint: var(--lagune);
-    --color-accent-ink: var(--chaux);
+    --flottant: rgba(255, 255, 255, 0.10);
+    --flottant-brd: rgba(255, 255, 255, 0.20);
+    --verre: linear-gradient(155deg, rgba(30,42,52,.82), rgba(18,26,33,.74));
+    --verre-brd: rgba(255, 255, 255, 0.14);
 
-    /* Désaturés/éclaircis pour rester lisibles sur fond sombre sans
-       brûler — mêmes usages qu'en clair (distance à une barrière). */
-    --color-safe: var(--olive);
-    --color-safe-2: color-mix(in oklch, var(--olive), white 15%);
-    --color-watch: var(--ocre);
-    --color-watch-2: color-mix(in oklch, var(--ocre), white 15%);
-    --color-breach: var(--terracotta);
-    --color-breach-2: color-mix(in oklch, var(--terracotta), white 15%);
+    --dalle-a: linear-gradient(150deg, #151B21 0%, #12181D 48%, #1A1F22 100%);
+    --dalle-b: linear-gradient(160deg, #1C1A18 0%, #171A1D 60%, #1E1A16 100%);
+    --dalle-c: linear-gradient(190deg, #1A1B18 0%, #14181C 58%, #12181A 100%);
 
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
-    --shadow-md: 0 6px 16px rgb(0 0 0 / 0.38);
-    --shadow-lg: 0 16px 32px rgb(0 0 0 / 0.45);
-    --shadow-float: 0 36px 70px -26px rgb(0 0 0 / 0.85);
+    --dalle-a-plat: #12181D;
+    --dalle-b-plat: #171A1D;
+    --dalle-c-plat: #14181C;
 
-    /* Le grain se voit trois fois plus sur du sombre : screen à très
-       basse opacité, sinon la vue devient sale. */
-    --grain-opacity: 0.28;
-    --grain-blend: screen;
+    --puck: #EAF3F6;
+    --chip: #EAF3F6;
+    --chip-encre: #0E1519;
 
-    --color-band: oklch(0.115 0.038 240);
-    --color-on-band: #f3efe2;
+    --survol: color-mix(in oklab, var(--azur-clair) 9%, transparent);
+
+    --em-l: .775;
+    --em-c: .145;
+
+    --voile: rgb(0 0 0 / 0.62);
+
+    /* --sur-azur, --sur-azur-2, les cinq rayons et --ease ne sont pas
+       redéclarés : la nappe reste de l'eau en nuit, le texte qui la
+       surmonte reste blanc, et un rayon n'a pas de thème. */
+
+    /* ── Couche 2, pendant nuit — trois lignes seulement, tout le reste
+       hérite par re-résolution de la couche 1 ci-dessus. ── */
+    --shadow-float:           0 36px 70px -26px rgb(0 0 0 / 0.85);
+    --color-safe-2:           color-mix(in oklab, var(--vert), #fff 15%);
+    --color-watch-2:          color-mix(in oklab, var(--ambre), #fff 15%);
+    --color-breach-2:         color-mix(in oklab, var(--rouge), #fff 15%);
 }

@@ -33,6 +33,12 @@ const TOKENS_FILE = "src/design-tokens.css";
 // Familles non chromatiques déjà déclarées ailleurs ou légitimement locales.
 const IGNORED_PREFIXES = ["--space-", "--text-", "--radius-", "--font-", "--ease-", "--duration-", "--shadow-", "--issuer-", "--grain", "--blur-", "--stagger", "--signal", "--row", "--grid"];
 
+// Propriétés CSS locales posées à l'exécution par JS (style="" / setProperty) :
+// ce ne sont pas des tokens de design, elles n'ont jamais eu à être déclarées
+// dans design-tokens.css. Perdu dans le passage whitelist → blacklist du
+// 22/08 ; restauré ici (whitelist du lot Liquide 01).
+const IGNORED_EXACT = new Set(["--tone", "--dot", "--at", "--mx", "--my", "--pitch-header-h", "--view-enter-y", "--gradient-card-lit", "--dur"]);
+
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (name === "node_modules" || name.startsWith(".")) continue;
@@ -69,8 +75,21 @@ for (const file of files) {
   text.split("\n").forEach((line, i) => {
     for (const m of line.matchAll(/--[a-z0-9-]{2,}/g)) {
       const name = m[0];
+      // Notation générique de prose (--color-*, --radius-*…) : pas un nom,
+      // une famille. Le regex s'arrête à la barre avant l'étoile.
+      if (name.endsWith("-")) continue;
       if (declared.has(name)) continue;
       if (IGNORED_PREFIXES.some((p) => name.startsWith(p))) continue;
+      if (IGNORED_EXACT.has(name)) continue;
+      // Un nom de token s'EMPLOIE (var(--x), ou --x: en déclaration) ou il
+      // se MENTIONNE (prose, drapeau CLI --dry-run/--lot/--app…). Seul
+      // l'emploi est une vraie référence ; sans ce filtre, tout `--mot`
+      // d'un fichier .md ou d'un usage de script se fait passer pour un
+      // token de couleur non déclaré.
+      const avant = line.slice(0, m.index);
+      const apres = line.slice(m.index + name.length);
+      const emploi = /var\($/.test(avant) || /^\s*:/.test(apres);
+      if (!emploi) continue;
       // Une ligne de mapping documente volontairement un nom fautif.
       if (/nom fautif|à utiliser|à ajouter|fautif \(v1\)/i.test(line)) continue;
       problems.push({ file: relative(ROOT, file), line: i + 1, name, text: line.trim().slice(0, 110) });
