@@ -229,10 +229,6 @@
    périmètre de cette spec, .al ci-dessous n'est plus consommé que par
    Pilotage. Les positions du Dashboard prennent .cap-* (ci-après) :
    grille à 4 colonnes fixes, règle graduée à la place d'une jauge. */
-.dash-alerts-panel {
-    padding: var(--space-2) var(--space-3);
-}
-
 .al {
     display: grid;
     grid-template-columns: 3px minmax(0, 1fr) auto 160px;
@@ -326,46 +322,56 @@
     stroke-linejoin: round;
 }
 
-/* ── Sous la protection du capital — cartes (dashboard-correctif-02.md
-   § 2, forme reprise de Dashboard.dc.html l. 366-435). Trois cartes
-   bordées empilées, gap 2px — remplace la grille de lignes de tableau.
-   La règle graduée (groove/breach/notch/cursor) garde son mécanisme :
-   seule la boîte autour change. <ton> = --color-breach, ou
-   --color-watch si le produit est en surveillance non franchie
-   (.tone-watch, posé depuis statusCls). ── */
+/* ── Sous la protection du capital — tableau (Dashboard v3, maquette
+   handoff-septembre/maquette/Structura - Dashboard v3.html, mesurée en
+   DOM : grille 5 colonnes, pas de carte bordée — remplace la forme en
+   cartes de dashboard-correctif-02.md § 2, dépassée). La règle graduée
+   (groove/breach/notch/cursor) garde son mécanisme intact : seule la
+   boîte autour change. <ton> = --color-breach, ou --color-watch si le
+   produit est en surveillance non franchie (.tone-watch, posé depuis
+   statusCls). ── */
 .cap-empty {
     padding: var(--space-4) var(--space-3);
     font-size: var(--text-sm);
     color: var(--color-text-tertiary);
 }
 
-.cap-cards {
+.cap-table {
     display: flex;
     flex-direction: column;
-    gap: 2px;
 }
 
-.cap-card {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 16px 18px;
-    background: var(--color-surface-2);
-    box-shadow: inset 0 0 0 1px var(--color-border), inset 3px 0 0 var(--color-breach), inset 0 1px 0 var(--lumiere);
+.cap-head-row,
+.cap-row {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) 96px minmax(220px, 1.1fr) 110px 90px;
+    gap: 24px;
+    align-items: center;
+    padding: var(--space-4);
+}
+
+.cap-head-row {
+    border-bottom: 1px solid var(--color-border);
+    padding-top: 0;
+    padding-bottom: 12px;
+}
+
+.cap-row {
     cursor: pointer;
-    transition: box-shadow var(--duration-fast) var(--ease-standard);
+    transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
-.cap-card:hover {
-    box-shadow: inset 0 0 0 1px var(--color-border-strong), inset 3px 0 0 var(--color-breach), inset 0 1px 0 var(--lumiere);
+.cap-row:hover {
+    background: var(--color-surface-1-hover);
 }
 
-.cap-card.tone-watch {
-    box-shadow: inset 0 0 0 1px var(--color-border), inset 3px 0 0 var(--color-watch), inset 0 1px 0 var(--lumiere);
+.cap-col-right {
+    text-align: right;
 }
 
-.cap-card.tone-watch:hover {
-    box-shadow: inset 0 0 0 1px var(--color-border-strong), inset 3px 0 0 var(--color-watch), inset 0 1px 0 var(--lumiere);
+.cap-axis-labels {
+    display: flex;
+    justify-content: space-between;
 }
 
 .cap-name {
@@ -376,7 +382,7 @@
 }
 
 .cap-name strong {
-    font-size: 14.5px;
+    font-size: var(--text-base);
     font-weight: 500;
     letter-spacing: -0.012em;
     color: var(--color-text-primary);
@@ -387,34 +393,48 @@
 
 .cap-meta {
     font-family: var(--font-mono-data);
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--color-text-tertiary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.cap-perf-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-}
-
 .cap-perf {
     font-family: var(--font-mono-data);
-    font-size: 21px;
+    font-size: var(--text-xl);
     letter-spacing: -0.025em;
     color: var(--color-breach);
+    text-align: right;
+}
+
+.cap-row.tone-watch .cap-perf {
+    color: var(--color-watch);
+}
+
+.cap-niveau {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.cap-barriere {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 .cap-rule {
     position: relative;
     display: block;
-    height: 11px;
+    height: 12px;
     overflow: hidden;
     background: var(--color-surface-sunk);
-    box-shadow: inset 0 1px 0 var(--color-border-strong), inset 0 -1px 0 var(--lumiere);
+    box-shadow: inset 0 0 0 1px var(--color-border);
 }
 
 .cap-groove {
@@ -431,7 +451,7 @@
     box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-breach), transparent 55%);
 }
 
-.cap-card.tone-watch .cap-breach {
+.cap-row.tone-watch .cap-breach {
     background-image: repeating-linear-gradient(115deg, var(--color-watch) 0 2px, transparent 2px 5px);
     background-color: color-mix(in oklch, var(--color-watch), transparent 80%);
     box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-watch), transparent 55%);
@@ -463,42 +483,8 @@
     background: var(--color-breach);
 }
 
-.cap-card.tone-watch .cap-cursor {
+.cap-row.tone-watch .cap-cursor {
     background: var(--color-watch);
-}
-
-.cap-axis-row {
-    position: relative;
-    height: 12px;
-    font-family: var(--font-mono-data);
-    font-size: 9.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--encre-2);
-}
-
-.cap-axis-row span:first-child {
-    position: absolute;
-    left: 0;
-}
-
-.cap-axis-row span:nth-child(2) {
-    position: absolute;
-    left: 75%;
-    transform: translateX(-50%);
-}
-
-.cap-axis-row span:last-child {
-    position: absolute;
-    right: 0;
-}
-
-.cap-legend {
-    font-family: var(--font-mono-data);
-    font-size: 9.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--encre-2);
 }
 
 /* ── Performance ─────────────────────────────────────────── */
@@ -637,6 +623,10 @@
 /* Une liste, pas deux colonnes. Les deux moitiés partagent la même
    grille de 3 colonnes : les libellés et les chiffres tombent sur les
    mêmes axes du haut en bas du bloc. */
+.dash-module {
+    min-width: 0;
+}
+
 .dash-module-panel {
     padding: var(--space-2) var(--space-3);
 }
@@ -660,12 +650,12 @@
     display: grid;
     grid-template-columns: 186px 1fr 1fr 54px;
     gap: 16px;
-    padding: 0 var(--space-3) 11px;
+    padding: 0 var(--space-3) 12px;
     border-bottom: 1px solid var(--color-border);
     font-family: var(--font-mono-data);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+    font-size: var(--text-xs);
+    font-weight: 400;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-text-tertiary);
 }
@@ -704,7 +694,7 @@
     display: block;
     min-width: 0;
     padding-right: 12px;
-    font-size: 13px;
+    font-size: var(--text-sm);
     font-weight: 400;
     color: var(--color-text-secondary);
     overflow: hidden;
@@ -733,24 +723,18 @@
     height: 10px;
 }
 
-.vl-diverge-half-neg .vl-diverge-bar {
-    background-image: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px);
-    background-color: color-mix(in oklch, var(--color-ink), transparent 80%);
-    /* C7 : arête basse, pas haute — les deux barres creusent en sens
-       inverse (positive vers la gauche, négative vers la droite), la
-       lumière tombe du même côté sur les deux, c'est la matière qui
-       s'inverse. */
-    box-shadow: inset 0 -1px 0 var(--lumiere);
-}
-
+/* Trame encre 2/5 px dans les deux sens (Dashboard v3 : mesurée
+   identique côté positif et négatif, oklch ink/0.24 — annule
+   dashboard-correctif-01.md C7's remplissage plein côté positif). */
+.vl-diverge-half-neg .vl-diverge-bar,
 .vl-diverge-half-pos .vl-diverge-bar {
-    background: color-mix(in oklch, var(--color-ink), transparent 38%);
-    box-shadow: inset 0 1px 0 var(--lumiere);
+    background-image: repeating-linear-gradient(115deg, var(--color-ink) 0 2px, transparent 2px 5px);
+    background-color: color-mix(in oklch, var(--color-ink), transparent 76%);
 }
 
 .vl-diverge-value {
     font-family: var(--font-mono-data);
-    font-size: 12.5px;
+    font-size: var(--text-sm);
     font-weight: 400;
     font-variant-numeric: tabular-nums;
     color: var(--color-ink);
@@ -758,344 +742,88 @@
     white-space: nowrap;
 }
 
-/* ── Corps du Dashboard — deux colonnes (dashboard-correctif-02.md § 5,
-   mesuré sur Dashboard.dc.html l. 208-357). Remplace .dash-vl-grid (perdant
-   nommé) : la paire Top/Flop + Distribution côte à côte compressait
-   Top/Flop pendant que le reste de la page s'étalait en pleine largeur —
-   sans cette grille, seule la piste centrale des lignes absorbait le
-   surplus. ── */
+/* ── Corps du Dashboard — Dashboard v3 (maquette handoff-septembre/
+   maquette/Structura - Dashboard v3.html, mesurée en DOM, page pleine
+   1437px, aucun contenu au-delà) : « Sous la protection du capital »
+   pleine largeur, puis Top/Flop VL + Exposition par groupe bancaire
+   côte à côte. Remplace .dash-body-left/.dash-body-right (paire
+   alertes/VL+risque de dashboard-correctif-02.md § 5) : Distribution
+   du risque et Ce qui arrive n'existent plus dans cette anatomie —
+   exactement trois blocs après les KPI, aucun de plus. ── */
 .dash-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1.32fr) minmax(0, 1fr);
-    gap: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
     padding: 40px 44px 44px;
 }
 
-.dash-body-left {
-    display: flex;
-    flex-direction: column;
-    gap: 44px;
-    min-width: 0;
-}
-
-.dash-body-right {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-    min-width: 0;
-}
-
-.dash-risk-intro {
-    margin: 0 0 var(--space-3);
-    padding: 0 var(--space-3);
-    font-size: var(--text-xs);
-    line-height: 1.5;
-    color: var(--color-text-tertiary);
-}
-
-/* Barre empilée (specs/dashboard.md § 2.3) : 44px, trois zones, une
-   arête de chaux entre segments adjacents (inset, pas une vraie
-   gouttière — la barre reste un seul objet visuel) et une arête haute
-   1px dans le ton de chaque zone. */
-.dash-risk-bar {
-    display: flex;
-    height: 44px;
-    margin: 0 var(--space-3);
-    border-radius: 0;
-    overflow: hidden;
-}
-
-.dash-risk-seg {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    box-shadow: inset -1px 0 0 var(--chaux);
-}
-
-.dash-risk-seg::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-}
-
-.dash-risk-seg-breach {
-    background-image: repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px);
-    background-color: color-mix(in oklch, var(--color-breach), transparent 80%);
-    color: var(--color-breach);
-}
-
-.dash-risk-seg-breach::before {
-    background: var(--color-breach);
-}
-
-.dash-risk-seg-watch {
-    background-image: repeating-linear-gradient(115deg, var(--color-watch) 0 2px, transparent 2px 5px);
-    background-color: color-mix(in oklch, var(--color-watch), transparent 80%);
-    color: var(--color-watch);
-}
-
-.dash-risk-seg-watch::before {
-    background: var(--color-watch);
-}
-
-.dash-risk-seg-safe {
-    background: color-mix(in oklch, var(--color-ink), transparent 90%);
-    color: var(--color-ink);
-}
-
-.dash-risk-seg-safe::before {
-    background: color-mix(in oklch, var(--color-ink), transparent 66%);
-}
-
-.dash-risk-rows {
-    display: flex;
-    flex-direction: column;
-}
-
-.dash-risk-row {
+.dash-body-row {
     display: grid;
-    grid-template-columns: 14px minmax(0, 1fr) 74px 62px;
-    gap: 16px;
-    align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--color-divider);
-    border-radius: 0;
-    transition: background-color var(--duration-fast) var(--ease-standard);
-}
-
-.dash-risk-row:last-child {
-    border-bottom: none;
-}
-
-.dash-risk-row:hover {
-    background: var(--color-surface-1-hover);
-}
-
-.dash-risk-dot {
-    width: 14px;
-    height: 10px;
-    border-radius: 0;
-}
-
-.dash-risk-dot-breach {
-    background-image: repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px);
-    background-color: color-mix(in oklch, var(--color-breach), transparent 80%);
-}
-
-.dash-risk-dot-watch {
-    background-image: repeating-linear-gradient(115deg, var(--color-watch) 0 2px, transparent 2px 5px);
-    background-color: color-mix(in oklch, var(--color-watch), transparent 80%);
-}
-
-.dash-risk-dot-safe {
-    background: color-mix(in oklch, var(--color-ink), transparent 90%);
-    box-shadow: inset 0 1px 0 color-mix(in oklch, var(--color-ink), transparent 66%);
-}
-
-.dash-risk-lbl {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 0;
-}
-
-.dash-risk-lbl strong {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--color-text-primary);
-    white-space: nowrap;
-}
-
-.dash-risk-lbl small {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.dash-risk-pct {
-    font-family: var(--font-mono-data);
-    font-size: 19px;
-    font-weight: 400;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-}
-
-.dash-risk-pct-breach {
-    color: var(--color-breach);
-}
-
-.dash-risk-pct-watch {
-    color: var(--color-watch);
-}
-
-.dash-risk-pct-safe {
-    color: var(--color-ink);
-}
-
-.dash-risk-count {
-    font-family: var(--font-mono-data);
-    font-size: 11.5px;
-    color: var(--color-text-tertiary);
-    text-align: right;
-}
-
-/* ── Grille des modules bas de page — un seul module depuis que
-   Répartition émetteurs en est sorti (dashboard-correctif-02.md § 3,
-   bande pleine largeur, voir .dash-issuer-section). ── */
-.dash-insights-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 32px;
     align-items: start;
 }
 
-.dash-module {
+.dash-vl-section {
     min-width: 0;
 }
 
-/* ── Répartition émetteurs (dashboard-correctif-02.md § 3) — bande
-   pleine largeur : copie + lien à gauche, anneau + tableau à droite.
-   L'anneau est un cercle SVG à arcs (stroke-dasharray), pas un
-   conic-gradient : la couleur voyage par classe .issuer-<id>, jamais en
-   style="" (règle §3 — même contrainte que Pilotage, app-analytics.js). ── */
-.dash-issuer-section {
-    display: grid;
-    grid-template-columns: 296px minmax(0, 1fr);
-    align-items: center;
-    gap: 48px;
-    padding-top: 34px;
-    box-shadow: inset 0 1px 0 var(--color-border);
+/* Micro-label partagé des trois blocs (en-tête de colonne, compteur de
+   section) — mesuré sur la maquette : mono 12px, 0.12em, encre-3. */
+.dash-th {
+    font-family: var(--font-mono-data);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
 }
 
-.dash-issuer-copy {
+.dash-alerts-block .sec-title,
+.dash-vl-section .sec-title,
+.dash-issuer-section .sec-title {
+    font-size: var(--text-xl);
+    font-weight: 300;
+}
+
+/* ── Exposition par groupe bancaire (Dashboard v3, mesurée en DOM) —
+   tableau seul, plus d'anneau : swatch carré + nom + trait souligné à
+   la couleur de marque (largeur = part réelle du groupe), NOMINAL et
+   PART alignés à droite. Couleur de marque jamais en style="" — classe
+   .issuer-<id> uniquement (même table que Pilotage, app-analytics.js). ── */
+.dash-issuer-section {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .dash-issuer-intro {
-    margin: 12px 0 0;
-    font-size: 13.5px;
-    line-height: 1.55;
+    margin: 4px 0 var(--space-3);
+    font-size: var(--text-sm);
+    line-height: 1.5;
     color: var(--color-text-secondary);
-}
-
-.dash-issuer-link {
-    margin-top: 16px;
-    font-family: var(--font-mono-data);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    cursor: pointer;
-}
-
-.dash-issuer-link:hover {
-    color: var(--color-accent-hover);
-}
-
-.issuer-exposure {
-    display: grid;
-    grid-template-columns: 212px minmax(0, 1fr);
-    align-items: center;
-    gap: 44px;
-    min-width: 0;
-}
-
-.issuer-ring {
-    position: relative;
-    width: 212px;
-    height: 212px;
-}
-
-.issuer-ring-svg {
-    display: block;
-    width: 212px;
-    height: 212px;
-}
-
-.issuer-ring-seg {
-    stroke: color-mix(in oklch, var(--color-ink), var(--color-bg) 78%);
-}
-
-.issuer-ring-seg.issuer-bnp { stroke: var(--issuer-bnp); }
-.issuer-ring-seg.issuer-sg { stroke: var(--issuer-sg); }
-.issuer-ring-seg.issuer-ms { stroke: var(--issuer-ms); }
-.issuer-ring-seg.issuer-jpm { stroke: var(--issuer-jpm); }
-.issuer-ring-seg.issuer-gs { stroke: var(--issuer-gs); }
-.issuer-ring-seg.issuer-db { stroke: var(--issuer-db); }
-.issuer-ring-seg.issuer-barc { stroke: var(--issuer-barc); }
-.issuer-ring-seg.issuer-hsbc { stroke: var(--issuer-hsbc); }
-.issuer-ring-seg.issuer-natixis { stroke: var(--issuer-natixis); }
-.issuer-ring-seg.issuer-cacib { stroke: var(--issuer-cacib); }
-.issuer-ring-seg.issuer-citi { stroke: var(--issuer-citi); }
-.issuer-ring-seg.issuer-ubs { stroke: var(--issuer-ubs); }
-.issuer-ring-seg.issuer-vontobel { stroke: var(--issuer-vontobel); }
-.issuer-ring-seg.issuer-unicredit { stroke: var(--issuer-unicredit); }
-.issuer-ring-seg.issuer-commerz { stroke: var(--issuer-commerz); }
-.issuer-ring-seg.issuer-leonteq { stroke: var(--issuer-leonteq); }
-.issuer-ring-seg.issuer-bofa { stroke: var(--issuer-bofa); }
-
-.issuer-ring-hole {
-    position: absolute;
-    inset: 34px;
-    border-radius: var(--radius-full);
-    background: var(--color-bg);
-    box-shadow: inset 0 0 0 1px var(--color-divider), inset 0 2px 0 var(--lumiere);
-}
-
-.issuer-ring-center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    text-align: center;
-    pointer-events: none;
-}
-
-.issuer-ring-center strong {
-    font-family: var(--font-heading);
-    font-size: 34px;
-    font-weight: 200;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    color: var(--color-ink);
-}
-
-.issuer-ring-center span {
-    font-family: var(--font-mono-data);
-    font-size: 9.5px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
 }
 
 .issuer-table {
     display: flex;
     flex-direction: column;
-    min-width: 0;
+}
+
+.issuer-head-row {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) 96px 64px;
+    gap: 12px;
+    padding: 0 var(--space-3) 12px;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .issuer-table-row {
     display: grid;
-    grid-template-columns: 10px minmax(0, 1fr) 78px 60px;
+    grid-template-columns: 12px minmax(0, 1fr) 96px 64px;
     align-items: center;
-    gap: 14px;
-    padding: 9px 10px;
-    margin: 0 -10px;
+    gap: 12px;
+    padding: 8px var(--space-3);
+    margin: 0 calc(-1 * var(--space-3));
     box-shadow: inset 0 -1px 0 var(--color-divider);
     transition: background-color var(--duration-fast) var(--ease-standard);
 }
@@ -1109,8 +837,8 @@
 }
 
 .issuer-swatch {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     background: color-mix(in oklch, var(--color-ink), var(--color-bg) 78%);
 }
 
@@ -1132,24 +860,56 @@
 .issuer-swatch.issuer-leonteq { background: var(--issuer-leonteq); }
 .issuer-swatch.issuer-bofa { background: var(--issuer-bofa); }
 
+.issuer-table-name-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
 .issuer-table-name {
-    font-size: 13.5px;
+    font-size: var(--text-sm);
     color: var(--color-ink);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+.issuer-table-underline {
+    display: block;
+    height: 4px;
+    max-width: 100%;
+    background: color-mix(in oklch, var(--color-ink), var(--color-bg) 78%);
+}
+
+.issuer-table-underline.issuer-bnp { background: var(--issuer-bnp); }
+.issuer-table-underline.issuer-sg { background: var(--issuer-sg); }
+.issuer-table-underline.issuer-ms { background: var(--issuer-ms); }
+.issuer-table-underline.issuer-jpm { background: var(--issuer-jpm); }
+.issuer-table-underline.issuer-gs { background: var(--issuer-gs); }
+.issuer-table-underline.issuer-db { background: var(--issuer-db); }
+.issuer-table-underline.issuer-barc { background: var(--issuer-barc); }
+.issuer-table-underline.issuer-hsbc { background: var(--issuer-hsbc); }
+.issuer-table-underline.issuer-natixis { background: var(--issuer-natixis); }
+.issuer-table-underline.issuer-cacib { background: var(--issuer-cacib); }
+.issuer-table-underline.issuer-citi { background: var(--issuer-citi); }
+.issuer-table-underline.issuer-ubs { background: var(--issuer-ubs); }
+.issuer-table-underline.issuer-vontobel { background: var(--issuer-vontobel); }
+.issuer-table-underline.issuer-unicredit { background: var(--issuer-unicredit); }
+.issuer-table-underline.issuer-commerz { background: var(--issuer-commerz); }
+.issuer-table-underline.issuer-leonteq { background: var(--issuer-leonteq); }
+.issuer-table-underline.issuer-bofa { background: var(--issuer-bofa); }
+
 .issuer-table-amt {
     font-family: var(--font-mono-data);
-    font-size: 12.5px;
+    font-size: var(--text-xs);
     text-align: right;
     color: var(--color-text-secondary);
 }
 
 .issuer-table-pct {
     font-family: var(--font-mono-data);
-    font-size: 13.5px;
+    font-size: var(--text-sm);
     text-align: right;
     color: var(--color-ink);
 }
@@ -1164,299 +924,6 @@
 
 .issuer-table-rest .issuer-table-pct {
     color: var(--color-text-secondary);
-}
-
-/* ── Marge avant la barrière (dashboard-correctif-02.md § 2, D1) ──
-   5 marges les plus serrées puis 5 plus larges. Axe fixe voir
-   CAP_MARGIN_AXIS_MIN/MAX (app-dashboard.js). ── */
-.cap-margin-intro {
-    margin: 8px 0 0;
-    font-size: 13.5px;
-    color: var(--color-text-secondary);
-}
-
-.cap-margin {
-    display: flex;
-    flex-direction: column;
-}
-
-.cap-margin-hdr {
-    display: grid;
-    grid-template-columns: 196px minmax(0, 1fr) 72px;
-    align-items: center;
-    gap: 20px;
-    padding: 22px 12px 9px;
-    margin: 0 -12px;
-}
-
-.cap-margin-hdr:first-child {
-    padding-top: 0;
-}
-
-.cap-margin-hdr-lbl {
-    font-family: var(--font-mono-data);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
-}
-
-.cap-margin-hdr-lbl-tight {
-    color: var(--color-breach);
-}
-
-.cap-margin-hdr-zero {
-    position: relative;
-    display: block;
-    height: 10px;
-}
-
-.cap-margin-hdr-zero-mark {
-    position: absolute;
-    left: 25%;
-    top: 2px;
-    bottom: -4px;
-    width: 1px;
-    background: var(--color-border-strong);
-}
-
-.cap-margin-hdr-zero-label {
-    position: absolute;
-    left: 25%;
-    top: -2px;
-    transform: translateX(-50%);
-    padding: 0 4px;
-    background: var(--color-surface-1);
-    font-family: var(--font-mono-data);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    color: var(--color-text-tertiary);
-}
-
-.cap-margin-row {
-    display: grid;
-    grid-template-columns: 196px minmax(0, 1fr) 72px;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    padding: 13px 12px;
-    margin: 0 -12px;
-    border: none;
-    background: none;
-    text-align: left;
-    font-family: var(--font-body);
-    cursor: pointer;
-    box-shadow: inset 0 -1px 0 var(--color-divider);
-    transition: background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
-}
-
-.cap-margin-row:last-child {
-    box-shadow: none;
-}
-
-.cap-margin-row:hover {
-    background: var(--color-surface-2);
-    box-shadow: inset 0 -1px 0 var(--color-divider), inset 2px 0 0 var(--color-accent);
-}
-
-.cap-margin-row:last-child:hover {
-    box-shadow: inset 2px 0 0 var(--color-accent);
-}
-
-.cap-margin-name {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-}
-
-.cap-margin-name strong {
-    font-weight: 500;
-    color: var(--color-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cap-margin-meta {
-    font-size: 12px;
-    color: var(--color-text-tertiary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cap-margin-track {
-    position: relative;
-    display: block;
-    height: 8px;
-    background: var(--color-surface-sunk);
-    box-shadow: inset 0 0 0 1px var(--color-divider);
-}
-
-.cap-margin-zero {
-    position: absolute;
-    left: 25%;
-    top: -3px;
-    bottom: -3px;
-    width: 1px;
-    background: var(--color-border-strong);
-}
-
-.cap-margin-bar {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-}
-
-.cap-margin-bar-neg {
-    background: var(--color-breach);
-    transform-origin: right;
-}
-
-.cap-margin-bar-pos {
-    background: var(--color-ink);
-    transform-origin: left;
-}
-
-.cap-margin-val {
-    font-family: var(--font-mono-data);
-    font-size: 14px;
-    text-align: right;
-    color: var(--color-ink);
-}
-
-.cap-margin-val-neg {
-    color: var(--color-breach);
-}
-
-/* ── Ce qui arrive — groupé par mois (dashboard-correctif-02.md § 2) ──
-   Ligne "Aujourd'hui" fixe en tête, puis les événements des 6 semaines
-   à venir groupés par mois. Colonne montant réutilise eventAmountCell
-   (app-dashboard.js) telle quelle : mêmes classes .timeline-amt/
-   .timeline-cashflow/.timeline-level/.timeline-exposure qu'à
-   l'échéancier du tiroir (evHtml, .cal-product-timeline), données non
-   dupliquées. Conteneur : .dash-timeline (déjà déclaré ci-dessous, non
-   dupliqué). ── */
-.dash-agenda-today {
-    display: grid;
-    grid-template-columns: 52px minmax(0, 1fr) auto;
-    align-items: center;
-    column-gap: 16px;
-    padding: 9px 12px;
-    margin: 0 -12px;
-    background: var(--color-surface-2);
-    box-shadow: inset 3px 0 0 var(--color-accent), inset 0 1px 0 var(--lumiere);
-}
-
-.dash-agenda-today-day {
-    font-family: var(--font-mono-data);
-    font-size: 12px;
-    color: var(--color-ink);
-}
-
-.dash-agenda-today-lbl {
-    font-size: 13px;
-    color: var(--color-text-secondary);
-}
-
-.dash-agenda-today-weekday {
-    font-family: var(--font-mono-data);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
-}
-
-.dash-agenda-month {
-    display: block;
-    margin: 20px 0 8px;
-    font-family: var(--font-mono-data);
-    font-size: 10px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
-}
-
-.dash-agenda-row {
-    display: grid;
-    grid-template-columns: 52px minmax(0, 1fr) auto;
-    align-items: baseline;
-    column-gap: 16px;
-    width: 100%;
-    padding: 14px 12px;
-    margin: 0 -12px;
-    border: none;
-    background: none;
-    text-align: left;
-    font-family: var(--font-body);
-    cursor: pointer;
-    box-shadow: inset 0 -1px 0 var(--color-divider);
-    transition: background-color var(--duration-fast) var(--ease-standard);
-}
-
-.dash-agenda-row:hover {
-    background: var(--color-surface-2);
-}
-
-.dash-agenda-date {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.dash-agenda-date b {
-    font-family: var(--font-mono-data);
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    color: var(--color-text-primary);
-}
-
-.dash-agenda-date small {
-    font-family: var(--font-mono-data);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
-}
-
-.dash-agenda-main {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 0;
-}
-
-.dash-agenda-main strong {
-    font-weight: 500;
-    color: var(--color-text-primary);
-}
-
-.dash-agenda-main small {
-    font-size: 13px;
-    color: var(--color-text-secondary);
-}
-
-.dash-agenda-amt-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 3px;
-}
-
-.dash-agenda-tag {
-    font-family: var(--font-mono-data);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-}
-
-/* ── Agenda produits ─────────────────────────────────────── */
-.dash-timeline {
-    display: flex;
-    flex-direction: column;
 }
 
 .timeline-item {

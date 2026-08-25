@@ -128,3 +128,37 @@ Une règle sans sonde est une promesse. Les promesses ont échoué six fois.
 Une sonde qui crie pour rien est pire que pas de sonde : elle fait réécrire des lignes
 justes, puis on cesse de la lancer. **Toute sonde neuve se cale sur le corpus existant
 avant d'être imposée.**
+
+## 8. Les invariants transversaux — ce qui ne se décide jamais dans un lot d'écran
+
+On travaille par écran. Mais un CGP ne vit pas dans un écran : il passe d'un onglet à
+l'autre en une seconde, et **toute différence qu'il remarque entre deux onglets est un
+bug, même si chaque onglet est juste séparément.**
+
+D'où la règle : **la liste ci-dessous ne se modifie pas dans un lot d'écran.** Un lot qui
+a besoin de changer un invariant s'arrête et devient un lot transversal, qui touche tous
+les écrans concernés en une fois.
+
+| Invariant | Où il vit | Écrans qui en dépendent |
+|---|---|---|
+| Ossature : barre latérale 236px, nav 42px/ligne, filet `inset -1px 0 0 --color-border` | `shell.css` | tous |
+| En-tête d'écran : date en mono 10,5px, titre `--font-heading` 52px/200 | `views.css` | tous |
+| La règle de barrière (rainure, encoche PDI, curseur, zone franchie) | `app-utils.js` + `relief.css` | Dashboard, Barrières, Portefeuille, tiroir |
+| Sémantique des couleurs : mer = sélectionné/actionnable, terre = barrière, encre = tout le reste | `CLAUDE.md` + `00-doctrine.md` | tous |
+| Formats de nombres : `moneyShort`, `pctFr`, `ptsFr` | `app-utils.js` | tous |
+| Seuils de statut | `statusFromDist` (`app-state.js`) | Dashboard, Barrières, Pilotage, Calendrier |
+| Couleurs de marque émetteur (seuls hex autorisés, R5) | à créer, un seul endroit | Dashboard, Pilotage |
+| Le tiroir produit (`openDrawer`) | `overlays.css` | tous les écrans qui listent des produits |
+| Pas d'ombre portée, rayon 2 px | `00-doctrine.md` D6 | tous |
+
+**Divergence ouverte, constatée le 11/08 — à trancher en lot transversal, pas dans un
+lot d'écran :** le Dashboard classe le risque à `0 / 10 %` (`riskZoneFor`,
+`app-dashboard.js`), Pilotage à `0 / 5 / 15 %` (`statusFromDist`, `app-state.js`). Le
+code documente cette différence comme volontaire — trois zones pour la lecture rapide,
+cinq statuts pour l'analyse. C'est défendable, mais alors **les libellés doivent
+différer aussi** : « à surveiller » ne peut pas désigner deux populations différentes
+d'un onglet à l'autre. Soit les seuils s'alignent, soit le Dashboard renomme ses zones.
+
+**Les couleurs de marque émetteur n'existent aujourd'hui nulle part comme source
+unique.** Le premier lot qui en a besoin (Dashboard § 5) les crée dans **un seul**
+fichier, que Pilotage réutilisera — jamais une seconde table.

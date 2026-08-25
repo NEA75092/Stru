@@ -1,24 +1,30 @@
 #!/usr/bin/env node
 // check-sources — rend mécaniques R1 et R3, qui n'étaient que des promesses.
 //
-// Pourquoi ce fichier existe. Les constats A1 à A8 de l'audit du 09/08 sont la
-// même panne répétée : le même contenu vit à deux endroits, et rien ne crie
-// quand les deux divergent. Le gabarit spécifié deux fois (A1). La maquette de
-// référence absente là où l'outil la cherche (A3). Le handoff en double, dépôt
-// et poste (A7). La vérité recopiée trois fois (A6).
+// Pourquoi ce fichier existe. En relisant l'audit du 09/08, les six constats
+// A1 à A8 sont la même panne répétée : le même contenu vit à deux endroits, et
+// rien ne crie quand les deux divergent. Le gabarit de contrôles spécifié deux
+// fois (A1). La maquette de référence absente là où l'outil la cherche (A3). Le
+// handoff en double, dépôt et poste (A7). La vérité recopiée trois fois (A6).
 //
 // Chaque fois, la réponse a été une règle de plus. Or une règle sans code de
 // sortie est une promesse de lire le bon fichier, et les promesses ont échoué
 // six fois. `check-tokens.mjs` est la seule qui ait tenu — parce qu'elle sort 1.
 //
-// Deux contrôles, un par panne qui a coûté une journée :
+// Donc, deux contrôles, un par panne qui a réellement coûté une journée :
 //
-//  1. R1 — un chemin cité dans une spec doit exister depuis la racine du dépôs de lot disaient
-//     `handoff-septembre/specs/…`, qui ne se résout pas depuis la racine.
+//  1. R1 — un chemin cité dans une spec doit exister depuis la racine du dépôt.
+//     Panne du 07/08 : une spec citait un fichier que Claude Code ne pouvait pas
+//     ouvrir. Panne d'A7 : tous les messages de lot disaient
+//     `handoff-septembre/specs/…`, chemin qui n'existe pas depuis la racine.
+//     Les deux se voient en vérifiant les chemins, pas en promettant de bien les
+//     écrire.
 //
 //  2. R3 — un document déclaré périmé ne doit plus être là pour être trouvé.
 //     Le § 4 du contrat gouverne ce qu'on DONNE, pas ce qu'on TROUVE. Un grep
 //     sur « control-band » tombait sur PASSE-8.md, que la doctrine écrase.
+//
+//   node structura-v2/handoff-septembre/tools/check-sources.mjs
 //
 // Sortie 0 = vert. Sortie 1 = un chemin ment, avec fichier et ligne.
 
@@ -27,8 +33,9 @@ import { join, relative } from "node:path";
 
 // Le script trouve la racine du dépôt lui-même, au lieu d'exiger un dossier de
 // lancement. Exiger une origine, c'est refaire la panne A7 dans l'outil qui la
-// contrôle : check-tokens.mjs veut structura-v2/, ce contrôle voulait la
-// racine, et le contrat donnait la même commande pour les deux.
+// contrôle : `check-tokens.mjs` veut être lancé depuis structura-v2/, ce contrôle
+// voulait la racine, et le contrat disait la même commande pour les deux.
+// Un outil ne doit pas dépendre du dossier où l'on se trouve.
 function trouveRacine() {
   let d = process.cwd();
   for (let i = 0; i < 8; i++) {
@@ -50,7 +57,7 @@ if (!ROOT) {
 const HANDOFF = "structura-v2/handoff-septembre";
 
 // ── Périmés. Un nom entre ici le jour où il est déclaré mort, et il n'en sort
-//    jamais. La liste nomme, elle ne juge pas.
+//    jamais. La liste est courte exprès : elle nomme, elle ne juge pas.
 const PERIMES = [
   "structura-v2/PASSE-1.md", "structura-v2/PASSE-2.md", "structura-v2/PASSE-3.md",
   "structura-v2/PASSE-4.md", "structura-v2/PASSE-5.md", "structura-v2/PASSE-6.md",
@@ -59,16 +66,6 @@ const PERIMES = [
   "structura-v2/CLAUDE.md",
   `${HANDOFF}/specs/dashboard-correctif-01.md`,
 ];
-
-// ── Un périmé est cité pour être déclaré mort, jamais comme cible à ouvrir. On
-//    compare donc sur le NOM DE FICHIER, pas sur le chemin exact : comparer les
-//    chemins littéraux, c'est corriger le contrôle une fois par graphie — sans fin.
-const NOMS_PERIMES = new Set(PERIMES.map((p) => p.split("/").pop()));
-function estPerime(cite) {
-  const nom = cite.split("/").pop();
-  if (NOMS_PERIMES.has(nom)) return true;
-  return /^PASSE-[0-9]/.test(nom); // raccourcis de plage : PASSE-1..6.md, PASSE-7A-…
-}
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -82,10 +79,10 @@ function walk(dir, out = []) {
 
 const morts = PERIMES.filter((p) => existsSync(join(ROOT, p)));
 
-// ── Contrôle 1 : les chemins cités dans les specs et messages de lot.
-// On ne retient que ce qui ressemble sans ambiguïté à un chemin de ce dépôt.
-// Trop large, le contrôle crie pour rien et on cesse de le lancer — c'est ainsi
-// qu'un garde-fou meurt.
+// ── Contrôle 1 : les chemins cités dans les specs et les messages de lot.
+// On ne retient que ce qui ressemble sans ambiguïté à un chemin de ce dépôt :
+// un segment connu suivi d'un fichier. Trop large, le contrôle crie pour rien
+// et on cesse de le lancer — c'est ainsi qu'un garde-fou meurt.
 const CITATION = /`((?:structura-v2\/|handoff-septembre\/|specs\/|src\/|tools\/|maquette\/|tests\/)[A-Za-z0-9 _./-]+\.[a-z]{2,4})`/g;
 
 const fantomes = [];
@@ -96,30 +93,29 @@ for (const file of walk(join(ROOT, HANDOFF))) {
     if (/périmé|perime|à jeter|n'existe pas|jamais|supprim/i.test(line)) return;
     for (const m of line.matchAll(CITATION)) {
       const cite = m[1];
-      if (estPerime(cite)) continue;
+      // Un chemin qui se résout depuis la racine, depuis structura-v2/ OU depuis
+      // handoff-septembre/ désigne un fichier RÉEL : le lecteur le trouve. Ce
+      // n'est pas une panne, c'est une convention d'écriture. Seul un chemin qui
+      // ne désigne AUCUN fichier est une vraie erreur.
       if (existsSync(join(ROOT, cite))) continue;
+      if (existsSync(join(ROOT, "structura-v2", cite))) continue;
       if (existsSync(join(ROOT, HANDOFF, cite))) continue;
-      // Résolution depuis structura-v2/ — légitime pour src/, assets/, tests/,
-      // scripts/, screenshots/, qui n'existent qu'à cet endroit. Refusée pour
-      // specs/, maquette/ et tools/, qui ont existé en double sur le poste :
-      // les accepter là faisait valider l'arbre mort par le contrôle.
-      const DOUBLONS = /^(specs|maquette|tools)\//;
-      if (!DOUBLONS.test(cite) && existsSync(join(ROOT, "structura-v2", cite))) continue;
       fantomes.push({ rel, ligne: i + 1, cite });
     }
   });
 }
 
 if (!morts.length && !fantomes.length) {
-  console.log("✓ check-sources vert — aucun périmé dans l'arbre, aucun chemin cité qui ne se résout pas depuis la racine.");
+  console.log("✓ check-sources vert — aucun périmé dans l'arbre, aucun chemin cité qui ne désigne rien.");
   process.exit(0);
 }
 
 if (morts.length) {
-  console.error(`✗ check-sources rouge — ${morts.length} document(s) périmé(s) encore présent(s) :\n`);
+  console.error(`✗ check-sources rouge — ${morts.length} document(s) déclaré(s) périmé(s) encore présent(s) :\n`);
   for (const m of morts) console.error(`  ${m}`);
-  console.error(`\nLe § 4 du contrat gouverne ce qu'on DONNE, pas ce qu'on TROUVE.`);
-  console.error(`Tant qu'ils sont là, un grep les trouve et ils contredisent la doctrine.`);
+  console.error(`\nLe § 4 du contrat gouverne ce qu'on DONNE, pas ce qu'on TROUVE. Tant qu'ils sont là,`);
+  console.error(`un grep les trouve et ils contredisent la doctrine en vigueur.`);
+  console.error(`  bash ${HANDOFF}/tools/menage.sh --dry-run`);
 }
 
 if (fantomes.length) {

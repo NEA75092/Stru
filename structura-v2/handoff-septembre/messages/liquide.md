@@ -1,0 +1,172 @@
+# Liquide — protocole complet pour Claude Code
+
+Tout ce que Claude Code doit faire est ici. **Une seule chose à lui dire**, une fois
+les fichiers commités et poussés :
+
+> Lis `structura-v2/handoff-septembre/messages/liquide.md` et applique le LOT 0,
+> puis le LOT 1. Arrête-toi au point d'arrêt.
+
+Puis, après lecture du rapport :
+
+> Applique le LOT 2.
+
+---
+
+## Règles qui valent pour les trois lots
+
+1. **Rien de structurel ne change. Seule la peinture change.** Mêmes onglets, mêmes
+   outils, même DOM, mêmes fonctionnalités, même logique JS.
+2. **Un lot = une liste de fichiers autorisés.** Si un fichier hors liste doit
+   changer, **arrête-toi et dis-le**. Ne le change pas « juste pour que ça marche ».
+3. **S'il manque une valeur, ne l'invente pas.** Arrête-toi et demande. Une valeur
+   inventée passe les sondes et se voit six semaines plus tard.
+4. **Ne redessine aucune icône, aucun tracé SVG existant.** C'est la panne du 06/08
+   et du 19/08, signalée deux fois.
+5. Un lot se termine par : sonde verte, `?v=` bumpé, commit poussé, rapport.
+6. **Les captures ne sont pas optionnelles.** Sans elles je ne peux pas juger le
+   rendu, et le lot n'est pas clos.
+
+À lire avant de commencer, depuis la racine du dépôt :
+
+```
+structura-v2/handoff-septembre/00-LIRE-EN-PREMIER.md
+structura-v2/handoff-septembre/specs/00-doctrine-liquide.md
+structura-v2/handoff-septembre/specs/design-tokens-v3-liquide.md
+structura-v2/handoff-septembre/specs/lot-liquide-02-coquille.md
+```
+
+---
+
+# LOT 0 — ménage
+
+Le dépôt porte encore les specs de la direction Méditerranée. Elles se citent
+l'une l'autre : elles doivent partir **ensemble**, sinon `check-sources.mjs` vire
+rouge sur des citations pendantes.
+
+```bash
+bash structura-v2/handoff-septembre/tools/menage-liquide.sh --dry-run
+bash structura-v2/handoff-septembre/tools/menage-liquide.sh
+node structura-v2/handoff-septembre/tools/check-sources.mjs
+```
+
+Le script s'arrête tout seul s'il reste une citation pendante. Dans ce cas :
+réécris la citation vers la spec Liquide correspondante, **ne recrée pas le
+document supprimé**.
+
+Commit à part, message : `ménage : sortie des specs Méditerranée périmées`.
+
+**Suppression et non archivage.** L'historique git est l'archive — un dossier
+`archive/` laisse les documents à portée de `grep`, donc d'erreur (doctrine 11/08).
+
+---
+
+# LOT 1 — la couche de tokens
+
+Spec : `specs/design-tokens-v3-liquide.md`.
+
+## Le principe
+
+L'app consomme trente et un noms `--color-*`, six `--radius-*`, cinq `--shadow-*`,
+trois `--font-*` et six `--text-*`. **Ces noms restent.** Tu réécris uniquement ce
+vers quoi ils pointent. Toute l'app se repeint depuis un seul fichier, sans qu'un
+seul écran soit édité.
+
+## Fichiers autorisés — exactement deux
+
+| Fichier | Changement |
+|---|---|
+| `structura-v2/src/design-tokens.css` | réécrit selon §§ 2 à 5 |
+| `structura-v2/index.html` | **uniquement** les trois lignes de police du § 6 |
+
+Plus la whitelist de `tools/check-tokens.mjs` et le calibrage de
+`tools/check-echelle.mjs`.
+
+## Interdits
+
+- Éditer un fichier d'écran.
+- Écrire un littéral de couleur dans la couche 2 du § 4.
+- Renommer `data-theme="dark"`.
+- Inventer un token.
+
+## Preuve
+
+```bash
+node structura-v2/handoff-septembre/tools/preuve-liquide.mjs --lot 1
+node structura-v2/handoff-septembre/tools/check-tokens.mjs
+node structura-v2/handoff-septembre/tools/check-sources.mjs
+```
+
+`preuve-liquide.mjs` remplit seul la table du § 8 et sort 1 si une preuve échoue.
+Il imprime aussi, en fin de sortie, **le comptage des couleurs écrites en dur par
+fichier d'écran** — c'est la réponse à la seule question ouverte du lot. Ne les
+corrige pas, donne juste le chiffre.
+
+## ⛔ POINT D'ARRÊT
+
+Après le commit poussé, **arrête-toi** et rends :
+
+- la sortie brute des trois commandes ci-dessus ;
+- le sha poussé ;
+- **des captures 1600 px, jour et nuit, du Dashboard et de trois autres onglets.**
+
+Les captures des autres onglets sont le cœur de la preuve : elles montrent que le
+remappage a repeint des écrans que personne n'a touchés. Si un onglet ressort
+illisible, c'est un alias mal ciblé au § 4 — un seul fichier à corriger.
+
+**Ne commence pas le lot 2 sans validation.**
+
+---
+
+# LOT 2 — la coquille
+
+Spec : `specs/lot-liquide-02-coquille.md`.
+
+## Fichiers autorisés — exactement deux
+
+| Fichier | Changement |
+|---|---|
+| `structura-v2/src/shell.css` | réécrit — cadre, rail, nappe, animations |
+| `structura-v2/index.html` | **une seule** addition de DOM : le bloc `.nappe` du § 4 |
+
+## Ce qui ne bouge pas, et que je vérifierai au diff
+
+Les neuf onglets et leurs libellés · **les neuf tracés d'icônes au caractère près**
+· le pied du rail · la barre basse · le badge de compteur · toute la logique JS.
+
+## La divergence de marque — ne pas trancher
+
+La maquette porte GUERFIN, le dépôt porte Structura, et `guerfin-symbole-clair.png`
+n'existe pas au dépôt. Emploie `assets/structura-mark.png` avec le mot
+« STRUCTURA » aux métriques du § 3, et **signale-le dans le rapport**. C'est une
+décision client, pas d'implémentation.
+
+## Preuve
+
+```bash
+node structura-v2/handoff-septembre/tools/preuve-liquide.mjs --lot 2
+node structura-v2/handoff-septembre/tools/check-tokens.mjs
+node structura-v2/handoff-septembre/tools/check-sources.mjs
+```
+
+Le lot 2 ajoute quatre contrôles : nappe à 640 px, rail à 236 px,
+`prefers-reduced-motion` présent, et **diff des attributs `d=` des icônes, qui doit
+être vide**.
+
+Rapport : sorties brutes, sha, hauteurs DOM des neuf items de nav (≥ 44 px chacun),
+et **captures 1600 px jour + nuit de Dashboard, Clients, Calendrier, Pitch Engine.**
+
+---
+
+## Pourquoi trois lots et pas un
+
+Le lot 1 ne touche aucun écran : s'il casse quelque chose, la cause est forcément
+un alias, dans cent lignes. Le lot 2 ne touche aucun contenu : s'il casse quelque
+chose, c'est la coquille. Un lot unique mélangerait les deux causes et coûterait
+les six allers-retours de l'épisode `check-sources` du 11/08.
+
+## Ce qui n'est pas au dépôt et devrait y être
+
+`Dashboard - Liquide.dc.html`, la maquette de référence. Tant qu'elle n'est pas
+dans `structura-v2/handoff-septembre/maquette/`, `calque.mjs` ne peut rien mesurer
+et les specs sont la seule source. Elles sont écrites pour suffire, mais une sonde
+vaut mieux qu'une relecture.

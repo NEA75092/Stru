@@ -175,11 +175,11 @@
     }
 
     // Exposition émetteur — version détaillée (spec Passe 7, bloc 7g) : le
-    // Dashboard garde l'anneau compact (.issuer-exposure), Pilotage reçoit
-    // la barre empilée + une ligne par émetteur. Regroupement identique à
-    // celui du Dashboard (bankGroupName, StructuraDashboard) — sinon les
-    // deux écrans compteraient les émetteurs différemment et « 10
-    // émetteurs » voudrait dire deux choses selon l'écran.
+    // Dashboard garde son tableau compact (#issuer-exposure), Pilotage
+    // reçoit la barre empilée + une ligne par émetteur. Regroupement
+    // identique à celui du Dashboard (bankGroupName, StructuraDashboard) —
+    // sinon les deux écrans compteraient les émetteurs différemment et
+    // « 10 émetteurs » voudrait dire deux choses selon l'écran.
     const ISSUER_CONCENTRATION_WATCH_THRESHOLD = 25;
 
     // Couleur de marque (passe 7, 7g) : seule exception à « zéro couleur

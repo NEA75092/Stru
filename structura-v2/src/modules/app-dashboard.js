@@ -97,6 +97,7 @@
             context: `${p.underlying || "—"} · ${p.emetteur || "Émetteur à confirmer"}`,
             perfVsInitial: currentPctOfInitial !== null ? currentPctOfInitial - 100 : null,
             barrierVsInitial: hasBarrier ? Number(p.barrier) - 100 : null,
+            initialSpot: p.initialSpot != null && Number.isFinite(Number(p.initialSpot)) ? Number(p.initialSpot) : null,
           };
         });
     }
@@ -487,46 +488,13 @@
       drawPerfHistory(totalNom, totalVal);
     }
 
-    // Anneau de répartition émetteurs (dashboard-correctif-02.md § 3) :
-    // arcs SVG colorés par classe .issuer-<id> (jamais un stroke inline —
-    // la couleur ne s'écrit pas dans le JS), top 5 + un arc "reste" gris.
-    // Même agrégation que buildIssuerTableRows : les deux lisent "rows"/
-    // "total" déjà calculés par renderIssuerExposure, aucun recalcul.
-    function buildIssuerRing(rows, total) {
-      const top = rows.slice(0, 5);
-      const restNominal = rows.slice(5).reduce((sum, row) => sum + row.nominal, 0);
-      const segments = [
-        ...top.map((row) => ({ value: row.nominal, cls: row.issuerClass })),
-        ...(restNominal > 0 ? [{ value: restNominal, cls: "" }] : []),
-      ].filter((s) => s.value > 0);
-      const r = 89;
-      const cx = 106;
-      const cy = 106;
-      const circumference = 2 * Math.PI * r;
-      let offset = 0;
-      const arcs = segments
-        .map((seg) => {
-          const frac = seg.value / total;
-          const len = frac * circumference;
-          const dasharray = `${len.toFixed(2)} ${(circumference - len).toFixed(2)}`;
-          const dashoffset = (-offset).toFixed(2);
-          offset += len;
-          const cls = seg.cls ? ` ${escapeHtml(seg.cls)}` : "";
-          return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" class="issuer-ring-seg${cls}" stroke-width="34" stroke-dasharray="${dasharray}" stroke-dashoffset="${dashoffset}"/>`;
-        })
-        .join("");
-      const bankCount = rows.length;
-      return `<div class="issuer-ring">
-        <svg viewBox="0 0 212 212" class="issuer-ring-svg" style="transform:rotate(-90deg)">${arcs}</svg>
-        <div class="issuer-ring-hole"></div>
-        <div class="issuer-ring-center"><strong>${escapeHtml(moneyShort(total))}</strong><span>${bankCount} émetteur${bankCount > 1 ? "s" : ""}</span></div>
-      </div>`;
-    }
-
-    // Tableau part/encours (dashboard-correctif-02.md § 3) : top 5 nommés,
-    // puis une ligne "N autres émetteurs" — couleurs de texte reprises de
-    // Dashboard.dc.html l. 500-535 (la ligne "reste" y est trois tons plus
-    // pâle que les lignes nommées, pas seulement le nom).
+    // Tableau part/encours (Dashboard v3, remplace l'anneau SVG de
+    // dashboard-correctif-02.md § 3 — mesuré en DOM sur la maquette :
+    // plus d'arcs, seulement le tableau) : top 5 nommés, puis une ligne
+    // "N autres émetteurs". Couleur de marque jamais en style="" — la
+    // classe .issuer-<id> porte var(--issuer-<id>) en CSS, sur le
+    // swatch ET sur le trait souligné sous le nom (largeur = part réelle
+    // du groupe dans l'encours, pas un décor).
     function buildIssuerTableRows(rows, total) {
       const top = rows.slice(0, 5);
       const rest = rows.slice(5);
@@ -537,7 +505,10 @@
           const cls = row.issuerClass ? ` ${row.issuerClass}` : "";
           return `<div class="issuer-table-row">
             <span class="issuer-swatch${cls}"></span>
-            <span class="issuer-table-name">${escapeHtml(row.issuer)}</span>
+            <span class="issuer-table-name-wrap">
+              <span class="issuer-table-name">${escapeHtml(row.issuer)}</span>
+              <span class="issuer-table-underline${cls}" style="width:${pct.toFixed(1)}%"></span>
+            </span>
             <span class="issuer-table-amt">${moneyShort(row.nominal)}</span>
             <span class="issuer-table-pct">${pctFr(pct, 1)}</span>
           </div>`;
@@ -546,7 +517,10 @@
       const restHtml = rest.length
         ? `<div class="issuer-table-row issuer-table-rest">
             <span class="issuer-swatch"></span>
-            <span class="issuer-table-name">${rest.length} autres émetteurs</span>
+            <span class="issuer-table-name-wrap">
+              <span class="issuer-table-name">${rest.length} autres émetteurs</span>
+              <span class="issuer-table-underline" style="width:${((restNominal / total) * 100).toFixed(1)}%"></span>
+            </span>
             <span class="issuer-table-amt">${moneyShort(restNominal)}</span>
             <span class="issuer-table-pct">${pctFr((restNominal / total) * 100, 1)}</span>
           </div>`
@@ -570,90 +544,13 @@
         return map;
       }, new Map()).values()].sort((a, b) => b.nominal - a.nominal);
       const total = rows.reduce((sum, row) => sum + row.nominal, 0) || 1;
-      c.innerHTML = `${buildIssuerRing(rows, total)}<div class="issuer-table">${buildIssuerTableRows(rows, total)}</div>`;
-    }
-
-    function fullMonthFR(date) {
-      return date.toLocaleDateString("fr-FR", { month: "long" });
-    }
-
-    function weekdayLongFR(date) {
-      return date.toLocaleDateString("fr-FR", { weekday: "long" }).toUpperCase();
-    }
-
-    // Marque « Appel client » (dashboard-correctif-02.md § 2) : rappel
-    // anticipé possible (type "rappel") ou franchissement de barrière lu
-    // à une observation (type "obs", e.level.tone === "st-breach"). Ce
-    // sont les deux seuls types que buildProductCalendarEvents distingue
-    // pour ça — une maturité en franchissement (e.exposure) n'est pas
-    // incluse : c'est une échéance déjà là, pas un appel à passer.
-    function eventCallsClient(e) {
-      if (e.type === "rappel") return true;
-      if (e.type === "obs" && e.level?.tone === "st-breach") return true;
-      return false;
-    }
-
-    function renderDashboardTimeline() {
-      const c = document.getElementById("dashboard-timeline");
-      if (!c) return;
-      const now = new Date();
-      now.setHours(0, 0, 0, 0);
-      const horizon = new Date(now);
-      horizon.setDate(horizon.getDate() + 42);
-      const events = (root.buildProductCalendarEvents?.() || [])
-        .slice()
-        .sort((a, b) => String(a._dateIso || "").localeCompare(String(b._dateIso || "")));
-      const fallback = productsForScope()
-        .slice()
-        .sort((a, b) => new Date(a.nextEvtDate || a.maturity) - new Date(b.nextEvtDate || b.maturity))
-        .map((p) => ({
-          productId: p.id,
-          _dateIso: p.nextEvtDate || p.maturity,
-          name: p.nextEvt || "Constatation",
-          desc: `${p.name} · ${p.underlying || "—"}`,
-          type: p.st?.s === "breach" ? "bar" : p.nextEvt?.toLowerCase().includes("coupon") ? "coupon" : "obs",
-        }));
-      // Horizon : six semaines à venir (dashboard-correctif-02.md § 2),
-      // pas un nombre fixe de lignes — s'applique aussi au repli, qui
-      // n'a plus de _monthKey propre : le mois du groupe est dérivé de la
-      // date à l'affichage, pas relu sur l'objet événement.
-      const list = (events.length ? events : fallback).filter((e) => {
-        const d = new Date(`${e._dateIso || ""}T00:00:00`);
-        return !Number.isNaN(d.getTime()) && d >= now && d <= horizon;
-      });
-
-      const todayRow = `<div class="dash-agenda-today">
-          <span class="dash-agenda-today-day">${String(now.getDate()).padStart(2, "0")} ${monthShortFR(now)}</span>
-          <span class="dash-agenda-today-lbl">Aujourd'hui</span>
-          <span class="dash-agenda-today-weekday">${weekdayLongFR(now)}</span>
+      const head = `<div class="issuer-head-row">
+          <span></span>
+          <span class="dash-th">Émetteur</span>
+          <span class="dash-th cap-col-right">Nominal</span>
+          <span class="dash-th cap-col-right">Part</span>
         </div>`;
-
-      if (!list.length) {
-        c.innerHTML = `${todayRow}<div class="empty-inline">Aucune échéance dans les six prochaines semaines.</div>`;
-        return;
-      }
-
-      let lastMonthKey = "";
-      const rows = list
-        .map((e) => {
-          const d = new Date(`${e._dateIso}T00:00:00`);
-          const days = Math.round((d.getTime() - now.getTime()) / 86400000);
-          const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
-          const monthHtml =
-            monthKey !== lastMonthKey
-              ? `<span class="dash-agenda-month">${escapeHtml(fullMonthFR(d))}</span>`
-              : "";
-          lastMonthKey = monthKey;
-          const tag = eventCallsClient(e) ? `<span class="dash-agenda-tag">Appel client</span>` : "";
-          return `${monthHtml}<button type="button" class="dash-agenda-row" ${e.productId ? `onclick="openDrawer(${e.productId})"` : ""}>
-          <span class="dash-agenda-date"><b>${String(d.getDate()).padStart(2, "0")}</b><small>dans ${days} j</small></span>
-          <span class="dash-agenda-main"><strong>${escapeHtml(e.name || "Événement")}</strong><small>${escapeHtml(e.desc || "")}</small></span>
-          <span class="dash-agenda-amt-wrap">${eventAmountCell(e)}${tag}</span>
-        </button>`;
-        })
-        .join("");
-
-      c.innerHTML = todayRow + rows;
+      c.innerHTML = `${head}${buildIssuerTableRows(rows, total)}`;
     }
 
     // Top/Flop VL (Passe 7 reprise, bloc 7b — rouvert après mesure de
@@ -669,9 +566,10 @@
     // dédié qui n'ajoute aucune unité (le signe suit la même convention
     // que pctFr/moneyShort : le "−" est géré ici, le "+" reste à la
     // charge de l'appelant). Encre partout, jamais mer ni terre (§ 2.2,
-    // "le monochrome est correct et reste") : positif = encre pleine
-    // 0,62 d'opacité + arête haute --lumiere, négatif = encre gravée
-    // (trame 115°, 2px/5px, C3 confirme : inchangée).
+    // "le monochrome est correct et reste") : positif et négatif partagent
+    // la même trame gravée (115°, 2px/5px) — Dashboard v3, mesurée
+    // identique dans les deux sens, annule le remplissage plein côté
+    // positif de dashboard-correctif-01.md C7.
     //
     // C6 — sélection : classer TOUS les produits par écart à 100
     // décroissant, prendre les 5 premiers et les 5 derniers, aucune
@@ -737,146 +635,9 @@
         <div class="vl-rows">${rows.map(renderRow).join("")}</div>`;
     }
 
-    // Distribution du risque (Dashboard, Passe 7 reprise 7b) : trois
-    // zones simples en part du portefeuille — modèle propre à cette
-    // lecture rapide, distinct des cinq statuts détaillés de Pilotage
-    // (computeRiskDistribution/statusFromDist, seuils 0/5/15). Seuils
-    // ici, tels que la maquette les nomme (lignes 137-155 du DC) : sous
-    // la barrière (dist<0), à surveiller (0 ≤ dist < 10), zone de
-    // rendement (dist ≥ 10, ou capital garanti — un CG n'a pas de
-    // barrière à franchir donc n'est jamais "sous surveillance" ; une
-    // distance manquante est traitée comme non démontrée à risque, même
-    // défaut que pour un CG).
-    const RISK_ZONE_DEFS = [
-      { key: "breach", tone: "breach", label: "Sous la barrière", rule: "Sous la barrière de protection" },
-      { key: "watch", tone: "watch", label: "À surveiller", rule: "À moins de 10 % de la barrière de protection" },
-      { key: "safe", tone: "safe", label: "Zone de rendement", rule: "Au-dessus de la barrière d'autocall, capital garanti inclus" },
-    ];
-    function riskZoneFor(p) {
-      if (p.type === "CG") return "safe";
-      const dist = Number(p.dist);
-      if (!Number.isFinite(dist)) return "safe";
-      if (dist < 0) return "breach";
-      if (dist < 10) return "watch";
-      return "safe";
-    }
-    function renderDashboardRiskDistribution() {
-      const c = document.getElementById("dashboard-risk-dist");
-      const countEl = document.getElementById("dashboard-risk-count");
-      if (!c) return;
-      const data = productsForScope();
-      const total = data.length || 1;
-      const counts = { breach: 0, watch: 0, safe: 0 };
-      data.forEach((p) => {
-        counts[riskZoneFor(p)]++;
-      });
-      if (countEl) {
-        countEl.textContent = `${data.length} produit${data.length > 1 ? "s" : ""}`;
-      }
-      // Somme exactement 100 % (§ 2.3, sonde arithmétique) : les deux
-      // premières zones arrondissent normalement, la troisième prend le
-      // reste (100 − zone1 − zone2) — trois arrondis indépendants à
-      // 1 décimale peuvent sommer à 99,9 ou 100,1, jamais garanti à 100.
-      const pctBreach = Math.round((counts.breach / total) * 1000) / 10;
-      const pctWatch = Math.round((counts.watch / total) * 1000) / 10;
-      const pctSafe = Math.round((100 - pctBreach - pctWatch) * 10) / 10;
-      const pctByKey = { breach: pctBreach, watch: pctWatch, safe: pctSafe };
-      const zones = RISK_ZONE_DEFS.map((z) => ({
-        ...z,
-        count: counts[z.key],
-        pct: pctByKey[z.key],
-      }));
-      // C11 : aucun texte dans la barre empilée, y compris la zone de
-      // rendement — la légende porte déjà le nombre, plus gros, mieux
-      // placé. Un title par segment pour le survol, pas un nœud texte
-      // (le calque de C11 lit le texte des segments, pas leur balisage).
-      const bar = zones
-        .filter((z) => z.count > 0)
-        .map(
-          (z) =>
-            `<span class="dash-risk-seg dash-risk-seg-${z.tone}" data-calque="risk-seg" style="width:${z.pct.toFixed(1)}%" title="${escapeHtml(z.label)} · ${pctFr(z.pct, 1)}"></span>`,
-        )
-        .join("");
-      const rowsHtml = zones
-        .map(
-          (z) => `<div class="dash-risk-row">
-            <span class="dash-risk-dot dash-risk-dot-${z.tone}" data-calque="risk-chip"></span>
-            <span class="dash-risk-lbl"><strong>${escapeHtml(z.label)}</strong><small>${escapeHtml(z.rule)}</small></span>
-            <span class="dash-risk-pct dash-risk-pct-${z.tone}">${pctFr(z.pct, 1)}</span>
-            <span class="dash-risk-count">${z.count} prod.</span>
-          </div>`,
-        )
-        .join("");
-      c.innerHTML = `<p class="dash-risk-intro">Trois zones, en part du portefeuille. La question n'est pas « combien de points de marge », c'est « où est mon encours ».</p>
-        <div class="dash-risk-bar">${bar}</div>
-        <div class="dash-risk-rows">${rowsHtml}</div>`;
-    }
-
-    // Marge avant la barrière (dashboard-correctif-02.md § 2, D1) : 5
-    // marges les plus serrées puis 5 plus larges, marge = p.dist (points
-    // d'indice vs niveau barrière). Axe fixe −8/+24 (32 points), zéro à
-    // 25 % — cet axe n'est nommé nulle part dans la spec, il est mesuré
-    // sur Dashboard.dc.html (ex. −4,2 pt → left 11,9 %/largeur 13,1 %,
-    // +21,4 pt → left 25 %/largeur 66,9 %, cohérent sur les dix lignes de
-    // la maquette : min −8, max +24, zéro à (0−(−8))/32 = 25 %).
-    const CAP_MARGIN_AXIS_MIN = -8;
-    const CAP_MARGIN_AXIS_MAX = 24;
-    function capMarginAxisPct(value) {
-      const clamped = Math.max(CAP_MARGIN_AXIS_MIN, Math.min(CAP_MARGIN_AXIS_MAX, Number(value) || 0));
-      return ((clamped - CAP_MARGIN_AXIS_MIN) / (CAP_MARGIN_AXIS_MAX - CAP_MARGIN_AXIS_MIN)) * 100;
-    }
-    function renderCapMargin() {
-      const c = document.getElementById("cap-margin");
-      if (!c) return;
-      // Capital garanti n'a pas de barrière : p.dist vaut 999, un sentinel
-      // (app-state.js:343), pas une marge — même exclusion que riskZoneFor
-      // (p.type === "CG") plus haut dans ce fichier.
-      const data = productsForScope().filter((p) => p.type !== "CG" && Number.isFinite(Number(p.dist)));
-      if (!data.length) {
-        c.innerHTML = `<div class="empty-inline">Aucune marge de barrière exploitable.</div>`;
-        return;
-      }
-      const sorted = [...data].sort((a, b) => Number(a.dist) - Number(b.dist));
-      const tight = sorted.slice(0, 5);
-      const wide = sorted.slice(-5).reverse();
-      const zeroPct = capMarginAxisPct(0);
-      const renderRow = (p) => {
-        const dist = Number(p.dist);
-        const pct = capMarginAxisPct(dist);
-        const left = Math.min(pct, zeroPct);
-        const width = Math.max(0, Math.abs(pct - zeroPct));
-        const neg = dist < 0;
-        const clientCount = new Set(getProductAllocations(p).map((a) => a.clientId)).size;
-        return `<button type="button" class="cap-margin-row" onclick="openDrawer(${p.id})">
-          <span class="cap-margin-name"><strong>${escapeHtml(p.name)}</strong><span class="cap-margin-meta">${clientCount} client${clientCount > 1 ? "s" : ""} · ${moneyShort(Number(p.nominal) || 0)}</span></span>
-          <span class="cap-margin-track">
-            <span class="cap-margin-zero"></span>
-            <span class="cap-margin-bar ${neg ? "cap-margin-bar-neg" : "cap-margin-bar-pos"}" style="left:${left.toFixed(2)}%;width:${width.toFixed(2)}%"></span>
-          </span>
-          <span class="cap-margin-val${neg ? " cap-margin-val-neg" : ""}">${dist >= 0 ? "+" : ""}${ptsFr(dist)}</span>
-        </button>`;
-      };
-      c.innerHTML = `
-        <div class="cap-margin-hdr">
-          <span class="cap-margin-hdr-lbl cap-margin-hdr-lbl-tight">Les plus serrés</span>
-          <span class="cap-margin-hdr-zero"><span class="cap-margin-hdr-zero-mark"></span><span class="cap-margin-hdr-zero-label">0</span></span>
-          <span></span>
-        </div>
-        ${tight.map(renderRow).join("")}
-        <div class="cap-margin-hdr">
-          <span class="cap-margin-hdr-lbl">Les plus au large</span>
-          <span></span>
-          <span></span>
-        </div>
-        ${wide.map(renderRow).join("")}`;
-    }
-
     function renderDashboardModules() {
-      renderCapMargin();
       renderIssuerExposure();
-      renderDashboardTimeline();
       renderVlTopFlop();
-      renderDashboardRiskDistribution();
     }
 
     // Sous la protection du capital (specs/dashboard.md § 2.1, remplace
@@ -906,22 +667,31 @@
       if (block) block.classList.toggle("is-empty", !list.length);
       if (meta) {
         meta.textContent = list.length
-          ? `Dashboard · ${list.length} position${list.length > 1 ? "s" : ""}`
+          ? `${list.length} position${list.length > 1 ? "s" : ""}`
           : "Aucune position sous la protection du capital";
       }
       if (!list.length) {
         c.innerHTML = '<div class="cap-empty">Rien d\'urgent — aucune position sous la protection du capital.</div>';
         return;
       }
-      // Forme en cartes (dashboard-correctif-02.md § 2) : <ton> = breach si
-      // la position a franchi (statusCls "st-breach"), watch sinon (crit ou
-      // warn, non franchi) — même source que le filet gauche de la carte.
-      // « depuis N j » n'est pas rendu : aucun champ du modèle ne porte la
-      // date d'entrée dans l'état breach/watch (RÈGLE ABSOLUE, trou nommé
-      // dans le rapport).
-      c.innerHTML = `<div class="cap-cards">${list.map((a) => {
+      // Forme en tableau (Dashboard v3, remplace la forme en cartes de
+      // dashboard-correctif-02.md § 2) : <ton> = breach si la position a
+      // franchi (statusCls "st-breach"), watch sinon (crit ou warn, non
+      // franchi) — posé sur .cap-row, lu par les descendants .cap-breach/
+      // .cap-cursor/.cap-perf via .tone-watch. « depuis N j » n'est pas
+      // rendu : aucun champ du modèle ne porte la date d'entrée dans
+      // l'état breach/watch (RÈGLE ABSOLUE, trou nommé dans le rapport).
+      const head = `<div class="cap-head-row">
+          <span class="dash-th">Position</span>
+          <span class="dash-th cap-col-right">Vs initial</span>
+          <span class="dash-th cap-axis-labels"><span>${CAP_AXIS_MIN} %</span><span>+${CAP_AXIS_MAX} %</span></span>
+          <span class="dash-th cap-col-right">Niveau initial</span>
+          <span class="dash-th cap-col-right">Barrière</span>
+        </div>`;
+      const rows = list.map((a) => {
         const hasPerf = Number.isFinite(Number(a.perfVsInitial));
         const hasBarrier = Number.isFinite(Number(a.barrierVsInitial));
+        const hasInitial = a.initialSpot != null && Number.isFinite(Number(a.initialSpot));
         const toneClass = a.statusCls === "st-breach" ? "" : " tone-watch";
         let rule = "";
         if (hasPerf && hasBarrier) {
@@ -937,16 +707,15 @@
               <span class="cap-cursor" style="left:${spotPct.toFixed(2)}%"></span>
             </span>`;
         }
-        return `<div class="cap-card${toneClass}" onclick="openDrawer(${a.productId})">
+        return `<div class="cap-row${toneClass}" onclick="openDrawer(${a.productId})">
             <span class="cap-name"><strong>${escapeHtml(a.name)}</strong><span class="cap-meta">${escapeHtml(a.context)}</span></span>
-            <span class="cap-perf-row">
-              <span class="cap-perf">${hasPerf ? `${a.perfVsInitial >= 0 ? "+" : ""}${pctFr(a.perfVsInitial, 1)}` : "\u2014"}</span>
-            </span>
+            <span class="cap-perf">${hasPerf ? `${a.perfVsInitial >= 0 ? "+" : ""}${pctFr(a.perfVsInitial, 1)}` : "\u2014"}</span>
             ${rule || '<span class="cap-rule"></span>'}
-            <span class="cap-axis-row"><span>${CAP_AXIS_MIN} %</span><span>initial</span><span>+${CAP_AXIS_MAX} %</span></span>
-            <span class="cap-legend">${hasBarrier ? `Barrière PDI ${a.barrierVsInitial >= 0 ? "+" : ""}${pctFr(a.barrierVsInitial, 0)}` : "Barrière PDI \u2014"}</span>
+            <span class="cap-niveau">${hasInitial ? a.initialSpot.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "\u2014"}</span>
+            <span class="cap-barriere">${hasBarrier ? `${a.barrierVsInitial >= 0 ? "+" : ""}${pctFr(a.barrierVsInitial, 0)}` : "\u2014"}</span>
           </div>`;
-      }).join("")}</div>`;
+      }).join("");
+      c.innerHTML = `<div class="cap-table">${head}${rows}</div>`;
     }
 
     function monthShortFR(date) {
@@ -964,7 +733,7 @@
     function eventAmountCell(e) {
       // Capital garanti n'a pas de barrière : e.level.distance vaut 999
       // (sentinel, app-state.js:343, tone "st-none" — statusFromDist),
-      // pas un écart réel. Même exclusion que renderCapMargin plus haut.
+      // pas un écart réel.
       if (e.level && e.level.tone === "st-none") {
         return `<div class="timeline-amt">—</div>`;
       }
@@ -1012,10 +781,6 @@
         .join("");
     }
 
-    function renderEvents() {
-      renderDashboardTimeline();
-    }
-
     function setRange(el, range) {
       perfRange = range || "ytd";
       document.querySelectorAll(".perf-range-controls .pill-filter").forEach((chip) => {
@@ -1057,15 +822,11 @@
       toggleAppMode,
       drawPerfChart,
       renderDashboardModules,
-      renderCapMargin,
       renderIssuerExposure,
-      renderDashboardTimeline,
       renderVlTopFlop,
-      renderDashboardRiskDistribution,
       renderAlerts,
       buildPortfolioAlerts,
       renderSessionChrome,
-      renderEvents,
       evHtml,
       monthShortFR,
       setRange,

@@ -103,7 +103,6 @@ test("render dashboard summary with seeded products", () => {
 
   const app = require("../src/app.js");
   app.renderDashboardSummary();
-  global.renderEvents();
   global.renderAlerts();
 
   assert.match(document.getElementById("kpi-perf-val").textContent, /%/);

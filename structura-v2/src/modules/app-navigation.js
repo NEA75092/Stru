@@ -73,7 +73,6 @@
       if (viewId === "dashboard") {
         root.renderDashboardSummary?.();
         root.renderAlerts?.();
-        root.renderEvents?.();
         root.drawPerfChart?.();
         root.renderDashboardModules?.();
       }

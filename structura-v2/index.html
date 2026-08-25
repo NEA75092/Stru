@@ -28,7 +28,7 @@
         <link rel="stylesheet" href="./src/shell.css?v=20260805b" />
         <link rel="stylesheet" href="./src/controls.css?v=20260805b" />
         <link rel="stylesheet" href="./src/overlays.css?v=20260805b" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260815b" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260815d" />
         <link rel="stylesheet" href="./src/tables.css?v=20260805b" />
         <link rel="stylesheet" href="./src/views.css?v=20260805g" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260805b" />
@@ -246,76 +246,31 @@
                     </div>
 
                     <div class="dash-body">
-                        <div class="dash-body-left">
-                            <div class="dash-margin-section">
-                                <div class="sec-hdr">
-                                    <div class="sec-title">Marge avant la barrière</div>
-                                </div>
-                                <p class="cap-margin-intro">En points d'indice, par rapport au niveau barrière. Sous zéro, la protection ne joue plus. Les cinq plus serrés, les cinq plus au large.</p>
-                                <div class="panel dash-module-panel">
-                                    <div id="cap-margin" class="cap-margin"></div>
-                                </div>
+                        <div class="dash-alerts-block" id="dash-alerts-block">
+                            <div class="sec-hdr">
+                                <div class="sec-title">Sous la protection du capital</div>
+                                <span class="sec-meta" id="alerts-meta">0 position</span>
                             </div>
+                            <div id="alerts-list"></div>
+                        </div>
 
+                        <div class="dash-body-row">
                             <div class="dash-vl-section">
                                 <div class="sec-hdr">
                                     <div class="sec-title">Top / Flop VL</div>
                                     <span class="sec-meta">Écart à 100</span>
                                 </div>
-                                <div class="panel dash-module-panel">
-                                    <div id="vl-top-flop" class="vl-top-flop"></div>
-                                </div>
+                                <div id="vl-top-flop" class="vl-top-flop"></div>
                             </div>
 
-                            <div class="dash-risk-section">
+                            <div class="dash-issuer-section">
                                 <div class="sec-hdr">
-                                    <div class="sec-title">Distribution du risque</div>
-                                    <span class="sec-meta" id="dashboard-risk-count">54 produits</span>
+                                    <div class="sec-title">Exposition par groupe bancaire</div>
                                 </div>
-                                <div class="panel dash-module-panel">
-                                    <div id="dashboard-risk-dist" class="dashboard-risk-dist"></div>
-                                </div>
+                                <p class="dash-issuer-intro">Chaque groupe garde la couleur de sa marque. En part de l'encours géré.</p>
+                                <div id="issuer-exposure" class="issuer-table"></div>
                             </div>
                         </div>
-
-                        <div class="dash-body-right">
-                            <div class="dash-alerts-block" id="dash-alerts-block">
-                                <div class="sec-hdr">
-                                    <div class="sec-title">Sous la protection du capital</div>
-                                    <span class="sec-meta" id="alerts-meta">Dashboard · 0 position</span>
-                                </div>
-                                <div class="panel dash-alerts-panel">
-                                    <div id="alerts-list"></div>
-                                </div>
-                            </div>
-
-                            <div class="dash-insights-grid">
-                                <div class="dash-module">
-                                    <div class="sec-hdr">
-                                        <div class="sec-title">Ce qui arrive</div>
-                                        <span
-                                            class="sec-meta"
-                                            onclick="nav('calendar')"
-                                            >Calendrier complet →</span
-                                        >
-                                    </div>
-                                    <div class="panel dash-module-panel">
-                                        <div id="dashboard-timeline" class="dash-timeline"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dash-issuer-section">
-                        <div class="dash-issuer-copy">
-                            <div class="sec-hdr">
-                                <div class="sec-title">Répartition émetteurs</div>
-                            </div>
-                            <p class="dash-issuer-intro">Chaque groupe garde la couleur de sa marque : le CGP reconnaît son émetteur sans lire la légende.</p>
-                            <span class="dash-issuer-link" onclick="nav('analytics')">Exposition détaillée dans Pilotage</span>
-                        </div>
-                        <div id="issuer-exposure" class="issuer-exposure"></div>
                     </div>
                 </div>
 

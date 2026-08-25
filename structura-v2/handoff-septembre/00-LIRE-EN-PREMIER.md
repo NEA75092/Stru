@@ -6,9 +6,31 @@ Un seul document d'entrée. Si quelque chose contredit ce fichier, c'est ce fich
 
 | Sujet | Source de vérité | Personne d'autre ne décide |
 |---|---|---|
-| Couleurs, rayons, typo | `src/design-tokens.css` **dans le dépôt** | ni la maquette, ni une capture, ni un souvenir |
-| Comportement d'un écran | `handoff-septembre/specs/<ecran>.md` **commité** | pas le chat, pas une image |
+| Couleurs, rayons, typo | `structura-v2/src/design-tokens.css` **dans le dépôt** | ni la maquette, ni une capture, ni un souvenir |
+| Comportement d'un écran | `structura-v2/handoff-septembre/specs/<ecran>.md` **commité** | pas le chat, pas une image |
 | Rendu visé | la maquette nommée comme l'écran (`<Ecran>.dc.html`) | une seule par écran, jamais deux |
+
+**Tout chemin s'écrit complet, depuis la racine du dépôt.** Un chemin relatif ne
+veut rien dire sans son origine : c'est la panne A7, où tous les messages de lot
+disaient `handoff-septembre/specs/…`, qui ne se résout que si on est déjà dans
+`structura-v2/`. `check-sources.mjs` refuse désormais les chemins qui mentent.
+
+## 1 bis. Zéro copie — la règle qui remplace six promesses
+
+Les constats A1, A3, A6 et A7 sont **la même panne quatre fois** : le même contenu
+vit à deux endroits, et rien ne crie quand les deux divergent. La réponse a
+longtemps été une règle de plus (« lire au dépôt », « un seul chemin »). Une règle
+sans code de sortie est une promesse, et les promesses ont échoué quatre fois.
+
+| Ancien réflexe | Ce qu'on fait à la place |
+|---|---|
+| Copier un fichier du dépôt dans l'espace de design pour le consulter | **On le lit au dépôt, au moment où on en a besoin.** Une copie ne peut pas être périmée si elle n'existe pas. |
+| Garder une maquette « toute l'app » à côté des maquettes par écran | Une maquette par écran, point. R3. |
+| Archiver un document mort dans `archive/` | **On le supprime.** Git garde tout : l'historique EST l'archive. `archive/` le laissait à portée de `grep`, donc à portée d'erreur. |
+
+Seules exceptions autorisées à vivre en double : les **assets binaires** (`assets/*.png`),
+qui ne divergent pas silencieusement, et la maquette de référence, qui doit être
+commitée pour que l'implémenteur puisse l'ouvrir (A3).
 
 ## 2. La boucle, dans cet ordre
 
@@ -50,10 +72,25 @@ cd structura-v2 && node handoff-septembre/tools/check-tokens.mjs   # exige struc
 cd structura-v2 && node handoff-septembre/tools/calque.mjs --app <url>
 ```
 
-Les origines diffèrent : check-tokens.mjs et calque.mjs se lancent depuis
-structura-v2/, check-sources.mjs trouve la racine tout seul. Tant que les
+Les origines diffèrent : `check-tokens.mjs` et `calque.mjs` se lancent depuis
+`structura-v2/`, `check-sources.mjs` trouve la racine tout seul. Tant que les
 deux premiers exigent une origine, la commande n'est pas copiable-collable
-sans réfléchir — c'est-à-dire sans se tromper. À corriger dans un lot
-dédié : ils doivent trouver la racine comme check-sources.mjs le fait.
+sans réfléchir — c'est-à-dire sans se tromper. À corriger dans un lot dédié :
+ils doivent trouver la racine comme `check-sources.mjs` le fait.
 
 Le `?v=` de toute feuille CSS éditée est bumpé **dans le même commit**.
+
+## 7. Une règle sans sonde n'est pas une règle
+
+État réel des six règles — ce qui est mécanique, et ce qui reste un jugement humain.
+Une règle de la colonne « humain » qui casse deux fois doit gagner sa sonde ou sortir
+du contrat ; on n'en ajoute pas une septième.
+
+| Règle | Sonde | Ce qu'elle attrape |
+|---|---|---|
+| R1 — rien hors dépôt | `check-sources.mjs` | chemin cité qui ne se résout pas |
+| R2 — tokens lus au dépôt | `check-tokens.mjs` | nom de token inexistant ou non déclaré localement |
+| R3 — plus de « passe N » | `check-sources.mjs` + `menage.sh` | document périmé encore présent |
+| R4 — arbitrage écrit, perdant nommé | **humain** | rien. C'est un jugement, il s'assume |
+| R5 — zéro hex inventé | `check-tokens.mjs` (partiel) | ne voit pas encore un hex littéral hors marque |
+| R6 — périmètre | `calque.mjs` | divergence hors des invariants nommés |

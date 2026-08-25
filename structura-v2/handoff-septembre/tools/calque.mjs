@@ -25,12 +25,12 @@ import { pathToFileURL, fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-// La maquette est désormais l'app entière (`Structura.dc.html`), une vue à la
-// fois, Dashboard par défaut — d'où la disparition des préfixes `data-screen-label`
-// dans le plan : les ancres § 2.1 à § 2.3 sont toutes sur la vue de départ.
-// 09/08 — la maquette de référence est `Dashboard.dc.html` (CLAUDE.md, 00-doctrine).
-// Elle était mesurée en dur sur `Structura.dc.html`, que la doctrine ne reconnaît pas
-// comme référence : le contrôle certifiait le mauvais fichier (audit-09-08.md § A3).
+// La maquette de référence est `Dashboard.dc.html` (CLAUDE.md, 00-doctrine) : un
+// écran, un fichier. Les ancres § 2.1 à § 2.3 y sont toutes, d'où l'absence de
+// préfixe `data-screen-label` dans le plan.
+// 09/08 — elle était mesurée en dur sur `Structura.dc.html`, que la doctrine ne
+// reconnaît pas comme référence : le contrôle certifiait le mauvais fichier
+// (audit-09-08.md § A3).
 // `--maquette <fichier>` pour en viser une autre, relatif à handoff-septembre/maquette/.
 const MAQUETTE_DEFAUT = "Dashboard.dc.html";
 const LARGEUR = 1560; // largeur de dessin de la maquette ($preview)

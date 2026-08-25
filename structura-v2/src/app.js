@@ -75,7 +75,6 @@ const {
   toggleAppMode,
   renderDashboardSummary,
   renderAlerts,
-  renderEvents,
   drawPerfChart,
   renderDashboardModules,
   renderPf,
@@ -6432,7 +6431,6 @@ if (typeof document !== "undefined") {
   updateAppModeUI();
   renderSessionChrome?.();
   renderAlerts();
-  renderEvents();
   drawPerfChart();
   renderDashboardModules();
   renderDashboardSummary();
