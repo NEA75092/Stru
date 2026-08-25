@@ -321,8 +321,19 @@
 }
 
 /* ── La nappe — §4. Ordre des huit couches obligatoire : le fondu est
-   toujours dernier, c'est lui qui raccorde l'eau au plâtre. ── */
+   toujours dernier, c'est lui qui raccorde l'eau au plâtre.
+
+   Correctif post-LOT2 : la nappe n'a de sens que là où les 640px du haut
+   sont un titre et des cartes de verre — le Dashboard, lui seul (doctrine
+   L1 : « rien d'informatif n'y vit sauf le titre et les cartes de verre »).
+   Sur les huit autres écrans, la mettre posait de la donnée dense sur
+   l'eau (en-tête de tableau Clients) et cassait le contraste (légendes
+   Calendrier). Erreur de découpage de la spec, pas d'implémentation :
+   la nappe reste dans shell.css (même fichier, même périmètre), mais ne
+   s'affiche que si elle est suivie du panneau Dashboard actif — :has()
+   sur un sélecteur de fratrie, aucun changement de JS ni de DOM. */
 .nappe {
+    display: none;
     position: absolute;
     left: 0;
     top: 0;
@@ -330,6 +341,10 @@
     height: 640px;
     overflow: hidden;
     pointer-events: none;
+}
+
+.nappe:has(~ #view-dashboard.active) {
+    display: block;
 }
 
 .nappe > * {
