@@ -87,11 +87,18 @@ for (const f of fichiers) {
 }
 verifier('box-shadow hors --shadow-float', 0, ombres.length, ombres.join(', '));
 
-/* — rayons littéraux — */
+/* — rayons littéraux —
+   Exception : la forme organique des dérives de nappe (lot 2, § 4) est un
+   quadruplet de pourcentages (ex. 46% 54% 42% 58%). Aucun des cinq --r-*
+   ne couvre une forme irrégulière ; ce n'est pas un rayon de composant qui
+   a oublié son token, c'est une silhouette de fond décorative, prescrite
+   telle quelle par la spec. */
 const rayons = [];
+const FORME_NAPPE = /^(\d{1,3}%\s*){4}$/;
 for (const f of fichiers) {
   lire(f).split('\n').forEach((l, i) => {
     const m = l.match(/border-radius:\s*([^;]+)/);
+    if (m && FORME_NAPPE.test(m[1].trim())) return;
     if (m && !/var\(--r-|var\(--radius-|^\s*0(px)?\s*$|50%|999px|inherit/.test(m[1])) rayons.push(`${f}:${i + 1} → ${m[1].trim()}`);
   });
 }
