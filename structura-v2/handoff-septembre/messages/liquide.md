@@ -10,9 +10,17 @@ Puis, après lecture du rapport :
 
 > Applique le LOT 2.
 
-Puis, après validation des captures :
+Puis, après lecture des captures :
+
+> Applique le correctif LOT 2 : `specs/lot-liquide-02b-correctif-nappe.md`.
+
+Puis, après validation :
 
 > Applique le LOT 3.
+
+Puis :
+
+> Applique le LOT 4.
 
 ---
 
@@ -37,7 +45,9 @@ structura-v2/handoff-septembre/00-LIRE-EN-PREMIER.md
 structura-v2/handoff-septembre/specs/00-doctrine-liquide.md
 structura-v2/handoff-septembre/specs/design-tokens-v3-liquide.md
 structura-v2/handoff-septembre/specs/lot-liquide-02-coquille.md
+structura-v2/handoff-septembre/specs/lot-liquide-02b-correctif-nappe.md
 structura-v2/handoff-septembre/specs/lot-liquide-03-dette.md
+structura-v2/handoff-septembre/specs/lot-liquide-04-verre-dashboard.md
 ```
 
 ---
@@ -188,6 +198,33 @@ tokens supprimés) doivent tous sortir à **zéro**. C'est la définition de fin
 Rapport : sorties brutes, sha, et captures 1600 px jour + nuit des **neuf** onglets.
 À ce lot-là je veux tout, parce que c'est le premier moment où l'app entière est censée
 être cohérente.
+
+---
+
+# CORRECTIF LOT 2 — l'eau n'est que sur le Dashboard
+
+Spec : `specs/lot-liquide-02b-correctif-nappe.md`.
+
+Le LOT 2 a posé la nappe sous les neuf écrans. Elle ne doit vivre que sous le
+Dashboard : ailleurs, elle met de la donnée dense sur un dégradé et tue trois
+légendes au contraste. **Erreur de découpage de ma spec, pas de l'implémentation.**
+
+Deux fichiers : `src/shell.css` (conditionnement) et `index.html` (bump `?v=` seul).
+La preuve supplémentaire est une mesure DOM : hauteur de `.nappe` à 0 — ou élément
+absent — sur un écran non-Dashboard.
+
+---
+
+# LOT 4 — le verre du Dashboard
+
+Spec : `specs/lot-liquide-04-verre-dashboard.md`.
+
+Le hero et les quatre KPI flottent au-dessus de l'eau et sont restés mats. La
+doctrine leur donne droit au verre — et à eux seuls. Un fichier : `src/dashboard.css`.
+
+Les valeurs des deux niveaux de verre sont relevées sur la maquette dans la spec.
+**Elles ne s'écrivent pas en clair dans le CSS** : si un token manque, arrête-toi et
+dis lequel.
 
 ---
 
