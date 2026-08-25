@@ -10,6 +10,10 @@ Puis, après lecture du rapport :
 
 > Applique le LOT 2.
 
+Puis, après validation des captures :
+
+> Applique le LOT 3.
+
 ---
 
 ## Règles qui valent pour les trois lots
@@ -33,6 +37,7 @@ structura-v2/handoff-septembre/00-LIRE-EN-PREMIER.md
 structura-v2/handoff-septembre/specs/00-doctrine-liquide.md
 structura-v2/handoff-septembre/specs/design-tokens-v3-liquide.md
 structura-v2/handoff-septembre/specs/lot-liquide-02-coquille.md
+structura-v2/handoff-septembre/specs/lot-liquide-03-dette.md
 ```
 
 ---
@@ -79,10 +84,6 @@ seul écran soit édité.
 | `structura-v2/index.html` | **uniquement** les trois lignes de police du § 6 |
 
 Plus la whitelist de `tools/check-tokens.mjs`.
-
-`tools/check-echelle.mjs` n'existe pas au dépôt — mention retirée le 25/08
-plutôt qu'inventée. Sonde de ce lot : `preuve-liquide.mjs`, `check-tokens.mjs`,
-`check-sources.mjs`, les trois listées au § « Preuve ».
 
 ## Interdits
 
@@ -157,6 +158,36 @@ Le lot 2 ajoute quatre contrôles : nappe à 640 px, rail à 236 px,
 
 Rapport : sorties brutes, sha, hauteurs DOM des neuf items de nav (≥ 44 px chacun),
 et **captures 1600 px jour + nuit de Dashboard, Clients, Calendrier, Pitch Engine.**
+
+---
+
+# LOT 3 — la dette de relief
+
+Spec : `specs/lot-liquide-03-dette.md`.
+
+Le LOT 1 a compté ce que la direction Liquide interdit et qui traîne encore dans les
+écrans : douze `box-shadow`, deux rayons littéraux, quatre polices mortes, un token
+supprimé encore référencé. Aucun n'est causé par les lots précédents. Tant qu'ils sont
+là, huit écrans sur neuf contredisent la doctrine.
+
+Ce lot est **mécanique, pas créatif** : aucune décision de design à prendre, chaque
+remplacement est prescrit à la ligne dans la spec. Il vient **après** le LOT 2 pour ne
+pas entrer en collision avec la réécriture de `shell.css`.
+
+## Preuve
+
+```bash
+node structura-v2/handoff-septembre/tools/preuve-liquide.mjs --lot 3
+node structura-v2/handoff-septembre/tools/check-tokens.mjs
+node structura-v2/handoff-septembre/tools/check-sources.mjs
+```
+
+Les quatre compteurs du LOT 1 (`box-shadow`, rayons littéraux, `Newsreader / IBM Plex`,
+tokens supprimés) doivent tous sortir à **zéro**. C'est la définition de fin du lot.
+
+Rapport : sorties brutes, sha, et captures 1600 px jour + nuit des **neuf** onglets.
+À ce lot-là je veux tout, parce que c'est le premier moment où l'app entière est censée
+être cohérente.
 
 ---
 
