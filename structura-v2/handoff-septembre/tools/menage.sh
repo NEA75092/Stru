@@ -73,9 +73,11 @@ qui l'y envoie (audit-09-08.md § A4).
 
   grep -rn "passe 8\|passe 7, section" structura-v2/src/
 
-Chaque occurrence devient une référence à `handoff-septembre/specs/00-doctrine.md`,
-avec le D-n correspondant. Tant que ce grep renvoie quelque chose, le ménage est
-incomplet et la prochaine divergence est déjà écrite.
+Chaque occurrence devient une référence à
+`handoff-septembre/specs/00-doctrine-liquide.md` (00-doctrine.md est supprimé
+depuis, direction Liquide), avec l'invariant correspondant. Tant que ce grep
+renvoie quelque chose, le ménage est incomplet et la prochaine divergence est
+déjà écrite.
 
 Puis :
   git status          # relire ce qui part

@@ -144,12 +144,12 @@ les écrans concernés en une fois.
 | Ossature : barre latérale 236px, nav 42px/ligne, filet `inset -1px 0 0 --color-border` | `shell.css` | tous |
 | En-tête d'écran : date en mono 10,5px, titre `--font-heading` 52px/200 | `views.css` | tous |
 | La règle de barrière (rainure, encoche PDI, curseur, zone franchie) | `app-utils.js` + `relief.css` | Dashboard, Barrières, Portefeuille, tiroir |
-| Sémantique des couleurs : mer = sélectionné/actionnable, terre = barrière, encre = tout le reste | `CLAUDE.md` + `00-doctrine.md` | tous |
+| Sémantique des couleurs : mer = sélectionné/actionnable, terre = barrière, encre = tout le reste | `00-doctrine-liquide.md` | tous |
 | Formats de nombres : `moneyShort`, `pctFr`, `ptsFr` | `app-utils.js` | tous |
 | Seuils de statut | `statusFromDist` (`app-state.js`) | Dashboard, Barrières, Pilotage, Calendrier |
 | Couleurs de marque émetteur (seuls hex autorisés, R5) | à créer, un seul endroit | Dashboard, Pilotage |
 | Le tiroir produit (`openDrawer`) | `overlays.css` | tous les écrans qui listent des produits |
-| Pas d'ombre portée, rayon 2 px | `00-doctrine.md` D6 | tous |
+| Pas d'ombre portée, rayon 2 px | `00-doctrine-liquide.md` (relief, rayons) | tous |
 
 **Divergence ouverte, constatée le 11/08 — à trancher en lot transversal, pas dans un
 lot d'écran :** le Dashboard classe le risque à `0 / 10 %` (`riskZoneFor`,

@@ -1,7 +1,8 @@
 # doctrine — « Liquide », et comment l'étendre aux huit autres écrans
 
-Version 1 · 25/08/2026 · **remplace** `specs/00-doctrine.md` (D1–D10, direction
-Méditerranée). Dépend de `specs/design-tokens-v3-liquide.md`.
+Version 1 · 25/08/2026 · **remplace** `specs/00-doctrine.md` (D1–D10, direction Méditerranée), supprimée
+dans ce lot — l'historique reste en git log. Dépend de
+`specs/design-tokens-v3-liquide.md`.
 Rendu cible et seule source de mesure : `Dashboard - Liquide.dc.html`.
 
 ---

@@ -33,6 +33,13 @@ PERIMES=(
   # Maquettes périmées encore au dépôt, s'il en reste.
   "structura-v2/handoff-septembre/maquette/Structura.dc.html"
   "structura-v2/handoff-septembre/maquette/Dashboard.dc.html"
+  # Comptes-rendus d'audit datés (09/08, 11/08) : ils ont fait leur travail —
+  # produire la doctrine Liquide — et n'ont plus de raison d'être cités comme
+  # référence vivante. Suppression et non réécriture : un audit daté dont on
+  # réécrit les citations ne dit plus ce qu'il a constaté ce jour-là. git log
+  # garde la trace, c'est le seul endroit où elle reste fiable.
+  "structura-v2/handoff-septembre/audit-09-08.md"
+  "structura-v2/handoff-septembre/constats-ouverts.md"
 )
 
 echo "== ménage Liquide =="
@@ -54,10 +61,26 @@ done
 echo
 echo "-- citations pendantes après ménage --"
 # Toute référence, dans un fichier vivant, à un document qu'on vient de sortir.
+#
+# Périmètre : handoff-septembre/ uniquement — c'est aussi le périmètre de
+# check-sources.mjs, le contrôle qui fait foi. Hors de ce dossier vivent des
+# notes d'attribution historique (commentaires src/*.css citant une section
+# de doctrine morte, ex. « 00-doctrine.md, D6 ») qui ne sont pas des liens de
+# navigation : les réécrire éditerait un fichier d'écran hors mandat de ce
+# lot. Ça exclut aussi, de fait, un éventuel export .zip à la racine et la
+# config locale .claude/ — des fantômes, pas des liens morts.
+#
+# Le script s'exclut lui-même par NOM de fichier, pas par contenu de ligne :
+# sa propre liste PERIMES cite les noms en toutes lettres, c'est sa raison
+# d'être, pas une citation pendante. Une regex par ligne (façon
+# check-sources.mjs) laisserait passer un nom selon comment le tableau est
+# formaté ; l'exclusion de fichier est inconditionnelle.
+CIBLE="structura-v2/handoff-septembre"
+MOI=$(basename "$0")
 RESTE=0
 for f in "${PERIMES[@]}"; do
   BASE=$(basename "$f")
-  HITS=$(grep -rl --exclude-dir=.git --exclude="$BASE" -- "$BASE" . 2>/dev/null || true)
+  HITS=$(grep -rl --exclude-dir=.git --exclude="$BASE" --exclude="$MOI" -- "$BASE" "$CIBLE" 2>/dev/null || true)
   if [ -n "$HITS" ]; then
     echo "  $BASE encore cité par :"
     echo "$HITS" | sed 's/^/      /'

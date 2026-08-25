@@ -78,8 +78,11 @@ seul écran soit édité.
 | `structura-v2/src/design-tokens.css` | réécrit selon §§ 2 à 5 |
 | `structura-v2/index.html` | **uniquement** les trois lignes de police du § 6 |
 
-Plus la whitelist de `tools/check-tokens.mjs` et le calibrage de
-`tools/check-echelle.mjs`.
+Plus la whitelist de `tools/check-tokens.mjs`.
+
+`tools/check-echelle.mjs` n'existe pas au dépôt — mention retirée le 25/08
+plutôt qu'inventée. Sonde de ce lot : `preuve-liquide.mjs`, `check-tokens.mjs`,
+`check-sources.mjs`, les trois listées au § « Preuve ».
 
 ## Interdits
 
