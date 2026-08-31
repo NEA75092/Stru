@@ -18,9 +18,13 @@ Puis, après validation :
 
 > Applique le LOT 3.
 
-Puis :
+Puis, après lecture des captures du LOT 3 :
 
-> Applique le LOT 4.
+> Applique le LOT 5 : `specs/lot-liquide-05-nappe-et-nuit.md`.
+
+Puis, après validation des captures jour + nuit :
+
+> Applique le LOT 4 (version 2).
 
 ---
 
@@ -38,13 +42,11 @@ node structura-v2/handoff-septembre/tools/check-sources.mjs
 
 ## Vocabulaire : la doctrine nomme, le code sélectionne
 
-Le rail de navigation s'appelle `.sidebar` dans le code, ses items `.nav-tab`. La
-couche 1 des rayons se nomme `--r-*` dans la doctrine ; les écrans consomment la
-couche d'alias `--radius-*`. Une sonde s'écrit toujours sur le sélecteur et sur le
-nom d'alias, jamais sur le mot de la doctrine — deux lots de faux vert ont été
-payés pour l'apprendre (31/08).
-
----
+Le rail de navigation s'appelle `.sidebar` dans le code, ses items `.nav-tab`.
+La couche 1 des rayons se nomme `--r-*` dans la doctrine ; les écrans consomment
+la couche d'alias `--radius-*`. **Une sonde s'écrit toujours sur le sélecteur et
+sur le nom d'alias**, jamais sur le mot de la doctrine — deux lots de faux vert
+ont été payés pour l'apprendre (31/08).
 
 ## Règles qui valent pour les trois lots
 
@@ -71,6 +73,7 @@ structura-v2/handoff-septembre/specs/design-tokens-v3-liquide.md
 structura-v2/handoff-septembre/specs/lot-liquide-02-coquille.md
 structura-v2/handoff-septembre/specs/lot-liquide-02b-correctif-nappe.md
 structura-v2/handoff-septembre/specs/lot-liquide-03-dette.md
+structura-v2/handoff-septembre/specs/lot-liquide-05-nappe-et-nuit.md
 structura-v2/handoff-septembre/specs/lot-liquide-04-verre-dashboard.md
 ```
 
@@ -239,16 +242,36 @@ absent — sur un écran non-Dashboard.
 
 ---
 
-# LOT 4 — le verre du Dashboard
+# LOT 5 — l'eau finit bien, et elle existe en nuit
 
-Spec : `specs/lot-liquide-04-verre-dashboard.md`.
+Spec : `specs/lot-liquide-05-nappe-et-nuit.md`. **Avant** le LOT 4.
 
-Le hero et les quatre KPI flottent au-dessus de l'eau et sont restés mats. La
-doctrine leur donne droit au verre — et à eux seuls. Un fichier : `src/dashboard.css`.
+Trois défauts relevés aux captures du 31/08 : deux libellés posés sur l'eau, la carte
+du graphe à cheval sur les 640 px, et l'eau qui disparaît en nuit parce que le fondu
+démarre trop haut sur un fond près du noir.
 
-Les valeurs des deux niveaux de verre sont relevées sur la maquette dans la spec.
-**Elles ne s'écrivent pas en clair dans le CSS** : si un token manque, arrête-toi et
-dis lequel.
+Ce lot **ajoute quatre tokens** (`--fondu-haut` et les trois arêtes de lumière) : c'est
+la seule raison pour laquelle il touche `design-tokens.css`. Il déplace aussi un bloc
+dans `index.html` — un déménagement, pas de la peinture, assumé au § 6 de la spec.
+
+Une mesure est à faire **avant de coder** : le fond réellement peint derrière le plâtre
+vs la couleur d'arrivée du fondu de la nappe. Si ce n'est pas le même token, l'arête
+franche est là. Si c'est le même, arrête-toi et donne les deux valeurs.
+
+---
+
+# LOT 4 — le verre du Dashboard (version 2)
+
+Spec : `specs/lot-liquide-04-verre-dashboard.md`, **version 2**. Après le LOT 5.
+
+La v1 mettait cinq cartes en verre : elle violait L3, qui en autorise trois. La v2 en
+met **deux** — le hero, et la rangée de KPI dans un cadre flottant unique. La carte du
+graphe ne passe pas en verre du tout : le LOT 5 l'a rangée dans le plâtre.
+
+Un fichier : `src/dashboard.css`, plus le bump. Les valeurs des deux niveaux de verre
+sont relevées sur la maquette dans la spec. **Elles ne s'écrivent pas en clair dans le
+CSS** : si un token manque, arrête-toi et dis lequel. Si aucun conteneur n'enveloppe
+déjà la rangée de KPI, arrête-toi aussi — je tranche, tu n'ajoutes pas de DOM.
 
 ---
 
@@ -259,9 +282,15 @@ un alias, dans cent lignes. Le lot 2 ne touche aucun contenu : s'il casse quelqu
 chose, c'est la coquille. Un lot unique mélangerait les deux causes et coûterait
 les six allers-retours de l'épisode `check-sources` du 11/08.
 
-## Ce qui n'est pas au dépôt et devrait y être
+## La maquette est au dépôt — tenez-la à jour
 
-`Dashboard - Liquide.dc.html`, la maquette de référence. Tant qu'elle n'est pas
-dans `structura-v2/handoff-septembre/maquette/`, `calque.mjs` ne peut rien mesurer
-et les specs sont la seule source. Elles sont écrites pour suffire, mais une sonde
-vaut mieux qu'une relecture.
+`handoff-septembre/maquette/Dashboard - Liquide.dc.html` est suivie par git depuis
+le 25/08 : `calque.mjs` peut la mesurer. Elle est **la spec**, pas une intention —
+donc quand un défaut se corrige dans la direction visuelle, il se corrige **d'abord
+dans la maquette**, et la spec de lot se rédige depuis elle. C'est ce qui a produit
+le LOT 5 : les captures montraient un libellé sur l'eau que la maquette n'a jamais
+eu, et un fondu que la maquette portait déjà.
+
+Depuis le 31/08 elle porte en tokens le premier stop du fondu (`--fondu-haut`) et
+les trois arêtes de lumière — les valeurs de nuit de la nappe sont donc mesurables
+au calque, et plus seulement à l'œil.
