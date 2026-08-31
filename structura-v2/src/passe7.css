@@ -545,7 +545,7 @@ html:has(#view-autopitch.active) {
     background: var(--color-wash);
 }
 
-/* Libellé de période (19 px, Newsreader) + plage en mono 9,5 px,
+/* Libellé de période (19 px, Jost) + plage en mono 9,5 px,
    empilés — bloc à largeur minimale fixe, cellule à part entière. */
 .control-band-period {
     box-sizing: border-box;

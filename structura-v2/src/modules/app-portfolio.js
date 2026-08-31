@@ -925,7 +925,7 @@
         // seule mesure retombait par endroits 50-300px trop haut ou trop
         // bas, coupant la ligne du haut à mi-hauteur — le layout n'avait
         // pas fini de se stabiliser au moment de la mesure (transition
-        // d'ouverture du tiroir, polices Newsreader/Instrument Sans qui
+        // d'ouverture du tiroir, polices Jost/Instrument Sans qui
         // peuvent encore charger). Double rAF pour la position immédiate,
         // puis un recalcul quand les polices sont chargées
         // (document.fonts.ready) rattrape les cas encore décalés après

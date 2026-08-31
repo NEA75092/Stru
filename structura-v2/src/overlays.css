@@ -577,7 +577,7 @@
 
 .dr-price-chart-legend-swatch-solid {
     height: 2px;
-    border-radius: 1px;
+    border-radius: var(--radius-sm);
     background: var(--color-ink);
 }
 
@@ -606,7 +606,7 @@
    une ligne à mi-hauteur en haut de la boîte. Cause réelle trouvée en
    isolant chaque piste séparément : le scroll-anchoring par défaut du
    navigateur (overflow-anchor: auto) recalculait scrollTop après coup,
-   en réaction au moindre reflow (chargement des polices Newsreader/
+   en réaction au moindre reflow (chargement des polices Jost/
    Instrument Sans), écrasant la valeur posée par le JS. overflow-
    anchor: none le désactive sur cette boîte précise. Remonté à 550px
    (~7 rangées) et ancré au pixel : scroll-snap-type ici, scroll-snap-

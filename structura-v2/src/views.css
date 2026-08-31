@@ -652,7 +652,7 @@
 .cal-flux-legend-swatch {
     width: 10px;
     height: 10px;
-    border-radius: 2px;
+    border-radius: var(--radius-sm);
     background: var(--color-ink);
 }
 

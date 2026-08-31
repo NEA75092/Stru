@@ -292,7 +292,7 @@
     max-width: 64px;
     height: 6px;
     flex: none;
-    background: var(--chaux-2);
+    background: var(--color-surface-sunk);
     border-radius: var(--radius-full);
     overflow: hidden;
 }
@@ -348,15 +348,18 @@
 /* Ligne franchie/alerte : filet gauche sur la première cellule
    uniquement, pas un fond plein qui écraserait toute la ligne. */
 .row-breach td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-breach);
+    border-left: 3px solid var(--color-breach);
+    padding-left: calc(var(--space-3) - 3px);
 }
 
 .row-warn td:first-child {
-    box-shadow: inset 3px 0 0 var(--color-watch);
+    border-left: 3px solid var(--color-watch);
+    padding-left: calc(var(--space-3) - 3px);
 }
 
 .tbl-wrap tbody tr:hover td:first-child {
-    box-shadow: inset 2px 0 0 var(--color-accent);
+    border-left: 2px solid var(--color-accent);
+    padding-left: calc(var(--space-3) - 2px);
 }
 
 /* ── Largeurs de colonnes — Portefeuille (10 colonnes, passe 8) ──

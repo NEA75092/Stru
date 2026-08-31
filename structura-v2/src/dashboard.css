@@ -59,7 +59,7 @@
 /* ── Bandeau d'accueil ───────────────────────────────────── */
 /* 190px pour une salutation, c'était trop : le contenu de la vue doit
    commencer dans le premier écran. Une ligne, filet + gouttière — plus
-   de bloc plein bleu (aucun en-tête coloré, cf. CLAUDE.md, sémantique
+   de bloc plein bleu (aucun en-tête coloré, cf. 00-doctrine-liquide.md, sémantique
    des couleurs). */
 .dash-welcome {
     display: flex;
@@ -178,8 +178,8 @@
 }
 
 /* Pas de tabular-nums ici : un chiffre isolé n'a rien à aligner, et à
-   40px la case tabulaire d'IBM Plex Mono écarte visiblement le signe
-   moins du chiffre (passe 8, correctif formats). */
+   40px la case tabulaire de var(--font-mono-data) écarte visiblement le
+   signe moins du chiffre (passe 8, correctif formats). */
 .kpi-val {
     align-self: center;
     display: flex;
@@ -204,7 +204,7 @@
    quatre cartes forment un set, on n'en remplit pas une seule. */
 /* Cartes « Encours »/« Nombre de produits » : pas de distance à une
    barrière, filet neutre — la couleur n'est due qu'aux deux cartes de
-   statut ci-dessous (cf. CLAUDE.md, sémantique des couleurs). */
+   statut ci-dessous (cf. 00-doctrine-liquide.md, sémantique des couleurs). */
 .kpi.k-red {
     border-left-color: var(--color-breach);
 }
@@ -434,7 +434,11 @@
     height: 12px;
     overflow: hidden;
     background: var(--color-surface-sunk);
-    box-shadow: inset 0 0 0 1px var(--color-border);
+    /* Contour complet en outline, pas en border : la hauteur (12px) et
+       la largeur de .cap-breach sont calculées, un border changerait
+       la boîte. outline ne compte pas dans le box-model (lot 3, §3.1). */
+    outline: 1px solid var(--color-border);
+    outline-offset: -1px;
 }
 
 .cap-groove {
@@ -448,13 +452,15 @@
     bottom: 0;
     background-image: repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px);
     background-color: color-mix(in oklch, var(--color-breach), transparent 80%);
-    box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-breach), transparent 55%);
+    outline: 1px solid color-mix(in oklch, var(--color-breach), transparent 55%);
+    outline-offset: -1px;
 }
 
 .cap-row.tone-watch .cap-breach {
     background-image: repeating-linear-gradient(115deg, var(--color-watch) 0 2px, transparent 2px 5px);
     background-color: color-mix(in oklch, var(--color-watch), transparent 80%);
-    box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-watch), transparent 55%);
+    outline: 1px solid color-mix(in oklch, var(--color-watch), transparent 55%);
+    outline-offset: -1px;
 }
 
 .cap-zero {
@@ -711,7 +717,7 @@
 
 .vl-diverge-half-neg {
     justify-content: flex-end;
-    box-shadow: inset -1px 0 0 var(--color-border-strong);
+    border-right: 1px solid var(--color-border-strong);
 }
 
 .vl-diverge-half-pos {
@@ -822,14 +828,16 @@
     grid-template-columns: 12px minmax(0, 1fr) 96px 64px;
     align-items: center;
     gap: 12px;
-    padding: 8px var(--space-3);
+    /* 7px + 1px de bordure = 8px, hauteur de ligne inchangée. */
+    padding: 8px var(--space-3) 7px;
     margin: 0 calc(-1 * var(--space-3));
-    box-shadow: inset 0 -1px 0 var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
     transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .issuer-table-row:last-child {
-    box-shadow: none;
+    border-bottom: none;
+    padding-bottom: 8px;
 }
 
 .issuer-table-row:hover {
@@ -1102,17 +1110,27 @@
 
 /* Le type d'événement n'est pas une distance à une barrière : filet
    d'encre pour tous, sauf l'événement qui touche une barrière lui-même
-   (la couleur ne reste que sur le risque réel, cf. CLAUDE.md, sémantique
+   (la couleur ne reste que sur le risque réel, cf. 00-doctrine-liquide.md, sémantique
    des couleurs). */
 .timeline-item.ev-obs,
 .timeline-item.ev-coupon,
 .timeline-item.ev-rappel,
+.timeline-item.ev-mat,
+.timeline-item.ev-bar {
+    /* var(--space-3) - 3px : la marque gauche mange sur le padding, la
+       largeur totale de la ligne ne bouge pas. */
+    padding-left: calc(var(--space-3) - 3px);
+}
+
+.timeline-item.ev-obs,
+.timeline-item.ev-coupon,
+.timeline-item.ev-rappel,
 .timeline-item.ev-mat {
-    box-shadow: inset 3px 0 0 var(--color-text-tertiary);
+    border-left: 3px solid var(--color-text-tertiary);
 }
 
 .timeline-item.ev-bar {
-    box-shadow: inset 3px 0 0 var(--color-breach);
+    border-left: 3px solid var(--color-breach);
 }
 
 .timeline-bar .timeline-date {
@@ -1187,7 +1205,7 @@
 
 /* Un delta de performance reste en encre : le signe et le mono
    suffisent (plus de vert/rouge décoratif sur un chiffre qui ne parle
-   pas d'une barrière, cf. CLAUDE.md, sémantique des couleurs). Relogé
+   pas d'une barrière, cf. 00-doctrine-liquide.md, sémantique des couleurs). Relogé
    en fin de fichier
    (contenu inchangé) : à spécificité égale (une classe), la règle la
    plus tardive gagne — placées plus haut, .kpi-sub (et d'autres
