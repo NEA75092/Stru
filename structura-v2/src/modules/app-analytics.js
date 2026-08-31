@@ -117,7 +117,7 @@
     // Type de produit → classe de couleur : mêmes tp-ac/tp-cg/tp-rc/tp-lv
     // que .pill-category (tables.css), pour qu'un segment de l'histogramme
     // se reconnaisse comme la même famille que sa pastille dans les
-    // tableaux. La couleur ne s'écrit jamais en style="" (règle CLAUDE.md).
+    // tableaux. La couleur ne s'écrit jamais en style="" (00-doctrine-liquide.md).
     const TYPE_CLASS = { AC: "tp-ac", CG: "tp-cg", RC: "tp-rc", LV: "tp-lv" };
 
     function renderRiskMetrics() {

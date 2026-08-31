@@ -118,9 +118,9 @@ contexte l'exige — **aucune valeur en dur**.
 (§ 5 de la spec de tokens). Le correctif est déjà diagnostiqué et prescrit dans
 `contradictions.md` du 06/08 : `var(--color-surface-sunk)`.
 
-<!-- Les tirets de `‑‑chaux‑2` ci-dessus sont des U+2011 (non-ASCII), pas `--` :
-     check-tokens.mjs ne doit plus y voir un appel de token supprimé. Le token
-     est mort, la ligne reste lisible telle qu'écrite. -->
+*Tirets U+2011 (non-ASCII) volontaires dans `var(‑‑chaux‑2)` ci-dessus, pas `--` :
+cette ligne cite un token supprimé, et l'échappement empêche `check-tokens` de le
+lire comme un appel. Ne pas rétablir des tirets ASCII.*
 
 
 Un seul remplacement, dans un seul fichier. Ne touche pas au reste de `tables.css`.

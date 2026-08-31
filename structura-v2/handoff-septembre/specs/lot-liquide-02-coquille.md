@@ -321,8 +321,8 @@ produit, s'il a lieu, est une décision client, pas un choix d'implémentation.
 | 2 | `check-tokens.mjs`, `check-sources.mjs` | verts |
 | 3 | `box-shadow` dans `src/` | 0 hors `--shadow-float` |
 | 4 | `.nappe` mesurée au DOM | `height: 640px` |
-| 5 | `.rail` mesuré au DOM | `width: 236px` |
-| 6 | hauteur de chaque `.rail-item` au DOM | ≥ 44px, les neuf |
+| 5 | rail (`.sidebar` dans le code) mesuré au DOM | `width: 236px` |
+| 6 | hauteur de chaque item de rail (`.nav-tab`) au DOM | ≥ 44px, les neuf |
 | 7 | les neuf `d=` d'icônes | identiques à ceux d'avant le lot, au caractère près |
 | 8 | captures **1600 px jour + nuit** | Dashboard, Clients, Calendrier, Pitch Engine |
 

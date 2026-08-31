@@ -17,6 +17,10 @@ document est la table de dérivation.
 Une règle qui n'est pas ici n'existe pas. Si un cas n'est pas couvert, il se
 tranche en écrivant la règle, pas en improvisant à l'écran.
 
+Le rail de navigation est `.sidebar` dans le code. « rail » est le mot de la
+doctrine, `.sidebar` est le sélecteur — toute sonde s'écrit sur le sélecteur, pas
+sur le mot.
+
 ---
 
 ## L1 — Deux plans, jamais mélangés
@@ -190,11 +194,13 @@ Un écran ne reçoit de spec propre que le jour où il est maquetté. Écrire ic
 qu'ils devraient devenir serait de la spec morte — la même faute que les onze
 documents périmés d'A4.
 
-### Ce qui ne se redessine pas (règle 7 du CLAUDE.md)
+### Ce qui ne se redessine pas
 
-Le monogramme, les neuf tracés d'icônes de nav, les six modes du calendrier,
-l'ossature du Pitch Engine, le tri par en-tête, les couleurs de marque émetteur.
-Ils sont repris verbatim. Les redessiner est la panne du 06/08 et du 19/08.
+**Ne pas redessiner ce qui existe** — le logo, les icônes de nav, l'ossature d'un
+écran corrigée en usage. Concrètement : le monogramme, les neuf tracés d'icônes de
+nav, les six modes du calendrier, l'ossature du Pitch Engine, le tri par en-tête,
+les couleurs de marque émetteur. Ils sont repris verbatim. Les redessiner est la
+panne du 06/08 et du 19/08.
 
 ---
 
