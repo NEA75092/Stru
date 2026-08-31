@@ -191,8 +191,7 @@ test("aucun bouton n'a de fond corail", () => {
 
 /* ── 8. Le logo est l'image de marque du client, en 2 variantes ──
    Sens inversé le 26/07 : le client a restauré son logo d'origine
-   depuis sa sauvegarde. La marque redevient une image — voir
-   « Reversements de décision » dans CLAUDE.md. */
+   depuis sa sauvegarde. La marque redevient une image. */
 test("la marque est l'image du client, avec sa variante sombre", () => {
   const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   assert.ok(html.includes("sidebar-brand-img"), "index.html n'utilise pas .sidebar-brand-img");

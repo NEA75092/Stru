@@ -24,6 +24,28 @@ Puis :
 
 ---
 
+## Où se lancent les sondes
+
+`check-tokens.mjs` se lance **depuis `structura-v2/`**, pas depuis la racine du
+dépôt : depuis la racine il ne trouve pas `src/design-tokens.css` et sort **0** —
+un faux vert. Les deux autres se lancent depuis la racine.
+
+```bash
+cd structura-v2 && node handoff-septembre/tools/check-tokens.mjs; cd ..
+node structura-v2/handoff-septembre/tools/preuve-liquide.mjs --lot N
+node structura-v2/handoff-septembre/tools/check-sources.mjs
+```
+
+## Vocabulaire : la doctrine nomme, le code sélectionne
+
+Le rail de navigation s'appelle `.sidebar` dans le code, ses items `.nav-tab`. La
+couche 1 des rayons se nomme `--r-*` dans la doctrine ; les écrans consomment la
+couche d'alias `--radius-*`. Une sonde s'écrit toujours sur le sélecteur et sur le
+nom d'alias, jamais sur le mot de la doctrine — deux lots de faux vert ont été
+payés pour l'apprendre (31/08).
+
+---
+
 ## Règles qui valent pour les trois lots
 
 1. **Rien de structurel ne change. Seule la peinture change.** Mêmes onglets, mêmes
@@ -34,7 +56,9 @@ Puis :
    inventée passe les sondes et se voit six semaines plus tard.
 4. **Ne redessine aucune icône, aucun tracé SVG existant.** C'est la panne du 06/08
    et du 19/08, signalée deux fois.
-5. Un lot se termine par : sonde verte, `?v=` bumpé, commit poussé, rapport.
+5. Un lot se termine par : sonde verte, `?v=` bumpé, **commit poussé**, rapport.
+   Un lot non poussé n'est pas clos, même si tout est vert et que l'ordre
+   d'exécution du message a oublié de le dire.
 6. **Les captures ne sont pas optionnelles.** Sans elles je ne peux pas juger le
    rendu, et le lot n'est pas clos.
 
