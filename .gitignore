@@ -10,5 +10,8 @@ venv/
 structura-app/
 structure-app/
 
+# Archive du dépôt dans le dépôt : interdit par le § 1 bis.
+structura-v2.zip
+
 # Local Netlify folder
 .netlify

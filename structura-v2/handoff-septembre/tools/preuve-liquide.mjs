@@ -3,6 +3,7 @@
  *
  *   node structura-v2/handoff-septembre/tools/preuve-liquide.mjs --lot 1
  *   node structura-v2/handoff-septembre/tools/preuve-liquide.mjs --lot 2
+ *   node structura-v2/handoff-septembre/tools/preuve-liquide.mjs --lot 3
  *
  * Lancer depuis la RACINE DU DÉPÔT. Sort 0 si tout passe, 1 sinon.
  * Ce script ne corrige rien : il constate et il nomme le fichier fautif.
@@ -12,8 +13,8 @@ import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (LOT !== 1 && LOT !== 2) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2');
+if (LOT !== 1 && LOT !== 2 && LOT !== 3) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3');
   process.exit(2);
 }
 
@@ -40,16 +41,41 @@ const verifier = (nom, attendu, obtenu, detail = '') =>
 /* — les fichiers touchés — */
 const AUTORISES = LOT === 1
   ? [TOKENS, INDEX]
-  : [join(SRC, 'shell.css'), INDEX];
+  : LOT === 2
+    ? [join(SRC, 'shell.css'), INDEX]
+    : [
+        // lot 3, § 5 : sept fichiers d'écran, plus design-tokens.css
+        // pour la seule suppression de --shadow-float, plus index.html
+        // pour le bump ?v=.
+        join(SRC, 'controls.css'),
+        join(SRC, 'dashboard.css'),
+        join(SRC, 'overlays.css'),
+        join(SRC, 'passe7.css'),
+        join(SRC, 'tables.css'),
+        join(SRC, 'views.css'),
+        join(SRC, 'modules', 'app-portfolio.js'),
+        TOKENS,
+        INDEX,
+      ];
 const touches = sh('git diff --name-only HEAD').split('\n').filter(Boolean);
 const horsPerimetre = touches.filter((f) => !AUTORISES.includes(f));
 verifier('fichiers hors périmètre', 0, horsPerimetre.length, horsPerimetre.join(', '));
 
-/* — tokens de la passe 8 : plus aucune occurrence — */
-const MORTS = ['--chaux', '--mer', '--olive', '--ocre', '--terracotta', '--lumiere', '--grain', '--blur-enter'];
+/* — tokens de la passe 8 : plus aucune occurrence —
+   Emplacements, pas seulement fichiers (lot 3, § 2 : « ajoute-les à
+   l'affichage, c'est un fichier d'outillage, tu y as droit »).
+   --grain et --blur-enter ne sont PAS dans cette liste : le lot 03 § 4
+   dit qu'ils restent (ils servent la nappe du LOT 2). Ils sont comptés
+   plus bas, pour mémoire, jamais bloquants. */
+const MORTS = ['--chaux', '--mer', '--olive', '--ocre', '--terracotta', '--lumiere'];
 for (const t of MORTS) {
-  const hits = fichiers.filter((f) => lire(f).includes(t));
-  verifier(`occurrences de ${t}`, 0, hits.length, hits.join(', '));
+  const emplacements = [];
+  for (const f of fichiers) {
+    lire(f).split('\n').forEach((l, i) => {
+      if (l.includes(t)) emplacements.push(`${f}:${i + 1}`);
+    });
+  }
+  verifier(`occurrences de ${t}`, 0, emplacements.length, emplacements.join(', '));
 }
 
 /* — la couche d'alias ne contient aucun littéral —
@@ -78,11 +104,16 @@ if (debuts.length) {
   verifier('couche 2 repérable', 'oui', 'non', 'le commentaire « couche 2 » est absent de design-tokens.css');
 }
 
-/* — aucune ombre, sauf la surface flottante — */
+/* — aucune ombre, sauf la surface flottante —
+   `box-shadow` sans « : » n'est pas une déclaration : c'est le nom de
+   propriété dans une liste `transition:` (ex. « box-shadow 120ms ease »).
+   Une transition ne peint rien, elle ne viole pas « aucune ombre portée » —
+   sans ce garde-fou, .btn (passe 1, hors périmètre du lot 3) comptait
+   comme une ombre alors qu'il n'en pose aucune. */
 const ombres = [];
 for (const f of fichiers) {
   lire(f).split('\n').forEach((l, i) => {
-    if (/box-shadow/.test(l) && !/--shadow-float|none/.test(l)) ombres.push(`${f}:${i + 1}`);
+    if (/box-shadow\s*:/.test(l) && !/--shadow-float|:\s*none/.test(l)) ombres.push(`${f}:${i + 1}`);
   });
 }
 verifier('box-shadow hors --shadow-float', 0, ombres.length, ombres.join(', '));
@@ -106,8 +137,13 @@ verifier('border-radius littéral', 0, rayons.length, rayons.join(' | '));
 
 /* — polices mortes — */
 for (const p of ['Newsreader', 'IBM Plex']) {
-  const hits = [...fichiers, INDEX].filter((f) => lire(f).includes(p));
-  verifier(`occurrences de ${p}`, 0, hits.length, hits.join(', '));
+  const emplacements = [];
+  for (const f of [...fichiers, INDEX]) {
+    lire(f).split('\n').forEach((l, i) => {
+      if (l.includes(p)) emplacements.push(`${f}:${i + 1}`);
+    });
+  }
+  verifier(`occurrences de ${p}`, 0, emplacements.length, emplacements.join(', '));
 }
 
 /* — le thème garde son nom — */
@@ -122,11 +158,28 @@ for (const f of fichiers.filter((f) => f !== TOKENS && f.endsWith('.css'))) {
 }
 const totalDur = Object.values(enDur).reduce((a, b) => a + b, 0);
 
+/* — --grain / --blur-enter : tolérés par le lot 03 § 4 (ils servent la
+   nappe du LOT 2). Comptés pour mémoire, jamais bloquants. — */
+const TOLERES = ['--grain', '--blur-enter'];
+const memoire = {};
+for (const t of TOLERES) {
+  const ou = [];
+  for (const f of fichiers) {
+    lire(f).split('\n').forEach((l, i) => { if (l.includes(t)) ou.push(`${f}:${i + 1}`); });
+  }
+  if (ou.length) memoire[t] = ou;
+}
+
 /* — lot 02 : la coquille — */
 if (LOT === 2) {
-  const shell = lire(join(SRC, 'shell.css'));
+  // Deux corrections d'un faux négatif qui a menti pendant deux lots :
+  //  1. shell.css décrit « le rail » en prose bien avant la règle — on
+  //     strippe les /* */ pour que le regex de sélecteur n'y morde pas.
+  //  2. la classe du rail de nav est .sidebar (index.html), pas .rail :
+  //     l'ancien regex cherchait un sélecteur qui n'existe nulle part.
+  const shell = lire(join(SRC, 'shell.css')).replace(/\/\*[\s\S]*?\*\//g, '');
   verifier('.nappe à 640px', true, /\.nappe\b[^}]*height:\s*640px/s.test(shell));
-  verifier('.rail à 236px', true, /\.rail\b[^}]*width:\s*236px/s.test(shell));
+  verifier('rail (.sidebar) à 236px', true, /\.sidebar\b[^}]*width:\s*236px/s.test(shell));
   verifier('prefers-reduced-motion présent', true, shell.includes('prefers-reduced-motion'));
   verifier('les huit couches de nappe', 8, (shell.match(/\.nappe-[a-z-]+\s*\{/g) || []).length + (/\.nappe-eau/.test(shell) ? 0 : 0));
   const diffIcones = sh(`git diff -U0 HEAD -- ${INDEX} | grep -E '^[+-].*\\bd="' | grep -v '^[+-][+-]' || true`);
@@ -147,6 +200,15 @@ else for (const [f, n] of Object.entries(enDur).sort((a, b) => b[1] - a[1])) con
 console.log(`  total : ${totalDur}`);
 console.log(`\nCe total est la réponse à la question du lot 01 : ce sont les règles\nqui ne se repeindront PAS par les alias. Ne pas les corriger ici.\n`);
 
+console.log(`--- --grain / --blur-enter : tolérés (lot 03 § 4), comptés pour mémoire ---`);
+if (!Object.keys(memoire).length) console.log('  aucune.');
+else for (const [t, ou] of Object.entries(memoire)) console.log(`  ${t.padEnd(12)} ${String(ou.length).padStart(2)}  └─ ${ou.join(', ')}`);
+console.log('');
+
+/* Code de sortie : 1 dès qu'une preuve BLOQUANTE échoue, 0 sinon. Les
+   compteurs « pour mémoire » (couleurs en dur, --grain / --blur-enter)
+   ne sont pas dans `resultats`, donc jamais dans `echecs` : ils
+   informent, ils ne font pas rougir la sonde. */
 const echecs = resultats.filter((r) => !r.ok).length;
 console.log(echecs === 0 ? '✓ toutes les preuves passent.\n' : `✗ ${echecs} preuve(s) en échec.\n`);
 process.exit(echecs === 0 ? 0 : 1);
