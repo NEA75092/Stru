@@ -10,16 +10,21 @@ encore dans les fichiers d'écran :
 
 | Défaut | Occurrences | Fichiers |
 |---|---|---|
-| `box-shadow` | 12 | `controls.css`, `dashboard.css` (×6), `shell.css`, `tables.css` (×3) |
+| `box-shadow: inset` | 10 (+1 `none`) | `dashboard.css`, `tables.css` — les 3 `var(--shadow-float)` d'`overlays.css` sont conformes (L5), non comptés |
 | `border-radius` littéral | 2 | `overlays.css`, `views.css` |
 | `Newsreader` / `IBM Plex` | 4 | `app-portfolio.js`, `overlays.css`, `passe7.css`, `dashboard.css` |
 | token supprimé encore référencé | 1 | `tables.css` — `--chaux-2` |
 
+> Le LOT 1 comptait 12 `box-shadow` (dont `controls.css` ×1 et `shell.css` ×1) :
+> deux étaient le mot `box-shadow` dans une liste `transition:`, pas une ombre. Le
+> vrai compte est de 10 `inset` plus un `box-shadow: none`, tous dans
+> `dashboard.css` et `tables.css`.
+
 Aucun n'est causé par les lots 0, 1 ou 2 : c'est de la dette antérieure. Elle est
-listée ici parce que la doctrine dit **aucune ombre portée dans le projet** — pas
-« aucune ombre dans les écrans refaits ». Tant que ces douze ombres sont là, huit
-écrans sur neuf contredisent la direction, et le prochain écran refait héritera du
-défaut par mimétisme.
+listée ici parce que la doctrine dit **aucune ombre portée dans le projet**
+(`00-doctrine-liquide.md` L5) — pas « aucune ombre dans les écrans refaits ». Tant
+que ces ombres sont là, huit écrans sur neuf contredisent la direction, et le
+prochain écran refait héritera du défaut par mimétisme.
 
 **Ce lot ne prend aucune décision de design.** Chaque remplacement est prescrit
 ci-dessous. S'il faut choisir, c'est que la spec est incomplète : arrête-toi (règle 3).
@@ -39,34 +44,60 @@ sonde — c'est un fichier d'outillage, tu y as droit — et dis-le dans le rapp
 
 ## 3. Les quatre remplacements
 
-### 3.1 `box-shadow` → relief par bordure et translation
+### 3.1 `box-shadow: inset` → bordure directionnelle ou `outline` équivalente
 
-Aucune ombre ne survit. Pour chaque déclaration, deux cas et deux seuls :
+Aucune ombre portée ne survit dans les écrans. Les dix `box-shadow: inset`
+(plus le `box-shadow: none` de `.issuer-table-row:last-child`) deviennent la
+bordure que l'inset simulait :
 
-- **L'ombre marquait un survol ou un état actif** → supprime-la et donne à l'état
-  `transform: translateY(-3px)` avec `transition: transform 160ms ease`, plus
-  `border-color: var(--color-border-strong)`. C'est le relief de la doctrine.
-- **L'ombre marquait une élévation permanente** (carte, panneau, dalle) → supprime-la
-  sans compensation, et laisse la bordure `1px solid var(--color-border)` porter la
-  séparation. Une dalle du plâtre est mate et plate : c'est voulu, pas un manque.
+- `inset ±Xpx 0 0` (filet gauche ou droit) → `border-left` / `border-right`, même
+  largeur, même couleur ;
+- `inset 0 ±1px 0` (filet haut ou bas) → `border-top` / `border-bottom` ;
+- `box-shadow: none` posé pour retirer un filet → `border-…: none` (ou `0`).
 
-Si une troisième situation apparaît — une ombre qui ne fait ni l'un ni l'autre —
-arrête-toi et décris-la. N'improvise pas un équivalent.
+Le décalage introduit par la bordure se compense **en padding uniquement**, du
+même côté : `padding-left: calc(var(--space-3) - 3px)`, etc. Pas de `box-sizing`
+ad hoc, pas de `translateY`.
 
-**`--shadow-float` n'est pas une exception.** Le LOT 1 l'a laissé dans la liste des
-noms pour ne pas casser la compilation ; ce lot en supprime le dernier usage, puis
-retire le token lui-même de `design-tokens.css`. Du code mort sort (doctrine).
+**Deux exceptions, en `outline` + `outline-offset: -1px`** — ce sont des contours
+complets (`inset 0 0 0 1px`) sur des éléments dont la hauteur est calculée, où une
+bordure changerait la boîte : `.cap-rule` et `.cap-breach` (avec sa variante
+`.cap-row.tone-watch .cap-breach`) dans `dashboard.css`.
+
+Le filet gauche de `tr:hover td:first-child` (`tables.css`) reste un filet gauche
+au survol — `border-left`, **sans** `translateY` : une translation casserait
+l'alignement de la grille du tableau.
+
+Si une déclaration ne rentre dans aucun de ces cas, arrête-toi et décris-la.
+
+**`--shadow-float` est conservé — voir `00-doctrine-liquide.md` L5.** La doctrine
+exempte nommément les trois seules surfaces réellement flottantes : le **tiroir**
+(`.drawer`), la **modale** (`.modal`) et le **menu déroulant** (`.dropdown-menu`),
+tous trois dans `overlays.css`. Leurs trois `box-shadow: var(--shadow-float)` sont
+**conformes** et **ne sont pas comptabilisés** dans le compteur du lot ; le token
+reste dans `design-tokens.css`. Le § 3.1 de la v1 disait le contraire (« supprime
+le dernier usage, retire le token ») : erreur de rédaction, la doctrine L5 prime.
+Conséquence pour la sonde : le compteur `box-shadow` du lot se lit
+**« 0 hors `--shadow-float` »**, pas « 0 ».
 
 ### 3.2 Rayons littéraux → l'échelle à quatre valeurs
 
 Les deux littéraux de `overlays.css` et `views.css` prennent la valeur de l'échelle
-la plus proche par usage, jamais par arrondi numérique :
+la plus proche par usage, jamais par arrondi numérique. Les noms ci-dessous sont
+ceux de la **couche d'alias** `--radius-*`, la seule qu'un fichier d'écran
+consomme :
 
-`--radius-min` 2 px (survol de ligne) · `--radius-nav` 8 px (item de nav) ·
-`--radius-dalle` 20 px (dalle, verre intérieur, cadre) · `--radius-verre` 24 px
+`--radius-sm` 2 px (survol de ligne, trait, puce) · `--radius-md` 8 px (item de
+nav) · `--radius-lg` 20 px (dalle, verre intérieur, cadre) · `--radius-xl` 24 px
 (carte flottante) · `--radius-full` 999 px.
 
-Un overlay est un cadre → `--radius-dalle`. Si l'usage est ambigu, arrête-toi.
+La doctrine (L6) nomme la **couche 1** — `--r-min` … `--r-plein`. Le code consomme
+la couche d'alias, qui pointe dessus : `--radius-sm` **est** `var(--r-min)`, le
+même 2 px, par son nom d'alias. Ne jamais citer un `--r-*` dans un fichier d'écran.
+
+Les deux littéraux visés — `1px` sur le trait de légende d'`overlays.css`, `2px`
+sur la puce 10×10 de `views.css` — sont des détails de survol, pas des cadres :
+`--radius-sm` pour les deux. Si un autre usage est ambigu, arrête-toi.
 
 ### 3.3 Polices mortes → les deux polices de la direction
 
@@ -83,9 +114,14 @@ contexte l'exige — **aucune valeur en dur**.
 
 ### 3.4 `--chaux-2` dans `tables.css`
 
-`.bar-track { background: var(--chaux-2); }` référence un token que le LOT 1 supprime
+`.bar-track { background: var(‑‑chaux‑2); }` référence un token que le LOT 1 supprime
 (§ 5 de la spec de tokens). Le correctif est déjà diagnostiqué et prescrit dans
 `contradictions.md` du 06/08 : `var(--color-surface-sunk)`.
+
+<!-- Les tirets de `‑‑chaux‑2` ci-dessus sont des U+2011 (non-ASCII), pas `--` :
+     check-tokens.mjs ne doit plus y voir un appel de token supprimé. Le token
+     est mort, la ligne reste lisible telle qu'écrite. -->
+
 
 Un seul remplacement, dans un seul fichier. Ne touche pas au reste de `tables.css`.
 

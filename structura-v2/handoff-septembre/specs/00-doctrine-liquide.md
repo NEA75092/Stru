@@ -117,8 +117,10 @@ s'arrête avant le bord du texte est un défaut.
 ## L5 — Le relief ne vient jamais d'une ombre
 
 `translateY(-3px)` au survol, et bordures claires. **Aucun `box-shadow` dans le
-projet**, sauf `--shadow-float` sur le tiroir et la modale — les deux seules
-surfaces réellement flottantes.
+projet**, sauf `--shadow-float` sur le tiroir, la modale et le menu déroulant —
+les trois seules surfaces réellement flottantes : elles sortent du flux, elles se
+ferment, elles n'ont aucune place réservée dans la page. Aucune quatrième surface
+ne s'ajoute à cette liste sans arbitrage écrit.
 
 ## L6 — Cinq rayons, pas un de plus
 

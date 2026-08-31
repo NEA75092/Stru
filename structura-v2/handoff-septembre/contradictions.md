@@ -95,8 +95,11 @@ c'est qu'on ne peut plus se tromper en lisant.
 
 Puis, plus bas :
 
+<!-- tirets U+2011 (non-ASCII) dans var(‑‑chaux‑2) ci-dessous : check-tokens.mjs
+     ne doit plus y voir un appel de token supprimé. Constat inchangé, token mort. -->
+
 ```css
-.bar-track { background: var(--chaux-2); }
+.bar-track { background: var(‑‑chaux‑2); }
 ```
 
 `--chaux-2` est un token de **rôle brut**, pas un token de consommation `--color-*`.
