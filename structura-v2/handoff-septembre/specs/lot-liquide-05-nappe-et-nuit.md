@@ -1,10 +1,11 @@
 # lot-liquide-05-nappe-et-nuit — l'eau finit bien, et elle existe en nuit
 
-Version 1 · 31/08/2026 · dépend de `specs/00-doctrine-liquide.md` (L1, L2, L8) et de
+Version 2 · 31/08/2026 · dépend de `specs/00-doctrine-liquide.md` (L1, L2, L8) et de
 `specs/design-tokens-v3-liquide.md`. S'applique **après** le LOT 3 et **avant** le
 LOT 4 : poser du verre sur une eau qu'on va refaire, c'est le faire deux fois.
 
 Constaté sur les captures 1600 px jour + nuit du 31/08, après `d67c22b`.
+La v2 intègre la mesure du § 2, qui a infirmé l'hypothèse de la v1 sur l'arête jour.
 
 ## 1. Les trois défauts
 
@@ -26,11 +27,31 @@ jour `--desk` est `#E1E4E3` et le fondu se lit comme de l'eau qui s'éclaircit ;
 nuit `--desk` est `#0B0F13` et le même fondu éteint l'eau avant même la rangée de KPI.
 Le mode nuit fait partie de la direction, pas d'une option.
 
-## 2. Le fondu de la nappe — un seul token de fond, des stops par thème
+## 2. Le fondu de la nappe — des stops par thème
 
-La maquette a **toujours eu** son fondu : huitième calque, `linear-gradient(to bottom,
-transparent 42%, … var(--desk) 100%)`. Le code l'a bien repris (la sonde du LOT 2
-compte huit calques). L'arête franche visible en jour vient donc d'autre chose :
+### Ce que la mesure a infirmé — à ne pas rouvrir
+
+La v1 supposait que l'arête franche visible en jour venait d'un fondu atterrissant sur
+une couleur qui n'est pas celle du dessous. **Mesuré au DOM le 31/08, c'est faux** :
+
+| | Fond derrière le plâtre | Arrivée du fondu, stop 100 % |
+|---|---|---|
+| jour | `rgb(225,228,227)` | `rgb(225,228,227)` |
+| nuit | `rgb(11,15,19)` | `rgb(11,15,19)` |
+
+Identiques dans les deux thèmes — `--color-bg` **est** `var(--desk)`, et rien n'est
+peint entre les deux. Il n'y a aucune couture de couleur à corriger, et le huitième
+calque ne se redécrit pas.
+
+**La cause réelle de l'arête est D2.** À 42 % l'eau commence à s'éteindre ; à ~85 % de
+sa course elle rencontre le bord supérieur de la carte du graphe — un rectangle opaque,
+pleine largeur, planté au milieu du fondu. Ce bord est ce qu'on lisait comme une arête.
+Sortir le graphe des 640 px (§ 5) la fait disparaître : le fondu finit alors sa course
+sur du vide. D1 enlevait ce qui la soulignait.
+
+### Le seul changement du fondu
+
+Son premier stop passe en token, pour pouvoir différer par thème :
 
 > **Mesure à faire avant de coder.** Relève la valeur calculée du fond réellement
 > peint derrière le plâtre, et celle vers laquelle le huitième calque fond. Si ce ne
@@ -39,8 +60,7 @@ compte huit calques). L'arête franche visible en jour vient donc d'autre chose 
 > Si les deux sont déjà identiques, **arrête-toi et donne les deux valeurs** : le
 > défaut est ailleurs et je le reprends.
 
-La maquette porte désormais le premier stop en token, pour qu'il puisse différer par
-thème :
+La maquette porte désormais ce stop en token :
 
 | Token | Jour | Nuit |
 |---|---|---|
@@ -113,7 +133,7 @@ l'autre est autorisé ; inventer un niveau de DOM ne l'est pas.
 | Fichier | Changement |
 |---|---|
 | `structura-v2/src/design-tokens.css` | ajout des 4 tokens du § 2 et du § 3, jour + nuit |
-| `structura-v2/src/shell.css` | fondu et arêtes de la nappe passés en tokens |
+| `structura-v2/src/shell.css` | fondu et arêtes de la nappe passés en tokens (stops et géométries inchangés) |
 | `structura-v2/src/dashboard.css` | entête de dalle du § 4, dalle du graphe du § 5 |
 | `structura-v2/index.html` | déplacement du bloc du graphe dans le plâtre + bump `?v=` |
 
@@ -140,9 +160,10 @@ Contrôles à ajouter à la sonde :
    premier plan. La liste doit être vide.
 
 Mesures DOM, viewport 1600 px, jour **et** nuit :
-`top` et `bottom` de la carte du graphe (le `top` doit être > 640) · `top` du premier
-élément du plâtre · valeur calculée du fond derrière le plâtre et de l'arrivée du
-fondu (les deux mêmes, cf. § 2).
+`top` et `bottom` de la dalle du graphe (le `top` doit être > 640) · `top` du premier
+élément du plâtre · et la confirmation qu'**aucun élément opaque ne coupe le fondu** :
+aucune boîte à fond non transparent ne commence entre 269 px (jour) / 371 px (nuit) et
+640 px hors premier plan.
 
 Rapport : sorties brutes, sha, ces mesures, et **captures 1600 px jour + nuit du
 Dashboard**. Les huit autres écrans n'ont pas de nappe : une capture jour de Clients

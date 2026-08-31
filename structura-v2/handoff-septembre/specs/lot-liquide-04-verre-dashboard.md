@@ -126,9 +126,6 @@ réintroduis pas ce qu'il a sorti.
 Sous `prefers-reduced-motion: reduce`, la translation ne s'applique pas ; la bordure
 claire suffit.
 
-Sous `prefers-reduced-motion: reduce`, la translation ne s'applique pas ; la bordure
-claire suffit.
-
 ## 6. Ce qui ne bouge pas
 
 Le contenu des cartes au caractère près : libellés, chiffres, sous-titres
@@ -141,9 +138,6 @@ tu t'arrêtes.
 Le graphe et ses barres d'écart de VL en encre monochrome : intouchés, et hors
 périmètre depuis que le LOT 5 les a rangés dans le plâtre. Le code a eu raison sur ce
 point.
-
-Le graphe et ses barres d'écart de VL en encre monochrome : intouchés. Le code a eu
-raison sur ce point.
 
 ## 7. Fichiers autorisés — un, plus le bump
 
