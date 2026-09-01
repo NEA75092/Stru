@@ -24,11 +24,11 @@
         <link rel="stylesheet" href="./src/shell.css?v=20260901a" />
         <link rel="stylesheet" href="./src/controls.css?v=20260805b" />
         <link rel="stylesheet" href="./src/overlays.css?v=20260831a" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260901a" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260901b" />
         <link rel="stylesheet" href="./src/tables.css?v=20260831a" />
         <link rel="stylesheet" href="./src/views.css?v=20260831a" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260831a" />
-        <link rel="stylesheet" href="./src/relief.css?v=20260901a" />
+        <link rel="stylesheet" href="./src/relief.css?v=20260901b" />
     </head>
     <body>
         <div class="app">
@@ -166,23 +166,50 @@
                 <div class="view active" id="view-dashboard">
                     <div class="spotlight" aria-hidden="true"></div>
                     <div class="dash-avant">
-                        <div class="dash-welcome panel" id="dash-welcome">
-                            <div class="dash-welcome-copy">
-                                <div class="dash-welcome-kicker" id="session-date-line">—</div>
-                                <h2 class="dash-welcome-title" id="session-headline">—</h2>
-                                <p class="dash-welcome-sub" id="session-subline">—</p>
-                            </div>
-                            <div class="dash-welcome-totals">
-                                <div class="dash-welcome-total">
-                                    <div class="dash-welcome-total-lbl">Encours géré</div>
-                                    <div class="dash-welcome-total-val" id="session-total-aum">—</div>
-                                </div>
-                                <div class="dash-welcome-total">
-                                    <div class="dash-welcome-total-lbl">Actions requises</div>
-                                    <div class="dash-welcome-total-val" id="session-total-alerts">—</div>
+                        <div class="dash-avant-main">
+                            <div class="dash-lede-kicker" id="dash-lede-kicker">—</div>
+                            <h1 class="dash-lede-title" id="session-headline">—</h1>
+
+                            <div class="dash-encours-frame">
+                                <div class="dash-encours-glass">
+                                    <span class="dash-encours-lbl">Encours sous gestion</span>
+                                    <span class="dash-encours-val" id="dash-encours-val">—</span>
+                                    <div class="dash-encours-perf">
+                                        <span class="dash-encours-perf-mois" id="dash-encours-perf-mois">—</span>
+                                        <span class="dash-encours-perf-delta" id="dash-encours-perf-delta">—</span>
+                                    </div>
+                                    <div class="dash-encours-chart">
+                                        <svg id="dash-encours-svg" viewBox="0 0 380 112" preserveAspectRatio="none" role="img" aria-label="Évolution de l'encours sur le mois"></svg>
+                                        <span class="dash-encours-borne dash-encours-borne-a" id="dash-encours-borne-a"></span>
+                                        <span class="dash-encours-borne dash-encours-borne-b" id="dash-encours-borne-b"></span>
+                                    </div>
+                                    <div class="dash-encours-ranges" id="dash-encours-ranges"></div>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="dash-avant-side">
+                            <div class="dash-agenda">
+                                <div class="dash-agenda-hdr">
+                                    <span class="dash-agenda-day" id="dash-agenda-day">—</span>
+                                    <button type="button" class="dash-agenda-close" aria-label="Masquer la semaine">
+                                        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"></path></svg>
+                                    </button>
+                                </div>
+                                <div class="dash-agenda-week" id="dash-agenda-week"></div>
+                            </div>
+
+                            <div class="dash-today">
+                                <div class="dash-today-hdr">
+                                    <span class="dash-today-title">À regarder aujourd'hui</span>
+                                    <span class="dash-today-count" id="dash-today-count">0</span>
+                                </div>
+                                <div class="dash-today-list" id="dash-today-list"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dash-body">
                         <div class="kpi-row tilt-scope">
                             <div class="kpi tilt k-gold">
                                 <div class="kpi-lbl">
@@ -219,9 +246,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="dash-body">
                         <div class="dash-perf-section">
                             <div class="sec-hdr">
                                 <div class="sec-title">Performance du portefeuille</div>

@@ -56,97 +56,367 @@
     color: var(--color-text-tertiary);
 }
 
-/* ── Le premier plan ─────────────────────────────────────────
-   L2 nomme le premier plan comme un élément ; le code ne l'avait pas —
-   .dash-welcome et .kpi-row étaient enfants directs de la vue. .dash-avant
-   les enveloppe, eux seuls. min-height = la hauteur de la nappe : le
-   plâtre commence donc sous l'eau, et aucune dalle ne coupe le fondu
-   (LOT 5, § 5.0 / 5.1). */
+/* ── Le premier plan — deux colonnes, relevé maquette l. 159-243 ─────
+   L1 : les 640 px du haut portent le titre et les cartes de verre, rien
+   d'informatif d'autre. L2 nomme le premier plan comme un élément.
+   Deux colonnes : l'entête + le cadre d'encours à gauche, l'agenda et
+   les alertes à droite (440 px). min-height = la hauteur de la nappe :
+   le plâtre commence sous l'eau (LOT 5 § 5.1). Le 28px du padding est
+   la valeur de la maquette, il ne s'aligne pas sur le plâtre. */
 .dash-avant {
     position: relative;
     z-index: 30;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    gap: 40px;
+    align-items: start;
     padding: 52px 28px 0;
     min-height: var(--nappe-h);
 }
 
-/* ── Bandeau d'accueil ───────────────────────────────────── */
-/* 190px pour une salutation, c'était trop : le contenu de la vue doit
-   commencer dans le premier écran. Une ligne, filet + gouttière — plus
-   de bloc plein bleu (aucun en-tête coloré, cf. 00-doctrine-liquide.md, sémantique
-   des couleurs). */
-.dash-welcome {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-5);
-    padding: var(--space-5) var(--space-6);
-    border: 1px solid var(--color-border);
-    background: var(--color-surface-2);
-}
-
-.dash-welcome-copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-    flex-wrap: wrap;
+.dash-avant-main {
     min-width: 0;
 }
 
-.dash-welcome-kicker {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
+.dash-lede-kicker {
+    font-size: var(--text-sm);
+    color: var(--sur-azur-2);
+    margin-bottom: 3px;
 }
 
-.dash-welcome-title {
+.dash-lede-title {
     margin: 0;
     font-family: var(--font-heading);
-    font-size: var(--text-xl);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    font-weight: 300;
+    font-size: var(--text-2xl);
+    line-height: 1.04;
+    letter-spacing: -0.012em;
+    color: var(--color-text-on-dark);
+}
+
+/* Le cadre flottant — verre nº 1 de L3, une seule carte en deux
+   épaisseurs : le cadre (blur 14), la dalle intérieure (blur 18). */
+.dash-encours-frame {
+    margin-top: 34px;
+    width: 472px;
+    padding: 12px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--flottant-brd);
+    background: var(--flottant);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.dash-encours-glass {
+    padding: 22px 24px 20px;
+    border-radius: var(--radius-lg);
+    background: var(--verre);
+    border: 1px solid var(--verre-brd);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition: transform 280ms var(--ease-standard);
+}
+
+.dash-encours-glass:hover {
+    transform: translateY(-3px);
+}
+
+.dash-encours-lbl {
+    display: block;
+    font-size: var(--text-base);
     color: var(--color-ink);
 }
 
-.dash-welcome-sub {
-    margin: 0;
+.dash-encours-val {
+    display: block;
+    margin: 13px 0 5px;
+    font-family: var(--font-heading);
+    font-weight: 300;
+    font-size: var(--text-verre);
+    line-height: 1;
+    letter-spacing: -0.012em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.dash-encours-perf {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+}
+
+.dash-encours-perf-mois {
+    font-size: var(--text-base);
+    color: var(--color-safe);
+}
+
+.dash-encours-perf-delta {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
 }
 
-.dash-welcome-totals {
-    display: flex;
-    gap: var(--space-6);
-    flex: none;
+.dash-encours-chart {
+    position: relative;
+    margin-top: 14px;
 }
 
-.dash-welcome-total {
-    text-align: right;
+.dash-encours-chart svg {
+    display: block;
+    width: 100%;
+    height: 112px;
 }
 
-.dash-welcome-total-lbl {
-    font-family: var(--font-mono-data);
+.dash-encours-borne {
+    position: absolute;
+    top: -2px;
     font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
     color: var(--color-text-tertiary);
-    margin-bottom: var(--space-1);
 }
 
-.dash-welcome-total-val {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-lg);
+.dash-encours-borne-a { left: 0; }
+.dash-encours-borne-b { right: 0; }
+
+.dash-encours-ranges {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.dash-encours-range {
+    padding: 6px 0;
+    margin-right: 14px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+    transition: color 200ms var(--ease-standard);
+}
+
+.dash-encours-range.on {
+    color: var(--color-ink);
+}
+
+@keyframes tracer {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes paraitre {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ── Colonne de droite — 440 px, deux cartes de verre ───────── */
+.dash-avant-side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.dash-agenda {
+    padding: 18px 20px 16px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--flottant-brd);
+    background: var(--flottant);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.dash-agenda-hdr,
+.dash-today-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dash-agenda-hdr { margin-bottom: 16px; }
+.dash-today-hdr { margin-bottom: 12px; }
+
+.dash-agenda-day,
+.dash-today-title {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 17.5px;
+    letter-spacing: 0.004em;
+    white-space: nowrap;
+    color: var(--color-text-on-dark);
+}
+
+.dash-agenda-close {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: 1px solid var(--flottant-brd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-on-dark);
+}
+
+.dash-agenda-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    justify-items: center;
+    row-gap: 10px;
+}
+
+.dash-agenda-dow {
+    font-size: var(--text-sm);
+    color: var(--sur-azur-2);
+}
+
+.dash-agenda-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Trois états, rien d'autre (LOT 6, § 6 bis garde-fou 2) : jour vide
+   (encre atténuée, pas de fond), jour avec événement (fond flottant),
+   aujourd'hui (plein). */
+.dash-agenda-num {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-base);
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    background: transparent;
+    color: var(--sur-azur-2);
+}
+
+.dash-agenda-num.has-ev {
+    background: var(--flottant);
+    color: var(--color-text-on-dark);
+}
+
+.dash-agenda-num.is-today {
+    background: var(--color-text-on-dark);
+    color: var(--color-band);
+}
+
+.dash-agenda-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--color-text-tertiary);
+}
+
+.dash-agenda-dot[hidden] {
+    display: none;
+}
+
+.dash-agenda-dot.is-risk {
+    background: var(--color-breach);
+}
+
+.dash-today {
+    padding: 18px 20px 14px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--flottant-brd);
+    background: linear-gradient(
+        160deg,
+        color-mix(in oklab, var(--color-band) 44%, transparent),
+        color-mix(in oklab, var(--color-band) 26%, transparent)
+    );
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    transition: transform 280ms var(--ease-standard);
+}
+
+.dash-today:hover {
+    transform: translateY(-3px);
+}
+
+.dash-today-count {
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-full);
+    background: var(--color-breach);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: var(--color-ink);
+    color: var(--rouge-encre);
+}
+
+.dash-today-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-today-row {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 13px;
+    padding: 12px 0;
+    min-height: 44px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.dash-today-glyph {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid var(--flottant-brd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-base);
+    color: var(--color-text-on-dark);
+}
+
+.dash-today-txt {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.dash-today-name {
+    font-size: var(--text-base);
+    color: var(--color-text-on-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dash-today-detail {
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.76);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dash-today-chip {
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    background: var(--chip);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--chip-encre);
+    white-space: nowrap;
 }
 
 /* ── Cartes KPI ──────────────────────────────────────────── */
@@ -164,6 +434,9 @@
    chiffres des 4 cartes tombent sur la même ligne de base même quand
    un libellé passe sur deux lignes — c'était le décalage visible sur
    « Critique — barrière franchie ». */
+/* Les KPI ne sont pas dans la maquette : le LOT 6 les descend dans le
+   plâtre en dalles mates. Chiffres, libellés et filets de statut
+   inchangés ; radius de dalle, et le survol du plâtre (translateY). */
 .kpi {
     display: grid;
     grid-template-rows: auto 1fr auto;
@@ -172,13 +445,16 @@
     padding: var(--space-5) var(--space-5) var(--space-4);
     border: 1px solid var(--color-border);
     border-left: 3px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     background: var(--color-surface-1);
-    transition: border-color var(--duration-fast) var(--ease-standard);
+    transition:
+        border-color var(--duration-fast) var(--ease-standard),
+        transform 280ms var(--ease-standard);
 }
 
 .kpi:hover {
     border-color: var(--color-border-strong);
+    transform: translateY(-3px);
 }
 
 .kpi-lbl {

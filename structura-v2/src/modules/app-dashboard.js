@@ -144,37 +144,24 @@
 
     function renderSessionChrome() {
       if (typeof document === "undefined") return;
-      const { session, greeting, now } = touchSession();
+      const { session, greeting } = touchSession();
       const data = productsForScope();
-      const alerts = buildPortfolioAlerts();
-      const breach = data.filter((p) => p.st?.s === "breach").length;
-      const watch = data.filter((p) => ["crit", "warn"].includes(p.st?.s)).length;
-      const totalVal = data.reduce((sum, p) => sum + (Number(p.val) || 0), 0);
       const vlAsOf = latestVlAsOf(data);
-      const dateLabel = now.toLocaleDateString("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      });
 
+      // Kicker du premier plan (LOT 6, § 3) : « mis à jour le {{ majLe }} ·
+      // {{ cabinet }} » — majLe est la VL la plus récente, déjà calculée
+      // pour l'ancien bandeau ; le cabinet vient de la session, jamais
+      // écrit en dur (session.orgName).
       setText(
-        "session-date-line",
-        vlAsOf ? `${dateLabel} · VL au ${shortDateFr(vlAsOf)}` : `${dateLabel} · VL non disponible`,
+        "dash-lede-kicker",
+        vlAsOf
+          ? `mis à jour le ${shortDateFr(vlAsOf)} · ${session.orgName}`
+          : `mise à jour non disponible · ${session.orgName}`,
       );
       setText("session-user-name", session.advisorName || "Conseiller");
       setText("session-user-role", session.role || "CGP");
       setText("session-avatar", sessionInitials(session.advisorName));
       setText("session-headline", `${greeting} ${session.advisorName}`);
-      setText(
-        "session-subline",
-        alerts.length
-          ? `${alerts.length} point${alerts.length > 1 ? "s" : ""} à traiter sur le portefeuille.`
-          : breach || watch
-            ? `${breach + watch} produit${breach + watch > 1 ? "s" : ""} sous surveillance.`
-            : `${data.length} produit${data.length > 1 ? "s" : ""} actifs · ${CLIENTS.length} dossier${CLIENTS.length > 1 ? "s" : ""} client.`,
-      );
-      setText("session-total-aum", moneyShort(totalVal));
-      setText("session-total-alerts", String(alerts.length));
     }
 
     function renderDashboardSummary() {
@@ -323,6 +310,11 @@
     function perfRangeStart(range) {
       const now = new Date();
       now.setHours(0, 0, 0, 0);
+      // LOT 6 : le cadre d'encours du premier plan lit la MÊME série que
+      // le graphe du plâtre (garde-fou § 6 bis nº 1), avec une fenêtre
+      // « mois courant » par défaut. Pas une série de plus, une fenêtre
+      // de plus.
+      if (range === "month") return new Date(now.getFullYear(), now.getMonth(), 1);
       if (range === "ytd") return new Date(now.getFullYear(), 0, 1);
       if (range === "6m") {
         const d = new Date(now);
@@ -635,9 +627,182 @@
         <div class="vl-rows">${rows.map(renderRow).join("")}</div>`;
     }
 
+    // ── LOT 6 — les trois widgets du premier plan (spec § 3–4, § 6 bis).
+    //    Chacun réemploie un fait de l'app, aucun n'invente de série ni
+    //    de liste. Valeurs de rendu relevées dans la maquette (l. 159-243).
+
+    const ENCOURS_RANGES = [
+      { key: "month", nom: "Mois" },
+      { key: "6m", nom: "6M" },
+      { key: "1a", nom: "1A" },
+      { key: "all", nom: "Tout" },
+    ];
+    let encoursRange = "month";
+
+    function renderEncoursFrame() {
+      const svg = document.getElementById("dash-encours-svg");
+      if (!svg) return;
+      const data = productsForScope();
+      // garde-fou § 6 bis nº 1 : même série que le graphe du plâtre,
+      // fenêtre différente.
+      const { points, periodPct, periodAbs, startDate, endDate } = buildPerfSeries(data, encoursRange);
+      const totalVal = data.reduce((s, p) => s + (Number(p.val) || 0), 0);
+      const totalNom = data.reduce((s, p) => s + (Number(p.nominal) || 0), 0);
+
+      setText("dash-encours-val", totalVal ? moneyShort(totalVal) : "—");
+      const positive = periodPct >= 0;
+      setText(
+        "dash-encours-perf-mois",
+        totalNom ? `${positive ? "+" : ""}${pctFr(periodPct, 1)}` : "—",
+      );
+      const perfMoisEl = document.getElementById("dash-encours-perf-mois");
+      if (perfMoisEl) {
+        perfMoisEl.style.color = positive
+          ? "var(--color-safe)"
+          : "var(--color-breach)";
+      }
+      setText(
+        "dash-encours-perf-delta",
+        totalNom
+          ? `soit ${positive ? "+" : ""}${moneyShort(periodAbs)} sur la période`
+          : "Import portefeuille requis",
+      );
+      setText("dash-encours-borne-a", monthShortFR(startDate));
+      setText("dash-encours-borne-b", monthShortFR(endDate));
+
+      const W = 380;
+      const H = 112;
+      const vals = points.map((p) => p.idx);
+      const minV = Math.min(...vals) - 0.6;
+      const maxV = Math.max(...vals) + 0.6;
+      const xAt = (i) => (i / (points.length - 1 || 1)) * W;
+      const yAt = (v) => 8 + (104 - 8) * (1 - (v - minV) / (maxV - minV || 1));
+      const line = points
+        .map((p, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(p.idx).toFixed(1)}`)
+        .join(" ");
+      const area = `${line} L${W},${yAt(minV).toFixed(1)} L0,${yAt(minV).toFixed(1)} Z`;
+      const curX = xAt(points.length - 1).toFixed(1);
+      const curY = yAt(points[points.length - 1]?.idx ?? 100).toFixed(1);
+      svg.setAttribute("viewBox", "0 0 380 112");
+      svg.setAttribute("preserveAspectRatio", "none");
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="aireEncours" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--color-safe)" stop-opacity="0.2"></stop>
+            <stop offset="100%" stop-color="var(--color-safe)" stop-opacity="0"></stop>
+          </linearGradient>
+        </defs>
+        <g stroke="var(--color-border-strong)" stroke-width="1" stroke-dasharray="3 4">
+          <line x1="0" y1="22" x2="380" y2="22"></line>
+          <line x1="0" y1="50" x2="380" y2="50"></line>
+          <line x1="0" y1="78" x2="380" y2="78"></line>
+          <line x1="0" y1="104" x2="380" y2="104"></line>
+        </g>
+        <path d="${area}" fill="url(#aireEncours)"></path>
+        <path d="${line}" pathLength="1" fill="none" stroke="var(--color-safe)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:1;animation:tracer 900ms var(--ease-standard) 120ms both"></path>
+        <line x1="${curX}" y1="8" x2="${curX}" y2="104" stroke="var(--color-border-strong)" stroke-width="1"></line>
+        <circle cx="${curX}" cy="${curY}" r="4.2" fill="var(--color-safe)" stroke="var(--color-surface-raised)" stroke-width="2" style="animation:paraitre 300ms linear 940ms both"></circle>`;
+
+      const ranges = document.getElementById("dash-encours-ranges");
+      if (ranges) {
+        ranges.innerHTML = ENCOURS_RANGES.map(
+          (r) =>
+            `<button type="button" class="dash-encours-range${r.key === encoursRange ? " on" : ""}" data-encours-range="${r.key}" onclick="setEncoursRange('${r.key}')">${escapeHtml(r.nom)}</button>`,
+        ).join("");
+      }
+    }
+
+    function setEncoursRange(key) {
+      encoursRange = key || "month";
+      renderEncoursFrame();
+    }
+
+    function renderAgendaWeek() {
+      const host = document.getElementById("dash-agenda-week");
+      if (!host) return;
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const todayIso = now.toISOString().slice(0, 10);
+      // lundi de la semaine en cours
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+
+      setText(
+        "dash-agenda-day",
+        now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }),
+      );
+
+      // garde-fou § 6 bis nº 2 : la pastille ne vient que d'un événement réel.
+      const events =
+        typeof root.buildProductCalendarEvents === "function"
+          ? root.buildProductCalendarEvents()
+          : [];
+      const byDay = new Map();
+      events.forEach((e) => {
+        const iso = e._dateIso;
+        if (!iso) return;
+        if (!byDay.has(iso)) byDay.set(iso, []);
+        byDay.get(iso).push(e);
+      });
+
+      const DOW = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
+      let dows = "";
+      let cells = "";
+      for (let i = 0; i < 7; i += 1) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const iso = d.toISOString().slice(0, 10);
+        const evs = byDay.get(iso) || [];
+        const isToday = iso === todayIso;
+        const numCls = isToday
+          ? " is-today"
+          : evs.length
+            ? " has-ev"
+            : "";
+        const risk = evs.some((e) => e.type === "bar" || e.type === "mat");
+        const dot = evs.length
+          ? `<span class="dash-agenda-dot${risk ? " is-risk" : ""}"></span>`
+          : `<span class="dash-agenda-dot" hidden></span>`;
+        dows += `<span class="dash-agenda-dow">${DOW[i]}</span>`;
+        cells += `<span class="dash-agenda-cell"><span class="dash-agenda-num${numCls}">${d.getDate()}</span>${dot}</span>`;
+      }
+      host.innerHTML = dows + cells;
+    }
+
+    // Un caractère par gravité — dérivé du type d'alerte, pas un verbe
+    // (garde-fou § 6 bis nº 3 : la puce porte statusLabel, l'état réel).
+    const ALERT_GLYPH = { crit: "!", warn: "•" };
+
+    function renderTodayList() {
+      const host = document.getElementById("dash-today-list");
+      const count = document.getElementById("dash-today-count");
+      if (!host) return;
+      const list = buildPortfolioAlerts();
+      if (count) count.textContent = String(list.length);
+      if (!list.length) {
+        host.innerHTML = "";
+        return;
+      }
+      host.innerHTML = list
+        .map(
+          (a) => `<button type="button" class="dash-today-row" onclick="openDrawer(${a.productId})">
+            <span class="dash-today-glyph" aria-hidden="true">${ALERT_GLYPH[a.lvl] || "•"}</span>
+            <span class="dash-today-txt">
+              <span class="dash-today-name">${escapeHtml(a.name)}</span>
+              <span class="dash-today-detail">${escapeHtml(a.context)}</span>
+            </span>
+            <span class="dash-today-chip">${escapeHtml(a.statusLabel || "")}</span>
+          </button>`,
+        )
+        .join("");
+    }
+
     function renderDashboardModules() {
       renderIssuerExposure();
       renderVlTopFlop();
+      renderEncoursFrame();
+      renderAgendaWeek();
+      renderTodayList();
     }
 
     // Sous la protection du capital (specs/dashboard.md § 2.1, remplace
@@ -831,6 +996,10 @@
       monthShortFR,
       setRange,
       bankGroupName,
+      renderEncoursFrame,
+      renderAgendaWeek,
+      renderTodayList,
+      setEncoursRange,
     };
   },
 );

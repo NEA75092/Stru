@@ -83,13 +83,15 @@
     --i: 5;
 }
 
-/* Dashboard — cascade sur les classes. Hero et KPI gardent leurs délais
-   d'origine ; le plâtre reprend à 3. */
-#view-dashboard.active > .dash-avant > .dash-welcome {
+/* Dashboard — cascade sur les classes. LOT 6 : le premier plan a deux
+   colonnes (.dash-avant-main, .dash-avant-side) ; elles montent l'une
+   après l'autre, .dash-avant ne monte pas. Le plâtre reprend à 3
+   (il porte maintenant .kpi-row, descendue de la maquette). */
+#view-dashboard.active > .dash-avant > .dash-avant-main {
     --i: 1;
 }
 
-#view-dashboard.active > .dash-avant > .kpi-row {
+#view-dashboard.active > .dash-avant > .dash-avant-side {
     --i: 2;
 }
 
