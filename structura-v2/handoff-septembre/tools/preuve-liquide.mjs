@@ -13,8 +13,8 @@ import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (LOT !== 1 && LOT !== 2 && LOT !== 3) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2|3');
+if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5');
   process.exit(2);
 }
 
@@ -38,25 +38,38 @@ const resultats = [];
 const verifier = (nom, attendu, obtenu, detail = '') =>
   resultats.push({ nom, attendu: String(attendu), obtenu: String(obtenu), ok: String(attendu) === String(obtenu), detail });
 
+const MAQUETTE = 'structura-v2/handoff-septembre/maquette/Dashboard - Liquide.dc.html';
+
 /* — les fichiers touchés — */
 const AUTORISES = LOT === 1
   ? [TOKENS, INDEX]
   : LOT === 2
     ? [join(SRC, 'shell.css'), INDEX]
-    : [
-        // lot 3, § 5 : sept fichiers d'écran, plus design-tokens.css
-        // pour la seule suppression de --shadow-float, plus index.html
-        // pour le bump ?v=.
-        join(SRC, 'controls.css'),
-        join(SRC, 'dashboard.css'),
-        join(SRC, 'overlays.css'),
-        join(SRC, 'passe7.css'),
-        join(SRC, 'tables.css'),
-        join(SRC, 'views.css'),
-        join(SRC, 'modules', 'app-portfolio.js'),
-        TOKENS,
-        INDEX,
-      ];
+    : LOT === 5
+      ? [
+          // lot 5, § 6 : les deux commits réunis — tokens + nappe + cascade
+          // + gabarit du Dashboard, plus la maquette qui porte les tokens.
+          TOKENS,
+          join(SRC, 'shell.css'),
+          join(SRC, 'relief.css'),
+          join(SRC, 'dashboard.css'),
+          INDEX,
+          MAQUETTE,
+        ]
+      : [
+          // lot 3, § 5 : sept fichiers d'écran, plus design-tokens.css
+          // pour la seule suppression de --shadow-float, plus index.html
+          // pour le bump ?v=.
+          join(SRC, 'controls.css'),
+          join(SRC, 'dashboard.css'),
+          join(SRC, 'overlays.css'),
+          join(SRC, 'passe7.css'),
+          join(SRC, 'tables.css'),
+          join(SRC, 'views.css'),
+          join(SRC, 'modules', 'app-portfolio.js'),
+          TOKENS,
+          INDEX,
+        ];
 const touches = sh('git diff --name-only HEAD').split('\n').filter(Boolean);
 const horsPerimetre = touches.filter((f) => !AUTORISES.includes(f));
 verifier('fichiers hors périmètre', 0, horsPerimetre.length, horsPerimetre.join(', '));
@@ -186,6 +199,49 @@ if (LOT === 2) {
   verifier('les huit couches de nappe', 8, (shell.match(/\.nappe-[a-z-]+\s*\{/g) || []).length + (/\.nappe-eau/.test(shell) ? 0 : 0));
   const diffIcones = sh(`git diff -U0 HEAD -- ${INDEX} | grep -E '^[+-].*\\bd="' | grep -v '^[+-][+-]' || true`);
   verifier('tracés d\'icônes modifiés', '', diffIcones ? 'OUI' : '', diffIcones.slice(0, 400));
+}
+
+/* — lot 05 : la nappe finit bien, et elle existe en nuit — § 7 —
+   Les cinq contrôles du § 7. Le 5e (aucun texte dans les 640 px hors
+   .dash-avant) est une mesure DOM : elle vit dans le rapport, pas ici.
+   Cette sonde ne mesure rien au navigateur, elle lit les fichiers. */
+if (LOT === 5) {
+  const shell = lire(join(SRC, 'shell.css')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const relief = lire(join(SRC, 'relief.css')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const dash = lire(join(SRC, 'dashboard.css')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const tok = lire(TOKENS);
+
+  // § 7.1 — aucun rgba(255,255,255) dans les règles de la nappe (les
+  // arêtes passent par --arete-*). Les rgba blancs du rail ne comptent pas.
+  const nappeRules = (shell.match(/\.nappe[\w-]*(?:\s*,\s*\.nappe[\w-]*)*\s*\{[^}]*\}/g) || []).join('\n');
+  const blancsNappe = nappeRules.match(/rgba?\(\s*255\s*,\s*255\s*,\s*255/g) || [];
+  verifier('rgba(255,255,255) dans la nappe', 0, blancsNappe.length, blancsNappe.join(' '));
+
+  // § 7.2 — --fondu-haut déclaré dans les deux blocs de thème. On coupe
+  // sur le vrai sélecteur (suivi de « { »), pas sur sa mention en
+  // commentaire quelques lignes plus haut.
+  const coupe = tok.search(/:root\s*\[\s*data-theme\s*=\s*"dark"\s*\]\s*\{/);
+  const tokJour = coupe >= 0 ? tok.slice(0, coupe) : tok;
+  const tokNuit = coupe >= 0 ? tok.slice(coupe) : '';
+  verifier('--fondu-haut déclaré (jour)', true, /--fondu-haut\s*:/.test(tokJour));
+  verifier('--fondu-haut déclaré (nuit)', true, /--fondu-haut\s*:/.test(tokNuit));
+
+  // § 7.3 — zéro 640 littéral dans shell.css et dashboard.css : une seule
+  // grandeur, un seul token --nappe-h (L10).
+  for (const [nom, txt] of [['shell.css', shell], ['dashboard.css', dash]]) {
+    const hits = [];
+    txt.split('\n').forEach((l, i) => { if (/\b640\b/.test(l)) hits.push(`${nom}:${i + 1}`); });
+    verifier(`640 littéral dans ${nom}`, 0, hits.length, hits.join(', '));
+  }
+
+  // § 7.4 — aucune règle nth-child ne s'applique à un enfant de
+  // #view-dashboard : soit elle le nomme, soit elle vise .view sans
+  // l'exclure par :not(#view-dashboard).
+  const selNthDash = relief.split('}')
+    .map((b) => b.split('{')[0])
+    .filter((s) => /nth-child/.test(s) &&
+      (/#view-dashboard/.test(s) || (/\.view\b/.test(s) && !/:not\(\s*#view-dashboard\s*\)/.test(s))));
+  verifier('nth-child sur un enfant de #view-dashboard', 0, selNthDash.length, selNthDash.map((s) => s.trim()).join(' | ').slice(0, 300));
 }
 
 /* — rapport — */
