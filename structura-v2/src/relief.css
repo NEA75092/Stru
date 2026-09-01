@@ -50,31 +50,51 @@
 }
 
 /* ── Entrées décalées ────────────────────────────────────────
-   Un seul jeu de règles, appliqué par nth-child sur les enfants
-   directs de la vue : rien à poser sur chaque composant. */
-.view.active > *:not(.spotlight) {
+   L'animation vit sur les blocs de premier niveau d'un écran. Le délai
+   (--i) était indexé sur l'ordre du DOM (nth-child) ; le LOT 5 le réécrit
+   sur les classes pour le Dashboard, dont le gabarit a changé — une
+   cascade indexée sur nth-child se casse au prochain déménagement. Les
+   huit autres écrans gardent l'indexation par ordre.
+   .dash-avant est un plan, pas une étape : il n'anime pas, ses deux
+   enfants montent à sa place (§ 5.3). */
+.view.active > *:not(.spotlight):not(.dash-avant),
+#view-dashboard.active > .dash-avant > * {
     animation: block-in var(--duration-enter) var(--ease-spring) both;
     animation-delay: calc(var(--stagger) * var(--i, 0));
 }
 
-.view.active > *:nth-child(2) {
+.view.active:not(#view-dashboard) > *:nth-child(2) {
     --i: 1;
 }
 
-.view.active > *:nth-child(3) {
+.view.active:not(#view-dashboard) > *:nth-child(3) {
     --i: 2;
 }
 
-.view.active > *:nth-child(4) {
+.view.active:not(#view-dashboard) > *:nth-child(4) {
     --i: 3;
 }
 
-.view.active > *:nth-child(5) {
+.view.active:not(#view-dashboard) > *:nth-child(5) {
     --i: 4;
 }
 
-.view.active > *:nth-child(6) {
+.view.active:not(#view-dashboard) > *:nth-child(6) {
     --i: 5;
+}
+
+/* Dashboard — cascade sur les classes. Hero et KPI gardent leurs délais
+   d'origine ; le plâtre reprend à 3. */
+#view-dashboard.active > .dash-avant > .dash-welcome {
+    --i: 1;
+}
+
+#view-dashboard.active > .dash-avant > .kpi-row {
+    --i: 2;
+}
+
+#view-dashboard.active > .dash-body {
+    --i: 3;
 }
 
 @keyframes block-in {

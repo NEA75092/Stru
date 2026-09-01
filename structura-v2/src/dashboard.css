@@ -56,6 +56,22 @@
     color: var(--color-text-tertiary);
 }
 
+/* ── Le premier plan ─────────────────────────────────────────
+   L2 nomme le premier plan comme un élément ; le code ne l'avait pas —
+   .dash-welcome et .kpi-row étaient enfants directs de la vue. .dash-avant
+   les enveloppe, eux seuls. min-height = la hauteur de la nappe : le
+   plâtre commence donc sous l'eau, et aucune dalle ne coupe le fondu
+   (LOT 5, § 5.0 / 5.1). */
+.dash-avant {
+    position: relative;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding: 52px 28px 0;
+    min-height: var(--nappe-h);
+}
+
 /* ── Bandeau d'accueil ───────────────────────────────────── */
 /* 190px pour une salutation, c'était trop : le contenu de la vue doit
    commencer dans le premier écran. Une ligne, filet + gouttière — plus
@@ -493,7 +509,51 @@
     background: var(--color-watch);
 }
 
-/* ── Performance ─────────────────────────────────────────── */
+/* ── Performance ─────────────────────────────────────────────
+   Le graphe était à cheval sur les 640 px de la nappe (LOT 5, D2). Il
+   descend dans le plâtre et devient une dalle mate, pleine opacité, même
+   traitement que les autres blocs du plâtre — pas de verre, pas de
+   bordure de carte. Le couple titre + kicker descend avec lui et devient
+   l'entête de la dalle (§ 4). */
+.dash-perf-section {
+    padding: 34px;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-1);
+    transition: transform 280ms var(--ease-standard);
+}
+
+.dash-perf-section:hover {
+    transform: translateY(-3px);
+}
+
+/* .sec-hdr est l'entête de la dalle : la marge sous lui est déjà posée
+   par la règle partagée. Les .sec-title / .sec-meta prennent ici les
+   valeurs de L4 — scopé, les autres sections n'y touchent pas. */
+.dash-perf-section .sec-title {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: var(--text-lg);
+    letter-spacing: 0.004em;
+    color: var(--color-ink);
+}
+
+.dash-perf-section .sec-meta {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+/* Le panel intérieur a perdu sa raison d'être : la dalle porte le fond,
+   le rayon et le padding. Il ne reste que la colonne flex du graphe. */
+.dash-perf-section .perf-panel {
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: none;
+}
+
 .perf-panel {
     display: flex;
     flex-direction: column;
