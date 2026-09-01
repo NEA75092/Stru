@@ -86,4 +86,5 @@ opaques** alors qu'ils flottent au-dessus de l'eau. C'est le défaut symétrique
 premier plan sans verre. Il se corrige dans `dashboard.css`, un fichier d'écran, donc
 hors du périmètre de ce correctif comme de celui du LOT 2.
 
-C'est le LOT 4 : `specs/lot-liquide-04-verre-dashboard.md`. Ne l'anticipe pas ici.
+C'est le LOT 6 : `specs/lot-liquide-06-premier-plan-conforme.md` (qui a absorbé le
+LOT 4). Ne l'anticipe pas ici.

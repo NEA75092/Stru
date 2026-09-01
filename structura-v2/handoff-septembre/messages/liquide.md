@@ -74,7 +74,7 @@ structura-v2/handoff-septembre/specs/lot-liquide-02-coquille.md
 structura-v2/handoff-septembre/specs/lot-liquide-02b-correctif-nappe.md
 structura-v2/handoff-septembre/specs/lot-liquide-03-dette.md
 structura-v2/handoff-septembre/specs/lot-liquide-05-nappe-et-nuit.md
-structura-v2/handoff-septembre/specs/lot-liquide-04-verre-dashboard.md
+structura-v2/handoff-septembre/specs/lot-liquide-06-premier-plan-conforme.md
 ```
 
 ---
@@ -288,18 +288,27 @@ exactement la boucle attendue.
 
 ---
 
-# LOT 4 — le verre du Dashboard (version 2)
+# LOT 4 — absorbé par le LOT 6
 
-Spec : `specs/lot-liquide-04-verre-dashboard.md`, **version 2**. Après le LOT 5.
+Le LOT 4 (verre du Dashboard) n'existe plus comme lot :
+`specs/lot-liquide-06-premier-plan-conforme.md` le remplace. Poser du verre sur le hero
+actuel n'avait pas de sens une fois relevé que le premier plan de la maquette est autre
+— deux colonnes, aucune rangée de KPI. Les trois cartes de verre de L3 sont celles de
+la maquette : le cadre d'encours, l'agenda, les alertes. La `--gouttiere: 44px` que
+j'avais demandée est **annulée** — la maquette dit `28px`.
 
-La v1 mettait cinq cartes en verre : elle violait L3, qui en autorise trois. La v2 en
-met **deux** — le hero, et la rangée de KPI dans un cadre flottant unique. La carte du
-graphe ne passe pas en verre du tout : le LOT 5 l'a rangée dans le plâtre.
+## Le rythme change
 
-Un fichier : `src/dashboard.css`, plus le bump. Les valeurs des deux niveaux de verre
-sont relevées sur la maquette dans la spec. **Elles ne s'écrivent pas en clair dans le
-CSS** : si un token manque, arrête-toi et dis lequel. Si aucun conteneur n'enveloppe
-déjà la rangée de KPI, arrête-toi aussi — je tranche, tu n'ajoutes pas de DOM.
+Tu n'attends plus mon feu vert entre deux lots quand les sondes sont vertes et que les
+mesures du § 7 du lot précédent sont dans le rapport. Tu enchaînes, tu pousses, tu me
+donnes un rapport groupé. Tu t'arrêtes seulement pour :
+
+- une valeur ou une couleur que la spec ne donne pas (R3) ;
+- une addition de DOM que la spec ne nomme pas ;
+- une sonde rouge que le lot n'explique pas.
+
+Le reste — traduction d'alias, scope de sélecteur, ordre des commits — c'est ton
+jugement, et il a été bon sur les trois derniers lots.
 
 ---
 
@@ -322,3 +331,34 @@ eu, et un fondu que la maquette portait déjà.
 Depuis le 31/08 elle porte en tokens le premier stop du fondu (`--fondu-haut`) et
 les trois arêtes de lumière — les valeurs de nuit de la nappe sont donc mesurables
 au calque, et plus seulement à l'œil.
+
+---
+
+# LOT 6 — le premier plan devient celui de la maquette
+
+Spec : `specs/lot-liquide-06-premier-plan-conforme.md`, **version 2**.
+Elle **remplace le LOT 4** et la v1 du LOT 6, toutes deux périmées. Un seul lot.
+
+En relevant la maquette pour écrire la v1, j'ai trouvé le vrai écart. Le premier plan de
+la maquette a **deux colonnes** — `minmax(0,1fr) 440px`, gap 40 — et **aucune rangée de
+KPI**. Le code a un hero pleine largeur et quatre cartes de KPI. Le creux de 190 px sous
+les KPI n'est donc pas un défaut de répartition : c'est une colonne entière qui manque,
+celle des cartes de verre (agenda, alertes).
+
+Trois conséquences :
+
+- **Le LOT 4 est absorbé.** Poser du verre sur le hero actuel n'a pas de sens si le hero
+  change. Les trois cartes de verre de L3 sont celles de la maquette : le cadre
+  d'encours, l'agenda, les alertes.
+- **La `--gouttiere: 44px` est annulée.** La maquette dit `28px`. Ma consigne du tour
+  précédent faisait diverger le code de la maquette — c'est l'inverse de la règle. Si tu
+  l'as écrite, retire-la, token compris.
+- **Les KPI ne disparaissent pas**, ils descendent dans le plâtre en dalles mates, comme
+  le graphe au LOT 5. Chiffres et libellés intacts.
+
+Toutes les valeurs de la spec sont relevées dans la maquette, aucune n'est proposée. Si
+une valeur manque, elle est dans la maquette — relève-la. Si elle n'a pas d'alias déclaré
+dans `design-tokens.css`, arrête-toi et donne la liste.
+
+La preuve qui compte n'est pas une sonde : c'est **le premier plan capturé côte à côte
+avec la maquette**.
