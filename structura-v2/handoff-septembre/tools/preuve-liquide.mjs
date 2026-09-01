@@ -13,8 +13,8 @@ import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5');
+if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5 && LOT !== 6) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6');
   process.exit(2);
 }
 
@@ -55,6 +55,15 @@ const AUTORISES = LOT === 1
           join(SRC, 'dashboard.css'),
           INDEX,
           MAQUETTE,
+        ]
+      : LOT === 6
+      ? [
+          // lot 6, § 6 + 6 bis : le premier plan du Dashboard.
+          TOKENS,
+          join(SRC, 'dashboard.css'),
+          join(SRC, 'relief.css'),
+          join(SRC, 'modules', 'app-dashboard.js'),
+          INDEX,
         ]
       : [
           // lot 3, § 5 : sept fichiers d'écran, plus design-tokens.css
@@ -241,6 +250,30 @@ if (LOT === 5) {
     .map((b) => b.split('{')[0])
     .filter((s) => /nth-child/.test(s) && /\.view\b/.test(s) && !/:not\(\s*#view-dashboard\s*\)/.test(s));
   verifier('nth-child sur un enfant de #view-dashboard', 0, selNthDash.length, selNthDash.map((s) => s.trim()).join(' | ').slice(0, 300));
+}
+
+/* — lot 06 : le premier plan conforme — § 7 —
+   Les contrôles 1, 2, 3 et 5 sont des mesures DOM (rendu, viewport 1600) :
+   ils vivent dans le rapport. Ici, ce que les fichiers disent :
+   – 7.4  --gouttiere n'a jamais existé et n'apparaît nulle part ;
+   – dashboard.css porte exactement 4 déclarations backdrop-filter, toutes
+     dans des sélecteurs du premier plan, aucune sous .dash-body / .kpi /
+     .dash-perf / .cap- (le plâtre). */
+if (LOT === 6) {
+  const dash = lire(join(SRC, 'dashboard.css')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const tousLesSrc = fichiers.map((f) => `${f}\n${lire(f)}`).join('\n');
+
+  verifier('--gouttiere absent du dépôt', 0, (tousLesSrc.match(/--gouttiere\b/g) || []).length);
+
+  const bf = dash.split('\n').filter((l) => /backdrop-filter\s*:/.test(l) && !/^\s*-webkit-/.test(l));
+  verifier('backdrop-filter dans dashboard.css', 4, bf.length, bf.map((l) => l.trim()).join(' | ').slice(0, 300));
+
+  const bfPlatre = dash.split('}').filter((bloc) => {
+    const sel = bloc.split('{')[0] || '';
+    return /backdrop-filter\s*:/.test(bloc) &&
+      /(\.dash-body|\.kpi\b|\.kpi-|\.dash-perf|\.cap-|\.dash-alerts|\.dash-vl|\.dash-issuer)/.test(sel);
+  });
+  verifier('backdrop-filter dans le plâtre', 0, bfPlatre.length, bfPlatre.map((b) => b.split('{')[0].trim()).join(' | ').slice(0, 200));
 }
 
 /* — rapport — */
