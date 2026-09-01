@@ -159,6 +159,39 @@ Si la valeur d'encours du cadre de verre et un KPI parlent du même fait, ils li
 dérogation. Aucun autre écran. Aucun token neuf — si une valeur ci-dessus n'a pas
 d'alias déclaré dans `design-tokens.css`, **arrête-toi et donne la liste**.
 
+## 6 bis. Amendement du 01/09 — le JS et les sources
+
+Le § 6 n'autorisait pas de JS. Trois widgets du premier plan sont pilotés par des
+données que l'app n'a pas : la courbe mensuelle du cadre d'encours, l'agenda de la
+semaine, et « À regarder aujourd'hui ». **`structura-v2/src/modules/app-dashboard.js`
+est ajouté aux fichiers autorisés**, pour ces trois-là et rien d'autre.
+
+Chaque widget **réemploie un fait existant** — aucune série, aucune liste, aucun libellé
+n'est créé :
+
+| widget | source |
+|---|---|
+| courbe mensuelle, `perfMois`, `deltaMois` | l'historique de portefeuille, fenêtré sur le mois courant |
+| agenda de la semaine | les événements de `app-calendar.js` de la semaine en cours |
+| « À regarder aujourd'hui » | les positions de `alerts-list`, reformatées glyphe / titre / détail / puce |
+| `nAlertes` | la longueur de la liste (§ 4) |
+| `majLe`, nom du cabinet | `session` |
+
+Trois garde-fous, qui font partie du lot :
+
+1. **Une seule série.** La courbe du mois et le graphe YTD du plâtre lisent le **même**
+   historique, avec deux fenêtres. Deux séries pour le même fait = L10 violée.
+   `perfMois` et `deltaMois` se dérivent de cette fenêtre, ils ne se ressaisissent pas.
+2. **L'agenda ne décore pas.** Un jour sans événement n'a **pas** de pastille. Les
+   valeurs `fond` / `encre` d'un jour couvrent trois états réels — aujourd'hui, jour
+   avec événement, jour vide — et rien d'autre.
+3. **Les alertes sont un rendu, pas une liste neuve.** Le libellé de la puce d'action se
+   dérive du type d'alerte. Si un type d'alerte ne permet de dériver aucun libellé,
+   **arrête-toi** — n'écris pas un verbe pour combler.
+
+Si, après ça, un widget manque de matière, **il n'est pas rendu vide** : signale-le au
+rapport et laisse-le hors du commit.
+
 ## 7. Preuve
 
 ```bash
