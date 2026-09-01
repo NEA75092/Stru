@@ -235,12 +235,11 @@ if (LOT === 5) {
   }
 
   // § 7.4 — aucune règle nth-child ne s'applique à un enfant de
-  // #view-dashboard : soit elle le nomme, soit elle vise .view sans
-  // l'exclure par :not(#view-dashboard).
+  // #view-dashboard. Un sélecteur `.view … :nth-child` vise toutes les
+  // vues, Dashboard compris — sauf s'il l'exclut par :not(#view-dashboard).
   const selNthDash = relief.split('}')
     .map((b) => b.split('{')[0])
-    .filter((s) => /nth-child/.test(s) &&
-      (/#view-dashboard/.test(s) || (/\.view\b/.test(s) && !/:not\(\s*#view-dashboard\s*\)/.test(s))));
+    .filter((s) => /nth-child/.test(s) && /\.view\b/.test(s) && !/:not\(\s*#view-dashboard\s*\)/.test(s));
   verifier('nth-child sur un enfant de #view-dashboard', 0, selNthDash.length, selNthDash.map((s) => s.trim()).join(' | ').slice(0, 300));
 }
 

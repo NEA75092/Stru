@@ -64,9 +64,19 @@ if (declared.size === 0) {
 }
 
 const args = process.argv.slice(2);
+// Sans argument : tout src/, plus les seules maquettes .dc.html (le 2e
+// contrôle en a besoin, elles vivent hors de src/). On NE scanne plus les
+// specs ni les messages : une spec qui décrit un token à ajouter est
+// toujours en avance d'un commit sur sa déclaration dans design-tokens.css
+// — ce n'était pas une faute à livrer, c'était la sonde qui lisait de la
+// prose comme un appel. Le contrôle « nom cité, jamais déclaré » se fait
+// donc au passage en revue de la spec, plus par le script.
 const files = args.length
   ? args
-  : [...walk(join(ROOT, "src")), ...walk(join(ROOT, "handoff-septembre"))].filter((p) => !p.endsWith("check-tokens.mjs"));
+  : [
+      ...walk(join(ROOT, "src")),
+      ...walk(join(ROOT, "handoff-septembre")).filter((p) => p.endsWith(".dc.html")),
+    ].filter((p) => !p.endsWith("check-tokens.mjs"));
 
 const problems = [];
 const localProblems = [];
