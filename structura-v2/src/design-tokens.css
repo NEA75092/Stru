@@ -85,6 +85,19 @@
        la valeur est dérivée de --marine, pas reprise de la passe 8. */
     --voile: rgb(7 61 93 / 0.42);
 
+    /* Nappe — arêtes de lumière (calques 4 / 6 / 7) et amorce du fondu
+       (calque 8). Passées en tokens au LOT 5 : littérales, elles étaient
+       identiques jour et nuit et ne se voyaient plus sur le fond nuit deux
+       fois plus sombre. De la lumière, pas des couleurs de marque. */
+    --arete-voile: rgba(255, 255, 255, 0.18);
+    --arete-1: rgba(255, 255, 255, 0.38);
+    --arete-2: rgba(255, 255, 255, 0.2);
+    --fondu-haut: 42%;
+
+    /* Hauteur de la nappe — une grandeur, un token (L10). Lue par .nappe
+       et par .dash-avant (le premier plan du Dashboard). Pas de thème. */
+    --nappe-h: 640px;
+
     /* Rayons — cinq valeurs, pas une de plus */
     --r-min: 2px;
     --r-nav: 8px;
@@ -272,9 +285,18 @@
 
     --voile: rgb(0 0 0 / 0.62);
 
-    /* --sur-azur, --sur-azur-2, les cinq rayons et --ease ne sont pas
-       redéclarés : la nappe reste de l'eau en nuit, le texte qui la
-       surmonte reste blanc, et un rayon n'a pas de thème. */
+    /* Nappe, valeurs nuit : arêtes plus opaques pour rester lisibles sur
+       le fond sombre ; le fondu démarre plus bas (58 % vs 42 %) pour que
+       l'eau garde de la présence sous le hero ET la rangée de KPI. */
+    --arete-voile: rgba(255, 255, 255, 0.26);
+    --arete-1: rgba(255, 255, 255, 0.52);
+    --arete-2: rgba(255, 255, 255, 0.3);
+    --fondu-haut: 58%;
+
+    /* --nappe-h n'a pas de thème : une seule déclaration, dans le bloc jour.
+       --sur-azur, --sur-azur-2, les cinq rayons et --ease non plus : la
+       nappe reste de l'eau en nuit, le texte qui la surmonte reste blanc,
+       et un rayon n'a pas de thème. */
 
     /* ── Couche 2, pendant nuit — trois lignes seulement, tout le reste
        hérite par re-résolution de la couche 1 ci-dessus. ── */

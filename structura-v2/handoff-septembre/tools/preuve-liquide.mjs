@@ -178,7 +178,9 @@ if (LOT === 2) {
   //  2. la classe du rail de nav est .sidebar (index.html), pas .rail :
   //     l'ancien regex cherchait un sélecteur qui n'existe nulle part.
   const shell = lire(join(SRC, 'shell.css')).replace(/\/\*[\s\S]*?\*\//g, '');
-  verifier('.nappe à 640px', true, /\.nappe\b[^}]*height:\s*640px/s.test(shell));
+  // Le LOT 5 passe la hauteur en token (--nappe-h). Le contrôle accepte
+  // les deux écritures : le token vaut 640px, une seule grandeur (L10).
+  verifier('.nappe à 640px', true, /\.nappe\b[^}]*height:\s*(?:640px|var\(--nappe-h\))/s.test(shell));
   verifier('rail (.sidebar) à 236px', true, /\.sidebar\b[^}]*width:\s*236px/s.test(shell));
   verifier('prefers-reduced-motion présent', true, shell.includes('prefers-reduced-motion'));
   verifier('les huit couches de nappe', 8, (shell.match(/\.nappe-[a-z-]+\s*\{/g) || []).length + (/\.nappe-eau/.test(shell) ? 0 : 0));

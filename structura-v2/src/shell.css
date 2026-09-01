@@ -338,7 +338,7 @@
     left: 0;
     top: 0;
     right: 0;
-    height: 640px;
+    height: var(--nappe-h);
     overflow: hidden;
     pointer-events: none;
 }
@@ -397,7 +397,7 @@
     top: -14%;
     width: 30%;
     height: 124%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 66%);
+    background: linear-gradient(180deg, var(--arete-voile), transparent 66%);
     filter: blur(46px);
     transform: rotate(10deg);
 }
@@ -423,7 +423,7 @@
     top: 13%;
     width: 70%;
     height: 1.5px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+    background: linear-gradient(90deg, transparent, var(--arete-1), transparent);
     filter: blur(2px);
     transform: rotate(-6.5deg);
 }
@@ -433,7 +433,7 @@
     top: 39%;
     width: 58%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, var(--arete-2), transparent);
     filter: blur(1px);
     transform: rotate(5.5deg);
 }
@@ -442,7 +442,7 @@
     inset: 0;
     background: linear-gradient(
         to bottom,
-        transparent 42%,
+        transparent var(--fondu-haut),
         color-mix(in oklab, var(--desk) 22%, transparent) 66%,
         color-mix(in oklab, var(--desk) 62%, transparent) 84%,
         color-mix(in oklab, var(--desk) 92%, transparent) 95%,

@@ -30,6 +30,7 @@
 --em-l:.575;--em-c:.165;
 --verre:linear-gradient(155deg,rgba(255,255,255,.95),rgba(238,246,247,.87));--verre-brd:rgba(255,255,255,.92);
 --puck:#FFFFFF;--chip:#FFFFFF;--chip-encre:#111111;--rouge-encre:#3A0A0B;
+--fondu-haut:42%;--arete-voile:rgba(255,255,255,.18);--arete-1:rgba(255,255,255,.38);--arete-2:rgba(255,255,255,.2);
 }
 :root[data-theme="nuit"]{
 --desk:#0B0F13;
@@ -42,6 +43,7 @@
 --dalle-c:linear-gradient(190deg,#1A1B18 0%,#14181C 58%,#12181A 100%);
 --survol:color-mix(in oklab,var(--azur-clair) 9%,transparent);
 --rail:rgba(255,255,255,0.10);--encre-faible:rgba(255,255,255,0.22);
+--fondu-haut:58%;--arete-voile:rgba(255,255,255,.26);--arete-1:rgba(255,255,255,.52);--arete-2:rgba(255,255,255,.3);
 --em-l:.775;--em-c:.145;
 --vert:#4FA87A;--rouge:#FF7A7C;--ambre:#EDB65C;
 --verre:linear-gradient(155deg,rgba(30,42,52,.82),rgba(18,26,33,.74));--verre-brd:rgba(255,255,255,.14);
@@ -147,11 +149,11 @@ a:hover{color:var(--azur)}
     <div style="position:absolute;inset:0;background:linear-gradient(161deg,color-mix(in oklab,var(--azur-clair) 42%,var(--azur)) 0%,var(--azur) 22%,color-mix(in oklab,var(--azur) 36%,var(--azur-profond)) 44%,var(--azur-profond) 68%,var(--marine) 100%)"></div>
     <div style="position:absolute;left:34%;top:-72%;width:82%;height:168%;border-radius:46% 54% 42% 58%;background:radial-gradient(54% 54% at 42% 38%,color-mix(in oklab,var(--azur-clair) 82%,#fff),var(--azur) 58%,transparent 86%);filter:blur(64px);opacity:.62;animation:derive 46s var(--ease) infinite"></div>
     <div style="position:absolute;left:-22%;top:-44%;width:60%;height:134%;border-radius:54% 46% 58% 42%;background:radial-gradient(52% 52% at 56% 48%,var(--azur-clair),transparent 76%);filter:blur(72px);opacity:.3;animation:derive 58s var(--ease) infinite reverse"></div>
-    <div style="position:absolute;left:58%;top:-14%;width:30%;height:124%;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 66%);filter:blur(46px);transform:rotate(10deg)"></div>
+    <div style="position:absolute;left:58%;top:-14%;width:30%;height:124%;background:linear-gradient(180deg,var(--arete-voile),transparent 66%);filter:blur(46px);transform:rotate(10deg)"></div>
     <div style="position:absolute;left:4%;top:34%;width:52%;height:86%;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%,color-mix(in oklab,var(--azur-clair) 34%,transparent),transparent 72%);filter:blur(58px);opacity:.5;animation:derive 64s var(--ease) infinite"></div>
-    <div style="position:absolute;left:10%;top:13%;width:70%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);filter:blur(2px);transform:rotate(-6.5deg)"></div>
-    <div style="position:absolute;left:30%;top:39%;width:58%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);filter:blur(1px);transform:rotate(5.5deg)"></div>
-    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 42%,color-mix(in oklab,var(--desk) 22%,transparent) 66%,color-mix(in oklab,var(--desk) 62%,transparent) 84%,color-mix(in oklab,var(--desk) 92%,transparent) 95%,var(--desk) 100%)"></div>
+    <div style="position:absolute;left:10%;top:13%;width:70%;height:1.5px;background:linear-gradient(90deg,transparent,var(--arete-1),transparent);filter:blur(2px);transform:rotate(-6.5deg)"></div>
+    <div style="position:absolute;left:30%;top:39%;width:58%;height:1px;background:linear-gradient(90deg,transparent,var(--arete-2),transparent);filter:blur(1px);transform:rotate(5.5deg)"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent var(--fondu-haut),color-mix(in oklab,var(--desk) 22%,transparent) 66%,color-mix(in oklab,var(--desk) 62%,transparent) 84%,color-mix(in oklab,var(--desk) 92%,transparent) 95%,var(--desk) 100%)"></div>
   </div>
 
   <!-- premier plan : seul endroit où le verre a droit de cité -->
