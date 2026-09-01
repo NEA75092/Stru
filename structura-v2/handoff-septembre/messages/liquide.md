@@ -250,13 +250,41 @@ Trois défauts relevés aux captures du 31/08 : deux libellés posés sur l'eau,
 du graphe à cheval sur les 640 px, et l'eau qui disparaît en nuit parce que le fondu
 démarre trop haut sur un fond près du noir.
 
-Ce lot **ajoute quatre tokens** (`--fondu-haut` et les trois arêtes de lumière) : c'est
-la seule raison pour laquelle il touche `design-tokens.css`. Il déplace aussi un bloc
-dans `index.html` — un déménagement, pas de la peinture, assumé au § 6 de la spec.
+Ce lot **ajoute cinq tokens** (`--fondu-haut`, les trois arêtes de lumière, et
+`--nappe-h`) : c'est la seule raison pour laquelle il touche `design-tokens.css`. Il
+ajoute aussi **un** conteneur et déplace un bloc dans `index.html` — un ajout de plan et
+un déménagement, pas de la peinture, assumé au § 6.
 
-Une mesure est à faire **avant de coder** : le fond réellement peint derrière le plâtre
-vs la couleur d'arrivée du fondu de la nappe. Si ce n'est pas le même token, l'arête
-franche est là. Si c'est le même, arrête-toi et donne les deux valeurs.
+La mesure du fondu est **faite** (§ 2) : les deux couleurs sont identiques, il n'y a pas
+de couture à corriger, et le huitième calque ne se redécrit pas. Ne rouvre pas ce point.
+
+**Deux commits**, § 6 : (1) tokens + `shell.css` + maquette — D3 ; (2) `.dash-avant`, le
+déménagement du graphe, l'entête de dalle, `relief.css` — D1 + D2.
+
+---
+
+# LOT 5 — relance après le blocage du 01/09
+
+Ta question (« conteneur premier plan, ou décalage réservé ? ») est **déjà tranchée dans
+la spec v2**, poussée à `dec4a19`. Tu as travaillé sur la v1. Relis-la, elle répond aux
+trois points, dans l'ordre où tu les as posés :
+
+- **§ 5.0** — c'est (a). Le conteneur `.dash-avant` enveloppe hero + KPI. Ce n'est pas un
+  niveau de DOM en plus qu'on s'autorise : L2 nomme le premier plan comme un élément, le
+  code n'en a pas, on répare un manque. C'est la **seule** addition de DOM du lot.
+- **§ 5.1** — pas de `640px` à la main : `--nappe-h: 640px` dans `design-tokens.css`, lu
+  par la nappe **et** par `.dash-avant`. La sonde du LOT 2 qui mesure 640 reste verte,
+  c'est le contrôle. La piste (b) est morte : un `padding-top` de 254 px est le nombre
+  magique que R3 interdit.
+- **§ 5.3** — oui, la cascade décale, et tu as eu raison de le signaler. Les `nth-child`
+  qui ciblent les enfants de `#view-dashboard` se réécrivent **sur les classes**.
+  Uniquement ceux-là. Mêmes animations, mêmes délais.
+
+Le § 7 gagne deux contrôles pour ça : zéro `640` littéral, zéro `nth-child` sur un enfant
+de `#view-dashboard`.
+
+Avoir mesuré avant d'écrire, et t'être arrêté au lieu de forcer un nombre magique, c'est
+exactement la boucle attendue.
 
 ---
 

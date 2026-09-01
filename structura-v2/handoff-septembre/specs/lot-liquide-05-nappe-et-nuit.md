@@ -1,6 +1,6 @@
 # lot-liquide-05-nappe-et-nuit — l'eau finit bien, et elle existe en nuit
 
-Version 2 · 31/08/2026 · dépend de `specs/00-doctrine-liquide.md` (L1, L2, L8) et de
+Version 3 · 01/09/2026 · dépend de `specs/00-doctrine-liquide.md` (L1, L2, L8) et de
 `specs/design-tokens-v3-liquide.md`. S'applique **après** le LOT 3 et **avant** le
 LOT 4 : poser du verre sur une eau qu'on va refaire, c'est le faire deux fois.
 
@@ -65,7 +65,6 @@ La maquette porte désormais ce stop en token :
 | Token | Jour | Nuit |
 |---|---|---|
 | `--fondu-haut` | `42%` | `58%` |
-
 En nuit le fondu démarre plus bas : l'eau garde 371 px de présence pleine au lieu de
 269, ce qui la fait exister sous le hero **et** sous la rangée de KPI. Les stops
 suivants (66 / 84 / 95 / 100 %) sont inchangés dans les deux thèmes.
@@ -106,6 +105,44 @@ posés sur l'eau.
 
 ## 5. D2 — le graphe devient une dalle du plâtre
 
+### 5.0 Le premier plan manque dans le code — on l'ajoute
+
+Mesuré le 31/08 : hero et rangée de KPI s'arrêtent à y = 386, la nappe fait 640. Le
+graphe comblait les 254 px restants, et c'est précisément le défaut. Le déplacer ne
+suffit pas : il remonterait à ~450, toujours dans l'eau.
+
+La cause est structurelle. **L2 nomme le premier plan comme un élément** (`padding:
+52px 28px 0`, `z-index: 30`) ; le code n'en a pas — `.dash-welcome` et `.kpi-row` sont
+enfants directs de la vue. Le conteneur qui manque n'est pas un niveau de DOM
+décoratif, c'est un des deux plans de L1.
+
+**Ajoute-le**, et lui seul :
+
+```
+<div class="dash-avant">   <!-- enveloppe .dash-welcome + .kpi-row, rien d'autre -->
+  position: relative · z-index: 30
+  padding: 52px 28px 0
+  min-height: var(--nappe-h)
+</div>
+```
+
+C'est la **seule** addition de DOM autorisée par ce lot. Toute autre → arrêt.
+
+### 5.1 Une grandeur, un token : `--nappe-h`
+
+`min-height: 640px` écrit à la main serait un second exemplaire de la hauteur de la
+nappe — interdit par L10. **Ajoute `--nappe-h: 640px`** à `design-tokens.css` (même
+valeur dans les deux thèmes, une seule déclaration suffit), et fais-le lire par les
+deux :
+
+- la nappe : `height: var(--nappe-h)` — remplace le `640px` littéral déjà en place ;
+- `.dash-avant` : `min-height: var(--nappe-h)`.
+
+La sonde du LOT 2 mesure la nappe à 640 px : elle doit rester verte, c'est le contrôle
+que le token résout bien.
+
+### 5.2 La dalle
+
 La carte « Performance du portefeuille » quitte le premier plan et devient une dalle
 mate, pleine largeur, aux valeurs de L4 :
 
@@ -124,23 +161,44 @@ Conséquence à vérifier au DOM : le premier plan ne contient plus que le hero 
 rangée de KPI, et **aucun élément ne franchit la ligne des 640 px**. C'est la
 précondition du LOT 4.
 
-Si sortir le graphe du premier plan exige d'ajouter un élément enveloppant,
-**arrête-toi et décris ce qui manque.** Déplacer un bloc existant d'un conteneur à
-l'autre est autorisé ; inventer un niveau de DOM ne l'est pas.
+### 5.3 La cascade de `relief.css`
 
-## 6. Fichiers autorisés — trois
+Sortir `.dash-perf-section` des enfants directs de la vue décale les `nth-child` de
+`relief.css`, qui l'anime aujourd'hui en position 4. **Réécris ces règles-là sur les
+classes**, pas sur les positions : une animation indexée sur l'ordre du DOM se casse au
+prochain déménagement, et il y en aura d'autres. Périmètre strict : **uniquement** les
+sélecteurs `nth-child` qui ciblent les enfants de `#view-dashboard`. Les autres
+`nth-child` du fichier ne bougent pas.
+
+Les six animations de L8 et leurs délais restent identiques — c'est le sélecteur qui
+change, pas le mouvement.
+
+Si sortir le graphe du premier plan exige d'ajouter **un autre** élément enveloppant
+que le `.dash-avant` du § 5.0, **arrête-toi et décris ce qui manque.**
+
+## 6. Fichiers autorisés, et deux commits
 
 | Fichier | Changement |
 |---|---|
-| `structura-v2/src/design-tokens.css` | ajout des 4 tokens du § 2 et du § 3, jour + nuit |
-| `structura-v2/src/shell.css` | fondu et arêtes de la nappe passés en tokens (stops et géométries inchangés) |
-| `structura-v2/src/dashboard.css` | entête de dalle du § 4, dalle du graphe du § 5 |
-| `structura-v2/index.html` | déplacement du bloc du graphe dans le plâtre + bump `?v=` |
+| `structura-v2/src/design-tokens.css` | ajout des 5 tokens : § 2, § 3 et `--nappe-h` |
+| `structura-v2/src/shell.css` | fondu, arêtes et hauteur de nappe passés en tokens (stops et géométries inchangés) |
+| `structura-v2/src/relief.css` | `nth-child` du Dashboard réécrits sur les classes (§ 5.3) |
+| `structura-v2/src/dashboard.css` | `.dash-avant`, entête de dalle du § 4, dalle du graphe du § 5 |
+| `structura-v2/index.html` | `.dash-avant` + déplacement du bloc du graphe + bump `?v=` |
+| `structura-v2/handoff-septembre/maquette/Dashboard - Liquide.dc.html` | maquette à jour — elle référence les tokens de ce lot, donc elle part avec eux |
 
-`index.html` bouge ici, et c'est assumé : le § 5 est un déménagement de bloc, pas de la
-peinture. **Aucun autre écran.** Si un autre écran change d'aspect à cause des quatre
-nouveaux tokens, c'est qu'il consommait déjà les littéraux : signale-le, ne le corrige
-pas dans ce lot.
+**Deux commits, dans cet ordre :**
+
+1. **D3** — les 5 tokens, `shell.css`, la maquette. Sondes vertes à ce commit déjà :
+   l'eau existe en nuit, les arêtes sont tokenisées, la maquette ne référence plus rien
+   d'indéclaré. Rien ne bouge dans le gabarit.
+2. **D1 + D2** — `.dash-avant`, le déménagement du graphe, l'entête de dalle,
+   `relief.css`. Sondes vertes, et c'est ce commit qui doit satisfaire le § 7.
+
+`index.html` bouge dans le commit 2, et c'est assumé : § 5.0 et § 5.2 sont un ajout de
+plan et un déménagement de bloc, pas de la peinture. **Aucun autre écran.** Si un autre
+écran change d'aspect à cause des nouveaux tokens, c'est qu'il consommait déjà les
+littéraux : signale-le, ne le corrige pas dans ce lot.
 
 ## 7. Preuve
 
@@ -155,9 +213,12 @@ Contrôles à ajouter à la sonde :
 1. **zéro `rgba(255,255,255` littéral dans `shell.css`** — les trois arêtes passent
    par leurs tokens ;
 2. **`--fondu-haut` déclaré dans les deux blocs de thème** de `design-tokens.css` ;
-3. **aucun texte dans les 640 px du haut hors premier plan** : liste les nœuds de
-   texte dont le `getBoundingClientRect().top` est < 640 et qui ne descendent pas du
-   premier plan. La liste doit être vide.
+3. **zéro `640` littéral** dans `shell.css` et `dashboard.css` — une seule grandeur, un
+   seul token (§ 5.1) ;
+4. **zéro `nth-child` ciblant un enfant de `#view-dashboard`** dans `relief.css` ;
+5. **aucun texte dans les 640 px du haut hors premier plan** : liste les nœuds de
+   texte dont le `getBoundingClientRect().top` est < 640 et qui ne descendent pas de
+   `.dash-avant`. La liste doit être vide.
 
 Mesures DOM, viewport 1600 px, jour **et** nuit :
 `top` et `bottom` de la dalle du graphe (le `top` doit être > 640) · `top` du premier
