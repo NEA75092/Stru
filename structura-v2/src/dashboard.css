@@ -795,14 +795,20 @@
    traitement que les autres blocs du plâtre — pas de verre, pas de
    bordure de carte. Le couple titre + kicker descend avec lui et devient
    l'entête de la dalle (§ 4). */
-.dash-perf-section {
+/* LOT 8 § 5 : la dalle de performance et « Sous la protection du capital »
+   restent (arbitrage designer, motivé à l'audit § 5) mais passent au
+   patron du § 3 — fond de dalle du plâtre, pleine largeur, sous la grille
+   des trois. */
+.dash-perf-section,
+.dash-alerts-block {
     padding: 34px;
     border-radius: var(--radius-lg);
-    background: var(--color-surface-1);
+    background: var(--dalle-a);
     transition: transform 280ms var(--ease-standard);
 }
 
-.dash-perf-section:hover {
+.dash-perf-section:hover,
+.dash-alerts-block:hover {
     transform: translateY(-3px);
 }
 
@@ -833,6 +839,455 @@
     border-radius: 0;
     background: none;
 }
+
+/* ── Le plâtre — trois dalles mates, relevé maquette l. 246-336 (LOT 8) ──
+   Aucune bordure, aucun verre (L1), aucune ombre (R5). Fonds --dalle-a/b/c
+   consommés en couche 1 (§ 6 : aucun alias --color-* pour eux). */
+.dash-platre {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    align-items: start;
+}
+
+.dalle {
+    padding: 34px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
+    transition: transform 280ms var(--ease-standard);
+    animation: colonne 700ms var(--ease-standard) both;
+}
+
+.dalle:hover {
+    transform: translateY(-3px);
+}
+
+.dalle-a { background: var(--dalle-a); animation-delay: 0ms; }
+.dalle-b { background: var(--dalle-b); animation-delay: 90ms; }
+.dalle-c { background: var(--dalle-c); animation-delay: 180ms; }
+
+.dalle-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: var(--text-lg);
+    letter-spacing: 0.004em;
+    color: var(--color-ink);
+}
+
+.dalle-big {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+}
+
+.dalle-num {
+    font-family: var(--font-heading);
+    font-weight: 300;
+    font-size: 44px;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.dalle-num-u {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+}
+
+.dalle-ctx {
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.dalle-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin-top: 26px;
+    padding: 18px 0 0;
+    min-height: 44px;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--trait);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    color: var(--color-text-secondary);
+}
+
+.dalle-foot-lbl {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+}
+
+/* La pastille d'émetteur (§ 4 ter) — le sigle n'existe pas au dépôt, on
+   porte le id du registre, largeur automatique, encre seule. */
+.emitter-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    height: 28px;
+    min-width: 28px;
+    padding: 0 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--trait);
+    background: transparent;
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+/* ── Dalle A — Concentration émetteurs ── */
+.conc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.conc-row {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.conc-row-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.conc-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.conc-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    flex: 0 0 auto;
+    background: var(--color-text-tertiary);
+}
+
+.conc-name {
+    font-size: var(--text-base);
+    color: var(--color-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conc-fig {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex: 0 0 auto;
+}
+
+.conc-amt {
+    font-size: 11.5px;
+    color: var(--color-text-secondary);
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.conc-pct {
+    font-size: var(--text-base);
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+    white-space: nowrap;
+}
+
+.conc-pct-u {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+}
+
+.conc-gauge {
+    height: 2px;
+    background: var(--rail);
+}
+
+.conc-gauge > span {
+    display: block;
+    height: 100%;
+    background: var(--color-text-tertiary);
+    animation: jauge 900ms var(--ease-standard) 320ms both;
+}
+
+.conc-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+}
+
+.conc-total-val {
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+    font-size: var(--text-base);
+}
+
+/* ── Dalle B — Top / Flop produits ── */
+.dalle-b-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.topflop-toggle {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 3px;
+    border-radius: var(--radius-full);
+    background: var(--rail);
+}
+
+.topflop-btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition:
+        background-color 240ms var(--ease-standard),
+        color 240ms var(--ease-standard);
+    background: transparent;
+    color: var(--color-text-secondary);
+}
+
+.topflop-btn.on {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+}
+
+.tf-row {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    width: 100%;
+    padding: 13px 10px;
+    margin: 0 -10px;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 160ms var(--ease-standard);
+}
+
+.tf-row:hover {
+    background: var(--survol);
+}
+
+.tf-row-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: baseline;
+    gap: 11px;
+    width: 100%;
+}
+
+.tf-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.tf-name {
+    font-size: var(--text-base);
+    color: var(--color-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tf-vl {
+    font-size: var(--text-base);
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+    white-space: nowrap;
+}
+
+.tf-ecart {
+    font-size: var(--text-sm);
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+}
+
+.tf-gauge {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: var(--rail);
+}
+
+.tf-gauge-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: var(--color-text-secondary);
+    animation: jauge 900ms var(--ease-standard) 520ms both;
+}
+
+.tf-marker {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 1.5px;
+    background: var(--color-text-secondary);
+}
+
+/* ── Dalle C — Événements de la semaine ── */
+.week-events {
+    display: flex;
+    flex-direction: column;
+}
+
+.we-row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 13px;
+    width: 100%;
+    padding: 12px 10px;
+    margin: 0 -10px;
+    min-height: 44px;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 160ms var(--ease-standard);
+}
+
+.we-row:hover {
+    background: var(--survol);
+}
+
+.we-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.we-dow {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.we-num {
+    font-size: var(--text-base);
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+}
+
+.we-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.we-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: var(--text-base);
+    color: var(--color-ink);
+    min-width: 0;
+}
+
+.we-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.we-detail {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 37px;
+}
+
+.we-amt {
+    font-size: var(--text-base);
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+    white-space: nowrap;
+}
+
+.week-empty {
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+}
+
+/* Remplissage de jauge — image 100% explicite (leçon LOT 7 bis : une
+   keyframe from-only + fill both laisse un résiduel). scaleX depuis la
+   gauche, la largeur cible est posée en inline. */
+.conc-gauge > span,
+.tf-gauge-fill {
+    transform-origin: left center;
+}
+
+@keyframes jauge {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+/* Teinte de marque de la dalle A — jamais en style="" (règle CLAUDE.md) :
+   la classe .issuer-<id> porte var(--issuer-<id>), même table que Pilotage. */
+.conc-dot.issuer-bnp, .conc-gauge > span.issuer-bnp { background: var(--issuer-bnp); }
+.conc-dot.issuer-sg, .conc-gauge > span.issuer-sg { background: var(--issuer-sg); }
+.conc-dot.issuer-ms, .conc-gauge > span.issuer-ms { background: var(--issuer-ms); }
+.conc-dot.issuer-jpm, .conc-gauge > span.issuer-jpm { background: var(--issuer-jpm); }
+.conc-dot.issuer-gs, .conc-gauge > span.issuer-gs { background: var(--issuer-gs); }
+.conc-dot.issuer-db, .conc-gauge > span.issuer-db { background: var(--issuer-db); }
+.conc-dot.issuer-barc, .conc-gauge > span.issuer-barc { background: var(--issuer-barc); }
+.conc-dot.issuer-hsbc, .conc-gauge > span.issuer-hsbc { background: var(--issuer-hsbc); }
+.conc-dot.issuer-natixis, .conc-gauge > span.issuer-natixis { background: var(--issuer-natixis); }
+.conc-dot.issuer-cacib, .conc-gauge > span.issuer-cacib { background: var(--issuer-cacib); }
+.conc-dot.issuer-citi, .conc-gauge > span.issuer-citi { background: var(--issuer-citi); }
+.conc-dot.issuer-ubs, .conc-gauge > span.issuer-ubs { background: var(--issuer-ubs); }
+.conc-dot.issuer-vontobel, .conc-gauge > span.issuer-vontobel { background: var(--issuer-vontobel); }
+.conc-dot.issuer-unicredit, .conc-gauge > span.issuer-unicredit { background: var(--issuer-unicredit); }
+.conc-dot.issuer-commerz, .conc-gauge > span.issuer-commerz { background: var(--issuer-commerz); }
+.conc-dot.issuer-leonteq, .conc-gauge > span.issuer-leonteq { background: var(--issuer-leonteq); }
+.conc-dot.issuer-bofa, .conc-gauge > span.issuer-bofa { background: var(--issuer-bofa); }
 
 .perf-panel {
     display: flex;

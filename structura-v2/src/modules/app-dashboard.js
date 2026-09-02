@@ -524,29 +524,57 @@
       return topHtml + restHtml;
     }
 
+    // ── LOT 8 — le plâtre. Trois dalles, chacune réemploie un fait de
+    //    l'app (audit § 2, spec § 4). Aucune donnée inventée.
+
+    // § 4 ter : la pastille porte le id du registre (issuer-registry.js
+    // n'a aucun champ sigle). Hors registre → pas de pastille.
+    function emitterPill(rawLabel) {
+      const cls = issuerBrandClass(rawLabel); // "issuer-<id>" ou ""
+      if (!cls) return "";
+      const id = cls.replace("issuer-", "").toUpperCase();
+      return `<span class="emitter-pill">${escapeHtml(id)}</span>`;
+    }
+
+    // Dalle A — « Concentration émetteurs ». Source : le même groupement
+    // que l'ancienne table (bankGroupName + issuerBrandClass), trié par
+    // nominal.
     function renderIssuerExposure() {
       const c = document.getElementById("issuer-exposure");
       if (!c) return;
       const data = productsForScope();
-      if (!data.length) {
-        c.innerHTML = `<div class="empty-inline">Aucune exposition à afficher.</div>`;
-        return;
-      }
       const rows = [...data.reduce((map, p) => {
         const issuer = bankGroupName(p.emetteur);
-        const row = map.get(issuer) || { issuer, nominal: 0, issuerClass: issuerBrandClass(p.emetteur) };
+        const row = map.get(issuer) || { issuer, nominal: 0, cls: issuerBrandClass(p.emetteur) };
         row.nominal += Number(p.nominal) || 0;
         map.set(issuer, row);
         return map;
       }, new Map()).values()].sort((a, b) => b.nominal - a.nominal);
-      const total = rows.reduce((sum, row) => sum + row.nominal, 0) || 1;
-      const head = `<div class="issuer-head-row">
-          <span></span>
-          <span class="dash-th">Émetteur</span>
-          <span class="dash-th cap-col-right">Nominal</span>
-          <span class="dash-th cap-col-right">Part</span>
-        </div>`;
-      c.innerHTML = `${head}${buildIssuerTableRows(rows, total)}`;
+      const total = rows.reduce((s, r) => s + r.nominal, 0) || 1;
+      const N = rows.length;
+
+      const first = rows[0] ? (rows[0].nominal / total) * 100 : 0;
+      setDalleNum("dalle-a-num", first, { decimals: 0, unit: "%" });
+      setText("dalle-a-num-ctx", `au premier émetteur · ${N} au total`);
+      setFootLabel("dalle-a-foot", `Voir les ${N} émetteurs`);
+
+      const body = rows.slice(0, 5).map((r) => {
+        const pct = (r.nominal / total) * 100;
+        const tint = r.cls ? ` ${r.cls}` : "";
+        return `<div class="conc-row">
+            <div class="conc-row-top">
+              <span class="conc-name-wrap"><span class="conc-dot${tint}"></span><span class="conc-name">${escapeHtml(r.issuer)}</span></span>
+              <span class="conc-fig"><span class="conc-amt">${moneyShort(r.nominal)}</span><span class="conc-pct">${pctFr(pct, 0)}<span class="conc-pct-u">%</span></span></span>
+            </div>
+            <div class="conc-gauge"><span class="conc-dot-fill${tint}" style="width:${pct.toFixed(1)}%"></span></div>
+          </div>`;
+      }).join("");
+      const deux = rows.slice(0, 2).reduce((s, r) => s + r.nominal, 0) / total * 100;
+      const totalLine = rows.length >= 2
+        ? `<div class="conc-total"><span>Les deux premiers</span><span class="conc-total-val">${pctFr(deux, 0)} %</span></div>`
+        : "";
+      c.innerHTML = `<div class="conc-list">${body}</div>${totalLine}`;
+      if (!rows.length) c.innerHTML = `<div class="empty-inline">Aucune exposition à afficher.</div>`;
     }
 
     // Top/Flop VL (Passe 7 reprise, bloc 7b — rouvert après mesure de
@@ -586,49 +614,73 @@
       const sign = n < 0 ? "−" : "";
       return `${sign}${Math.abs(n).toFixed(digits).replace(".", ",")}`;
     }
+    // Dalle B — « Top / Flop produits ». Source : même classement par VL
+    // qu'avant, avec la bascule Top 5 / Flop 5 de la maquette. VL_MAX est
+    // le plafond d'échelle relevé maquette : une seule déclaration, lue
+    // par les jauges ET les repères de barrière (§ 4.2).
+    const VL_MAX = 150;
+    let topFlopMode = "top";
+
+    function setTopFlop(mode) {
+      topFlopMode = mode === "flop" ? "flop" : "top";
+      renderVlTopFlop();
+    }
+
     function renderVlTopFlop() {
       const c = document.getElementById("vl-top-flop");
       if (!c) return;
       const data = productsForScope()
-        .filter(
-          (p) =>
-            Number.isFinite(Number(p.val)) &&
-            Number.isFinite(Number(p.nominal)) &&
-            Number(p.nominal) > 0,
-        )
+        .filter((p) => Number.isFinite(Number(p.val)) && Number.isFinite(Number(p.nominal)) && Number(p.nominal) > 0)
         .map((p) => ({
           ...p,
-          vlLevel: Number.isFinite(Number(p.vlPct))
-            ? Number(p.vlPct)
-            : (Number(p.val) / Number(p.nominal)) * 100,
+          vlLevel: Number.isFinite(Number(p.vlPct)) ? Number(p.vlPct) : (Number(p.val) / Number(p.nominal)) * 100,
         }))
         .sort((a, b) => b.vlLevel - a.vlLevel);
+
+      const moyenne = data.length ? data.reduce((s, p) => s + p.vlLevel, 0) / data.length : 100;
+      const sousBarriere = data.filter((p) => ["breach", "crit", "warn"].includes(p.st?.s)).length;
+      setDalleNum("dalle-b-num", moyenne, { decimals: 1 });
+      setText("dalle-b-num-ctx", `VL moyenne · ${sousBarriere} sous barrière`);
+      setFootLabel("dalle-b-foot", topFlopMode === "top" ? "Voir tout le portefeuille" : "Voir les positions à risque");
+
+      document.querySelectorAll(".dalle-b .topflop-btn").forEach((b) => {
+        const on = b.dataset.topflop === topFlopMode;
+        b.classList.toggle("on", on);
+        b.setAttribute("aria-pressed", String(on));
+      });
+
       if (!data.length) {
         c.innerHTML = `<div class="empty-inline">Aucune VL exploitable.</div>`;
         return;
       }
-      const rows = [...data.slice(0, 5), ...data.slice(-5)]
-        .filter((p, i, arr) => arr.findIndex((q) => q.id === p.id) === i)
-        .sort((a, b) => b.vlLevel - a.vlLevel);
-      const domain = Math.max(4, Math.ceil(Math.max(...rows.map((p) => Math.abs(p.vlLevel - 100)))));
-      const renderRow = (p) => {
+      const rows = topFlopMode === "top" ? data.slice(0, 5) : data.slice(-5).reverse();
+
+      const row = (p) => {
         const delta = p.vlLevel - 100;
         const pos = delta >= 0;
-        const barWidth = `max(3px, ${((Math.abs(delta) / domain) * 100).toFixed(1)}%)`;
-        return `<button type="button" class="vl-diverge-row vl-row" data-topflop-row data-calque="vl-row" onclick="openDrawer(${p.id})">
-          <span class="vl-diverge-main" data-topflop-name>${escapeHtml(p.name)}</span>
-          <span class="vl-diverge-half vl-diverge-half-neg">${!pos ? `<span class="vl-diverge-bar" data-topflop-bar data-calque="vl-bar" style="width:${barWidth}"></span>` : ""}</span>
-          <span class="vl-diverge-half vl-diverge-half-pos" data-topflop-axis>${pos ? `<span class="vl-diverge-bar" data-topflop-bar data-calque="vl-bar" style="width:${barWidth}"></span>` : ""}</span>
-          <span class="vl-diverge-value" data-topflop-val data-calque="vl-val">${pos ? "+" : ""}${ptsFr(delta)}</span>
-        </button>`;
+        const w = Math.min(100, (Math.abs(p.vlLevel) / VL_MAX) * 100);
+        const pill = emitterPill(p.emetteur);
+        // Repère par ligne : capital garanti (st.s === "none") ou sans
+        // barrière → pas de repère du tout (§ 4.2).
+        const hasBar = p.st?.s !== "none" && Number.isFinite(Number(p.barrier)) && Number(p.barrier) > 0;
+        const marker = hasBar
+          ? `<span class="tf-marker" title="Barrière de protection du capital" style="left:${((Number(p.barrier) / VL_MAX) * 100).toFixed(2)}%"></span>`
+          : "";
+        // Écart et jauge en encre monochrome — audit § 2.3 : la trame
+        // d'encre est un acquis, le CODE a raison, jamais de couleur ici.
+        return `<button type="button" class="tf-row" onclick="openDrawer(${p.id})">
+            <span class="tf-row-top">
+              <span class="tf-name-wrap">${pill}<span class="tf-name">${escapeHtml(p.name)}</span></span>
+              <span class="tf-vl">${(p.vlLevel).toFixed(1).replace(".", ",")}</span>
+              <span class="tf-ecart">${pos ? "+" : ""}${ptsFr(delta)}</span>
+            </span>
+            <span class="tf-gauge">
+              <span class="tf-gauge-fill" style="width:${w.toFixed(1)}%"></span>
+              ${marker}
+            </span>
+          </button>`;
       };
-      c.innerHTML = `<div class="vl-head">
-          <span>Produit</span>
-          <span class="vl-head-neg">sous 100</span>
-          <span>au-dessus</span>
-          <span class="vl-head-neg">écart</span>
-        </div>
-        <div class="vl-rows">${rows.map(renderRow).join("")}</div>`;
+      c.innerHTML = rows.map(row).join("");
     }
 
     // ── LOT 6 — les trois widgets du premier plan (spec § 3–4, § 6 bis).
@@ -801,12 +853,104 @@
         .join("");
     }
 
+    // ── Les grands chiffres des trois dalles + l'odomètre (§ 4 bis) ──
+    // setDalleNum pose la valeur exacte (jamais un arrondi de la montée) et
+    // mémorise la cible ; runOdometer, une seule fois au premier rendu,
+    // fait monter les trois depuis 0 en 900 ms, courbe 1-(1-p)^4.
+    const odoTargets = {};
+    let odoDone = false;
+
+    function fmtDalleNum(id, value) {
+      const t = odoTargets[id] || { decimals: 0, unit: "" };
+      const txt = Number(value).toFixed(t.decimals).replace(".", ",");
+      const u = t.unit ? `<span class="dalle-num-u">${t.unit}</span>` : "";
+      return `${txt}${u}`;
+    }
+
+    function setDalleNum(id, value, { decimals = 0, unit = "" } = {}) {
+      odoTargets[id] = { value: Number(value) || 0, decimals, unit };
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = fmtDalleNum(id, Number(value) || 0);
+    }
+
+    function setFootLabel(id, label) {
+      const el = document.getElementById(id);
+      const lbl = el && el.querySelector(".dalle-foot-lbl");
+      if (lbl) lbl.textContent = label;
+    }
+
+    function runOdometer() {
+      if (odoDone) return;
+      odoDone = true;
+      const ids = ["dalle-a-num", "dalle-b-num", "dalle-c-num"].filter((id) => odoTargets[id]);
+      if (!ids.length) return;
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        ids.forEach((id) => { const el = document.getElementById(id); if (el) el.innerHTML = fmtDalleNum(id, odoTargets[id].value); });
+        return;
+      }
+      const t0 = performance.now();
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / 900);
+        const e = 1 - Math.pow(1 - p, 4);
+        ids.forEach((id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.innerHTML = p >= 1
+            ? fmtDalleNum(id, odoTargets[id].value)
+            : fmtDalleNum(id, odoTargets[id].value * e);
+        });
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    // Dalle C — « Événements de la semaine ». Source :
+    // buildProductCalendarEvents(), le même global que l'agenda du premier
+    // plan, filtré sur la semaine en cours.
+    function renderWeekEvents() {
+      const c = document.getElementById("dash-week-events");
+      if (!c) return;
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      const inWeek = (iso) => iso >= monday.toISOString().slice(0, 10) && iso <= sunday.toISOString().slice(0, 10);
+
+      const all = typeof root.buildProductCalendarEvents === "function" ? root.buildProductCalendarEvents() : [];
+      const evs = all.filter((e) => e._dateIso && inWeek(e._dateIso));
+
+      setDalleNum("dalle-c-num", evs.length, { decimals: 0 });
+      setText("dalle-c-num-ctx", "cette semaine");
+      setFootLabel("dalle-c-foot", "Ouvrir l'agenda");
+
+      if (!evs.length) { c.innerHTML = ""; return; }
+      const DOW = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
+      c.innerHTML = evs.map((e) => {
+        const d = new Date(`${e._dateIso}T00:00:00`);
+        const emet = String(e.desc || "").split(" · ").pop() || "";
+        const pill = emitterPill(emet);
+        const amt = e.amt || e.exposure || "";
+        return `<button type="button" class="we-row" onclick="openDrawer(${e.productId})">
+            <span class="we-date"><span class="we-dow">${DOW[(d.getDay() + 6) % 7]}</span><span class="we-num">${d.getDate()}</span></span>
+            <span class="we-main">
+              <span class="we-title-wrap">${pill}<span class="we-title">${escapeHtml(e.name || "")}</span></span>
+              <span class="we-detail">${escapeHtml(e.desc || "")}</span>
+            </span>
+            <span class="we-amt">${escapeHtml(amt)}</span>
+          </button>`;
+      }).join("");
+    }
+
     function renderDashboardModules() {
       renderIssuerExposure();
       renderVlTopFlop();
+      renderWeekEvents();
       renderEncoursFrame();
       renderAgendaWeek();
       renderTodayList();
+      runOdometer();
     }
 
     // Sous la protection du capital (specs/dashboard.md § 2.1, remplace
@@ -961,27 +1105,14 @@
       drawPerfChart();
     }
 
-    // Inclinaison au survol (passe 3) : cartes KPI du dashboard
-    // uniquement, jusqu'à 3° d'après la position du curseur dans la
-    // carte. Cartes statiques dans le HTML, liées une seule fois.
-    function bindKpiTilt() {
-      document.querySelectorAll("#view-dashboard .kpi.tilt").forEach((card) => {
-        card.addEventListener("mousemove", (e) => {
-          const r = card.getBoundingClientRect();
-          const rx = ((e.clientY - r.top) / r.height - 0.5) * -3;
-          const ry = ((e.clientX - r.left) / r.width - 0.5) * 3;
-          card.style.transform =
-            `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-3px)`;
-        });
-        card.addEventListener("mouseleave", () => { card.style.transform = ""; });
-      });
-    }
+    // L'inclinaison au survol des KPI du Dashboard est retirée au LOT 8 :
+    // la rangée .kpi-row sort du Dashboard, la fonction ne ciblait que
+    // « #view-dashboard .kpi.tilt » — code mort.
 
     if (typeof document !== "undefined") {
       setInterval(tick, 1000);
       tick();
       initTicker();
-      bindKpiTilt();
     }
 
     return {
@@ -1004,6 +1135,8 @@
       renderAgendaWeek,
       renderTodayList,
       setEncoursRange,
+      renderWeekEvents,
+      setTopFlop,
     };
   },
 );

@@ -13,8 +13,8 @@ import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5 && LOT !== 6 && LOT !== 7) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7');
+if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5 && LOT !== 6 && LOT !== 7 && LOT !== 8) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8');
   process.exit(2);
 }
 
@@ -73,6 +73,15 @@ const AUTORISES = LOT === 1
           join(SRC, 'shell.css'),
           join(SRC, 'dashboard.css'),
           join(SRC, 'relief.css'),
+          join(SRC, 'modules', 'app-dashboard.js'),
+          INDEX,
+        ]
+      : LOT === 8
+      ? [
+          // lot 8, § 7 : le plâtre — dashboard.css, index.html (les trois
+          // dalles + retrait de .kpi-row), app-dashboard.js (les rendus
+          // + odomètre, retrait de bindKpiTilt).
+          join(SRC, 'dashboard.css'),
           join(SRC, 'modules', 'app-dashboard.js'),
           INDEX,
         ]
@@ -355,6 +364,81 @@ if (LOT === 7) {
     const NH = 640; // valeur de --nappe-h
     verifier('hauteur de .dash-avant = --nappe-h', `${NH} / ${NH}`, `${jour.avantH} / ${nuit.avantH}`, 'jour / nuit');
     verifier('kpi-row top − dash-avant bottom = 54', '54 / 54', `${jour.ecart} / ${nuit.ecart}`, 'jour / nuit');
+  } catch (e) {
+    verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
+  }
+}
+
+/* — lot 08 : le plâtre — § 8 — statiques + deux mesures DOM. */
+if (LOT === 8) {
+  const dash = lire(join(SRC, 'dashboard.css')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const html = lire(INDEX).replace(/<!--[\s\S]*?-->/g, '');
+  const app = lire(join(SRC, 'modules', 'app-dashboard.js'));
+
+  // 8.1 — aucun backdrop-filter sous un sélecteur du plâtre
+  const bfPlatre = dash.split('}').filter((b) => {
+    const sel = b.split('{')[0] || '';
+    return /backdrop-filter\s*:/.test(b) && /(\.dash-platre|\.dalle\b|\.dalle-|\.dash-perf|\.dash-alerts|\.conc-|\.tf-|\.we-|\.week-)/.test(sel);
+  });
+  verifier('backdrop-filter dans le plâtre', 0, bfPlatre.length, bfPlatre.map((b) => b.split('{')[0].trim()).join(' | ').slice(0, 200));
+
+  // 8.3 — les trois dalles portent trois fonds distincts
+  const dalleBg = ['a', 'b', 'c'].map((k) => {
+    const m = dash.match(new RegExp(`\\.dalle-${k}\\s*\\{[^}]*background:\\s*var\\(--dalle-${k}\\)`, 's'));
+    return m ? `--dalle-${k}` : '';
+  }).filter(Boolean);
+  verifier('les trois dalles : trois fonds --dalle-a/b/c', 3, dalleBg.length, dalleBg.join(', '));
+
+  // 8.4 — aucun .kpi sous #view-dashboard ; aucun bindKpiTilt au dépôt
+  const dashView = (html.match(/<div class="view active" id="view-dashboard">[\s\S]*?\n {16}<\/div>/) || [''])[0]
+    || html.slice(html.indexOf('id="view-dashboard"'), html.indexOf('id="view-portfolio"'));
+  verifier('aucun .kpi sous #view-dashboard', 0, (dashView.match(/class="kpi[ "]/g) || []).length);
+  verifier('bindKpiTilt retiré', 0,
+    fichiers.reduce((n, f) => n + (lire(f).match(/bindKpiTilt\s*\(/g) || []).length, 0));
+
+  // 8.6 — tout cliquable des trois dalles est un button (zéro div cursor:pointer sous le plâtre)
+  const platreCursor = dash.split('}').filter((b) => {
+    const sel = b.split('{')[0] || '';
+    return /cursor\s*:\s*pointer/.test(b) &&
+      /(\.dalle|\.conc-|\.tf-|\.we-|\.topflop|\.dash-platre)/.test(sel) &&
+      !/button|\.dalle-foot|\.topflop-btn|\.tf-row|\.we-row/.test(sel);
+  });
+  verifier('cursor:pointer hors button sous le plâtre', 0, platreCursor.length, platreCursor.map((b) => b.split('{')[0].trim()).join(' | ').slice(0, 160));
+
+  // odomètre : une seule rAF, pas de seconde boucle
+  verifier('odomètre : une requestAnimationFrame', true, /function runOdometer\(\)/.test(app) && /matchMedia\(/.test(app));
+
+  // 8.7 / 8.8 — mesures DOM
+  try {
+    const { createServer } = await import('node:http');
+    const { chromium } = await import('playwright');
+    const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json' };
+    const srv = createServer((req, res) => {
+      const p = join(process.cwd(), decodeURIComponent(req.url.split('?')[0]));
+      try { const body = readFileSync(p); res.writeHead(200, { 'content-type': TYPES[p.slice(p.lastIndexOf('.'))] || 'application/octet-stream' }); res.end(body); }
+      catch { res.writeHead(404); res.end(); }
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const port = srv.address().port;
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
+    await page.waitForSelector('.dash-platre .dalle', { timeout: 10000 });
+    await page.waitForTimeout(1400);
+    const m = await page.evaluate(() => {
+      const g = document.querySelector('.dash-platre');
+      const cols = getComputedStyle(g).gridTemplateColumns.split(' ').map((v) => Math.round(parseFloat(v)));
+      const foots = [...document.querySelectorAll('.dash-platre .dalle-foot')].map((b) => Math.round(b.getBoundingClientRect().height));
+      const first = document.querySelector('.dash-platre').getBoundingClientRect();
+      const vd = document.querySelector('#view-dashboard').getBoundingClientRect();
+      return { cols, foots, gap: Math.round(parseFloat(getComputedStyle(g).columnGap)), platreTop: Math.round(first.top - vd.top) };
+    });
+    await browser.close();
+    await new Promise((r) => srv.close(r));
+    const eq = m.cols.length === 3 && Math.max(...m.cols) - Math.min(...m.cols) <= 1;
+    verifier('.dash-platre : 3 colonnes égales (±1px)', true, eq, m.cols.join(' / '));
+    verifier('pieds de dalle ≥ 44px', true, m.foots.length === 3 && m.foots.every((h) => h >= 44), m.foots.join(' / '));
+    verifier('.dash-platre : gap 22', 22, m.gap);
   } catch (e) {
     verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
   }
