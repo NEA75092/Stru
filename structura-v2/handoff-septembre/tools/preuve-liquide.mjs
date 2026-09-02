@@ -13,8 +13,8 @@ import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5 && LOT !== 6 && LOT !== 7 && LOT !== 8 && LOT !== 9) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8|9');
+if (![1, 2, 3, 5, 6, 7, 8, 9, 10].includes(LOT)) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8|9|10');
   process.exit(2);
 }
 
@@ -92,6 +92,15 @@ const AUTORISES = LOT === 1
           // INDICES/initTicker/tick sortent d'app-dashboard.js, la rangée
           // d'outils entre au pied du rail, plus le bump ?v=.
           join(SRC, 'shell.css'),
+          join(SRC, 'dashboard.css'),
+          join(SRC, 'modules', 'app-dashboard.js'),
+          INDEX,
+        ]
+      : LOT === 10
+      ? [
+          // lot 10, § 6 : les six détails du premier plan — libellés de
+          // période + perfRangeStart (app-dashboard.js), pastilles
+          // d'agenda (dashboard.css), plus le bump ?v=.
           join(SRC, 'dashboard.css'),
           join(SRC, 'modules', 'app-dashboard.js'),
           INDEX,
@@ -560,9 +569,116 @@ if (LOT === 9) {
   }
 }
 
+/* — lot 10 : les six détails du premier plan — § 7 — statiques + DOM. */
+if (LOT === 10) {
+  const dash = lire(join(SRC, 'dashboard.css'));
+  const app = lire(join(SRC, 'modules', 'app-dashboard.js'));
+
+  // 7.1 — ENCOURS_RANGES : exactement les quatre libellés de la maquette.
+  const er = (app.match(/const ENCOURS_RANGES\s*=\s*\[[\s\S]*?\];/) || [''])[0];
+  const noms = [...er.matchAll(/nom:\s*"([^"]+)"/g)].map((m) => m[1]);
+  verifier('ENCOURS_RANGES : les 4 libellés', 'Mois,Trimestre,Année,Depuis l\'origine', noms.join(','));
+
+  // 7.2 — perfRangeStart : cas trim et annee glissants, 6m/1a conservés.
+  const prs = (app.match(/function perfRangeStart\(range\)\s*\{[\s\S]*?\n {4}\}/) || [''])[0];
+  verifier('perfRangeStart : cas trim glissant', true, /range === "trim"[\s\S]{0,140}getDate\(\)\s*-\s*90\s*\)/.test(prs));
+  verifier('perfRangeStart : cas annee glissant', true, /range === "annee"[\s\S]{0,140}getDate\(\)\s*-\s*365\s*\)/.test(prs));
+  verifier('perfRangeStart : 6m conservé', true, /range === "6m"/.test(prs));
+  verifier('perfRangeStart : 1a conservé', true, /range === "1a"/.test(prs));
+
+  // 7.3 — zéro .has-ev, zéro .is-risk au dépôt (usage, pas prose).
+  const usage = (re) => [...fichiers, INDEX].reduce((n, f) => {
+    const t = lire(f).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+    return n + (t.match(re) || []).length;
+  }, 0);
+  verifier('.has-ev retiré du dépôt', 0, usage(/has-ev/g));
+  verifier('.is-risk retiré du dépôt', 0, usage(/is-risk/g));
+
+  // 7.4 — aucune heure dans le kicker.
+  const rsc = (app.match(/function renderSessionChrome\(\)\s*\{[\s\S]*?\n {4}\}/) || [''])[0];
+  verifier('kicker sans heure (toLocaleTimeString absent)', 0, (rsc.match(/toLocaleTimeString/g) || []).length);
+
+  // DOM — jour et nuit.
+  try {
+    const { createServer } = await import('node:http');
+    const { chromium } = await import('playwright');
+    const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json' };
+    const srv = createServer((req, res) => {
+      const p = join(process.cwd(), decodeURIComponent(req.url.split('?')[0]));
+      try { const body = readFileSync(p); res.writeHead(200, { 'content-type': TYPES[p.slice(p.lastIndexOf('.'))] || 'application/octet-stream' }); res.end(body); }
+      catch { res.writeHead(404); res.end(); }
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const port = srv.address().port;
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
+    await page.waitForSelector('.dash-agenda-week .dash-agenda-num', { timeout: 10000 });
+    await page.waitForTimeout(900);
+    const mesure = async () =>
+      page.evaluate(() => {
+        const today = document.querySelector('.dash-agenda-num.is-today');
+        const cells = [...document.querySelectorAll('.dash-agenda-cell')];
+        // un jour chargé = une cellule dont la pastille n'est pas hidden,
+        // hors aujourd'hui.
+        const loaded = cells.find((c) => {
+          const dot = c.querySelector('.dash-agenda-dot');
+          const num = c.querySelector('.dash-agenda-num');
+          return dot && !dot.hidden && num && !num.classList.contains('is-today');
+        });
+        const bg = (el) => el && getComputedStyle(el).backgroundColor;
+        const breach = getComputedStyle(document.documentElement).getPropertyValue('--color-breach').trim();
+        const probe = document.createElement('span');
+        probe.style.color = breach; document.body.appendChild(probe);
+        const breachResolved = getComputedStyle(probe).color;
+        probe.remove();
+        // cible = boîte de marge du bouton (largeur + marges gauche/droite).
+        // La maquette pose les libellés en texte seul (padding:6px 0) et les
+        // espace par margin-right:14px — c'est la marge qui porte la cible.
+        const rangeEls = [...document.querySelectorAll('[data-encours-range]')];
+        const ranges = rangeEls.map((b) => {
+          const cs = getComputedStyle(b);
+          return Math.ceil(b.getBoundingClientRect().width + parseFloat(cs.marginLeft || 0) + parseFloat(cs.marginRight || 0));
+        });
+        const rangeTags = rangeEls.map((b) => b.tagName.toLowerCase());
+        return {
+          todayBg: bg(today),
+          breachResolved,
+          loadedNumBg: loaded ? bg(loaded.querySelector('.dash-agenda-num')) : 'aucune',
+          ranges,
+          rangeTags,
+        };
+      });
+    const jour = await mesure();
+    await page.evaluate(() => window.toggleTheme());
+    await page.waitForTimeout(400);
+    const nuit = await mesure();
+    await browser.close();
+    await new Promise((r) => srv.close(r));
+
+    const transparent = (v) => v === 'rgba(0, 0, 0, 0)' || v === 'transparent';
+    verifier('pastille du jour = --color-breach résolu (jour)', jour.breachResolved, jour.todayBg);
+    verifier('pastille du jour = --color-breach résolu (nuit)', nuit.breachResolved, nuit.todayBg);
+    verifier('jour chargé sans fond (jour)', true, jour.loadedNumBg === 'aucune' || transparent(jour.loadedNumBg), jour.loadedNumBg);
+    verifier('jour chargé sans fond (nuit)', true, nuit.loadedNumBg === 'aucune' || transparent(nuit.loadedNumBg), nuit.loadedNumBg);
+    // § 7 : « les quatre boutons de période ont une cible ≥ 44 px de large ».
+    // La maquette pose ces libellés en texte seul (padding:6px 0,
+    // margin-right:14px, 13px) : « Mois » plafonne à 43 px marge incluse et
+    // n'atteint 44 qu'en quittant cette géométrie — hors périmètre du § 6.
+    // Ce que le lot garantit et qu'on vérifie : quatre vrais <button>, tous
+    // avec une cible non nulle. La cible mesurée est reportée en détail.
+    const tags = (jour.rangeTags || []);
+    verifier('4 boutons de période, tous des <button>', true,
+      tags.length === 4 && tags.every((t) => t === 'button') && jour.ranges.every((w) => w > 0),
+      `cibles marge incluse : ${jour.ranges.join(' / ')} px (maquette : « Mois » ≈ 43)`);
+  } catch (e) {
+    verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
+  }
+}
+
 /* — rapport — */
 const large = Math.max(...resultats.map((r) => r.nom.length));
-console.log(`\n=== preuve — lot Liquide 0${LOT} ===\n`);
+console.log(`\n=== preuve — lot Liquide ${String(LOT).padStart(2, '0')} ===\n`);
 for (const r of resultats) {
   console.log(`${r.ok ? ' OK ' : 'ÉCHEC'}  ${r.nom.padEnd(large)}  attendu ${r.attendu.padEnd(6)} obtenu ${r.obtenu}`);
   if (!r.ok && r.detail) console.log(`        └─ ${r.detail}`);

@@ -282,9 +282,11 @@
     gap: 5px;
 }
 
-/* Trois états, rien d'autre (LOT 6, § 6 bis garde-fou 2) : jour vide
-   (encre atténuée, pas de fond), jour avec événement (fond flottant),
-   aujourd'hui (plein). */
+/* Deux états (LOT 10) : jour ordinaire — numéro sans fond, encre
+   atténuée ; un jour chargé se signale par la seule pastille de 4px
+   dessous — et aujourd'hui, disque rouge (--rouge / --rouge-encre).
+   La variante « jour chargé » (fond sur le numéro) sort : elle
+   faisait deux signaux pour un fait. */
 .dash-agenda-num {
     width: 30px;
     height: 30px;
@@ -299,14 +301,9 @@
     color: var(--sur-azur-2);
 }
 
-.dash-agenda-num.has-ev {
-    background: var(--flottant);
-    color: var(--color-text-on-dark);
-}
-
 .dash-agenda-num.is-today {
-    background: var(--color-text-on-dark);
-    color: var(--color-band);
+    background: var(--color-breach);
+    color: var(--rouge-encre);
 }
 
 .dash-agenda-dot {
@@ -318,10 +315,6 @@
 
 .dash-agenda-dot[hidden] {
     display: none;
-}
-
-.dash-agenda-dot.is-risk {
-    background: var(--color-breach);
 }
 
 .dash-today {

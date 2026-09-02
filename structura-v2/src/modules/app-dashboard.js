@@ -281,6 +281,20 @@
         d.setDate(d.getDate() - 30);
         return d;
       }
+      // LOT 10 : deux fenêtres glissantes de plus pour le cadre d'encours
+      // (Trimestre − 90 j, Année − 365 j) — même forme que « Mois », aucune
+      // branche calendaire. Les cas 6m / 1a plus bas restent tels quels :
+      // la dalle de performance du plâtre les consomme.
+      if (range === "trim") {
+        const d = new Date(now);
+        d.setDate(d.getDate() - 90);
+        return d;
+      }
+      if (range === "annee") {
+        const d = new Date(now);
+        d.setDate(d.getDate() - 365);
+        return d;
+      }
       if (range === "ytd") return new Date(now.getFullYear(), 0, 1);
       if (range === "6m") {
         const d = new Date(now);
@@ -651,9 +665,9 @@
 
     const ENCOURS_RANGES = [
       { key: "month", nom: "Mois" },
-      { key: "6m", nom: "6M" },
-      { key: "1a", nom: "1A" },
-      { key: "all", nom: "Tout" },
+      { key: "trim", nom: "Trimestre" },
+      { key: "annee", nom: "Année" },
+      { key: "all", nom: "Depuis l'origine" },
     ];
     let encoursRange = "month";
 
@@ -772,14 +786,13 @@
         const iso = d.toISOString().slice(0, 10);
         const evs = byDay.get(iso) || [];
         const isToday = iso === todayIso;
-        const numCls = isToday
-          ? " is-today"
-          : evs.length
-            ? " has-ev"
-            : "";
-        const risk = evs.some((e) => e.type === "bar" || e.type === "mat");
+        // LOT 10 : deux états seulement — aujourd'hui (disque rouge) ou
+        // rien. Un jour chargé garde son numéro sans fond ; il se signale
+        // par la seule pastille de 4px dessous, en une seule couleur (la
+        // variante de risque de la pastille sort — deux signaux pour un fait).
+        const numCls = isToday ? " is-today" : "";
         const dot = evs.length
-          ? `<span class="dash-agenda-dot${risk ? " is-risk" : ""}"></span>`
+          ? `<span class="dash-agenda-dot"></span>`
           : `<span class="dash-agenda-dot" hidden></span>`;
         dows += `<span class="dash-agenda-dow">${DOW[i]}</span>`;
         cells += `<span class="dash-agenda-cell"><span class="dash-agenda-num${numCls}">${d.getDate()}</span>${dot}</span>`;
