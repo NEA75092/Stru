@@ -1096,7 +1096,12 @@
     display: flex;
     flex-direction: column;
     gap: 44px;
-    padding: 40px 44px 44px;
+    /* Une seule valeur entre l'eau et la première dalle, portée par le
+       plâtre — comme la maquette (l. 246 : margin: 54px 28px). Plus de
+       padding-top qui s'ajoutait au gap de vue (lot-liquide-07 § 2).
+       Le 28 latéral coïncide avec celui du premier plan. */
+    margin: 54px 28px;
+    padding: 0;
 }
 
 .dash-body-row {

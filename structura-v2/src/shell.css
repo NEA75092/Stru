@@ -320,6 +320,14 @@
     display: flex;
 }
 
+/* Le Dashboard a deux plans (premier plan, plâtre), pas une pile
+   d'étapes : ils ne prennent pas le gap de vue. La maquette n'a qu'une
+   marge entre l'eau et le plâtre, portée par le plâtre lui-même
+   (lot-liquide-07 § 2). Les huit autres écrans gardent .view { gap }. */
+#view-dashboard {
+    gap: 0;
+}
+
 /* ── La nappe — §4. Ordre des huit couches obligatoire : le fondu est
    toujours dernier, c'est lui qui raccorde l'eau au plâtre.
 

@@ -310,11 +310,15 @@
     function perfRangeStart(range) {
       const now = new Date();
       now.setHours(0, 0, 0, 0);
-      // LOT 6 : le cadre d'encours du premier plan lit la MÊME série que
-      // le graphe du plâtre (garde-fou § 6 bis nº 1), avec une fenêtre
-      // « mois courant » par défaut. Pas une série de plus, une fenêtre
-      // de plus.
-      if (range === "month") return new Date(now.getFullYear(), now.getMonth(), 1);
+      // LOT 6/7 : le cadre d'encours lit la MÊME série que le graphe du
+      // plâtre (garde-fou § 6 bis nº 1), avec une fenêtre « Mois ». LOT 7 :
+      // fenêtre GLISSANTE de 30 jours — même forme que 6m/1a, aucune
+      // branche calendaire, sinon la carte est vide le 1er du mois.
+      if (range === "month") {
+        const d = new Date(now);
+        d.setDate(d.getDate() - 30);
+        return d;
+      }
       if (range === "ytd") return new Date(now.getFullYear(), 0, 1);
       if (range === "6m") {
         const d = new Date(now);
