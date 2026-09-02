@@ -13,8 +13,8 @@ import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5 && LOT !== 6 && LOT !== 7 && LOT !== 8) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8');
+if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5 && LOT !== 6 && LOT !== 7 && LOT !== 8 && LOT !== 9) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8|9');
   process.exit(2);
 }
 
@@ -81,6 +81,17 @@ const AUTORISES = LOT === 1
           // lot 8, § 7 : le plâtre — dashboard.css, index.html (les trois
           // dalles + retrait de .kpi-row), app-dashboard.js (les rendus
           // + odomètre, retrait de bindKpiTilt).
+          join(SRC, 'dashboard.css'),
+          join(SRC, 'modules', 'app-dashboard.js'),
+          INDEX,
+        ]
+      : LOT === 9
+      ? [
+          // lot 9, § 5 : la coquille sans en-tête — .header sort de
+          // shell.css et d'index.html, le ticker sort de dashboard.css,
+          // INDICES/initTicker/tick sortent d'app-dashboard.js, la rangée
+          // d'outils entre au pied du rail, plus le bump ?v=.
+          join(SRC, 'shell.css'),
           join(SRC, 'dashboard.css'),
           join(SRC, 'modules', 'app-dashboard.js'),
           INDEX,
@@ -439,6 +450,111 @@ if (LOT === 8) {
     verifier('.dash-platre : 3 colonnes égales (±1px)', true, eq, m.cols.join(' / '));
     verifier('pieds de dalle ≥ 44px', true, m.foots.length === 3 && m.foots.every((h) => h >= 44), m.foots.join(' / '));
     verifier('.dash-platre : gap 22', 22, m.gap);
+  } catch (e) {
+    verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
+  }
+}
+
+/* — lot 09 : la coquille sans en-tête — § 6 — statiques + deux mesures DOM. */
+if (LOT === 9) {
+  const shell = lire(join(SRC, 'shell.css'));
+  const shellNu = shell.replace(/\/\*[\s\S]*?\*\//g, '');
+  const dash = lire(join(SRC, 'dashboard.css'));
+  const app = lire(join(SRC, 'modules', 'app-dashboard.js'));
+  const html = lire(INDEX);
+
+  // 6.1 — zéro trace des morceaux de l'ancien bandeau dans tout le dépôt.
+  //  INDICES est cadré sur l'usage JS (= ou .) pour ne pas mordre sur le
+  //  commentaire « INDICES STANDARD » d'index-registry.js.
+  const TRACES = [
+    ['header-ticker', /header-ticker/g],
+    ['live-badge', /live-badge/g],
+    ['live-dot', /live-dot/g],
+    ['id="clk"', /id="clk"|getElementById\(\s*["']clk["']\s*\)|#clk\b/g],
+    ['id="dt-str"', /id="dt-str"|getElementById\(\s*["']dt-str["']\s*\)|#dt-str\b/g],
+    ['id="ticker"', /id="ticker"|getElementById\(\s*["']ticker["']\s*\)|#ticker\b/g],
+    ['initTicker', /initTicker/g],
+    ['INDICES (usage JS)', /\bINDICES\s*[=.]/g],
+    ['ticker-scroll', /ticker-scroll/g],
+    ['header-divider', /header-divider/g],
+    ['header-right', /header-right/g],
+    ['user-pill', /user-pill/g],
+    ['user-avatar', /\buser-avatar\b/g],
+    ['user-meta', /user-meta/g],
+    ['date-str', /\bdate-str\b/g],
+    ['.clock', /\.clock\b/g],
+  ];
+  for (const [nom, re] of TRACES) {
+    const ou = [];
+    for (const f of [...fichiers, INDEX]) {
+      const t = lire(f);
+      const n = (t.match(re) || []).length;
+      if (n) ou.push(`${f} (${n})`);
+    }
+    verifier(`trace « ${nom} »`, 0, ou.reduce((s, x) => s + Number(x.match(/\((\d+)\)/)[1]), 0), ou.join(', '));
+  }
+
+  // 6.2 — aucune règle .header restante dans shell.css (commentaires ôtés).
+  const reglesHeader = (shellNu.match(/(^|[\s,}])\.header[\w-]*\s*(,|\{)/g) || []);
+  verifier('règle .header dans shell.css', 0, reglesHeader.length, reglesHeader.map((s) => s.trim()).join(' | '));
+
+  // 6.3 — les quatre outils du rail sont des <button> ; zéro div cliquable.
+  const toolsBloc = (html.match(/<div class="sidebar-tools">[\s\S]*?\n {16}<\/div>/) || [''])[0];
+  const nbButtons = (toolsBloc.match(/<button\b/g) || []).length;
+  const divCliquables = (toolsBloc.match(/<div[^>]*\bonclick|<div[^>]*role="button"|<span[^>]*\bonclick/g) || []).length;
+  verifier('rangée d\'outils : 4 boutons', 4, nbButtons, toolsBloc ? '' : 'bloc .sidebar-tools introuvable');
+  verifier('rangée d\'outils : 0 div/span cliquable', 0, divCliquables);
+
+  // 6.4 — .sidebar-nav n'a plus flex: 1.
+  const navRule = (shellNu.match(/\.sidebar-nav\s*\{[^}]*\}/s) || [''])[0];
+  verifier('.sidebar-nav sans flex: 1', 0, (navRule.match(/flex:\s*1\b/g) || []).length, navRule.replace(/\s+/g, ' ').slice(0, 160));
+
+  // 6.5 / 6.6 — mesures DOM, jour et nuit.
+  try {
+    const { createServer } = await import('node:http');
+    const { chromium } = await import('playwright');
+    const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json' };
+    const srv = createServer((req, res) => {
+      const p = join(process.cwd(), decodeURIComponent(req.url.split('?')[0]));
+      try { const body = readFileSync(p); res.writeHead(200, { 'content-type': TYPES[p.slice(p.lastIndexOf('.'))] || 'application/octet-stream' }); res.end(body); }
+      catch { res.writeHead(404); res.end(); }
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const port = srv.address().port;
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
+    await page.waitForSelector('.sidebar-tools .sidebar-tool', { timeout: 10000 });
+    const mesure = async () =>
+      page.evaluate(() => {
+        const shellEl = document.querySelector('.app-shell');
+        const shell = shellEl.getBoundingClientRect();
+        // bord intérieur du cadre : la coque porte 1px de bordure en haut,
+        // l'eau commence juste dessous — « plus rien au-dessus » se mesure
+        // donc au bord intérieur, pas au bord de la boîte.
+        const bt = parseFloat(getComputedStyle(shellEl).borderTopWidth) || 0;
+        const main = document.querySelector('.main').getBoundingClientRect();
+        const tools = [
+          ...document.querySelectorAll('.sidebar-tools .sidebar-tool'),
+          document.querySelector('.sidebar-tools .sidebar-profile'),
+        ].filter(Boolean).map((b) => {
+          const r = b.getBoundingClientRect();
+          return [Math.round(r.width), Math.round(r.height)];
+        });
+        return { ecartHaut: Math.round(main.top - shell.top - bt), tools };
+      });
+    await page.waitForTimeout(600);
+    const jour = await mesure();
+    await page.evaluate(() => window.toggleTheme());
+    await page.waitForTimeout(400);
+    const nuit = await mesure();
+    await browser.close();
+    await new Promise((r) => srv.close(r));
+
+    verifier('haut de l\'eau = haut de la vue (0 px)', '0 / 0', `${jour.ecartHaut} / ${nuit.ecartHaut}`, 'jour / nuit');
+    const ok44 = (m) => m.tools.length === 4 && m.tools.every(([w, h]) => w >= 44 && h >= 44);
+    verifier('4 cibles du rail ≥ 44 × 44 (jour)', true, ok44(jour), jour.tools.map((t) => t.join('×')).join(' '));
+    verifier('4 cibles du rail ≥ 44 × 44 (nuit)', true, ok44(nuit), nuit.tools.map((t) => t.join('×')).join(' '));
   } catch (e) {
     verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
   }

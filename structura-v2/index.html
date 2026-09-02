@@ -21,10 +21,10 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="./src/design-tokens.css?v=20260901a" />
-        <link rel="stylesheet" href="./src/shell.css?v=20260902a" />
+        <link rel="stylesheet" href="./src/shell.css?v=20260902d" />
         <link rel="stylesheet" href="./src/controls.css?v=20260805b" />
         <link rel="stylesheet" href="./src/overlays.css?v=20260831a" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260902c" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260902d" />
         <link rel="stylesheet" href="./src/tables.css?v=20260831a" />
         <link rel="stylesheet" href="./src/views.css?v=20260831a" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260831a" />
@@ -117,15 +117,26 @@
                         + Nouveau produit
                     </button>
                 </div>
-            </aside>
-
-            <div class="app-shell">
-            <div class="header">
-                <div class="header-divider" aria-hidden="true"></div>
-                <div class="header-ticker" id="ticker"></div>
-                <div class="header-right">
+                <div class="sidebar-tools">
                     <button
-                        class="theme-toggle"
+                        type="button"
+                        class="sidebar-tool"
+                        title="Recherche"
+                        aria-label="Recherche"
+                    >
+                        <svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13.2 13.2 17 17"/></svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="sidebar-tool"
+                        title="Notifications"
+                        aria-label="Notifications"
+                    >
+                        <svg viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12" rx="3.4"/></svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="sidebar-tool theme-toggle"
                         id="theme-toggle"
                         onclick="toggleTheme()"
                         aria-label="Activer le thème sombre"
@@ -133,24 +144,18 @@
                     >
                         <svg viewBox="0 0 20 20"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"/></svg>
                     </button>
-                    <div class="user-pill header-user-pill" id="session-user-pill">
-                        <span class="user-avatar" id="session-avatar">CG</span>
-                        <span class="user-meta">
-                            <strong id="session-user-name">Conseiller</strong>
-                            <small id="session-user-role">CGP</small>
-                        </span>
-                    </div>
-                    <div class="live-badge">
-                        <div class="live-dot"></div>
-                        LIVE
-                    </div>
-                    <div>
-                        <div class="clock" id="clk">--:--:--</div>
-                        <div class="date-str" id="dt-str">Paris · CET</div>
-                    </div>
+                    <button
+                        type="button"
+                        class="sidebar-profile"
+                        id="session-profile"
+                        title="Conseiller"
+                    >
+                        <span class="sidebar-profile-disc" id="session-avatar">CG</span>
+                    </button>
                 </div>
-            </div>
+            </aside>
 
+            <div class="app-shell">
             <div class="main">
                 <div class="nappe" aria-hidden="true">
                     <div class="nappe-eau"></div>

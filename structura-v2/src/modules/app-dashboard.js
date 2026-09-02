@@ -21,20 +21,6 @@
       isoDate,
     } = root.StructuraAppState;
 
-    const INDICES = [
-      { l: "CAC 40", v: 7893.42, d: +0.48 },
-      { l: "EURO STOXX 50", v: 4487.12, d: -0.31 },
-      { l: "DAX 40", v: 17920.34, d: +0.62 },
-      { l: "S&P 500", v: 5284.12, d: +0.22 },
-      { l: "NASDAQ", v: 16742.8, d: +0.35 },
-      { l: "VIX", v: 14.82, d: -5.2 },
-      { l: "EUR/USD", v: 1.0841, d: +0.12 },
-      { l: "OAT 10a", v: pctFr(3.12, 2), d: null },
-      { l: "TOTAL", v: 62.41, d: +1.15 },
-      { l: "LVMH", v: 742.3, d: -0.42 },
-      { l: "NVIDIA", v: 875.2, d: +1.8 },
-    ];
-
     const GUARANTOR_ALIASES = [
       { label: "Bank of America", re: /bank\s+of\s+america|bofa|merrill|\bbac\b/i },
       { label: "Barclays", re: /barclays/i },
@@ -124,16 +110,6 @@
       return match ? `issuer-${match.id.toLowerCase()}` : "";
     }
 
-    function initTicker() {
-      const c = document.getElementById("ticker");
-      if (!c) return;
-      const items = INDICES.map(
-        (i) =>
-          `<div class="ticker-item"><span class="ticker-label">${i.l}</span><span class="ticker-val">${typeof i.v === "number" ? i.v.toLocaleString("fr-FR") : i.v}</span>${i.d !== null ? `<span class="ticker-chg ${i.d >= 0 ? "up" : "dn"}">${i.d >= 0 ? "▲" : "▼"}${pctFr(Math.abs(i.d), 2)}</span>` : ""}</div>`,
-      ).join("");
-      c.innerHTML = `<div class="ticker-track">${items}${items}</div>`;
-    }
-
     // Date la plus récente de VL émetteur reçue sur le périmètre affiché —
     // pas une date arbitraire, celle du dernier flux réellement encaissé.
     // Vide en mode démo (vlAsOf n'est renseigné que pour les VL "issuer").
@@ -158,9 +134,9 @@
           ? `mis à jour le ${shortDateFr(vlAsOf)} · ${session.orgName}`
           : `mise à jour non disponible · ${session.orgName}`,
       );
-      setText("session-user-name", session.advisorName || "Conseiller");
-      setText("session-user-role", session.role || "CGP");
       setText("session-avatar", sessionInitials(session.advisorName));
+      const pill = document.getElementById("session-profile");
+      if (pill) pill.title = session.advisorName || "Conseiller";
       setText("session-headline", `${greeting} ${session.advisorName}`);
     }
 
@@ -244,20 +220,6 @@
           : "Mode demo: produits exemple visibles",
         "ok",
       );
-    }
-
-    function tick() {
-      const n = new Date();
-      const clk = document.getElementById("clk");
-      const dt = document.getElementById("dt-str");
-      if (clk) clk.textContent = n.toLocaleTimeString("fr-FR");
-      if (dt)
-        dt.textContent = n.toLocaleDateString("fr-FR", {
-          weekday: "short",
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        });
     }
 
     let perfRange = "ytd";
@@ -1109,14 +1071,7 @@
     // la rangée .kpi-row sort du Dashboard, la fonction ne ciblait que
     // « #view-dashboard .kpi.tilt » — code mort.
 
-    if (typeof document !== "undefined") {
-      setInterval(tick, 1000);
-      tick();
-      initTicker();
-    }
-
     return {
-      initTicker,
       renderDashboardSummary,
       updateAppModeUI,
       toggleAppMode,
