@@ -349,6 +349,9 @@ if (LOT === 7) {
   // l'écran (le --lot 7 v1 était vert alors que la dalle était 82 px trop
   // bas). Serveur statique éphémère + Chromium via playwright ; si l'un
   // manque, c'est un ÉCHEC visible, pas un silence.
+  // Le repère du bas était .kpi-row ; le LOT 8 l'a retirée. On mesure
+  // désormais .dash-body, qui porte le même margin-top de 54 px et reste
+  // le premier bloc après la nappe.
   try {
     const { createServer } = await import('node:http');
     const { chromium } = await import('playwright');
@@ -366,11 +369,11 @@ if (LOT === 7) {
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
-    await page.waitForSelector('#view-dashboard .kpi-row', { timeout: 10000 });
+    await page.waitForSelector('#view-dashboard .dash-body', { timeout: 10000 });
     const mesure = async () =>
       page.evaluate(() => {
         const a = document.querySelector('.dash-avant').getBoundingClientRect();
-        const k = document.querySelector('.kpi-row').getBoundingClientRect();
+        const k = document.querySelector('#view-dashboard .dash-body').getBoundingClientRect();
         return { avantH: Math.round(a.height), ecart: Math.round(k.top - a.bottom) };
       });
     await page.waitForTimeout(1400);
@@ -383,7 +386,7 @@ if (LOT === 7) {
 
     const NH = 640; // valeur de --nappe-h
     verifier('hauteur de .dash-avant = --nappe-h', `${NH} / ${NH}`, `${jour.avantH} / ${nuit.avantH}`, 'jour / nuit');
-    verifier('kpi-row top − dash-avant bottom = 54', '54 / 54', `${jour.ecart} / ${nuit.ecart}`, 'jour / nuit');
+    verifier('dash-body top − dash-avant bottom = 54', '54 / 54', `${jour.ecart} / ${nuit.ecart}`, 'jour / nuit');
   } catch (e) {
     verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
   }
