@@ -13,8 +13,8 @@ import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5 && LOT !== 6) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6');
+if (LOT !== 1 && LOT !== 2 && LOT !== 3 && LOT !== 5 && LOT !== 6 && LOT !== 7) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7');
   process.exit(2);
 }
 
@@ -62,6 +62,15 @@ const AUTORISES = LOT === 1
           TOKENS,
           join(SRC, 'dashboard.css'),
           join(SRC, 'relief.css'),
+          join(SRC, 'modules', 'app-dashboard.js'),
+          INDEX,
+        ]
+      : LOT === 7
+      ? [
+          // lot 7, § 5 : le vide sous la nappe (shell + dashboard) et la
+          // fenêtre Mois (app-dashboard.js), plus le bump ?v=.
+          join(SRC, 'shell.css'),
+          join(SRC, 'dashboard.css'),
           join(SRC, 'modules', 'app-dashboard.js'),
           INDEX,
         ]
@@ -274,6 +283,35 @@ if (LOT === 6) {
       /(\.dash-body|\.kpi\b|\.kpi-|\.dash-perf|\.cap-|\.dash-alerts|\.dash-vl|\.dash-issuer)/.test(sel);
   });
   verifier('backdrop-filter dans le plâtre', 0, bfPlatre.length, bfPlatre.map((b) => b.split('{')[0].trim()).join(' | ').slice(0, 200));
+}
+
+/* — lot 07 : le vide sous la nappe, la fenêtre Mois — § 6 —
+   Les mesures DOM (top de .kpi-row, écart eau/dalle, repères d'axe) sont
+   dans le rapport. Ici, ce que les fichiers disent. */
+if (LOT === 7) {
+  const shell = lire(join(SRC, 'shell.css')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const dash = lire(join(SRC, 'dashboard.css')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const appDash = lire(join(SRC, 'modules', 'app-dashboard.js')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const tousLesSrc = fichiers.map((f) => lire(f)).join('\n');
+
+  // 6.1 — .dash-body porte margin: 54px 28px et padding: 0
+  const bodyRule = (dash.match(/\.dash-body\s*\{[^}]*\}/s) || [''])[0];
+  verifier('.dash-body : margin 54px 28px', true, /margin:\s*54px\s+28px\s*;/.test(bodyRule), bodyRule.replace(/\s+/g, ' ').slice(0, 160));
+  verifier('.dash-body : padding 0', true, /padding:\s*0\s*;/.test(bodyRule));
+
+  // 6.2 — #view-dashboard { gap: 0 } dans shell.css, .view { gap } intact
+  verifier('#view-dashboard { gap: 0 }', true, /#view-dashboard\s*\{[^}]*gap:\s*0\s*[;}]/s.test(shell));
+  verifier('.view { gap } intact', true, /\.view\s*\{[^}]*gap:\s*var\(--space-\d\)/s.test(shell));
+
+  // 6.3 — perfRangeStart, cas month : aucune branche calendaire
+  const monthCase = (appDash.match(/if\s*\(\s*range\s*===\s*["']month["']\s*\)\s*\{[^}]*\}/s) || [''])[0];
+  verifier('cas month sans branche calendaire', 0,
+    (monthCase.match(/getMonth\(\)|setDate\(\s*1\s*\)|new Date\([^)]*,\s*[^,)]*getMonth/g) || []).length,
+    monthCase.replace(/\s+/g, ' ').slice(0, 160));
+  verifier('cas month : fenêtre - 30 jours', true, /setDate\(\s*[a-z.]*getDate\(\)\s*-\s*30\s*\)/s.test(monthCase) || /setDate\(\s*d\.getDate\(\)\s*-\s*30\s*\)/s.test(monthCase));
+
+  // 6.4 — aucun --text-agenda au dépôt (le littéral 17.5px est assumé)
+  verifier('--text-agenda absent du dépôt', 0, (tousLesSrc.match(/--text-agenda\b/g) || []).length);
 }
 
 /* — rapport — */
