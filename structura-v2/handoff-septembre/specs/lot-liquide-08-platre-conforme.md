@@ -21,7 +21,7 @@ document.
 | 2 | `renderIssuerExposure` ne donne pas la part du premier émetteur ou le nombre de groupes (§ 4.1) | tu nommes le champ manquant |
 | 3 | `renderVlTopFlop` ne donne pas `p.barrier` par ligne, ou `p.st.s` pour compter les « sous barrière » (§ 4.2) | tu le nommes |
 | 4 | `buildProductCalendarEvents()` ne permet pas de filtrer sur la semaine en cours (§ 4.3) | tu le nommes. Tu ne touches à aucun fichier de calendrier |
-| 5 | un sigle émetteur n'existe pas pour un émetteur du périmètre (§ 4.2, § 4.3) | tu le nommes. Tu n'inventes pas d'abréviation |
+| 5 | le sigle émetteur | **levé** : aucun champ `sigle` au dépôt, le § 4 ter donne la pastille à `id`. Tu ne t'arrêtes pas |
 | 6 | la sortie de `.kpi-row` du Dashboard casse un autre écran (§ 5) | tu t'arrêtes : les règles `.kpi*` doivent rester au dépôt |
 | 7 | `16.5px` ou `44px` n'ont pas de `--text-*` | ils restent littéraux, tu ne t'arrêtes pas (précédent du `17.5px`, LOT 7) |
 | 8 | l'odomètre (§ 4 bis) | plus d'ambiguïté : `setTextFlash` n'est pas un odomètre, le § 4 bis donne la décision. Tu ne t'arrêtes pas |
@@ -108,8 +108,8 @@ liste unique de dix.
   barrière », N compté sur `p.st.s` (le champ existant), pas sur un seuil réécrit ;
 - bascule : deux `button` `Top 5` / `Flop 5` dans un segment `--rail`, rayon
   `var(--r-plein)`, `padding: 7px 16px`, l'actif en `aria-pressed` ;
-- corps : cinq lignes. Par ligne : sigle émetteur dans un cercle 28px bordé `--trait`
-  (encre, jamais coloré), nom, VL, écart teinté, puis une jauge `height: 3px` sur
+- corps : cinq lignes. Par ligne : **la pastille d'émetteur** (§ 4 ter), nom, VL, écart
+  teinté, puis une jauge `height: 3px` sur
   `--rail` **et le repère de barrière** — filet 1.5px `--encre-2`, débord 4px haut et bas.
 
 **Le repère est par ligne, pas partagé — et c'est un écart de modèle que je tranche
@@ -143,12 +143,43 @@ calendrier n'est touché.
 - grand chiffre : **nombre d'événements de la semaine**, dérivé de la liste, jamais
   écrit ; contexte : « cette semaine » ;
 - corps : une ligne par événement (`min-height: 44px`, survol `--survol`), en trois
-  colonnes `44px minmax(0,1fr) auto` : jour court + date en Jost, puis sigle émetteur +
-  titre + détail, puis le montant à droite ;
+  colonnes `44px minmax(0,1fr) auto` : jour court + date en Jost, puis **la pastille
+  d'émetteur** (§ 4 ter) + titre + détail, puis le montant à droite ;
 - pied : « Ouvrir l'agenda ».
 
 **Si la semaine est vide, la dalle affiche `0` et son corps est vide** — c'est
 l'information, pas un bug. Aucun contenu de remplissage.
+
+## 4 ter. La pastille d'émetteur — le sigle n'existe pas au dépôt
+
+Vérifié dans `src/issuer-registry.js` : les 17 entrées portent `id`, `label`,
+`brandColor`, `aliases`, `officialSources`, `fieldExtractors`. **Aucun champ `sigle`.**
+Les sigles de deux lettres de la maquette (`BP`, `SG`, `NX`…) sont écrits à la main dans
+son registre de démo ; les dériver d'un `label` produirait des abréviations fausses.
+
+On emploie donc l'identifiant qui existe : le `id` du registre — `BNP`, `SG`, `MS`,
+`JPM`, `NATIXIS`, `CACIB`, `UNICREDIT`… **la même table** que les couleurs de marque,
+déjà lue par `issuerBrandClass`. De 2 à 9 caractères ne tenant pas dans un disque de
+28px, le disque devient une pastille à largeur automatique :
+
+```
+height: 28px · min-width: 28px · padding: 0 10px
+border-radius: var(--r-plein) · border: 1px solid var(--trait) · background: transparent
+Jost 11.5px · letter-spacing .02em · line-height 1 · color var(--encre-2) · nowrap
+```
+
+Encre uniquement, **jamais la couleur de marque** : la teinte d'émetteur ne vit que dans
+`--dalle-a`, où les lignes se comparent entre elles.
+
+La première colonne des lignes concernées passe de `28px` à `auto` ; le reste de la
+géométrie (`min-height: 44px`, gap 13) ne bouge pas.
+
+**Émetteur hors registre** (`bankGroupName` retombe sur le libellé brut, ou « Émetteur à
+confirmer ») : **pas de pastille du tout.** Ni tiret, ni initiale, ni point
+d'interrogation — le nom du produit porte déjà l'information.
+
+Si les deux lettres sont voulues, c'est une décision de donnée : ajouter un champ
+`sigle` aux 17 entrées du registre, à la main, dans un lot séparé. Hors périmètre ici.
 
 ## 4 bis. L'odomètre des trois grands chiffres
 
