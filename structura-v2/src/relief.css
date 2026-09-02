@@ -99,11 +99,20 @@
     --i: 3;
 }
 
+/* Image 100% explicite (LOT 7 bis) : une keyframe qui n'a qu'un 0% avec
+   fill-mode: both laisse un transform résiduel sur un bloc haut
+   (.dash-body). La fermer supprime les ~30 px de décalage sans sortir
+   .dash-body de la cascade — la cascade est juste, la keyframe non. */
 @keyframes block-in {
     0% {
         opacity: 0;
         transform: translateY(18px) scale(0.985);
         filter: blur(var(--blur-enter));
+    }
+    100% {
+        opacity: 1;
+        transform: none;
+        filter: none;
     }
 }
 

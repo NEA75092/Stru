@@ -64,6 +64,10 @@
    le plâtre commence sous l'eau (LOT 5 § 5.1). Le 28px du padding est
    la valeur de la maquette, il ne s'aligne pas sur le plâtre. */
 .dash-avant {
+    /* border-box (LOT 7 bis) : sans lui, padding: 52px s'ajoutait aux 640
+       de min-height et la boîte dépassait la nappe de 52 px. La maquette
+       mesure la nappe bord à bord — min-height doit valoir la boîte. */
+    box-sizing: border-box;
     position: relative;
     z-index: 30;
     display: grid;

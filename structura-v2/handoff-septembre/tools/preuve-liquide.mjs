@@ -68,9 +68,11 @@ const AUTORISES = LOT === 1
       : LOT === 7
       ? [
           // lot 7, § 5 : le vide sous la nappe (shell + dashboard) et la
-          // fenêtre Mois (app-dashboard.js), plus le bump ?v=.
+          // fenêtre Mois (app-dashboard.js), plus le bump ?v=. LOT 7 bis :
+          // relief.css entre pour la seule image 100% de block-in.
           join(SRC, 'shell.css'),
           join(SRC, 'dashboard.css'),
+          join(SRC, 'relief.css'),
           join(SRC, 'modules', 'app-dashboard.js'),
           INDEX,
         ]
@@ -312,6 +314,50 @@ if (LOT === 7) {
 
   // 6.4 — aucun --text-agenda au dépôt (le littéral 17.5px est assumé)
   verifier('--text-agenda absent du dépôt', 0, (tousLesSrc.match(/--text-agenda\b/g) || []).length);
+
+  // LOT 7 bis — deux preuves de GÉOMÉTRIE, mesurées dans le DOM rendu, pas
+  // dans le CSS écrit : une sonde qui ne lit que la source ne prouve pas
+  // l'écran (le --lot 7 v1 était vert alors que la dalle était 82 px trop
+  // bas). Serveur statique éphémère + Chromium via playwright ; si l'un
+  // manque, c'est un ÉCHEC visible, pas un silence.
+  try {
+    const { createServer } = await import('node:http');
+    const { chromium } = await import('playwright');
+    const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json' };
+    const srv = createServer((req, res) => {
+      const p = join(process.cwd(), decodeURIComponent(req.url.split('?')[0]));
+      try {
+        const body = readFileSync(p);
+        res.writeHead(200, { 'content-type': TYPES[p.slice(p.lastIndexOf('.'))] || 'application/octet-stream' });
+        res.end(body);
+      } catch { res.writeHead(404); res.end(); }
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const port = srv.address().port;
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
+    await page.waitForSelector('#view-dashboard .kpi-row', { timeout: 10000 });
+    const mesure = async () =>
+      page.evaluate(() => {
+        const a = document.querySelector('.dash-avant').getBoundingClientRect();
+        const k = document.querySelector('.kpi-row').getBoundingClientRect();
+        return { avantH: Math.round(a.height), ecart: Math.round(k.top - a.bottom) };
+      });
+    await page.waitForTimeout(1400);
+    const jour = await mesure();
+    await page.evaluate(() => window.toggleTheme());
+    await page.waitForTimeout(500);
+    const nuit = await mesure();
+    await browser.close();
+    await new Promise((r) => srv.close(r));
+
+    const NH = 640; // valeur de --nappe-h
+    verifier('hauteur de .dash-avant = --nappe-h', `${NH} / ${NH}`, `${jour.avantH} / ${nuit.avantH}`, 'jour / nuit');
+    verifier('kpi-row top − dash-avant bottom = 54', '54 / 54', `${jour.ecart} / ${nuit.ecart}`, 'jour / nuit');
+  } catch (e) {
+    verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
+  }
 }
 
 /* — rapport — */
