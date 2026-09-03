@@ -339,9 +339,14 @@ if (LOT === 7) {
   const appDash = lire(join(SRC, 'modules', 'app-dashboard.js')).replace(/\/\*[\s\S]*?\*\//g, '');
   const tousLesSrc = fichiers.map((f) => lire(f)).join('\n');
 
-  // 6.1 — .dash-body porte margin: 54px 28px et padding: 0
+  // 6.1 — .dash-body porte un margin qui vaut 54px 28px à 1600, et
+  // padding: 0. Depuis le LOT 11 § 2 c'est un clamp() dont les valeurs
+  // hautes sont 54px / 28px (le --lot 7 mesure l'écart réel = 54 en DOM,
+  // plus bas ; le --lot 11 le mesure aussi à 1280/1440/1600).
   const bodyRule = (dash.match(/\.dash-body\s*\{[^}]*\}/s) || [''])[0];
-  verifier('.dash-body : margin 54px 28px', true, /margin:\s*54px\s+28px\s*;/.test(bodyRule), bodyRule.replace(/\s+/g, ' ').slice(0, 160));
+  const marge54 = /margin:\s*54px\s+28px\s*;/.test(bodyRule)
+    || /margin:\s*clamp\([^)]*,\s*54px\)\s+clamp\([^)]*,\s*28px\)\s*;/.test(bodyRule);
+  verifier('.dash-body : margin → 54px 28px à 1600', true, marge54, bodyRule.replace(/\s+/g, ' ').slice(0, 200));
   verifier('.dash-body : padding 0', true, /padding:\s*0\s*;/.test(bodyRule));
 
   // 6.2 — #view-dashboard { gap: 0 } dans shell.css, .view { gap } intact
