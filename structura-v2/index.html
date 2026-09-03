@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>STRUCTURA PRO</title>
-        <link rel="icon" href="assets/structura-mark.png" />
+        <link rel="icon" href="assets/guerfin-symbole-clair-detoure.png" />
         <script>
             (function () {
                 try {
@@ -20,11 +20,11 @@
             href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="./src/design-tokens.css?v=20260903a" />
-        <link rel="stylesheet" href="./src/shell.css?v=20260903a" />
+        <link rel="stylesheet" href="./src/design-tokens.css?v=20260903b" />
+        <link rel="stylesheet" href="./src/shell.css?v=20260903b" />
         <link rel="stylesheet" href="./src/controls.css?v=20260805b" />
         <link rel="stylesheet" href="./src/overlays.css?v=20260831a" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260903a" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260903b" />
         <link rel="stylesheet" href="./src/tables.css?v=20260831a" />
         <link rel="stylesheet" href="./src/views.css?v=20260831a" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260903a" />
@@ -109,57 +109,6 @@
                         <span class="ico"><svg viewBox="0 0 20 20"><circle cx="6" cy="4.5" r="1.8"/><circle cx="14" cy="4.5" r="1.8"/><path d="M6 4.5h8v9.5c0 2-1.8 3.5-4 3.5s-4-1.5-4-3.5V4.5z"/><path d="M8 8.3h4M8 11h4"/></svg></span> Doc Reader
                     </div>
                 </nav>
-                <div class="sidebar-tools">
-                    <button
-                        type="button"
-                        class="sidebar-tool"
-                        title="Recherche"
-                        aria-label="Recherche"
-                    >
-                        <svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13.2 13.2 17 17"/></svg>
-                    </button>
-                    <button
-                        type="button"
-                        class="sidebar-tool"
-                        title="Notifications"
-                        aria-label="Notifications"
-                    >
-                        <svg viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12" rx="3.4"/></svg>
-                    </button>
-                    <button
-                        type="button"
-                        class="sidebar-tool theme-toggle"
-                        id="theme-toggle"
-                        onclick="toggleTheme()"
-                        aria-label="Activer le thème sombre"
-                        title="Thème sombre"
-                    >
-                        <svg viewBox="0 0 20 20"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"/></svg>
-                    </button>
-                    <div class="sidebar-profile">
-                        <button
-                            type="button"
-                            class="sidebar-profile-btn"
-                            id="session-profile"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                            onclick="toggleProfileMenu(this)"
-                            title="Conseiller"
-                        >
-                            <span class="sidebar-profile-disc" id="session-avatar">CG</span>
-                        </button>
-                        <div class="sidebar-profile-menu" id="session-menu" hidden>
-                            <button
-                                type="button"
-                                class="sidebar-menu-item"
-                                id="mode-toggle"
-                                onclick="toggleAppMode()"
-                            >
-                                MODE DEMO
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </aside>
 
             <div class="app-shell">
@@ -201,11 +150,48 @@
                         </div>
 
                         <div class="dash-avant-side">
+                            <div class="dash-topbar">
+                                <button
+                                    type="button"
+                                    class="dash-topbar-btn theme-toggle"
+                                    id="theme-toggle"
+                                    onclick="toggleTheme()"
+                                    aria-pressed="false"
+                                    aria-label="Basculer jour / nuit"
+                                    title="Jour / nuit"
+                                >
+                                    <svg viewBox="0 0 20 20"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"/></svg>
+                                </button>
+                                <div class="dash-profile">
+                                    <button
+                                        type="button"
+                                        class="dash-profile-btn"
+                                        id="session-profile"
+                                        aria-haspopup="menu"
+                                        aria-expanded="false"
+                                        onclick="toggleProfileMenu(this)"
+                                        title="Conseiller"
+                                    >
+                                        <span class="dash-profile-disc" id="session-avatar">CG</span>
+                                    </button>
+                                    <div class="dash-profile-menu" id="session-menu" role="menu" hidden>
+                                        <div class="dash-profile-name" id="session-menu-name">Conseiller</div>
+                                        <button type="button" role="menuitem" class="dash-menu-item" id="mode-toggle" onclick="toggleAppMode()">
+                                            Mode démo
+                                            <span class="dash-menu-state" id="mode-state">INACTIF</span>
+                                        </button>
+                                        <button type="button" role="menuitem" class="dash-menu-item" onclick="notify('Bientôt disponible','ok')">Réglages du cabinet</button>
+                                        <button type="button" role="menuitem" class="dash-menu-item dash-menu-item--muted" onclick="notify('Bientôt disponible','ok')">Se déconnecter</button>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="dash-agenda">
                                 <div class="dash-agenda-hdr">
                                     <span class="dash-agenda-day" id="dash-agenda-day">—</span>
                                     <button type="button" class="dash-agenda-close" aria-label="Masquer la semaine">
-                                        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"></path></svg>
+                                        <span class="dash-agenda-close-disc" aria-hidden="true">
+                                            <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"></path></svg>
+                                        </span>
                                     </button>
                                 </div>
                                 <div class="dash-agenda-week" id="dash-agenda-week"></div>

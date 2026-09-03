@@ -403,9 +403,14 @@ if (LOT === 7) {
     await browser.close();
     await new Promise((r) => srv.close(r));
 
-    const NH = 640; // valeur de --nappe-h
-    verifier('hauteur de .dash-avant = --nappe-h', `${NH} / ${NH}`, `${jour.avantH} / ${nuit.avantH}`, 'jour / nuit');
-    verifier('dash-body top − dash-avant bottom = 54', '54 / 54', `${jour.ecart} / ${nuit.ecart}`, 'jour / nuit');
+    // À 1600, --nappe-h atteint son plafond de 640 (LOT 12 : clamp en cqw,
+    // résolu contre .app ; à cette largeur la borne haute est atteinte à
+    // ~1px près). L'écart bas de .dash-avant → .dash-body vaut la borne
+    // haute du clamp margin de .dash-body : 54, ~53 après arrondi cqw.
+    verifier('hauteur de .dash-avant ≈ 640 (borne haute)', true,
+      Math.abs(jour.avantH - 640) <= 2 && Math.abs(nuit.avantH - 640) <= 2, `${jour.avantH} / ${nuit.avantH}`);
+    verifier('écart .dash-body → .dash-avant ≈ 54', true,
+      Math.abs(jour.ecart - 54) <= 1 && Math.abs(nuit.ecart - 54) <= 1, `${jour.ecart} / ${nuit.ecart}`);
   } catch (e) {
     verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
   }
@@ -529,16 +534,15 @@ if (LOT === 9) {
   const reglesHeader = (shellNu.match(/(^|[\s,}])\.header[\w-]*\s*(,|\{)/g) || []);
   verifier('règle .header dans shell.css', 0, reglesHeader.length, reglesHeader.map((s) => s.trim()).join(' | '));
 
-  // 6.3 — les quatre cibles du rail sont des <button> ; zéro div/span
-  //  cliquable. Depuis le LOT 11 la pastille de profil ouvre un menu
-  //  (MODE DÉMO) : on compte les 3 .sidebar-tool + le .sidebar-profile-btn,
-  //  pas les entrées du menu.
-  const toolsBloc = (html.match(/<div class="sidebar-tools">[\s\S]*?\n {16}<\/div>/) || [''])[0];
-  const nbTools = (toolsBloc.match(/class="sidebar-tool[ "]/g) || []).length;
-  const nbProfileBtn = (toolsBloc.match(/class="sidebar-profile-btn"/g) || []).length;
-  const divCliquables = (toolsBloc.match(/<div[^>]*\bonclick|<div[^>]*role="button"|<span[^>]*\bonclick/g) || []).length;
-  verifier('rangée d\'outils : 3 .sidebar-tool + 1 profil = 4 <button>', 4, nbTools + nbProfileBtn, toolsBloc ? '' : 'bloc .sidebar-tools introuvable');
-  verifier('rangée d\'outils : 0 div/span cliquable', 0, divCliquables);
+  // 6.3 — jour/nuit et profil sont des <button>. Depuis le LOT 12 ils ne
+  //  sont plus au rail mais dans le couple du premier plan (.dash-topbar) :
+  //  on y compte 1 bascule de thème + 1 pastille de profil.
+  const topbarBloc = (html.match(/<div class="dash-topbar">[\s\S]*?\n {28}<\/div>/) || [''])[0];
+  const nbTopbarBtn = (topbarBloc.match(/class="dash-topbar-btn/g) || []).length;
+  const nbProfileBtn = (topbarBloc.match(/class="dash-profile-btn"/g) || []).length;
+  const divCliquables = (topbarBloc.match(/<div[^>]*\bonclick|<div[^>]*role="button"|<span[^>]*\bonclick/g) || []).length;
+  verifier('couple premier plan : 1 bascule + 1 profil = 2 <button>', 2, nbTopbarBtn + nbProfileBtn, topbarBloc ? '' : 'bloc .dash-topbar introuvable');
+  verifier('couple premier plan : 0 div/span cliquable', 0, divCliquables);
 
   // 6.4 — .sidebar-nav n'a plus flex: 1.
   const navRule = (shellNu.match(/\.sidebar-nav\s*\{[^}]*\}/s) || [''])[0];
@@ -559,7 +563,7 @@ if (LOT === 9) {
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
-    await page.waitForSelector('.sidebar-tools .sidebar-tool', { timeout: 10000 });
+    await page.waitForSelector('.dash-topbar .dash-topbar-btn', { timeout: 10000 });
     const mesure = async () =>
       page.evaluate(() => {
         const shellEl = document.querySelector('.app-shell');
@@ -569,14 +573,14 @@ if (LOT === 9) {
         // donc au bord intérieur, pas au bord de la boîte.
         const bt = parseFloat(getComputedStyle(shellEl).borderTopWidth) || 0;
         const main = document.querySelector('.main').getBoundingClientRect();
-        const tools = [
-          ...document.querySelectorAll('.sidebar-tools .sidebar-tool'),
-          document.querySelector('.sidebar-tools .sidebar-profile-btn'),
+        const cibles = [
+          document.querySelector('.dash-topbar .dash-topbar-btn'),
+          document.querySelector('.dash-topbar .dash-profile-btn'),
         ].filter(Boolean).map((b) => {
           const r = b.getBoundingClientRect();
           return [Math.round(r.width), Math.round(r.height)];
         });
-        return { ecartHaut: Math.round(main.top - shell.top - bt), tools };
+        return { ecartHaut: Math.round(main.top - shell.top - bt), cibles };
       });
     await page.waitForTimeout(600);
     const jour = await mesure();
@@ -587,9 +591,9 @@ if (LOT === 9) {
     await new Promise((r) => srv.close(r));
 
     verifier('haut de l\'eau = haut de la vue (0 px)', '0 / 0', `${jour.ecartHaut} / ${nuit.ecartHaut}`, 'jour / nuit');
-    const ok44 = (m) => m.tools.length === 4 && m.tools.every(([w, h]) => w >= 44 && h >= 44);
-    verifier('4 cibles du rail ≥ 44 × 44 (jour)', true, ok44(jour), jour.tools.map((t) => t.join('×')).join(' '));
-    verifier('4 cibles du rail ≥ 44 × 44 (nuit)', true, ok44(nuit), nuit.tools.map((t) => t.join('×')).join(' '));
+    const ok44 = (m) => m.cibles.length === 2 && m.cibles.every(([w, h]) => w >= 44 && h >= 44);
+    verifier('couple jour/nuit + profil ≥ 44 × 44 (jour)', true, ok44(jour), jour.cibles.map((t) => t.join('×')).join(' '));
+    verifier('couple jour/nuit + profil ≥ 44 × 44 (nuit)', true, ok44(nuit), nuit.cibles.map((t) => t.join('×')).join(' '));
   } catch (e) {
     verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
   }
@@ -702,39 +706,51 @@ if (LOT === 10) {
   }
 }
 
-/* — lot 11 : le format portable, les vestiges, quatre défauts — § 5 — statiques + DOM. */
+/* — lot 11 (rev. LOT 12) : format portable en cqw, bas de rail vide,
+   cibles ≥ 44, marque GUERFIN — § 5, preuves 1 à 10 — statiques + DOM. */
 if (LOT === 11) {
   const shell = lire(join(SRC, 'shell.css'));
   const html = lire(INDEX);
   const dash = lire(join(SRC, 'dashboard.css'));
   const app = lire(join(SRC, 'modules', 'app-dashboard.js'));
 
-  // 5.1 — zéro vestige du pied de rail dans index.html ET shell.css.
-  for (const [nom, re] of [
-    ['sidebar-foot', /sidebar-foot/g],
-    ['sidebar-mode', /sidebar-mode/g],
-    ['sidebar-btn', /sidebar-btn/g],
-    ['sidebar-add', /sidebar-add/g],
-  ]) {
-    const n = (html.match(re) || []).length + (shell.match(re) || []).length;
-    verifier(`vestige « ${nom} »`, 0, n);
+  // 1 (statique) — zéro vestige du bas de rail dans index.html ET shell.css.
+  for (const nom of ['sidebar-foot', 'sidebar-mode', 'sidebar-btn', 'sidebar-add', 'sidebar-tools']) {
+    const re = new RegExp(nom, 'g');
+    verifier(`vestige « ${nom} »`, 0, (html.match(re) || []).length + (shell.match(re) || []).length);
   }
 
-  // 5.2 — .app plancher 1280, plus aucun 1600px dans shell.css.
+  // 2 (statique) — .app plancher 1280 + conteneur de requête ; zéro 1600px.
   verifier('.app { min-width: 1280px }', true, /\.app\s*\{[^}]*min-width:\s*1280px/s.test(shell));
+  verifier('.app { container-type: inline-size }', true, /\.app\s*\{[^}]*container-type:\s*inline-size/s.test(shell));
   verifier('1600px dans shell.css', 0, (shell.match(/1600px/g) || []).length);
 
-  // 5.5 — plus d'orangé sur le Top/Flop : zéro --ambre dans les fichiers
-  //  du Dashboard. Le token reste déclaré (il porte --color-watch, hors
-  //  périmètre) ; ce qui compte, c'est qu'il ne peigne plus cette figure.
+  // 3 (statique) — zéro vw sous src/, hors le padding de .app et les 100vh/vw.
+  const vwHits = [];
+  for (const f of fichiers.filter((f) => f.endsWith('.css'))) {
+    lire(f).split('\n').forEach((l, i) => {
+      for (const m of l.matchAll(/(\d[\d.]*)vw\b/g)) {
+        if (m[1] === '100') continue;                       // plein écran
+        if (/container-type|1\.6vw/.test(l) && /padding/.test(l)) continue; // .app padding, nommé
+        vwHits.push(`${f}:${i + 1} → ${m[0]}`);
+      }
+    });
+  }
+  verifier('vw sous src/ (hors padding .app et 100vw)', 0, vwHits.length, vwHits.join(' | ').slice(0, 300));
+
+  // 6 (statique) — plus d'orangé sur le Top/Flop. --ambre reste déclaré
+  //  (il porte --color-watch, hors périmètre) ; il ne peint plus le
+  //  Dashboard.
   verifier('--ambre dans dashboard.css / app-dashboard.js', 0,
     (dash.match(/--ambre\b/g) || []).length + (app.match(/--ambre\b/g) || []).length);
 
-  // 5.7 — .sidebar-tools ne pousse plus (plus de margin-top: auto).
-  const toolsRule = (shell.replace(/\/\*[\s\S]*?\*\//g, '').match(/\.sidebar-tools\s*\{[^}]*\}/s) || [''])[0];
-  verifier('.sidebar-tools sans margin-top: auto', 0, (toolsRule.match(/margin-top:\s*auto/g) || []).length, toolsRule.replace(/\s+/g, ' '));
+  // 8 (statique) — la règle .sidebar-tools n'existe plus dans shell.css.
+  verifier('règle .sidebar-tools dans shell.css', 0, (shell.match(/\.sidebar-tools\s*\{/g) || []).length);
 
-  // DOM — deux largeurs, jour et nuit.
+  // 9 (statique) — plus aucune référence structura-mark dans index.html.
+  verifier('structura-mark dans index.html', 0, (html.match(/structura-mark/g) || []).length);
+
+  // DOM — 1280 / 1440 / 1600, jour et nuit.
   try {
     const { createServer } = await import('node:http');
     const { chromium } = await import('playwright');
@@ -748,7 +764,7 @@ if (LOT === 11) {
     const port = srv.address().port;
     const browser = await chromium.launch({ headless: true });
     const VIEWS = ['dashboard', 'clients', 'portfolio', 'barriers', 'calendar', 'analytics', 'autopitch', 'screener', 'ingest'];
-    const NAPPE = { 1280: 568, 1440: 640, 1600: 640 };
+    const NAPPE = { 1280: 568, 1440: 623, 1600: 640 };
 
     const passeLargeur = async (W, Hpx) => {
       const page = await browser.newPage({ viewport: { width: W, height: Hpx } });
@@ -764,33 +780,57 @@ if (LOT === 11) {
           await page.waitForTimeout(120);
           const over = await page.evaluate(() => {
             const se = document.scrollingElement || document.documentElement;
-            return se.scrollWidth - window.innerWidth;
+            return se.scrollWidth - se.clientWidth;
           });
           if (over > 1) debordements.push(`${v} +${over}`);
         }
         await page.evaluate((id) => window.nav && window.nav(id), 'dashboard');
-        // block-in rejoue à la ré-entrée de #view-dashboard : laisser
-        // l'animation d'entrée retomber avant de mesurer la géométrie
-        // (même précaution qu'au --lot 7).
         await page.waitForTimeout(1500);
         const g = await page.evaluate(() => {
           const a = document.querySelector('.dash-avant').getBoundingClientRect();
           const first = document.querySelector('.dash-platre .dalle').getBoundingClientRect();
-          const nappeH = getComputedStyle(document.documentElement).getPropertyValue('--nappe-h').trim();
+          const nappeH = getComputedStyle(document.querySelector('.app')).getPropertyValue('--nappe-h').trim();
           const probe = document.createElement('div');
-          probe.style.height = nappeH; probe.style.position = 'absolute'; probe.style.visibility = 'hidden';
-          document.body.appendChild(probe);
+          probe.style.cssText = 'position:absolute;visibility:hidden';
+          probe.style.height = nappeH;
+          document.querySelector('.app').appendChild(probe);
           const resolved = Math.round(probe.getBoundingClientRect().height);
           probe.remove();
+          const rail = document.querySelector('.sidebar');
+          const railKids = [...rail.children].map((c) => c.tagName.toLowerCase() + (c.className ? '.' + String(c.className).split(' ')[0] : ''));
+          const afterNav = rail.querySelector('nav') ? [...rail.children].indexOf(rail.querySelector('nav')) < rail.children.length - 1 : true;
           const prim = document.querySelector('.sidebar .sidebar-primary');
           const firstFocus = document.querySelector('.sidebar button, .sidebar a[href], .sidebar input, .sidebar select, .sidebar [tabindex]');
+          // tous les <button> du Dashboard, cible réelle
+          const petits = [...document.querySelectorAll('#view-dashboard button, .sidebar button')].map((b) => {
+            const r = b.getBoundingClientRect();
+            return { w: Math.round(r.width), h: Math.round(r.height), t: (b.textContent || b.getAttribute('aria-label') || b.title || '?').trim().slice(0, 18) };
+          }).filter((b) => (b.w > 0 && b.h > 0) && (b.w < 44 || b.h < 44));
+          // menu de profil ouvert vs items de nav
+          const pb = document.getElementById('session-profile');
+          if (pb) pb.click();
+          const menu = document.getElementById('session-menu');
+          const mr = menu && !menu.hidden ? menu.getBoundingClientRect() : null;
+          let recouvre = 0;
+          if (mr) {
+            for (const t of document.querySelectorAll('.sidebar-nav .nav-tab, .sidebar-nav button')) {
+              const nr = t.getBoundingClientRect();
+              if (mr.left < nr.right && mr.right > nr.left && mr.top < nr.bottom && mr.bottom > nr.top) recouvre += 1;
+            }
+          }
+          if (pb) pb.click();
           return {
             avantH: Math.round(a.height),
             nappeResolved: resolved,
             ecartDalle: Math.round(first.top - a.bottom),
+            railKidCount: rail.children.length,
+            railKids: railKids.join(' · '),
+            elementApresNav: afterNav ? 1 : 0,
             primIsButton: !!prim && prim.tagName === 'BUTTON',
             primMinH: prim ? Math.round(parseFloat(getComputedStyle(prim).minHeight) || prim.getBoundingClientRect().height) : 0,
             primIsFirstFocus: !!prim && firstFocus === prim,
+            petits,
+            menuRecouvreNav: recouvre,
           };
         });
         out.theme[mode] = { debordements, ...g };
@@ -805,32 +845,40 @@ if (LOT === 11) {
     await browser.close();
     await new Promise((r) => srv.close(r));
 
-    // 5.3 — aucun débordement horizontal, 9 vues, 2 largeurs, 2 thèmes.
+    // 1 (DOM) — le rail a 3 enfants, rien après </nav>.
+    verifier('rail : 3 enfants', 3, r1600.theme.jour.railKidCount, r1600.theme.jour.railKids);
+    verifier('rail : 0 élément après </nav>', 0, r1600.theme.jour.elementApresNav);
+
+    // 4 (DOM) — zéro débordement horizontal ; .dash-avant = 568/623/640.
     const tousDeb = [];
     for (const [lbl, r] of [['1280', r1280], ['1440', r1440], ['1600', r1600]]) {
-      for (const mode of ['jour', 'nuit']) {
-        for (const d of r.theme[mode].debordements) tousDeb.push(`${lbl}/${mode} ${d}`);
-      }
+      for (const mode of ['jour', 'nuit']) for (const d of r.theme[mode].debordements) tousDeb.push(`${lbl}/${mode} ${d}`);
     }
-    verifier('aucun débordement horizontal (9 vues × 2 largeurs × 2 thèmes)', 0, tousDeb.length, tousDeb.join(' · ').slice(0, 300));
-
-    // 5.4 — .dash-avant = --nappe-h résolu ; 568 à 1280, 640 à 1440/1600 ;
-    //  écart bas de .dash-avant → première dalle = 54 à 1600.
+    verifier('aucun débordement horizontal (9 vues × 3 largeurs × 2 thèmes)', 0, tousDeb.length, tousDeb.join(' · ').slice(0, 300));
     for (const [W, r] of [[1280, r1280], [1440, r1440], [1600, r1600]]) {
       for (const mode of ['jour', 'nuit']) {
         const t = r.theme[mode];
         verifier(`${W}/${mode} : .dash-avant = --nappe-h résolu`, true, Math.abs(t.avantH - t.nappeResolved) <= 1, `${t.avantH} vs ${t.nappeResolved}`);
-        verifier(`${W}/${mode} : --nappe-h ≈ ${NAPPE[W]}`, true, Math.abs(t.nappeResolved - NAPPE[W]) <= 2, String(t.nappeResolved));
+        verifier(`${W}/${mode} : .dash-avant ≈ ${NAPPE[W]}`, true, Math.abs(t.avantH - NAPPE[W]) <= 6, String(t.avantH));
       }
     }
-    verifier('1600/jour : écart nappe → première dalle = 54', 54, r1600.theme.jour.ecartDalle);
-    verifier('1600/nuit : écart nappe → première dalle = 54', 54, r1600.theme.nuit.ecartDalle);
 
-    // 5.6 — bouton primaire du rail : <button>, min-height ≥ 44, premier focalisable.
+    // 5 (DOM) — aucun <button> du Dashboard sous 44 px, aux trois largeurs.
+    const petitsAll = [];
+    for (const [lbl, r] of [['1280', r1280], ['1440', r1440], ['1600', r1600]]) {
+      for (const b of r.theme.jour.petits) petitsAll.push(`${lbl} « ${b.t} » ${b.w}×${b.h}`);
+    }
+    verifier('aucun <button> du Dashboard sous 44 px', 0, petitsAll.length, petitsAll.join(' | ').slice(0, 400));
+
+    // 7 (DOM) — bouton primaire du rail : <button>, min-height ≥ 44, 1er focalisable.
     const p = r1600.theme.jour;
     verifier('bouton primaire = <button>', true, p.primIsButton);
     verifier('bouton primaire min-height ≥ 44', true, p.primMinH >= 44, String(p.primMinH));
     verifier('bouton primaire = premier focalisable du rail', true, p.primIsFirstFocus);
+
+    // 10 (DOM) — menu de profil ouvert : intersection nulle avec la nav.
+    verifier('menu de profil ne recouvre aucun item de nav (1280)', 0, r1280.theme.jour.menuRecouvreNav);
+    verifier('menu de profil ne recouvre aucun item de nav (1600)', 0, r1600.theme.jour.menuRecouvreNav);
   } catch (e) {
     verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
   }

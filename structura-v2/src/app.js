@@ -1991,9 +1991,10 @@ function toggleTheme() {
   applyTheme(next);
 }
 
-// LOT 11 § 1.3 : MODE DÉMO vit désormais derrière la pastille de profil
-// du pied de rail. Le menu est un simple bloc [hidden] que la pastille
-// ouvre/ferme ; un clic ailleurs ou Échap le referme.
+// LOT 12 § 1.4 : le menu de profil est ancré à la pastille du premier
+// plan (coin haut droit, sur le verre), plus au rail. Bloc [hidden] que
+// la pastille ouvre/ferme ; un clic hors de .dash-profile ou Échap le
+// referme.
 function closeProfileMenu() {
   const menu = document.getElementById("session-menu");
   const btn = document.getElementById("session-profile");
@@ -2011,7 +2012,7 @@ function toggleProfileMenu(btn) {
 
 if (typeof document !== "undefined") {
   document.addEventListener("click", (e) => {
-    const wrap = e.target && e.target.closest && e.target.closest(".sidebar-profile");
+    const wrap = e.target && e.target.closest && e.target.closest(".dash-profile");
     if (!wrap) closeProfileMenu();
   });
   document.addEventListener("keydown", (e) => {

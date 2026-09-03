@@ -134,9 +134,15 @@
           ? `mis à jour le ${shortDateFr(vlAsOf)} · ${session.orgName}`
           : `mise à jour non disponible · ${session.orgName}`,
       );
+      // LOT 12 § 1.5 : une seule source d'identité — session.advisorName
+      // sert les initiales de la pastille, le titre du bouton, l'en-tête du
+      // menu et le prénom du « Bonjour ». Aucun des quatre n'est écrit à
+      // la main.
+      const nom = session.advisorName || "Conseiller";
       setText("session-avatar", sessionInitials(session.advisorName));
+      setText("session-menu-name", nom);
       const pill = document.getElementById("session-profile");
-      if (pill) pill.title = session.advisorName || "Conseiller";
+      if (pill) pill.title = nom;
       setText("session-headline", `${greeting} ${session.advisorName}`);
     }
 
@@ -197,11 +203,13 @@
     }
 
     function updateAppModeUI() {
+      // LOT 12 § 1.4 : « Mode démo » est une entrée fixe du menu de profil,
+      // son état (ACTIF quand la démo tourne) se lit à côté du libellé, il
+      // ne s'écrit pas dans le libellé.
+      const state = document.getElementById("mode-state");
       const btn = document.getElementById("mode-toggle");
-      if (btn) {
-        btn.textContent = isProdMode() ? "MODE PROD" : "MODE DEMO";
-        btn.classList.toggle("on", isProdMode());
-      }
+      if (state) state.textContent = isProdMode() ? "INACTIF" : "ACTIF";
+      if (btn) btn.classList.toggle("on", !isProdMode());
       renderDashboardSummary();
     }
 

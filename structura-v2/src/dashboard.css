@@ -73,10 +73,10 @@
     display: grid;
     /* LOT 11 § 2 : colonnes et rythme en clamp() — à 1600 px de fenêtre,
        440px / 40px / 52px 28px, exactement comme avant. */
-    grid-template-columns: minmax(0, 1fr) clamp(360px, 28vw, 440px);
-    gap: clamp(24px, 2.6vw, 40px);
+    grid-template-columns: minmax(0, 1fr) clamp(360px, 27.5cqw, 440px);
+    gap: clamp(24px, 2.5cqw, 40px);
     align-items: start;
-    padding: clamp(40px, 3.6vw, 52px) clamp(18px, 1.9vw, 28px) 0;
+    padding: clamp(40px, 3.25cqw, 52px) clamp(18px, 1.75cqw, 28px) 0;
     min-height: var(--nappe-h);
 }
 
@@ -95,7 +95,7 @@
     font-family: var(--font-heading);
     font-weight: 300;
     /* LOT 11 § 2 : 54px à 1600, plancher 40px sur portable. */
-    font-size: clamp(40px, 3.5vw, 54px);
+    font-size: clamp(40px, 3.4cqw, 54px);
     line-height: 1.04;
     letter-spacing: -0.012em;
     color: var(--color-text-on-dark);
@@ -104,7 +104,7 @@
 /* Le cadre flottant — verre nº 1 de L3, une seule carte en deux
    épaisseurs : le cadre (blur 14), la dalle intérieure (blur 18). */
 .dash-encours-frame {
-    margin-top: clamp(24px, 2.4vw, 34px);
+    margin-top: clamp(24px, 2.15cqw, 34px);
     width: min(472px, 100%);
     padding: 12px;
     border-radius: var(--radius-xl);
@@ -140,7 +140,7 @@
     font-family: var(--font-heading);
     font-weight: 300;
     /* LOT 11 § 2 : 40px à 1600, plancher 33px. */
-    font-size: clamp(33px, 2.7vw, 40px);
+    font-size: clamp(33px, 2.5cqw, 40px);
     line-height: 1;
     letter-spacing: -0.012em;
     font-variant-numeric: tabular-nums;
@@ -186,16 +186,24 @@
 .dash-encours-borne-a { left: 0; }
 .dash-encours-borne-b { right: 0; }
 
-/* LOT 11 § 3.3 : une seule source d'espacement — gap: 14px sur la rangée,
-   plus de margin-right sur les boutons. */
+/* LOT 12 § 4 bis : chaque bouton de période est une cible ≥ 44 × 44
+   (`min-width`/`min-height` + `padding: 0 10px`, texte centré). La rangée
+   est en `gap: 6px` et décalée de -10px pour que « Mois » reste aligné
+   sur le bord du cadre malgré le padding des cibles. */
 .dash-encours-ranges {
     display: flex;
-    gap: 14px;
-    margin-top: 6px;
+    gap: 6px;
+    margin-top: 2px;
+    margin-left: -10px;
 }
 
 .dash-encours-range {
-    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 10px;
     border: none;
     background: none;
     cursor: pointer;
@@ -224,6 +232,136 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+}
+
+/* ── Le couple jour/nuit + profil — LOT 12 § 1.3 ──────────────
+   Il descend du rail au premier plan : coin haut droit de la colonne
+   de droite, au-dessus de l'agenda, sur le verre. 44 × 44 chacun. */
+.dash-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-bottom: -4px;
+}
+
+.dash-topbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+        background 260ms var(--ease-standard),
+        border-color 260ms var(--ease-standard);
+}
+
+.dash-topbar-btn:hover {
+    background: var(--flottant);
+    border-color: var(--flottant-brd);
+}
+
+.dash-topbar-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: var(--color-text-on-dark);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.dash-profile {
+    position: relative;
+}
+
+.dash-profile-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.dash-profile-disc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-full);
+    background: var(--flottant);
+    border: 1px solid var(--flottant-brd);
+    font-family: var(--font-heading);
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: var(--color-text-on-dark);
+}
+
+/* § 1.4 : le menu s'ancre à la pastille, ouvre VERS LE BAS. Plus aucun
+   ancrage dans le rail — plus de recouvrement possible des items de nav. */
+.dash-profile-menu {
+    position: absolute;
+    right: 0;
+    top: 50px;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 222px;
+    padding: 6px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--flottant-brd);
+    background: var(--color-band);
+}
+
+.dash-profile-name {
+    padding: 10px 12px 8px;
+    font-size: var(--text-sm);
+    color: var(--color-text-on-dark);
+}
+
+.dash-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-on-dark);
+    font-family: inherit;
+    font-size: 13.5px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 200ms var(--ease-standard);
+}
+
+.dash-menu-item:hover {
+    background: var(--flottant);
+}
+
+.dash-menu-item--muted {
+    color: var(--sur-azur-2);
+}
+
+.dash-menu-state {
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    color: var(--sur-azur-2);
 }
 
 .dash-agenda {
@@ -255,17 +393,32 @@
     color: var(--color-text-on-dark);
 }
 
+/* LOT 12 § 4 bis : la cible fait 44 × 44 (transparente), le disque bordé
+   de 30 px est un span intérieur — l'aspect ne change pas. Marges
+   négatives pour que le disque garde sa place d'origine dans l'en-tête. */
 .dash-agenda-close {
-    width: 30px;
-    height: 30px;
-    border-radius: var(--radius-full);
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    margin: -7px -7px -7px 0;
+    padding: 0;
     background: transparent;
-    border: 1px solid var(--flottant-brd);
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     color: var(--color-text-on-dark);
+}
+
+.dash-agenda-close-disc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--flottant-brd);
 }
 
 .dash-agenda-week {
@@ -846,16 +999,16 @@
     /* LOT 11 § 2.1 : trois colonnes de 1280 à 1600, jamais de repli à
        deux — la dalle la plus étroite tient ~265px de contenu à 1280. */
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(16px, 1.5vw, 22px);
+    gap: clamp(16px, 1.4cqw, 22px);
     align-items: start;
 }
 
 .dalle {
-    padding: clamp(24px, 2.3vw, 34px);
+    padding: clamp(24px, 2.15cqw, 34px);
     border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
-    gap: clamp(24px, 2.3vw, 34px);
+    gap: clamp(24px, 2.15cqw, 34px);
     transition: transform 280ms var(--ease-standard);
     animation: colonne 700ms var(--ease-standard) both;
 }
@@ -887,7 +1040,7 @@
     font-family: var(--font-heading);
     font-weight: 300;
     /* LOT 11 § 2 : 44px à 1600, plancher 34px. */
-    font-size: clamp(34px, 2.9vw, 44px);
+    font-size: clamp(34px, 2.75cqw, 44px);
     letter-spacing: -0.01em;
     font-variant-numeric: tabular-nums;
     color: var(--color-ink);
@@ -1064,8 +1217,15 @@
     background: var(--rail);
 }
 
+/* LOT 12 § 4 bis : chaque bascule est une cible ≥ 44 de haut, ≥ 64 de
+   large — le groupe garde son padding: 3px. */
 .topflop-btn {
-    padding: 7px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    min-height: 44px;
+    padding: 0 18px;
     border: none;
     border-radius: var(--radius-full);
     font-family: inherit;
@@ -1587,7 +1747,7 @@
        s'ajoutait au gap de vue (lot-liquide-07 § 2). LOT 11 § 2 : en
        clamp() — 54px 28px à 1600, plancher 40px 18px sur portable. Le
        latéral coïncide avec celui du premier plan à toute largeur. */
-    margin: clamp(40px, 3.6vw, 54px) clamp(18px, 1.9vw, 28px);
+    margin: clamp(40px, 3.4cqw, 54px) clamp(18px, 1.75cqw, 28px);
     padding: 0;
 }
 

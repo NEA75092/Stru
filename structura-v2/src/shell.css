@@ -48,6 +48,12 @@ body {
     min-height: 100vh;
     padding: clamp(18px, 1.6vw, 30px);
     box-sizing: border-box;
+    /* LOT 12 § 2.0 : conteneur de requête. Toutes les grandeurs variables
+       du Dashboard se mesurent en cqw (% de la largeur de .app), jamais
+       en vw — sinon une app posée dans un cadre plus étroit que la
+       fenêtre reçoit des grandeurs calculées sur la mauvaise largeur.
+       Seule exception : le padding ci-dessus (le desk EST la fenêtre). */
+    container-type: inline-size;
     background: var(--color-bg);
     color: var(--color-text-primary);
     font-family: var(--font-body);
@@ -89,7 +95,7 @@ body {
 .sidebar {
     position: relative;
     z-index: 40;
-    width: clamp(208px, 15vw, 236px);
+    width: clamp(212px, 14.75cqw, 236px);
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
@@ -149,9 +155,9 @@ body {
 }
 
 /* ── Navigation ──────────────────────────────────────────── */
-/* Plus de flex: 1 depuis le LOT 9 : c'est la rangée d'outils, en pied de
-   rail, qui pousse désormais (margin-top: auto sur .sidebar-tools). La
-   nav garde son overflow-y: auto. */
+/* Pas de flex: 1 : depuis le LOT 12 le rail n'a plus rien après la nav
+   (marque · bouton primaire · nav, point). La nav prend sa hauteur
+   naturelle et garde son overflow-y: auto. */
 .sidebar-nav {
     position: relative;
     display: flex;
@@ -574,121 +580,4 @@ body {
 .btn-tertiary:hover {
     background: var(--color-surface-2);
     border-color: transparent;
-}
-
-/* ── La rangée d'outils, en pied de rail ── LOT 9 § 3, révisée LOT 11 § 1.4.
-   Recherche · notifications · jour/nuit · profil. Elle ne pousse plus
-   (le pied vestige a disparu) : margin-top fixe + un filet, comme la
-   maquette (l. 124). Mêmes tokens que le reste du rail, zéro token neuf. */
-.sidebar-tools {
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.sidebar-tool {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border-radius: var(--r-plein);
-    background: transparent;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition:
-        background 260ms var(--ease),
-        border-color 260ms var(--ease);
-}
-
-.sidebar-tool:hover {
-    background: var(--flottant);
-    border-color: var(--flottant-brd);
-}
-
-.sidebar-tool svg {
-    width: 16px;
-    height: 16px;
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.92);
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-/* Le profil : cible de 44px avec un disque de 34px dedans. LOT 11 § 1.4 :
-   margin-left fixe (6px), plus « auto » — la rangée n'est plus flottante.
-   Derrière la pastille, un menu à une entrée : MODE DÉMO (§ 1.3). */
-.sidebar-profile {
-    position: relative;
-    margin-left: 6px;
-}
-
-.sidebar-profile-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-}
-
-.sidebar-profile-disc {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: var(--r-plein);
-    background: var(--flottant);
-    border: 1px solid var(--flottant-brd);
-    font-family: var(--font-heading);
-    font-size: 12.5px;
-    letter-spacing: 0.04em;
-    line-height: 1;
-    color: var(--sur-azur);
-}
-
-.sidebar-profile-menu {
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 8px);
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-    min-width: 148px;
-    padding: 6px;
-    border-radius: var(--r-min);
-    background: color-mix(in oklab, var(--marine) 88%, #000);
-    border: 1px solid var(--flottant-brd);
-}
-
-.sidebar-menu-item {
-    padding: 10px 12px;
-    border: none;
-    border-radius: var(--r-min);
-    background: transparent;
-    color: var(--sur-azur);
-    font-family: var(--font-heading);
-    font-size: 11.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-align: left;
-    cursor: pointer;
-    transition: background var(--duration-base) var(--ease);
-}
-
-.sidebar-menu-item:hover {
-    background: var(--flottant);
-}
-
-.sidebar-menu-item.on {
-    color: var(--azur-clair);
 }

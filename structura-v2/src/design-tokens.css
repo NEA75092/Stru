@@ -96,10 +96,11 @@
 
     /* Hauteur de la nappe — une grandeur, un token (L10). Lue par .nappe
        et par .dash-avant (le premier plan du Dashboard). Pas de thème.
-       LOT 11 § 2.2 : varie avec la LARGEUR (jamais la hauteur) — 568px à
-       1280, 640px dès 1440. La seule grandeur de la doctrine que ce lot
-       fait varier. */
-    --nappe-h: clamp(568px, 44.4vw, 640px);
+       LOT 12 § 2 : varie avec la LARGEUR DE L'APP (jamais la hauteur, jamais
+       la fenêtre) — l'unité est cqw, résolue au point d'emploi contre le
+       conteneur .app (container-type: inline-size). ~568px à 1280, ~640px
+       dès 1440. Seule grandeur de la doctrine que ce lot fait varier. */
+    --nappe-h: clamp(568px, 44.4cqw, 640px);
 
     /* Rayons — cinq valeurs, pas une de plus */
     --r-min: 2px;
