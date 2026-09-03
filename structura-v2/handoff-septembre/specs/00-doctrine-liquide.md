@@ -213,3 +213,24 @@ panne du 06/08 et du 19/08.
    zéro `border-radius` littéral, zéro nombre sans `tabular-nums`.
 5. Toute cible cliquable ≥ 44 px, vérifiée au DOM et non à l'œil.
 6. `git diff --stat` conforme à la liste de fichiers autorisée par le lot.
+
+## Un chiffre affiché ne dépend jamais d'une frame (03/09)
+
+Les compteurs qui montent sont une **décoration**. La règle, valable sur les neuf
+écrans et sur toute animation de valeur à venir :
+
+- le facteur d'animation **absent vaut 1** (la valeur finale), jamais 0 —
+  `this.state.roul ?? 1`, pas `|| 0` ;
+- la rampe ne fait que **partir** de 0 quand elle a pu démarrer ;
+- un **filet** à l'échéance écrit la valeur finale même si aucune frame n'arrive,
+  et il est nettoyé au démontage comme la rampe.
+
+Pris sur le fait : la maquette du Dashboard affichait `0 %` / `0,0` / `0` sur les
+trois têtes de dalle après un chargement neuf — les lignes en dessous étant
+peuplées — parce que la rampe ne redémarrait pas après un remontage. Un
+`setState` sans rapport les remplissait d'un coup. **Le défaut n'était pas la
+valeur, c'était de faire dépendre un chiffre d'une frame livrée.**
+
+Corollaire de lecture : ce défaut vivait dans la maquette, pas dans le dépôt.
+Il n'ouvre donc **pas** de § de lot — il entre ici, comme invariant, et la sonde
+d'un écran vérifie que sa tête de dalle est non nulle au premier rendu.

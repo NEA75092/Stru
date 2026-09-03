@@ -10,45 +10,61 @@ Ce lot ne touche que le Dashboard et la coquille. Les huit autres écrans sont l
    (le rendu 1600 ne doit pas bouger d'un pixel : ce lot ajoute un plancher, il ne
    redessine pas le rendu de référence).
 2. `assets/guerfin-symbole-clair-detoure.png` n'est pas au dépôt (§ 4.3).
-3. Retirer `.sidebar-foot` casse un test : `tests/ui-smoke.test.js` ou
+3. Un `cqw` ne se résout pas (navigateur sans `container-type`) — dis-le, ne
+   retombe pas sur `vw`.
+4. Retirer `.sidebar-foot` casse un test : `tests/ui-smoke.test.js` ou
    `css-hygiene` cite `sidebar-mode`, `sidebar-btn` ou `sidebar-add`.
    Dans ce cas : dis-le, ne réécris pas le test de ton propre chef.
-4. `exportCSV()`, `exportXLSX()`, `toggleAppMode()` ou `openModal()` n'a **aucun**
+5. `exportCSV()`, `exportXLSX()`, `toggleAppMode()` ou `openModal()` n'a **aucun**
    autre point d'appel dans l'app (§ 1.3) — il faudrait alors leur en donner un
    avant de retirer celui du rail.
 
 Ne t'arrête pas pour : la marque (§ 4 tranche : GUERFIN), les tableaux à onze colonnes
 (§ 2.4 tranche), le nombre de dalles du plâtre (inchangé).
 
-## § 1 — Les vestiges de l'ancien design sortent du rail
+## § 1 — Le bas du rail est **vide**. Rien n'y descend.
 
-`index.html` l. 104-119 : `.sidebar-foot` (MODE DEMO · CSV · Excel · + Nouveau
-produit) est resté sous la nav, au-dessus de `.sidebar-tools`. Il n'existe plus
-dans la maquette. **Erreur de ma part : il y était encore le 02/09, aucun lot ne
-l'avait audité.**
+C'est le troisième tour sur ce point et les deux premiers étaient à côté. Le
+client n'a jamais parlé de `.sidebar-foot` seul : **il parle de tout ce qui
+traîne sous la nav.** Au LOT 11 j'ai retiré `.sidebar-foot` et *déplacé*
+`.sidebar-tools` (recherche · notifications · jour/nuit · profil) juste sous le
+filet — donc les quatre boutons sont toujours là, toujours en bas. Corrigé pour
+de bon :
 
-1.1 **Supprimer `.sidebar-foot`** d'`index.html` et ses règles de `shell.css`
-    (`.sidebar-foot`, `.sidebar-mode`, `.sidebar-actions`, `.sidebar-btn`,
-    `.sidebar-add`). Zéro sélecteur orphelin.
+1.1 **`.sidebar-tools` est supprimé**, ses quatre boutons avec, et le filet
+    `border-top` avec. Après `</nav>`, le rail **ne contient plus rien**.
+    Le rail a exactement **trois enfants** : la marque, le bouton primaire,
+    la nav. Onze boutons au total dans le rail : 1 primaire + 10 items de nav.
 
-1.2 **L'action primaire remonte en tête de rail**, entre la marque et la nav :
-    un seul `<button>`, pleine largeur, `min-height: 44px`,
+1.2 **L'action primaire reste en tête de rail** (acquis du LOT 11, § inchangé) :
+    un `<button>` pleine largeur entre la marque et la nav, `min-height: 44px`,
     `border-radius: var(--radius-full)`, fond `--azur-clair`, encre `--marine`,
-    glyphe + de 14 px puis « Nouveau produit » (sans le « + » typographique :
-    le glyphe le porte). `margin-bottom: 20px`. Appelle `openModal()`.
+    glyphe + puis « Nouveau produit ». Appelle `openModal()`.
 
-1.3 **Les trois autres fonctions ne disparaissent pas** :
-    - CSV / Excel → barre d'outils de l'écran courant (Portefeuille, Barrières,
-      Clients, Calendrier ont déjà un gabarit de contrôles : `controls.css`).
-      Tant que le LOT 12 n'est pas passé, garde-les **dans la barre d'outils du
-      Portefeuille uniquement** ; ne les laisse pas dans le rail.
-    - MODE DEMO → menu de la pastille de profil du pied de rail.
+1.3 **Où vont les quatre :**
+    - **jour / nuit** et **profil** → un couple de 44 × 44 **en haut à droite du
+      premier plan**, au-dessus de la carte d'agenda, dans la colonne de droite
+      (`justify-content: flex-end`, `gap: 4px`, `margin-bottom: -4px`). Ils
+      flottent sur l'eau : c'est du verre, la doctrine est respectée.
+    - **recherche** → **rien dans la coquille.** Elle vit déjà dans la barre
+      d'outils de chaque écran, avec son `⌘K`. Deux champs de recherche pour un
+      seul acte, c'était le doublon.
+    - **notifications** → **supprimé sans remplacement.** La carte « À regarder
+      aujourd'hui » *est* le centre de notifications de cette app ; une cloche
+      qui redit la même chose est du bruit.
 
-1.4 **Le pied de rail n'est plus flottant.** `.sidebar-tools` :
-    `margin-top: 24px` (plus de `margin-top: auto`), `padding-top: 16px`,
-    `border-top: 1px solid rgba(255,255,255,0.14)`, `gap: 2px`, et la pastille
-    de profil en `margin-left: 6px` (plus de `margin-left: auto`). Les quatre
-    cibles restent 44 × 44.
+1.4 **Le menu de profil s'ancre au nouveau couple**, pas au rail : panneau de
+    222 px, `position: absolute; right: 0; top: 50px`, ouverture **vers le
+    bas**, `role="menu"`, fond `--marine`, `border-radius: var(--r-dalle)`.
+    Trois entrées de 44 px : **Mode démo** (avec son état ACTIF / INACTIF lu sur
+    l'état, pas écrit deux fois), Réglages du cabinet, Se déconnecter.
+    Capture du client à 1280 : l'ancien menu s'ouvrait **vers le haut par-dessus
+    « Doc Reader »**, en carré à angles droits, hors échelle de rayons. Il n'y a
+    plus d'ancrage dans le rail, donc plus de recouvrement possible.
+
+1.5 **L'identité est déclarée une fois.** `UTILISATEUR` donne le titre du
+    bouton, les initiales de la pastille, l'en-tête du menu **et** le prénom du
+    « Bonjour ». Aucun des quatre n'est écrit à la main.
 
 ## § 2 — Tenir sur 1280 **et** 1440 sans défilement horizontal
 
@@ -57,29 +73,43 @@ un portable. Le plancher devient **1280**. Aucune `@media` : des `clamp()`, donc
 un seul rendu continu de 1280 à 1600 — et à 1600 les valeurs hautes sont
 exactement celles d'aujourd'hui.
 
+2.0 **L'unité est `cqw`, jamais `vw`.** `.app` porte
+    `container-type: inline-size` et **toutes** les grandeurs variables du
+    tableau ci-dessous se mesurent en `cqw` — 1 cqw = 1 % de la largeur de
+    `.app`, pas de la fenêtre. J'ai d'abord écrit ce lot en `vw` : c'était une
+    faute, et mesurable. En `vw`, une app posée dans un conteneur plus étroit
+    que la fenêtre (aperçu, panneau latéral, fenêtre zoomée, capture) reçoit des
+    grandeurs calculées sur une largeur qui n'est pas la sienne — mesuré : rail
+    à 208 px alors que l'app faisait 1600. La promesse « à 1600 le rendu ne
+    bouge pas d'un pixel » n'est vérifiable qu'en `cqw`.
+    `--nappe-h` est déclaré **sur `.app`** (pas sur `:root`) : un `cqw` dans un
+    token déclaré hors du conteneur ne se résout pas contre lui.
+
 | Sélecteur | Propriété | Valeur |
 | --- | --- | --- |
 | `.app` | `min-width` | `1280px` |
-| `.app` | `padding` | `clamp(18px,1.6vw,30px)` |
-| `.sidebar` | `width` | `clamp(208px,15vw,236px)` |
-| `:root` | `--nappe-h` | `clamp(568px,44.4vw,640px)` |
-| `.dash-avant` | `padding` | `clamp(40px,3.6vw,52px) clamp(18px,1.9vw,28px) 0` |
-| `.dash-avant` | `grid-template-columns` | `minmax(0,1fr) clamp(360px,28vw,440px)` |
-| `.dash-avant` | `gap` | `clamp(24px,2.6vw,40px)` |
-| `.dash-lede-title` | `font-size` | `clamp(40px,3.5vw,54px)` |
-| `.dash-encours-frame` | `width` / `margin-top` | `min(472px,100%)` / `clamp(24px,2.4vw,34px)` |
-| `.dash-encours-val` | `font-size` | `clamp(33px,2.7vw,40px)` |
-| `.dash-platre` | `margin` | `clamp(40px,3.6vw,54px) clamp(18px,1.9vw,28px)` |
-| `.dash-platre` grille | `gap` | `clamp(16px,1.5vw,22px)` |
-| dalle (3) | `padding` / `gap` interne | `clamp(24px,2.3vw,34px)` |
-| grand chiffre de dalle (3) | `font-size` | `clamp(34px,2.9vw,44px)` |
+| `.app` | `container-type` | `inline-size` |
+| `.app` | `padding` | `clamp(18px,1.6vw,30px)` — **seule `vw` du lot** (le desk, lui, est bien la fenêtre) |
+| `.app` | `--nappe-h` | `clamp(568px,44.4cqw,640px)` |
+| `.sidebar` | `width` | `clamp(212px,14.75cqw,236px)` |
+| `.dash-avant` | `padding` | `clamp(40px,3.25cqw,52px) clamp(18px,1.75cqw,28px) 0` |
+| `.dash-avant` | `grid-template-columns` | `minmax(0,1fr) clamp(360px,27.5cqw,440px)` |
+| `.dash-avant` | `gap` | `clamp(24px,2.5cqw,40px)` |
+| `.dash-lede-title` | `font-size` | `clamp(40px,3.4cqw,54px)` |
+| `.dash-encours-frame` | `width` / `margin-top` | `min(472px,100%)` / `clamp(24px,2.15cqw,34px)` |
+| `.dash-encours-val` | `font-size` | `clamp(33px,2.5cqw,40px)` |
+| `.dash-platre` | `margin` | `clamp(40px,3.4cqw,54px) clamp(18px,1.75cqw,28px)` |
+| `.dash-platre` grille | `gap` | `clamp(16px,1.4cqw,22px)` |
+| dalle (3) | `padding` / `gap` interne | `clamp(24px,2.15cqw,34px)` |
+| grand chiffre de dalle (3) | `font-size` | `clamp(34px,2.75cqw,44px)` |
 
 2.1 Le plâtre reste à **trois colonnes** de 1280 à 1600. Pas de repli à deux :
     la dalle la plus étroite fait ~265 px de contenu à 1280, mesuré, et tient.
 
-2.2 La nappe garde ses 640 px à 1440 et au-delà ; elle descend à 568 à 1280.
-    C'est la seule grandeur de la doctrine que ce lot fait varier, et elle varie
-    avec la largeur, jamais avec la hauteur.
+2.2 La nappe : **568 px à 1280, 623 à 1440, 640 à 1600** — mesuré sur la
+    maquette, ce sont les trois valeurs que la preuve n° 4 attend. C'est la
+    seule grandeur de la doctrine que ce lot fait varier, et elle varie avec la
+    largeur de l'app, jamais avec sa hauteur.
 
 2.3 **Le point de rupture 1080 px supprimé au lot 1 ne revient pas.** Sous 1280,
     l'app défile — c'est assumé, le mobile est un autre chantier.
@@ -148,20 +178,46 @@ divergence ouverte depuis le 25/08 est close dans ce sens-là.
 4.4 Variante nuit : **aucune.** Le rail reste marine en jour comme en nuit,
     l'artwork clair vaut pour les deux thèmes (même règle qu'au 19/08).
 
+## § 4 bis — Cibles de survol : les neuf manquements
+
+La règle du projet dit **≥ 44 px**. La maquette en violait **neuf**, mesurés au
+DOM, dont quatre que j'avais moi-même posés au § 1.4. Tous corrigés :
+
+| Élément | Avant | Après | Comment |
+| --- | --- | --- | --- |
+| 3 icônes du bas de rail | 41 × 44 | 44 × 44 | la rangée sort du padding du rail : `margin: 0 -3px` |
+| pastille de profil | 40 × 44 | 44 × 44 | `flex: 0 0 auto`, et `margin-left: auto` |
+| 4 boutons de période | 29→91 × 28 | ≥ 44 × 44 | `min-width: 44px; min-height: 44px; padding: 0 10px`, rangée en `gap: 6px` décalée de `-10px` pour que « Mois » reste aligné sur le bord du cadre |
+| croix de l'agenda | 30 × 30 | 44 × 44 | le bouton devient une cible transparente de 44 ; le disque bordé de 30 est un `span` intérieur — l'aspect ne change pas |
+| Top 5 / Flop 5 | 65 × 30 | 69 × 44 | `min-height: 44px` sur les deux, `padding: 3px` sur le groupe |
+
+**Ceci clôt le point que je t'avais renvoyé au LOT 10** (« Mois » à 43 px,
+« accepter la maquette ou ouvrir un lot cibles tactiles »). La réponse est :
+la maquette avait tort, elle est corrigée, et la géométrie ci-dessus fait foi.
+Aucun lot séparé.
+
 ## § 5 — Preuves (`preuve-liquide --lot 11`)
 
-1. `0` occurrence de `sidebar-foot|sidebar-mode|sidebar-btn|sidebar-add` dans
-   `index.html` **et** `shell.css` ;
-2. `.app { min-width: 1280px }` et `0` occurrence de `1600px` dans `shell.css` ;
-3. mesure DOM à **1280 × 800** et **1440 × 900**, jour et nuit :
-   `document.scrollingElement.scrollWidth <= innerWidth` — sur les neuf vues ;
-4. mesure DOM : hauteur de `.dash-avant` = valeur résolue de `--nappe-h`
-   (568 à 1280, 640 à 1600), et bas de `.dash-avant` → haut de la première
-   dalle = 54 px à 1600, la valeur du `clamp` ailleurs ;
-5. `0` occurrence de `--ambre` sous `src/` ;
-6. le bouton primaire du rail est un `<button>` de `min-height >= 44px`, et
+1. `0` occurrence de `sidebar-foot|sidebar-mode|sidebar-btn|sidebar-add|sidebar-tools`
+   dans `index.html` **et** `shell.css` ; et mesure DOM : le rail a **3 enfants**,
+   et `0` élément après `</nav>` ;
+2. `.app { min-width: 1280px; container-type: inline-size }` et `0` occurrence
+   de `1600px` dans `shell.css` ;
+3. **`0` occurrence de `vw` sous `src/`**, à l'exception du `padding` de `.app`
+   et des `100vh`/`100vw` de plein écran — la sonde liste les exceptions
+   nommément et échoue sur toute autre ;
+4. mesure DOM à **1280 / 1440 / 1600**, jour et nuit, sur les neuf vues :
+   `scrollWidth <= clientWidth` (aucun défilement horizontal) **et** hauteur de
+   `.dash-avant` = **568 / 623 / 640** ;
+5. mesure DOM : **aucun `<button>` sous 44 px** en largeur ou en hauteur, aux
+   trois largeurs — 37 boutons sur le Dashboard, `0` manquement (§ 4 bis) ;
+6. `0` occurrence de `--ambre` sous `src/` ;
+7. le bouton primaire du rail est un `<button>` de `min-height >= 44px`, et
    c'est le **premier** élément focalisable après la marque ;
-7. `0` `margin-top: auto` sur `.sidebar-tools`.
+8. `0` `margin-top: auto` sur `.sidebar-tools` ;
+9. `0` occurrence de `structura-mark` dans `index.html` (§ 4) ;
+10. mesure DOM : le menu de profil ouvert ne recouvre **aucun** item de nav
+    (intersection de rectangles nulle), à 1280 comme à 1600.
 
 ## § 6 — Hors périmètre
 

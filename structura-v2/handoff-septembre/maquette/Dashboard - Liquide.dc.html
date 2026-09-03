@@ -30,7 +30,7 @@
 --em-l:.575;--em-c:.165;
 --verre:linear-gradient(155deg,rgba(255,255,255,.95),rgba(238,246,247,.87));--verre-brd:rgba(255,255,255,.92);
 --puck:#FFFFFF;--chip:#FFFFFF;--chip-encre:#111111;--rouge-encre:#3A0A0B;
---nappe-h:clamp(568px,44.4vw,640px);--fondu-haut:42%;--arete-voile:rgba(255,255,255,.18);--arete-1:rgba(255,255,255,.38);--arete-2:rgba(255,255,255,.2);
+--fondu-haut:42%;--arete-voile:rgba(255,255,255,.18);--arete-1:rgba(255,255,255,.38);--arete-2:rgba(255,255,255,.2);
 }
 :root[data-theme="nuit"]{
 --desk:#0B0F13;
@@ -64,11 +64,11 @@ a:hover{color:var(--azur)}
 </style>
 </helmet>
 
-<div data-screen-label="Tableau de bord" style="width:100%;min-width:1280px;min-height:100vh;background:var(--desk);padding:clamp(18px,1.6vw,30px);display:flex">
+<div data-screen-label="Tableau de bord" style="width:100%;min-width:1280px;min-height:100vh;container-type:inline-size;--nappe-h:clamp(568px,44.4cqw,640px);background:var(--desk);padding:clamp(18px,1.6vw,30px);display:flex">
 <div style="position:relative;flex:1;min-width:0;border-radius:var(--r-dalle);overflow:hidden;border:1px solid color-mix(in oklab,var(--marine) 22%,transparent);display:flex">
 
   <!-- rail de navigation -->
-  <aside style="position:relative;z-index:40;width:clamp(208px,15vw,236px);flex:0 0 auto;background:linear-gradient(180deg,var(--marine) 0%,color-mix(in oklab,var(--marine) 84%,#000) 62%,color-mix(in oklab,var(--marine) 68%,#000) 100%);display:flex;flex-direction:column;padding:24px 16px 20px">
+  <aside style="position:relative;z-index:40;width:clamp(212px,14.75cqw,236px);flex:0 0 auto;background:linear-gradient(180deg,var(--marine) 0%,color-mix(in oklab,var(--marine) 84%,#000) 62%,color-mix(in oklab,var(--marine) 68%,#000) 100%);display:flex;flex-direction:column;padding:24px 16px 20px">
 
     <div style="display:flex;align-items:center;gap:11px;padding:0 14px;margin:2px 0 22px">
       <img src="assets/guerfin-symbole-clair-detoure.png" alt="Guerfin" style="width:34px;height:18px;object-fit:contain;flex:0 0 auto">
@@ -121,21 +121,6 @@ a:hover{color:var(--azur)}
       </button>
     </nav>
 
-    <div style="margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.14);display:flex;align-items:center;gap:2px">
-      <button type="button" title="Recherche" aria-label="Recherche" style="width:44px;height:44px;border-radius:var(--r-plein);background:transparent;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 260ms var(--ease),border-color 260ms var(--ease)" style-hover="background:var(--flottant);border-color:var(--flottant-brd)">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="5.5"></circle><path d="M13.2 13.2 17 17"></path></svg>
-      </button>
-      <button type="button" title="Notifications" aria-label="Notifications" style="width:44px;height:44px;border-radius:var(--r-plein);background:transparent;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 260ms var(--ease),border-color 260ms var(--ease)" style-hover="background:var(--flottant);border-color:var(--flottant-brd)">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="12" height="12" rx="3.4"></rect></svg>
-      </button>
-      <button type="button" onClick="{{ basculerTheme }}" title="Jour / nuit" aria-label="Basculer jour / nuit" aria-pressed="{{ nuitActive }}" style="width:44px;height:44px;border-radius:var(--r-plein);background:transparent;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 260ms var(--ease),border-color 260ms var(--ease)" style-hover="background:var(--flottant);border-color:var(--flottant-brd)">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"></path></svg>
-      </button>
-      <button type="button" title="Antoine Bertrand" style="margin-left:6px;width:44px;height:44px;padding:0;border-radius:var(--r-plein);background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
-        <span style="width:34px;height:34px;border-radius:var(--r-plein);background:var(--flottant);border:1px solid var(--flottant-brd);display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;font-size:12.5px;letter-spacing:.04em;color:var(--sur-azur)">AB</span>
-      </button>
-    </div>
-
   </aside>
 
   <div style="position:relative;flex:1;min-width:0;background:var(--desk)">
@@ -153,16 +138,16 @@ a:hover{color:var(--azur)}
   </div>
 
   <!-- premier plan : seul endroit où le verre a droit de cité -->
-  <div style="position:relative;z-index:30;display:grid;grid-template-columns:minmax(0,1fr) clamp(360px,28vw,440px);gap:clamp(24px,2.6vw,40px);align-items:start;padding:clamp(40px,3.6vw,52px) clamp(18px,1.9vw,28px) 0;min-height:var(--nappe-h)">
+  <div style="position:relative;z-index:30;display:grid;grid-template-columns:minmax(0,1fr) clamp(360px,27.5cqw,440px);gap:clamp(24px,2.5cqw,40px);align-items:start;padding:clamp(40px,3.25cqw,52px) clamp(18px,1.75cqw,28px) 0;min-height:var(--nappe-h)">
 
     <div>
       <div style="font-size:13px;color:var(--sur-azur-2);margin-bottom:3px">mis à jour le {{ majLe }} · APC Courtage</div>
-      <h1 style="margin:0;font-family:'Jost',sans-serif;font-weight:300;font-size:clamp(40px,3.5vw,54px);line-height:1.04;letter-spacing:-.012em;color:var(--sur-azur)">Bonjour Antoine</h1>
+      <h1 style="margin:0;font-family:'Jost',sans-serif;font-weight:300;font-size:clamp(40px,3.4cqw,54px);line-height:1.04;letter-spacing:-.012em;color:var(--sur-azur)">Bonjour {{ prenom }}</h1>
 
-      <div style="margin-top:clamp(24px,2.4vw,34px);width:min(472px,100%);padding:12px;border-radius:var(--r-verre);border:1px solid var(--flottant-brd);background:var(--flottant);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
+      <div style="margin-top:clamp(24px,2.15cqw,34px);width:min(472px,100%);padding:12px;border-radius:var(--r-verre);border:1px solid var(--flottant-brd);background:var(--flottant);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
         <div style="padding:22px 24px 20px;border-radius:var(--r-dalle);background:var(--verre);border:1px solid var(--verre-brd);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform 280ms var(--ease)" style-hover="transform:translateY(-3px)">
           <span style="display:block;font-size:14px;color:var(--encre)">Encours sous gestion</span>
-          <span style="display:block;margin:13px 0 5px;font-size:clamp(33px,2.7vw,40px);font-family:'Jost',sans-serif;font-weight:300;line-height:1;letter-spacing:-.012em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ encours }}</span>
+          <span style="display:block;margin:13px 0 5px;font-size:clamp(33px,2.5cqw,40px);font-family:'Jost',sans-serif;font-weight:300;line-height:1;letter-spacing:-.012em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ encours }}</span>
           <div style="display:flex;align-items:baseline;gap:9px">
             <span style="font-size:14px;color:var(--vert)">{{ perfMois }}</span>
             <span style="font-size:13px;color:var(--encre-2)">soit {{ deltaMois }} ce mois</span>
@@ -184,9 +169,9 @@ a:hover{color:var(--azur)}
             <span style="position:absolute;left:0;top:-2px;font-size:11.5px;color:var(--encre-3);font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums">{{ bornePremiere }}</span>
             <span style="position:absolute;right:0;top:-2px;font-size:11.5px;color:var(--encre-3);font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums">{{ borneDerniere }}</span>
           </div>
-          <div style="display:flex;gap:14px;margin-top:8px">
+          <div style="display:flex;gap:6px;margin-top:2px;margin-left:-10px">
             <sc-for list="{{ periodes }}" as="p" hint-placeholder-count="4">
-              <button type="button" onClick="{{ p.choisir }}" aria-pressed="{{ p.actif }}" style="padding:6px 0;border:none;background:none;cursor:pointer;font-family:inherit;font-size:13px;color:{{ p.encre }};transition:color 200ms ease">{{ p.nom }}</button>
+              <button type="button" onClick="{{ p.choisir }}" aria-pressed="{{ p.actif }}" style="min-width:44px;min-height:44px;padding:0 10px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:13px;color:{{ p.encre }};transition:color 200ms ease">{{ p.nom }}</button>
             </sc-for>
           </div>
         </div>
@@ -195,13 +180,35 @@ a:hover{color:var(--azur)}
 
     <div style="display:flex;flex-direction:column;gap:16px">
 
+      <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-bottom:-4px">
+        <button type="button" onClick="{{ basculerTheme }}" title="Jour / nuit" aria-label="Basculer jour / nuit" aria-pressed="{{ nuitActive }}" style="width:44px;height:44px;border-radius:var(--r-plein);background:transparent;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 260ms var(--ease),border-color 260ms var(--ease)" style-hover="background:var(--flottant);border-color:var(--flottant-brd)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--sur-azur)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"></path></svg>
+        </button>
+        <div style="position:relative">
+          <button type="button" onClick="{{ basculerMenu }}" aria-expanded="{{ menuOuvert }}" aria-haspopup="menu" title="{{ utilisateur }}" style="width:44px;height:44px;padding:0;border-radius:var(--r-plein);background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+            <span style="width:34px;height:34px;border-radius:var(--r-plein);background:var(--flottant);border:1px solid var(--flottant-brd);display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;font-size:12.5px;letter-spacing:.04em;color:var(--sur-azur)">{{ initiales }}</span>
+          </button>
+          <sc-if value="{{ menuOuvert }}" hint-placeholder-val="{{ false }}">
+            <div role="menu" style="position:absolute;right:0;top:50px;z-index:60;width:222px;padding:6px;border-radius:var(--r-dalle);border:1px solid var(--flottant-brd);background:var(--marine);display:flex;flex-direction:column;gap:2px">
+              <div style="padding:10px 12px 8px;font-size:13px;color:var(--sur-azur)">{{ utilisateur }}</div>
+              <button type="button" role="menuitem" onClick="{{ basculerDemo }}" aria-pressed="{{ demoActive }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:0 12px;border:none;border-radius:var(--r-nav);background:transparent;cursor:pointer;font-family:inherit;font-size:13.5px;text-align:left;color:var(--sur-azur);transition:background 200ms var(--ease)" style-hover="background:var(--flottant)">
+                Mode démo
+                <span style="font-size:11.5px;letter-spacing:.08em;color:var(--sur-azur-2)">{{ demoLbl }}</span>
+              </button>
+              <button type="button" role="menuitem" style="display:flex;align-items:center;width:100%;min-height:44px;padding:0 12px;border:none;border-radius:var(--r-nav);background:transparent;cursor:pointer;font-family:inherit;font-size:13.5px;text-align:left;color:var(--sur-azur);transition:background 200ms var(--ease)" style-hover="background:var(--flottant)">Réglages du cabinet</button>
+              <button type="button" role="menuitem" style="display:flex;align-items:center;width:100%;min-height:44px;padding:0 12px;border:none;border-radius:var(--r-nav);background:transparent;cursor:pointer;font-family:inherit;font-size:13.5px;text-align:left;color:var(--sur-azur-2);transition:background 200ms var(--ease)" style-hover="background:var(--flottant)">Se déconnecter</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
       <div style="padding:18px 20px 16px;border-radius:var(--r-verre);border:1px solid var(--flottant-brd);background:var(--flottant);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
           <span style="font-family:'Jost',sans-serif;font-weight:500;font-size:17.5px;letter-spacing:.004em;white-space:nowrap;color:var(--sur-azur)">{{ aujourdhuiLong }}</span>
           <span style="margin-left:10px;flex:1;font-size:13px;color:var(--sur-azur-2);white-space:nowrap">{{ semainePlage }}</span>
-          <button type="button" aria-label="Masquer la semaine" style="width:30px;height:30px;border-radius:var(--r-plein);background:transparent;border:1px solid var(--flottant-brd);display:flex;align-items:center;justify-content:center;cursor:pointer">
+          <button type="button" aria-label="Masquer la semaine" style="flex:0 0 auto;width:44px;height:44px;margin:-7px -7px -7px 0;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center"><span aria-hidden="true" style="width:30px;height:30px;border-radius:var(--r-plein);background:transparent;border:1px solid var(--flottant-brd);display:flex;align-items:center;justify-content:center">
             <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="var(--sur-azur)" stroke-width="1.6" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"></path></svg>
-          </button>
+          </span></button>
         </div>
         <div style="display:grid;grid-template-columns:repeat(7,1fr);justify-items:center;row-gap:10px">
           <sc-for list="{{ semaine }}" as="d" hint-placeholder-count="7">
@@ -241,13 +248,13 @@ a:hover{color:var(--azur)}
   </div>
 
   <!-- le plâtre : dalles mates, jamais de verre -->
-  <div style="position:relative;z-index:20;margin:clamp(40px,3.6vw,54px) clamp(18px,1.9vw,28px)">
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,1.5vw,22px);align-items:start">
+  <div style="position:relative;z-index:20;margin:clamp(40px,3.4cqw,54px) clamp(18px,1.75cqw,28px)">
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,1.4cqw,22px);align-items:start">
 
-      <section style="padding:clamp(24px,2.3vw,34px);border-radius:var(--r-dalle);background:var(--dalle-a);display:flex;flex-direction:column;gap:clamp(24px,2.3vw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 0ms both" style-hover="transform:translateY(-3px)">
+      <section style="padding:clamp(24px,2.15cqw,34px);border-radius:var(--r-dalle);background:var(--dalle-a);display:flex;flex-direction:column;gap:clamp(24px,2.15cqw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 0ms both" style-hover="transform:translateY(-3px)">
         <h2 style="margin:0;font-family:'Jost',sans-serif;font-weight:500;font-size:16.5px;letter-spacing:.004em;color:var(--encre)">Concentration émetteurs</h2>
         <div style="display:flex;align-items:baseline;gap:9px">
-          <span style="font-size:clamp(34px,2.9vw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nPremier }}<span style="font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--encre-3)">%</span></span>
+          <span style="font-size:clamp(34px,2.75cqw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nPremier }}<span style="font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--encre-3)">%</span></span>
           <span style="font-size:14px;color:var(--encre-2)">au premier émetteur · {{ emetteursNb }} au total</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:18px">
@@ -273,16 +280,16 @@ a:hover{color:var(--azur)}
         </button>
       </section>
 
-      <section style="padding:clamp(24px,2.3vw,34px);border-radius:var(--r-dalle);background:var(--dalle-b);display:flex;flex-direction:column;gap:clamp(24px,2.3vw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 90ms both" style-hover="transform:translateY(-3px)">
+      <section style="padding:clamp(24px,2.15cqw,34px);border-radius:var(--r-dalle);background:var(--dalle-b);display:flex;flex-direction:column;gap:clamp(24px,2.15cqw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 90ms both" style-hover="transform:translateY(-3px)">
         <h2 style="margin:0;font-family:'Jost',sans-serif;font-weight:500;font-size:16.5px;letter-spacing:.004em;color:var(--encre)">Top / Flop produits</h2>
         <div style="display:flex;align-items:baseline;gap:9px">
-          <span style="font-size:clamp(34px,2.9vw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nVL }}</span>
+          <span style="font-size:clamp(34px,2.75cqw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nVL }}</span>
           <span style="font-size:14px;color:var(--encre-2);white-space:nowrap">VL moyenne · {{ sousBarriere }}</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:14px">
           <div role="group" aria-label="Classement" style="display:inline-flex;align-self:flex-start;padding:3px;border-radius:var(--r-plein);background:var(--rail)">
-            <button type="button" onClick="{{ voirTop }}" aria-pressed="{{ topActif }}" style="padding:7px 16px;border:none;border-radius:var(--r-plein);font-family:inherit;font-size:13px;cursor:pointer;transition:background 240ms var(--ease),color 240ms var(--ease);background:{{ fondTop }};color:{{ encreTop }}">Top 5</button>
-            <button type="button" onClick="{{ voirFlop }}" aria-pressed="{{ flopActif }}" style="padding:7px 16px;border:none;border-radius:var(--r-plein);font-family:inherit;font-size:13px;cursor:pointer;transition:background 240ms var(--ease),color 240ms var(--ease);background:{{ fondFlop }};color:{{ encreFlop }}">Flop 5</button>
+            <button type="button" onClick="{{ voirTop }}" aria-pressed="{{ topActif }}" style="min-width:64px;min-height:44px;padding:0 18px;border:none;border-radius:var(--r-plein);font-family:inherit;font-size:13px;cursor:pointer;transition:background 240ms var(--ease),color 240ms var(--ease);background:{{ fondTop }};color:{{ encreTop }}">Top 5</button>
+            <button type="button" onClick="{{ voirFlop }}" aria-pressed="{{ flopActif }}" style="min-width:64px;min-height:44px;padding:0 18px;border:none;border-radius:var(--r-plein);font-family:inherit;font-size:13px;cursor:pointer;transition:background 240ms var(--ease),color 240ms var(--ease);background:{{ fondFlop }};color:{{ encreFlop }}">Flop 5</button>
           </div>
           <div style="display:flex;flex-direction:column">
             <div style="display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:baseline;gap:11px;padding:0 10px 8px;margin:0 -10px;border-bottom:1px solid var(--trait)">
@@ -315,20 +322,20 @@ a:hover{color:var(--azur)}
         </button>
       </section>
 
-      <section style="padding:clamp(24px,2.3vw,34px);border-radius:var(--r-dalle);background:var(--dalle-c);display:flex;flex-direction:column;gap:clamp(24px,2.3vw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 180ms both" style-hover="transform:translateY(-3px)">
+      <section style="padding:clamp(24px,2.15cqw,34px);border-radius:var(--r-dalle);background:var(--dalle-c);display:flex;flex-direction:column;gap:clamp(24px,2.15cqw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 180ms both" style-hover="transform:translateY(-3px)">
         <h2 style="margin:0;font-family:'Jost',sans-serif;font-weight:500;font-size:16.5px;letter-spacing:.004em;color:var(--encre)">Événements de la semaine</h2>
         <div style="display:flex;align-items:baseline;gap:9px">
-          <span style="font-size:clamp(34px,2.9vw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nEvts }}</span>
+          <span style="font-size:clamp(34px,2.75cqw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nEvts }}</span>
           <span style="font-size:14px;color:var(--encre-2);white-space:nowrap">cette semaine</span>
         </div>
         <div style="display:flex;flex-direction:column">
           <sc-for list="{{ evenements }}" as="e" hint-placeholder-count="5">
-            <button type="button" style="display:grid;grid-template-columns:34px 28px minmax(0,1fr) auto;align-items:center;gap:11px;width:100%;padding:11px 10px;margin:0 -10px;min-height:44px;background:none;border:none;border-radius:var(--r-min);font-family:inherit;text-align:left;cursor:pointer;transition:background 160ms ease;animation:ligne 460ms var(--ease) {{ e.delai }} both" style-hover="background:var(--survol)">
+            <button type="button" style="display:grid;grid-template-columns:34px auto minmax(0,1fr) auto;align-items:center;gap:11px;width:100%;padding:11px 10px;margin:0 -10px;min-height:44px;background:none;border:none;border-radius:var(--r-min);font-family:inherit;text-align:left;cursor:pointer;transition:background 160ms ease;animation:ligne 460ms var(--ease) {{ e.delai }} both" style-hover="background:var(--survol)">
               <span style="display:flex;flex-direction:column;align-items:flex-start;gap:1px">
                 <span style="font-size:11.5px;color:var(--encre-3)">{{ e.jour }}</span>
                 <span style="font-size:14px;font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums;line-height:1.1;color:{{ e.encre }}">{{ e.date }}</span>
               </span>
-              <span style="width:28px;height:28px;border-radius:var(--r-plein);border:1px solid var(--trait);display:flex;align-items:center;justify-content:center;font-size:11.5px;letter-spacing:.02em;color:var(--encre-2);line-height:1">{{ e.sigle }}</span>
+              <span style="min-width:28px;height:28px;padding:0 7px;border-radius:var(--r-plein);border:1px solid var(--trait);display:flex;align-items:center;justify-content:center;font-size:11.5px;letter-spacing:.02em;color:var(--encre-2);line-height:1;white-space:nowrap">{{ e.sigle }}</span>
               <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
                 <span style="font-size:14px;line-height:1.25;color:var(--encre);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.titre }}</span>
                 <span style="font-size:11.5px;line-height:1.25;color:var(--encre-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.detail }}</span>
@@ -357,6 +364,8 @@ a:hover{color:var(--azur)}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1660},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;jour&quot;,&quot;nuit&quot;],&quot;default&quot;:&quot;jour&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Direction&quot;},&quot;barriere&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:70,&quot;min&quot;:40,&quot;max&quot;:100,&quot;unit&quot;:&quot;VL&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Règles produit&quot;},&quot;couleursMax&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;min&quot;:2,&quot;max&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Règles produit&quot;}}">
 class Component extends DCLogic {
+  get UTILISATEUR() { return "Antoine Bertrand"; }
+
   state = { theme: null, roul: 0, vue: "top", periode: "Mois" };
 
   /* ══ Constantes de l'écran ═══════════════════════════════════════════
@@ -375,18 +384,25 @@ class Component extends DCLogic {
   get theme() { return this.state.theme || this.props.theme || "jour"; }
   componentDidMount() { this.appliquer(); this.rouler(); }
   componentDidUpdate() { this.appliquer(); }
-  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); clearTimeout(this._filet); }
   appliquer() { document.documentElement.dataset.theme = this.theme; }
 
-  // les trois grands chiffres montent jusqu'à leur valeur, une seule fois
+  /* Les trois grands chiffres montent jusqu'à leur valeur, une seule fois.
+     La rampe est une décoration : un chiffre affiché ne dépend jamais d'une
+     frame livrée. `roul` absent vaut 1 (valeur finale) — la rampe ne fait que
+     partir de 0 quand elle a pu démarrer, et un filet écrit 1 à l'échéance
+     même si aucune frame n'arrive. */
   rouler() {
-    const t0 = performance.now(), D = 900;
+    const D = 900;
+    this.setState({ roul: 0 });
+    const t0 = performance.now();
     const pas = () => {
       const p = Math.min(1, (performance.now() - t0) / D);
       this.setState({ roul: 1 - Math.pow(1 - p, 4) });
       if (p < 1) this._raf = requestAnimationFrame(pas);
     };
     this._raf = requestAnimationFrame(pas);
+    this._filet = setTimeout(() => this.setState({ roul: 1 }), D + 120);
   }
 
   /* ── Formats ─────────────────────────────────────────────────────── */
@@ -654,7 +670,7 @@ class Component extends DCLogic {
     const evts = this.evenements();
     const alertes = this.alertes();
     const sous = this.sousBarriere().length;
-    const r = this.state.roul || 0;
+    const r = this.state.roul ?? 1;
     const flop = this.state.vue === "flop";
 
     return {
@@ -662,6 +678,14 @@ class Component extends DCLogic {
       majLe: this.MAJ.toLocaleDateString("fr-FR") + " à " + this.MAJ.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
       aujourdhuiLong: this.AUJOURDHUI.toLocaleDateString("fr-FR", { day: "numeric", month: "long" }),
       nuitActive: this.theme === "nuit",
+      utilisateur: this.UTILISATEUR,
+      prenom: this.UTILISATEUR.split(" ")[0],
+      initiales: this.UTILISATEUR.split(" ").map(m => m[0]).join("").slice(0, 2),
+      menuOuvert: !!this.state.menu,
+      basculerMenu: () => this.setState(s => ({ menu: !s.menu })),
+      demoActive: !!this.state.demo,
+      demoLbl: this.state.demo ? "ACTIF" : "INACTIF",
+      basculerDemo: () => this.setState(s => ({ demo: !s.demo })),
       basculerTheme: () => this.setState({ theme: this.theme === "nuit" ? "jour" : "nuit" }),
 
       // encours
