@@ -16,7 +16,7 @@
 --desk:#E1E4E3;
 --azur:#4696B3;--azur-clair:#8FD3E6;--azur-profond:#136C95;--marine:#073D5D;
 --encre:#111111;--encre-2:#5B6577;--encre-3:#7C8790;
---vert:#1F6B41;--rouge:#FF5557;--ambre:#E0972A;
+--vert:#1F6B41;--rouge:#FF5557;
 --trait:rgba(17,17,17,0.08);
 --sur-azur:#FFFFFF;--sur-azur-2:rgba(255,255,255,0.74);
 --flottant:rgba(255,255,255,0.22);--flottant-brd:rgba(255,255,255,0.42);
@@ -30,7 +30,7 @@
 --em-l:.575;--em-c:.165;
 --verre:linear-gradient(155deg,rgba(255,255,255,.95),rgba(238,246,247,.87));--verre-brd:rgba(255,255,255,.92);
 --puck:#FFFFFF;--chip:#FFFFFF;--chip-encre:#111111;--rouge-encre:#3A0A0B;
---fondu-haut:42%;--arete-voile:rgba(255,255,255,.18);--arete-1:rgba(255,255,255,.38);--arete-2:rgba(255,255,255,.2);
+--nappe-h:clamp(568px,44.4vw,640px);--fondu-haut:42%;--arete-voile:rgba(255,255,255,.18);--arete-1:rgba(255,255,255,.38);--arete-2:rgba(255,255,255,.2);
 }
 :root[data-theme="nuit"]{
 --desk:#0B0F13;
@@ -45,7 +45,7 @@
 --rail:rgba(255,255,255,0.10);--encre-faible:rgba(255,255,255,0.22);
 --fondu-haut:58%;--arete-voile:rgba(255,255,255,.26);--arete-1:rgba(255,255,255,.52);--arete-2:rgba(255,255,255,.3);
 --em-l:.775;--em-c:.145;
---vert:#4FA87A;--rouge:#FF7A7C;--ambre:#EDB65C;
+--vert:#4FA87A;--rouge:#FF7A7C;
 --verre:linear-gradient(155deg,rgba(30,42,52,.82),rgba(18,26,33,.74));--verre-brd:rgba(255,255,255,.14);
 --puck:#EAF3F6;--chip:#EAF3F6;--chip-encre:#0E1519;--rouge-encre:#2A0708;
 }
@@ -64,16 +64,21 @@ a:hover{color:var(--azur)}
 </style>
 </helmet>
 
-<div data-screen-label="Tableau de bord" style="width:100%;min-width:1600px;min-height:100vh;background:var(--desk);padding:30px;display:flex">
+<div data-screen-label="Tableau de bord" style="width:100%;min-width:1280px;min-height:100vh;background:var(--desk);padding:clamp(18px,1.6vw,30px);display:flex">
 <div style="position:relative;flex:1;min-width:0;border-radius:var(--r-dalle);overflow:hidden;border:1px solid color-mix(in oklab,var(--marine) 22%,transparent);display:flex">
 
   <!-- rail de navigation -->
-  <aside style="position:relative;z-index:40;width:236px;flex:0 0 auto;background:linear-gradient(180deg,var(--marine) 0%,color-mix(in oklab,var(--marine) 84%,#000) 62%,color-mix(in oklab,var(--marine) 68%,#000) 100%);display:flex;flex-direction:column;padding:24px 16px 20px">
+  <aside style="position:relative;z-index:40;width:clamp(208px,15vw,236px);flex:0 0 auto;background:linear-gradient(180deg,var(--marine) 0%,color-mix(in oklab,var(--marine) 84%,#000) 62%,color-mix(in oklab,var(--marine) 68%,#000) 100%);display:flex;flex-direction:column;padding:24px 16px 20px">
 
-    <div style="display:flex;align-items:center;justify-content:center;gap:11px;padding:0 6px;margin:2px 0 32px">
-      <img src="assets/guerfin-symbole-clair.png" alt="Guerfin" style="width:38px;height:28px;object-fit:contain;flex:0 0 auto">
-      <span style="font-family:'Jost',sans-serif;font-weight:500;font-size:16px;letter-spacing:.2em;color:var(--sur-azur)">GUERFIN</span>
+    <div style="display:flex;align-items:center;gap:11px;padding:0 14px;margin:2px 0 22px">
+      <img src="assets/guerfin-symbole-clair-detoure.png" alt="Guerfin" style="width:34px;height:18px;object-fit:contain;flex:0 0 auto">
+      <span style="font-family:'Jost',sans-serif;font-weight:500;font-size:15px;letter-spacing:.18em;color:var(--sur-azur)">GUERFIN</span>
     </div>
+
+    <button type="button" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:20px;padding:12px 0;min-height:44px;border-radius:var(--r-plein);border:none;cursor:pointer;font-family:'Jost',sans-serif;font-size:13.5px;letter-spacing:.02em;background:var(--azur-clair);color:var(--marine);transition:background 220ms var(--ease)" style-hover="background:color-mix(in oklab,var(--azur-clair) 82%,#fff)">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--marine)" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v12M4 10h12"></path></svg>
+      Nouveau produit
+    </button>
 
     <nav style="display:flex;flex-direction:column;gap:2px">
       <button type="button" aria-current="page" style="position:relative;width:100%;display:flex;align-items:center;gap:12px;padding:10px 14px;min-height:44px;border:none;border-radius:var(--r-nav);cursor:pointer;text-align:left;background:var(--flottant);transition:background 220ms var(--ease)">
@@ -116,16 +121,7 @@ a:hover{color:var(--azur)}
       </button>
     </nav>
 
-    <div style="margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.14);display:flex;flex-direction:column;gap:9px">
-      <button type="button" style="width:100%;padding:11px 0;min-height:44px;border-radius:var(--r-plein);cursor:pointer;font-family:'Jost',sans-serif;font-size:11.5px;letter-spacing:.1em;transition:background 220ms var(--ease);background:transparent;border:1px solid var(--flottant-brd);color:rgba(255,255,255,0.92)" style-hover="background:var(--flottant)">MODE DÉMO</button>
-      <div style="display:flex;gap:9px">
-        <button type="button" style="flex:1;padding:11px 0;min-height:44px;border-radius:var(--r-plein);cursor:pointer;font-family:'Jost',sans-serif;font-size:11.5px;letter-spacing:.1em;transition:background 220ms var(--ease);background:transparent;border:1px solid var(--flottant-brd);color:rgba(255,255,255,0.92)" style-hover="background:var(--flottant)">CSV</button>
-        <button type="button" style="flex:1;padding:11px 0;min-height:44px;border-radius:var(--r-plein);cursor:pointer;font-family:'Jost',sans-serif;font-size:11.5px;letter-spacing:.1em;transition:background 220ms var(--ease);background:transparent;border:1px solid var(--flottant-brd);color:rgba(255,255,255,0.92)" style-hover="background:var(--flottant)">EXCEL</button>
-      </div>
-      <button type="button" style="padding:11px 0;min-height:44px;border-radius:var(--r-plein);border:none;cursor:pointer;font-family:'Jost',sans-serif;font-size:13.5px;letter-spacing:.02em;background:var(--azur-clair);color:var(--marine);transition:background 220ms var(--ease)" style-hover="background:color-mix(in oklab,var(--azur-clair) 82%,#fff)">+ Nouveau produit</button>
-    </div>
-
-    <div style="margin-top:auto;padding-top:22px;display:flex;align-items:center;gap:6px">
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.14);display:flex;align-items:center;gap:2px">
       <button type="button" title="Recherche" aria-label="Recherche" style="width:44px;height:44px;border-radius:var(--r-plein);background:transparent;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 260ms var(--ease),border-color 260ms var(--ease)" style-hover="background:var(--flottant);border-color:var(--flottant-brd)">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="5.5"></circle><path d="M13.2 13.2 17 17"></path></svg>
       </button>
@@ -135,7 +131,7 @@ a:hover{color:var(--azur)}
       <button type="button" onClick="{{ basculerTheme }}" title="Jour / nuit" aria-label="Basculer jour / nuit" aria-pressed="{{ nuitActive }}" style="width:44px;height:44px;border-radius:var(--r-plein);background:transparent;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 260ms var(--ease),border-color 260ms var(--ease)" style-hover="background:var(--flottant);border-color:var(--flottant-brd)">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"></path></svg>
       </button>
-      <button type="button" title="Antoine Bertrand" style="margin-left:auto;width:44px;height:44px;padding:0;border-radius:var(--r-plein);background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+      <button type="button" title="Antoine Bertrand" style="margin-left:6px;width:44px;height:44px;padding:0;border-radius:var(--r-plein);background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
         <span style="width:34px;height:34px;border-radius:var(--r-plein);background:var(--flottant);border:1px solid var(--flottant-brd);display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;font-size:12.5px;letter-spacing:.04em;color:var(--sur-azur)">AB</span>
       </button>
     </div>
@@ -145,7 +141,7 @@ a:hover{color:var(--azur)}
   <div style="position:relative;flex:1;min-width:0;background:var(--desk)">
 
   <!-- la nappe : plan de l'eau, rien d'informatif n'y vit -->
-  <div aria-hidden="true" style="position:absolute;left:0;top:0;right:0;height:640px;overflow:hidden;pointer-events:none">
+  <div aria-hidden="true" style="position:absolute;left:0;top:0;right:0;height:var(--nappe-h);overflow:hidden;pointer-events:none">
     <div style="position:absolute;inset:0;background:linear-gradient(161deg,color-mix(in oklab,var(--azur-clair) 42%,var(--azur)) 0%,var(--azur) 22%,color-mix(in oklab,var(--azur) 36%,var(--azur-profond)) 44%,var(--azur-profond) 68%,var(--marine) 100%)"></div>
     <div style="position:absolute;left:34%;top:-72%;width:82%;height:168%;border-radius:46% 54% 42% 58%;background:radial-gradient(54% 54% at 42% 38%,color-mix(in oklab,var(--azur-clair) 82%,#fff),var(--azur) 58%,transparent 86%);filter:blur(64px);opacity:.62;animation:derive 46s var(--ease) infinite"></div>
     <div style="position:absolute;left:-22%;top:-44%;width:60%;height:134%;border-radius:54% 46% 58% 42%;background:radial-gradient(52% 52% at 56% 48%,var(--azur-clair),transparent 76%);filter:blur(72px);opacity:.3;animation:derive 58s var(--ease) infinite reverse"></div>
@@ -157,16 +153,16 @@ a:hover{color:var(--azur)}
   </div>
 
   <!-- premier plan : seul endroit où le verre a droit de cité -->
-  <div style="position:relative;z-index:30;display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:40px;align-items:start;padding:52px 28px 0">
+  <div style="position:relative;z-index:30;display:grid;grid-template-columns:minmax(0,1fr) clamp(360px,28vw,440px);gap:clamp(24px,2.6vw,40px);align-items:start;padding:clamp(40px,3.6vw,52px) clamp(18px,1.9vw,28px) 0;min-height:var(--nappe-h)">
 
     <div>
       <div style="font-size:13px;color:var(--sur-azur-2);margin-bottom:3px">mis à jour le {{ majLe }} · APC Courtage</div>
-      <h1 style="margin:0;font-family:'Jost',sans-serif;font-weight:300;font-size:54px;line-height:1.04;letter-spacing:-.012em;color:var(--sur-azur)">Bonjour Antoine</h1>
+      <h1 style="margin:0;font-family:'Jost',sans-serif;font-weight:300;font-size:clamp(40px,3.5vw,54px);line-height:1.04;letter-spacing:-.012em;color:var(--sur-azur)">Bonjour Antoine</h1>
 
-      <div style="margin-top:34px;width:472px;padding:12px;border-radius:var(--r-verre);border:1px solid var(--flottant-brd);background:var(--flottant);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
+      <div style="margin-top:clamp(24px,2.4vw,34px);width:min(472px,100%);padding:12px;border-radius:var(--r-verre);border:1px solid var(--flottant-brd);background:var(--flottant);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
         <div style="padding:22px 24px 20px;border-radius:var(--r-dalle);background:var(--verre);border:1px solid var(--verre-brd);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform 280ms var(--ease)" style-hover="transform:translateY(-3px)">
           <span style="display:block;font-size:14px;color:var(--encre)">Encours sous gestion</span>
-          <span style="display:block;margin:13px 0 5px;font-size:40px;font-family:'Jost',sans-serif;font-weight:300;line-height:1;letter-spacing:-.012em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ encours }}</span>
+          <span style="display:block;margin:13px 0 5px;font-size:clamp(33px,2.7vw,40px);font-family:'Jost',sans-serif;font-weight:300;line-height:1;letter-spacing:-.012em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ encours }}</span>
           <div style="display:flex;align-items:baseline;gap:9px">
             <span style="font-size:14px;color:var(--vert)">{{ perfMois }}</span>
             <span style="font-size:13px;color:var(--encre-2)">soit {{ deltaMois }} ce mois</span>
@@ -188,9 +184,9 @@ a:hover{color:var(--azur)}
             <span style="position:absolute;left:0;top:-2px;font-size:11.5px;color:var(--encre-3);font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums">{{ bornePremiere }}</span>
             <span style="position:absolute;right:0;top:-2px;font-size:11.5px;color:var(--encre-3);font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums">{{ borneDerniere }}</span>
           </div>
-          <div style="display:flex;gap:8px;margin-top:6px">
+          <div style="display:flex;gap:14px;margin-top:8px">
             <sc-for list="{{ periodes }}" as="p" hint-placeholder-count="4">
-              <button type="button" onClick="{{ p.choisir }}" aria-pressed="{{ p.actif }}" style="padding:6px 0;margin-right:14px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:13px;color:{{ p.encre }};transition:color 200ms ease">{{ p.nom }}</button>
+              <button type="button" onClick="{{ p.choisir }}" aria-pressed="{{ p.actif }}" style="padding:6px 0;border:none;background:none;cursor:pointer;font-family:inherit;font-size:13px;color:{{ p.encre }};transition:color 200ms ease">{{ p.nom }}</button>
             </sc-for>
           </div>
         </div>
@@ -202,6 +198,7 @@ a:hover{color:var(--azur)}
       <div style="padding:18px 20px 16px;border-radius:var(--r-verre);border:1px solid var(--flottant-brd);background:var(--flottant);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
           <span style="font-family:'Jost',sans-serif;font-weight:500;font-size:17.5px;letter-spacing:.004em;white-space:nowrap;color:var(--sur-azur)">{{ aujourdhuiLong }}</span>
+          <span style="margin-left:10px;flex:1;font-size:13px;color:var(--sur-azur-2);white-space:nowrap">{{ semainePlage }}</span>
           <button type="button" aria-label="Masquer la semaine" style="width:30px;height:30px;border-radius:var(--r-plein);background:transparent;border:1px solid var(--flottant-brd);display:flex;align-items:center;justify-content:center;cursor:pointer">
             <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="var(--sur-azur)" stroke-width="1.6" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"></path></svg>
           </button>
@@ -224,6 +221,7 @@ a:hover{color:var(--azur)}
           <span style="font-family:'Jost',sans-serif;font-weight:500;font-size:17.5px;letter-spacing:.004em;white-space:nowrap;color:var(--sur-azur)">À regarder aujourd'hui</span>
           <span style="width:26px;height:26px;border-radius:var(--r-plein);background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--rouge-encre)">{{ nAlertes }}</span>
         </div>
+        <div style="margin:-6px 0 12px;font-size:13px;color:rgba(255,255,255,0.76)">{{ alertesEnJeu }} en jeu sur ces trois dossiers</div>
         <div style="display:flex;flex-direction:column">
           <sc-for list="{{ alertes }}" as="a" hint-placeholder-count="3">
             <button type="button" style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:13px;padding:12px 0;min-height:44px;width:100%;text-align:left;background:none;border:none;border-top:1px solid rgba(255,255,255,.18);cursor:pointer;font-family:inherit">
@@ -243,13 +241,13 @@ a:hover{color:var(--azur)}
   </div>
 
   <!-- le plâtre : dalles mates, jamais de verre -->
-  <div style="position:relative;z-index:20;margin:54px 28px">
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;align-items:start">
+  <div style="position:relative;z-index:20;margin:clamp(40px,3.6vw,54px) clamp(18px,1.9vw,28px)">
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,1.5vw,22px);align-items:start">
 
-      <section style="padding:34px;border-radius:var(--r-dalle);background:var(--dalle-a);display:flex;flex-direction:column;gap:34px;transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 0ms both" style-hover="transform:translateY(-3px)">
+      <section style="padding:clamp(24px,2.3vw,34px);border-radius:var(--r-dalle);background:var(--dalle-a);display:flex;flex-direction:column;gap:clamp(24px,2.3vw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 0ms both" style-hover="transform:translateY(-3px)">
         <h2 style="margin:0;font-family:'Jost',sans-serif;font-weight:500;font-size:16.5px;letter-spacing:.004em;color:var(--encre)">Concentration émetteurs</h2>
         <div style="display:flex;align-items:baseline;gap:9px">
-          <span style="font-size:44px;font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nPremier }}<span style="font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--encre-3)">%</span></span>
+          <span style="font-size:clamp(34px,2.9vw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nPremier }}<span style="font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--encre-3)">%</span></span>
           <span style="font-size:14px;color:var(--encre-2)">au premier émetteur · {{ emetteursNb }} au total</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:18px">
@@ -275,10 +273,10 @@ a:hover{color:var(--azur)}
         </button>
       </section>
 
-      <section style="padding:34px;border-radius:var(--r-dalle);background:var(--dalle-b);display:flex;flex-direction:column;gap:34px;transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 90ms both" style-hover="transform:translateY(-3px)">
+      <section style="padding:clamp(24px,2.3vw,34px);border-radius:var(--r-dalle);background:var(--dalle-b);display:flex;flex-direction:column;gap:clamp(24px,2.3vw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 90ms both" style-hover="transform:translateY(-3px)">
         <h2 style="margin:0;font-family:'Jost',sans-serif;font-weight:500;font-size:16.5px;letter-spacing:.004em;color:var(--encre)">Top / Flop produits</h2>
         <div style="display:flex;align-items:baseline;gap:9px">
-          <span style="font-size:44px;font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nVL }}</span>
+          <span style="font-size:clamp(34px,2.9vw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nVL }}</span>
           <span style="font-size:14px;color:var(--encre-2);white-space:nowrap">VL moyenne · {{ sousBarriere }}</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:14px">
@@ -287,6 +285,11 @@ a:hover{color:var(--azur)}
             <button type="button" onClick="{{ voirFlop }}" aria-pressed="{{ flopActif }}" style="padding:7px 16px;border:none;border-radius:var(--r-plein);font-family:inherit;font-size:13px;cursor:pointer;transition:background 240ms var(--ease),color 240ms var(--ease);background:{{ fondFlop }};color:{{ encreFlop }}">Flop 5</button>
           </div>
           <div style="display:flex;flex-direction:column">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:baseline;gap:11px;padding:0 10px 8px;margin:0 -10px;border-bottom:1px solid var(--trait)">
+              <span style="font-size:11.5px;letter-spacing:.08em;color:var(--encre-3)">PRODUIT</span>
+              <span style="font-size:11.5px;letter-spacing:.08em;color:var(--encre-3)">VL</span>
+              <span style="font-size:11.5px;letter-spacing:.08em;color:var(--encre-3)">ÉCART</span>
+            </div>
             <sc-for list="{{ classement }}" as="p" hint-placeholder-count="5">
               <button type="button" style="display:flex;flex-direction:column;gap:9px;width:100%;padding:13px 10px;margin:0 -10px;background:none;border:none;border-radius:var(--r-min);font-family:inherit;text-align:left;cursor:pointer;transition:background 160ms ease;animation:ligne 460ms var(--ease) {{ p.delai }} both" style-hover="background:var(--survol)">
                 <span style="display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:baseline;gap:11px;width:100%">
@@ -300,6 +303,10 @@ a:hover{color:var(--azur)}
                 </span>
               </button>
             </sc-for>
+            <div style="display:flex;align-items:center;gap:8px;padding-top:10px">
+              <span style="width:1.5px;height:12px;background:var(--encre-2);flex:0 0 auto"></span>
+              <span style="font-size:11.5px;color:var(--encre-3)">barrière de protection du capital · VL {{ barriereLbl }} · échelle 0 – {{ vlMaxLbl }}</span>
+            </div>
           </div>
         </div>
         <button type="button" style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:26px;padding:18px 0 0;min-height:44px;background:none;border:none;border-top:1px solid var(--trait);cursor:pointer;font-family:inherit;text-align:left">
@@ -308,26 +315,31 @@ a:hover{color:var(--azur)}
         </button>
       </section>
 
-      <section style="padding:34px;border-radius:var(--r-dalle);background:var(--dalle-c);display:flex;flex-direction:column;gap:34px;transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 180ms both" style-hover="transform:translateY(-3px)">
+      <section style="padding:clamp(24px,2.3vw,34px);border-radius:var(--r-dalle);background:var(--dalle-c);display:flex;flex-direction:column;gap:clamp(24px,2.3vw,34px);transition:transform 280ms var(--ease);animation:colonne 700ms var(--ease) 180ms both" style-hover="transform:translateY(-3px)">
         <h2 style="margin:0;font-family:'Jost',sans-serif;font-weight:500;font-size:16.5px;letter-spacing:.004em;color:var(--encre)">Événements de la semaine</h2>
         <div style="display:flex;align-items:baseline;gap:9px">
-          <span style="font-size:44px;font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nEvts }}</span>
+          <span style="font-size:clamp(34px,2.9vw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nEvts }}</span>
           <span style="font-size:14px;color:var(--encre-2);white-space:nowrap">cette semaine</span>
         </div>
         <div style="display:flex;flex-direction:column">
           <sc-for list="{{ evenements }}" as="e" hint-placeholder-count="5">
-            <button type="button" style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:13px;width:100%;padding:12px 10px;margin:0 -10px;min-height:44px;background:none;border:none;border-radius:var(--r-min);font-family:inherit;text-align:left;cursor:pointer;transition:background 160ms ease;animation:ligne 460ms var(--ease) {{ e.delai }} both" style-hover="background:var(--survol)">
-              <span style="display:flex;flex-direction:column;align-items:center">
+            <button type="button" style="display:grid;grid-template-columns:34px 28px minmax(0,1fr) auto;align-items:center;gap:11px;width:100%;padding:11px 10px;margin:0 -10px;min-height:44px;background:none;border:none;border-radius:var(--r-min);font-family:inherit;text-align:left;cursor:pointer;transition:background 160ms ease;animation:ligne 460ms var(--ease) {{ e.delai }} both" style-hover="background:var(--survol)">
+              <span style="display:flex;flex-direction:column;align-items:flex-start;gap:1px">
                 <span style="font-size:11.5px;color:var(--encre-3)">{{ e.jour }}</span>
-                <span style="font-size:14px;font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums;color:{{ e.encre }}">{{ e.date }}</span>
+                <span style="font-size:14px;font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums;line-height:1.1;color:{{ e.encre }}">{{ e.date }}</span>
               </span>
+              <span style="width:28px;height:28px;border-radius:var(--r-plein);border:1px solid var(--trait);display:flex;align-items:center;justify-content:center;font-size:11.5px;letter-spacing:.02em;color:var(--encre-2);line-height:1">{{ e.sigle }}</span>
               <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
-                <span style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--encre);min-width:0"><span style="flex:0 0 auto;width:28px;height:28px;border-radius:var(--r-plein);border:1px solid var(--trait);display:flex;align-items:center;justify-content:center;font-size:11.5px;letter-spacing:.02em;color:var(--encre-2);line-height:1">{{ e.sigle }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.titre }}</span></span>
-                <span style="font-size:11.5px;color:var(--encre-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:37px">{{ e.detail }}</span>
+                <span style="font-size:14px;line-height:1.25;color:var(--encre);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.titre }}</span>
+                <span style="font-size:11.5px;line-height:1.25;color:var(--encre-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.detail }}</span>
               </span>
               <span style="font-size:14px;font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums;color:{{ e.couleur }};white-space:nowrap">{{ e.montant }}</span>
             </button>
           </sc-for>
+        </div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:10px">
+          <span style="font-size:13px;color:var(--encre-2)">Coupons encaissés cette semaine</span>
+          <span style="font-size:14px;font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums;color:var(--vert)">{{ couponsSemaine }}</span>
         </div>
         <button type="button" style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:26px;padding:18px 0 0;min-height:44px;background:none;border:none;border-top:1px solid var(--trait);cursor:pointer;font-family:inherit;text-align:left">
           <span style="font-size:13px;color:var(--encre-2)">Ouvrir l'agenda</span>
@@ -474,38 +486,52 @@ class Component extends DCLogic {
   }
 
   // vie des produits uniquement : constatations, coupons, rappels, échéances
+  /* Tri explicite, jamais l'ordre d'écriture : ce qui vient en premier
+     est ce qui reste à faire (aujourd'hui puis à venir, au plus proche),
+     et ce qui est passé descend en bas, du plus récent au plus ancien. */
   evenements() {
     const TON = { neutre: "var(--encre-3)", bon: "var(--vert)", risque: "var(--rouge)" };
+    const jour = this.AUJOURDHUI.getDate();
     return [
       { date: 18, em: "Société Générale", titre: "Constatation Athéna Eurostoxx", detail: "rappel à 100 % · non déclenché", vl: 128.4, ton: "neutre" },
       { date: 20, em: "BNP Paribas", titre: "Coupon Phoenix Mémoire 10 %", detail: "coupon versé", cash: 12400, ton: "bon" },
       { date: 20, em: "Société Générale", titre: "Coupon Athéna Eurostoxx", detail: "coupon versé", cash: 8150, ton: "bon" },
       { date: 21, em: "Société Générale", titre: "Constatation Autocall Luxe 7 %", detail: "barrière coupon à " + this.BARRIERE + " · sous le seuil", vl: 58.9, ton: "risque" },
       { date: 22, em: "Morgan Stanley", titre: "Échéance Phoenix Santé 8 %", detail: "remboursement", vl: 109.6, ton: "bon" }
-    ].map((e, i) => ({
+    ].map(e => ({
       titre: e.titre,
       detail: e.detail,
       sigle: this.sigle(e.em),
       jour: this.jourCourt(e.date),
       date: String(e.date),
+      n: e.date,
+      cash: e.cash || 0,
+      passe: e.date < jour,
       montant: e.cash === undefined ? this.virgule(e.vl) + " VL" : this.signe(e.cash, this.euros(Math.abs(e.cash))),
       couleur: TON[e.ton],
-      encre: e.date < this.AUJOURDHUI.getDate() ? "var(--encre-3)" : "var(--encre)",
-      delai: (500 + i * 50) + "ms"
-    }));
+      encre: e.date < jour ? "var(--encre-3)" : "var(--encre)"
+    })).sort((a, b) => (a.passe - b.passe) || (a.passe ? b.n - a.n : a.n - b.n))
+      .map((e, i) => ({ ...e, delai: (500 + i * 50) + "ms" }));
   }
 
   alertes() {
     return [
-      { glyphe: "\u2713", titre: "Béranger : bulletin à signer", detail: this.euros(180000) + " · relance envoyée il y a 4 jours", action: "Relancer" },
-      { glyphe: "\u2691", titre: "Aymard : KYC incomplet", detail: "dossier bloqué depuis 11 jours", action: "Compléter" },
-      { glyphe: "\u2192", titre: "Castellane : entrée en gestion", detail: this.euros(1200000) + " · rendez-vous à 14 h", action: "Préparer" }
-    ];
+      { glyphe: "\u2713", titre: "Béranger : bulletin à signer", montant: 180000, suite: "relance envoyée il y a 4 jours", action: "Relancer" },
+      { glyphe: "\u2691", titre: "Aymard : KYC incomplet", montant: 240000, suite: "dossier bloqué depuis 11 jours", action: "Compléter" },
+      { glyphe: "\u2192", titre: "Castellane : entrée en gestion", montant: 1200000, suite: "rendez-vous à 14 h", action: "Préparer" }
+    ].map(a => ({ ...a, detail: this.euros(a.montant) + " · " + a.suite }));
   }
 
   /* ── Semaine : le libellé de jour se calcule, il ne s'écrit pas ──── */
+  get DEBUT_SEMAINE() { return 18; }
+
+  plageSemaine() {
+    const d = this.DEBUT_SEMAINE, mois = this.AUJOURDHUI.toLocaleDateString("fr-FR", { month: "long" });
+    return d + " – " + (d + 6) + " " + mois;
+  }
+
   semaine() {
-    const debut = 18, aujourdhui = this.AUJOURDHUI.getDate();
+    const debut = this.DEBUT_SEMAINE, aujourdhui = this.AUJOURDHUI.getDate();
     const chargees = new Set(this.evenements().map(e => Number(e.date)));
     return Array.from({ length: 7 }, (_, i) => {
       const n = debut + i;
@@ -520,22 +546,29 @@ class Component extends DCLogic {
   }
 
   /* ── Encours : courbe lissée, viewBox 380 × 112 ──────────────────── */
+  /* Une courbe de VL, pas du bruit : douze constatations hebdomadaires,
+     lissées en Catmull-Rom (tangentes réelles, pas des plateaux) entre
+     la ligne de base 104 — la dernière ligne de la trame — et le haut 14. */
+  get COURBE_PTS() { return [0.10, 0.16, 0.09, 0.21, 0.30, 0.26, 0.38, 0.47, 0.44, 0.58, 0.71, 0.86]; }
+
   courbe() {
     if (this._courbe) return this._courbe;
-    const n = 22, W = 380, H = 112, pad = 10, v = [];
-    for (let i = 0; i < n; i++) {
-      const t = i / (n - 1);
-      const bruit = Math.sin((i + 1) * 1.35) * 0.11 + Math.sin((i + 1) * 3.1) * 0.06;
-      v.push(Math.min(0.95, Math.max(0.08, 0.2 + t * 0.62 + bruit)));
-    }
-    const pts = v.map((y, i) => [(i / (n - 1)) * W, H - pad - y * (H - pad * 2)]);
+    const W = 380, BAS = 104, HAUT = 14, v = this.COURBE_PTS;
+    const pts = v.map((y, i) => [(i / (v.length - 1)) * W, BAS - y * (BAS - HAUT)]);
+    const at = i => pts[Math.max(0, Math.min(pts.length - 1, i))];
     let d = "M " + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
     for (let i = 0; i < pts.length - 1; i++) {
-      const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], cx = (x0 + x1) / 2;
-      d += " C " + cx.toFixed(1) + " " + y0.toFixed(1) + ", " + cx.toFixed(1) + " " + y1.toFixed(1) + ", " + x1.toFixed(1) + " " + y1.toFixed(1);
+      const p0 = at(i - 1), p1 = at(i), p2 = at(i + 1), p3 = at(i + 2);
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+      const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += " C " + c1[0].toFixed(1) + " " + c1[1].toFixed(1) + ", " + c2[0].toFixed(1) + " " + c2[1].toFixed(1) + ", " + p2[0].toFixed(1) + " " + p2[1].toFixed(1);
     }
     const fin = pts[pts.length - 1];
-    return (this._courbe = { ligne: d, aire: d + " L " + W + " " + H + " L 0 " + H + " Z", x: fin[0].toFixed(1), y: fin[1].toFixed(1) });
+    return (this._courbe = {
+      ligne: d,
+      aire: d + " L " + W + " " + BAS + " L 0 " + BAS + " Z",
+      x: fin[0].toFixed(1), y: fin[1].toFixed(1)
+    });
   }
 
   /* ── Concentration ───────────────────────────────────────────────────
@@ -600,7 +633,7 @@ class Component extends DCLogic {
       delai: (300 + i * 50) + "ms",
       jauge: Math.min(100, p.vl / this.VL_MAX * 100).toFixed(1) + "%",
       ecart: this.signe(d, this.virgule(Math.abs(d)) + " pts"),
-      teinte: d < 0 ? (d < -5 ? "var(--rouge)" : "var(--ambre)") : "var(--encre-3)",
+      teinte: d < 0 ? "var(--rouge)" : "var(--encre)",
       encreJauge: d < 0 ? "var(--rouge)" : "var(--encre-2)"
     };
   }
@@ -647,8 +680,10 @@ class Component extends DCLogic {
 
       // semaine + alertes
       semaine: this.semaine(),
+      semainePlage: this.plageSemaine(),
       alertes,
       nAlertes: String(alertes.length),
+      alertesEnJeu: this.millions(alertes.reduce((s, a) => s + a.montant, 0)),
 
       // concentration
       nPremier: String(Math.round(conc.premier * r)),
@@ -662,6 +697,8 @@ class Component extends DCLogic {
       nSousBarriere: String(sous),
       classement: this.classement(),
       repereBarriere: (this.BARRIERE / this.VL_MAX * 100).toFixed(1) + "%",
+      barriereLbl: this.virgule(this.BARRIERE, 0),
+      vlMaxLbl: this.virgule(this.VL_MAX, 0),
       voirTop: () => this.setState({ vue: "top" }),
       voirFlop: () => this.setState({ vue: "flop" }),
       topActif: !flop,
@@ -669,12 +706,13 @@ class Component extends DCLogic {
       pied: flop ? "Ouvrir le suivi des barrières" : "Voir les " + this.produits().length + " lignes",
       fondTop: flop ? "transparent" : "var(--puck)",
       fondFlop: flop ? "var(--puck)" : "transparent",
-      encreTop: flop ? "var(--encre-3)" : "var(--encre)",
-      encreFlop: flop ? "var(--encre)" : "var(--encre-3)",
+      encreTop: flop ? "var(--encre-3)" : "var(--chip-encre)",
+      encreFlop: flop ? "var(--chip-encre)" : "var(--encre-3)",
 
       // événements
       evenements: evts,
-      nEvts: String(Math.round(evts.length * r))
+      nEvts: String(Math.round(evts.length * r)),
+      couponsSemaine: this.signe(1, this.euros(evts.reduce((s, e) => s + Math.max(0, e.cash), 0)))
     };
   }
 }
