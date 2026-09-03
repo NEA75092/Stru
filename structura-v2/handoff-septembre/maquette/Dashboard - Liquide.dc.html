@@ -356,92 +356,6 @@ a:hover{color:var(--azur)}
 
     </div>
 
-    <!-- dalle pleine largeur : la performance, avec les mêmes fenêtres que l'encours -->
-    <section style="margin-top:clamp(16px,1.4cqw,22px);padding:clamp(24px,2.15cqw,34px);border-radius:var(--r-dalle);background:var(--dalle-a);transition:transform 280ms var(--ease)" style-hover="transform:translateY(-3px)">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap">
-        <div>
-          <span style="display:block;font-family:'Jost',sans-serif;font-weight:500;font-size:17.5px;color:var(--encre)">Performance du portefeuille</span>
-          <div style="display:flex;align-items:baseline;gap:11px;margin-top:14px">
-            <span style="font-size:clamp(34px,2.75cqw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:{{ perfTeinte }}">{{ perfPeriode }}</span>
-            <span style="font-size:14px;color:var(--encre-2)">{{ perfLibelle }}</span>
-          </div>
-        </div>
-        <div role="group" aria-label="Fenêtre" style="display:flex;gap:6px;margin-left:-10px">
-          <sc-for list="{{ periodes }}" as="p" hint-placeholder-count="4">
-            <button type="button" onClick="{{ p.choisir }}" aria-pressed="{{ p.actif }}" style="min-width:44px;min-height:44px;padding:0 10px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:13px;color:{{ p.encre }};transition:color 200ms ease">{{ p.nom }}</button>
-          </sc-for>
-        </div>
-      </div>
-
-      <div style="position:relative;margin-top:22px">
-        <svg viewBox="0 0 1200 208" preserveAspectRatio="none" style="display:block;width:100%;height:208px" aria-hidden="true">
-          <defs>
-            <linearGradient id="airePerf" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--vert)" stop-opacity=".16"></stop>
-              <stop offset="100%" stop-color="var(--vert)" stop-opacity="0"></stop>
-            </linearGradient>
-          </defs>
-          <g stroke="var(--encre-faible)" stroke-width="1" stroke-dasharray="3 4"><line x1="0" y1="40" x2="1200" y2="40"></line><line x1="0" y1="92" x2="1200" y2="92"></line><line x1="0" y1="144" x2="1200" y2="144"></line><line x1="0" y1="196" x2="1200" y2="196"></line></g>
-          <path d="{{ largeAire }}" fill="url(#airePerf)"></path>
-          <path d="{{ largeLigne }}" pathLength="1" fill="none" stroke="var(--vert)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:1;animation:tracer 1100ms var(--ease) 260ms both"></path>
-          <circle cx="{{ largeX }}" cy="{{ largeY }}" r="4.2" fill="var(--vert)" stroke="var(--puck)" stroke-width="2" style="animation:paraitre 300ms linear 1200ms both"></circle>
-        </svg>
-        <div style="display:flex;justify-content:space-between;margin-top:8px">
-          <span style="font-size:11.5px;color:var(--encre-3);font-family:'Jost',sans-serif">{{ bornePremiere }}</span>
-          <span style="font-size:11.5px;color:var(--encre-3);font-family:'Jost',sans-serif">{{ borneDerniere }}</span>
-        </div>
-      </div>
-
-      <button type="button" style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:22px;padding:18px 0 0;min-height:44px;background:none;border:none;border-top:1px solid var(--trait);cursor:pointer;font-family:inherit;text-align:left">
-        <span style="font-size:13px;color:var(--encre-2)">Ouvrir le pilotage</span>
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--encre-2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14L14 6M8.5 6H14v5.5"></path></svg>
-      </button>
-    </section>
-
-    <!-- dalle pleine largeur : la distance à la protection du capital, en encre -->
-    <section style="margin-top:clamp(16px,1.4cqw,22px);padding:clamp(24px,2.15cqw,34px);border-radius:var(--r-dalle);background:var(--dalle-c);transition:transform 280ms var(--ease)" style-hover="transform:translateY(-3px)">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap">
-        <div>
-          <span style="display:block;font-family:'Jost',sans-serif;font-weight:500;font-size:17.5px;color:var(--encre)">Sous la protection du capital</span>
-          <div style="display:flex;align-items:baseline;gap:11px;margin-top:14px">
-            <span style="font-size:clamp(34px,2.75cqw,44px);font-family:'Jost',sans-serif;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--encre)">{{ nSousBarriere }}</span>
-            <span style="font-size:14px;color:var(--encre-2)">produits sous la barrière · la plus proche à {{ margeMin }}</span>
-          </div>
-        </div>
-        <span style="font-size:13px;color:var(--encre-3);align-self:flex-end">distance à la barrière, en points de VL</span>
-      </div>
-
-      <div style="position:relative;margin-top:26px;padding-top:20px">
-        <div style="position:absolute;left:0;right:0;top:0;height:16px">
-          <sc-for list="{{ graduations }}" as="g" hint-placeholder-count="5">
-            <span style="position:absolute;left:{{ g.x }};transform:translateX(-50%);font-size:11.5px;color:var(--encre-3);font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap">{{ g.lbl }}</span>
-          </sc-for>
-        </div>
-        <div style="position:relative;height:2px;background:var(--encre-faible)">
-          <span style="position:absolute;left:{{ zeroX }};top:-7px;bottom:-7px;width:1.5px;background:var(--encre-2)"></span>
-        </div>
-        <div style="display:flex;flex-direction:column;margin-top:6px">
-          <sc-for list="{{ regle }}" as="p" hint-placeholder-count="6">
-            <button type="button" style="position:relative;display:grid;grid-template-columns:minmax(200px,26%) minmax(0,1fr) 96px;align-items:center;gap:16px;width:100%;padding:11px 10px;margin:0 -10px;min-height:44px;background:none;border:none;border-radius:var(--r-min);font-family:inherit;text-align:left;cursor:pointer;transition:background 160ms ease" style-hover="background:var(--survol)">
-              <span style="display:flex;align-items:center;gap:9px;min-width:0">
-                <span style="min-width:28px;height:28px;padding:0 7px;border-radius:var(--r-plein);border:1px solid var(--trait);display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--encre-2);line-height:1;white-space:nowrap">{{ p.sigle }}</span>
-                <span style="font-size:14px;color:var(--encre);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.nom }}</span>
-              </span>
-              <span style="position:relative;height:8px">
-                <span style="position:absolute;top:3px;height:2px;left:{{ p.gauche }};width:{{ p.largeur }};background:{{ p.teinte }}"></span>
-                <span style="position:absolute;top:0;left:{{ p.pointe }};width:8px;height:8px;margin-left:-4px;border-radius:var(--r-plein);background:{{ p.teinte }}"></span>
-              </span>
-              <span style="font-size:14px;font-family:'Jost',sans-serif;font-variant-numeric:tabular-nums;text-align:right;color:{{ p.teinte }}">{{ p.marge }}</span>
-            </button>
-          </sc-for>
-        </div>
-      </div>
-
-      <button type="button" style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:22px;padding:18px 0 0;min-height:44px;background:none;border:none;border-top:1px solid var(--trait);cursor:pointer;font-family:inherit;text-align:left">
-        <span style="font-size:13px;color:var(--encre-2)">Ouvrir le suivi des barrières</span>
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--encre-2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14L14 6M8.5 6H14v5.5"></path></svg>
-      </button>
-    </section>
   </div>
 
   </div>
@@ -464,6 +378,7 @@ class Component extends DCLogic {
   get PERF_MOIS() { return 4.82; }            // %
   get DELTA_MOIS() { return 610000; }         // €
   get BARRIERE() { return this.props.barriere ?? 70; }   // VL de protection du capital
+  get PERIODES() { return ["Mois", "Trimestre", "Année", "Depuis l'origine"]; }
   get VL_MAX() { return 150; }                // haut de l'échelle des jauges de VL
   get COULEURS_MAX() { return this.props.couleursMax ?? 4; }
   get AUJOURDHUI() { return new Date(2026, 7, 20); }
@@ -686,62 +601,6 @@ class Component extends DCLogic {
     });
   }
 
-  /* Règle de distance à la barrière : bornes de l'échelle déclarées une fois,
-     la position de chaque produit et les graduations en dérivent. */
-  get PERIODES() { return ["Mois", "Trimestre", "Année", "Depuis l'origine"]; }
-
-  get REGLE() { return { min: -30, max: 60 }; }
-
-  regle() {
-    const { min, max } = this.REGLE, etendue = max - min;
-    const pos = v => ((Math.max(min, Math.min(max, v)) - min) / etendue * 100).toFixed(2) + "%";
-    const zero = (0 - min) / etendue * 100;
-    return [...this.produits()]
-      .map(p => ({ p, d: p.vl - this.BARRIERE }))
-      .sort((a, b) => a.d - b.d)
-      .slice(0, 6)
-      .map(({ p, d }) => {
-        const x = (Math.max(min, Math.min(max, d)) - min) / etendue * 100;
-        return {
-          nom: p.nom,
-          sigle: this.sigle(p.em),
-          marge: this.signe(d, this.virgule(Math.abs(d)) + " pts"),
-          teinte: d < 0 ? "var(--rouge)" : "var(--encre)",
-          pointe: x.toFixed(2) + "%",
-          gauche: Math.min(x, zero).toFixed(2) + "%",
-          largeur: Math.abs(x - zero).toFixed(2) + "%"
-        };
-      });
-  }
-
-  graduations() {
-    const { min, max } = this.REGLE, etendue = max - min;
-    const pas = [];
-    for (let v = min; v <= max; v += etendue / 5) pas.push(Math.round(v));
-    return pas.map(v => ({
-      lbl: (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v),
-      x: ((v - min) / etendue * 100).toFixed(2) + "%"
-    }));
-  }
-
-  /* La courbe large réemploie la même forme que celle du cadre d'encours :
-     une seule source de vérité pour la trajectoire de la VL. */
-  courbeLarge() {
-    if (this._large) return this._large;
-    const W = 1200, BAS = 196, HAUT = 24, v = this.COURBE_PTS;
-    const pts = v.map((y, i) => [(i / (v.length - 1)) * W, BAS - y * (BAS - HAUT)]);
-    const at = i => pts[Math.max(0, Math.min(pts.length - 1, i))];
-    let d = "M " + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
-    for (let i = 0; i < pts.length - 1; i++) {
-      const p0 = at(i - 1), p1 = at(i), p2 = at(i + 1), p3 = at(i + 2);
-      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
-      const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
-      d += " C " + c1[0].toFixed(1) + " " + c1[1].toFixed(1) + ", " + c2[0].toFixed(1) + " " + c2[1].toFixed(1) + ", " + p2[0].toFixed(1) + " " + p2[1].toFixed(1);
-    }
-    const fin = pts[pts.length - 1];
-    return (this._large = { ligne: d, aire: d + " L " + W + " " + BAS + " L 0 " + BAS + " Z", x: fin[0].toFixed(1), y: fin[1].toFixed(1) });
-  }
-
   /* ── Concentration ───────────────────────────────────────────────────
      Quel que soit le nombre d'émetteurs, l'écran n'en peint que
      COULEURS_MAX. Le reste est agrégé en une ligne d'encre : la couleur
@@ -817,16 +676,10 @@ class Component extends DCLogic {
   }
 
   sousBarriere() { return this.produits().filter(p => p.vl < this.BARRIERE); }
-  margeMin() {
-    const d = this.produits().map(p => p.vl - this.BARRIERE).filter(v => v >= 0);
-    return d.length ? this.virgule(Math.min(...d)) + " pts" : "aucune au-dessus";
-  }
-  periodeCourante() { return this.state.periode ?? this.PERIODES[0]; }
   vlMoyenne() { const p = this.produits(); return p.reduce((s, x) => s + x.vl, 0) / p.length; }
 
   renderVals() {
     const c = this.courbe();
-    const l = this.courbeLarge();
     const conc = this.concentration();
     const evts = this.evenements();
     const alertes = this.alertes();
@@ -856,13 +709,6 @@ class Component extends DCLogic {
       perfTeinte: this.PERF_MOIS < 0 ? "var(--rouge)" : "var(--vert)",
       deltaMois: this.signe(this.DELTA_MOIS, Math.round(Math.abs(this.DELTA_MOIS) / 1000) + " k€"),
       courbeLigne: c.ligne, courbeAire: c.aire, courbeX: c.x, courbeY: c.y,
-      largeLigne: l.ligne, largeAire: l.aire, largeX: l.x, largeY: l.y,
-      perfPeriode: this.signe(this.PERF_MOIS, this.virgule(Math.abs(this.PERF_MOIS), 2) + " %"),
-      perfLibelle: "sur " + this.periodeCourante().toLowerCase() + " · " + this.signe(this.DELTA_MOIS, Math.round(Math.abs(this.DELTA_MOIS) / 1000) + " k€"),
-      regle: this.regle(),
-      graduations: this.graduations(),
-      zeroX: ((0 - this.REGLE.min) / (this.REGLE.max - this.REGLE.min) * 100).toFixed(2) + "%",
-      margeMin: this.margeMin(),
       bornePremiere: this.moisCourt(new Date(this.AUJOURDHUI.getFullYear(), this.AUJOURDHUI.getMonth() - 1, 1)),
       borneDerniere: this.moisCourt(this.AUJOURDHUI),
       periodes: this.PERIODES.map(nom => ({

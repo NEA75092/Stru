@@ -61,3 +61,16 @@ bas. Deux règles qui s'appliquent à moi désormais :
 2. **Un « À TOI » que je tranche « ça reste » m'oblige à le dessiner.** Les deux
    dalles pleine largeur étaient arbitrées et non dessinées : c'est ce trou-là qui
    a survécu à six lots. Un arbitrage sans maquette n'est pas un arbitrage.
+
+## G — Le LOT 13 était une erreur de ma part (03/09, même soir)
+
+Le client a dit **supprimer** les deux dalles du bas. J'ai lu « elles sont de
+l'ancien design » et j'ai **redessiné** au lieu de retirer. Aucune demande ne le
+justifiait ; mon propre audit du 02/09 les avait marquées « À TOI » et je les
+avais tranchées « elles restent », contre l'instruction. Le LOT 14 défait le
+LOT 13 en entier.
+
+**La règle que ça me donne :** quand le client dit de supprimer quelque chose, la
+seule réponse conforme est de le supprimer. Si je crois qu'il faut le remplacer,
+je le **demande** — je ne le décide pas dans une spec. Un « À TOI » de mon audit
+n'est pas une autorisation à trancher : c'est une question à poser.
