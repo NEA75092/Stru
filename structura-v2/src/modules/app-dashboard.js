@@ -42,50 +42,54 @@
       { label: "UBS", re: /\bubs\b/i },
     ];
 
-    // Filtre breach/crit/warn : construit sur p.st, lui-même dérivé de
-    // p.dist/p.barrier (statusFromDist, app-state.js) — le champ que
-    // distProtectionCell (app-portfolio.js) documente explicitement comme
-    // la distance à la barrière de PROTECTION du capital (PDI), pas une
-    // barrière de rappel ou de coupon. Vérifié avant d'écrire cette
-    // fonction, pas supposé : un CG (sans PDI) retombe sur "none" et sort
-    // du filtre par construction, exactement le comportement attendu ici.
-    // 3 positions (dashboard-correctif-02.md § 2, gagnant sur le
-    // placeholder à 5 de la maquette — spec sur comportement d'écran).
-    function buildPortfolioAlerts() {
-      const severity = { breach: 0, crit: 1, warn: 2 };
-      return productsForScope()
-        .filter((p) => ["breach", "crit", "warn"].includes(p.st?.s))
-        .sort(
-          (a, b) =>
-            (severity[a.st?.s] ?? 9) - (severity[b.st?.s] ?? 9) ||
-            (Number(a.dist) || 0) - (Number(b.dist) || 0),
-        )
-        .slice(0, 3)
-        .map((p) => {
-          // p.barrier est le niveau barrière en % du spot initial (ex.
-          // 72 = barrière à 72 % de l'initial) ; p.dist est l'écart au
-          // niveau barrière *en % de ce niveau barrière* (0 = pile sur
-          // la barrière), pas un écart au niveau initial. Même formule
-          // que app-portfolio.js/app-calendar.js/app-utils.js :
-          // current = barrier × (1 + dist/100). La carte § 2.1 a besoin
-          // de la performance vs *initial* (perfVsInitial) et du niveau
-          // barrière vs initial (barrierVsInitial) — deux valeurs
-          // dérivées, pas p.dist/p.barrier directement.
-          const hasBarrier = Number.isFinite(Number(p.barrier));
-          const hasDist = Number.isFinite(Number(p.dist));
-          const currentPctOfInitial = hasBarrier && hasDist ? Number(p.barrier) * (1 + Number(p.dist) / 100) : null;
-          return {
-            productId: p.id,
-            lvl: p.st.s === "breach" || p.st.s === "crit" ? "crit" : "warn",
-            statusCls: p.st.cls,
-            statusLabel: p.st.label,
-            name: p.name,
-            context: `${p.underlying || "—"} · ${p.emetteur || "Émetteur à confirmer"}`,
-            perfVsInitial: currentPctOfInitial !== null ? currentPctOfInitial - 100 : null,
-            barrierVsInitial: hasBarrier ? Number(p.barrier) - 100 : null,
-            initialSpot: p.initialSpot != null && Number.isFinite(Number(p.initialSpot)) ? Number(p.initialSpot) : null,
-          };
-        });
+    // ── LOT 15 § 1 / § 0.1 (voie b) — la vie du cabinet ──────────────
+    // CLIENTS (app-state.js) ne porte ni date, ni tâche, ni rendez-vous :
+    // la vie « hors produit » (relances, dossiers, obligations) n'existe
+    // pas au dépôt. Un modèle explicite la porte — alimenté EN DÉMO,
+    // VIDE EN PRODUCTION (aucune date inventée). Les dates de démo se
+    // calent sur le jour courant pour que la semaine affichée ait
+    // toujours de quoi se peupler.
+    //
+    // Le premier plan (calendrier + « À regarder aujourd'hui ») ne lit
+    // QUE cette source ; la vie des produits (buildProductCalendarEvents)
+    // reste dans la dalle du bas. Un événement ne figure jamais dans les
+    // deux.
+    const CABINET_GLYPH = { Relancer: "✓", Compléter: "⚑", Préparer: "→" };
+
+    function cabinetEventDateIso(deltaDays) {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() + deltaDays);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function cabinetEvents() {
+      if (isProdMode()) return [];
+      return [
+        { id: "cab-beranger", dateIso: cabinetEventDateIso(-4), titre: "Béranger : bulletin à signer", montant: 180000, anteriorite: "relance il y a 4 jours", action: "Relancer" },
+        { id: "cab-aymard", dateIso: cabinetEventDateIso(-11), titre: "Aymard : KYC incomplet", montant: 240000, anteriorite: "bloqué depuis 11 jours", action: "Compléter" },
+        { id: "cab-castellane", dateIso: cabinetEventDateIso(0), titre: "Castellane : entrée en gestion", montant: 1200000, anteriorite: "rendez-vous à 14 h", action: "Préparer" },
+        { id: "cab-revue-lamartine", dateIso: cabinetEventDateIso(2), titre: "Revue trimestrielle Lamartine", montant: 0, anteriorite: "synthèse à préparer", action: null },
+        { id: "cab-comite", dateIso: cabinetEventDateIso(4), titre: "Comité d'investissement", montant: 0, anteriorite: "ordre du jour à diffuser", action: null },
+      ];
+    }
+
+    // § 1.2 — les dossiers À TRAITER : une action, et une date échue ou
+    // du jour. chip = le verbe d'action ; glyphe dérivé de l'action ;
+    // détail = montant en jeu · antériorité.
+    function buildCabinetToday() {
+      const todayIso = cabinetEventDateIso(0);
+      return cabinetEvents()
+        .filter((e) => e.action && e.dateIso <= todayIso)
+        .sort((a, b) => (a.dateIso < b.dateIso ? -1 : a.dateIso > b.dateIso ? 1 : 0))
+        .map((e) => ({
+          id: e.id,
+          titre: e.titre,
+          action: e.action,
+          glyph: CABINET_GLYPH[e.action] || "→",
+          montant: Number(e.montant) || 0,
+          detail: `${moneyShort(Number(e.montant) || 0)} · ${e.anteriorite}`,
+        }));
     }
 
     function bankGroupName(value) {
@@ -577,20 +581,24 @@
 
       setText("dash-encours-val", totalVal ? moneyShort(totalVal) : "—");
       const positive = periodPct >= 0;
+      // LOT 15 § 2.3 : deux décimales, espace après le signe — « + 4,82 % ».
       setText(
         "dash-encours-perf-mois",
-        totalNom ? `${positive ? "+" : ""}${pctFr(periodPct, 1)}` : "—",
+        totalNom ? `${positive ? "+ " : "− "}${pctFr(Math.abs(periodPct), 2)}` : "—",
       );
+      // LOT 15 § 2.5 : la teinte est portée par une classe, jamais par
+      // style="" — .is-up / .is-dn (dashboard.css).
       const perfMoisEl = document.getElementById("dash-encours-perf-mois");
       if (perfMoisEl) {
-        perfMoisEl.style.color = positive
-          ? "var(--color-safe)"
-          : "var(--color-breach)";
+        perfMoisEl.classList.toggle("is-up", totalNom > 0 && positive);
+        perfMoisEl.classList.toggle("is-dn", totalNom > 0 && !positive);
       }
+      // LOT 15 § 2.4 : le delta en k€ arrondi au millier — « soit + 610 k€
+      // sur la période », pas « + 0,6 M€ ». Espace après le signe.
       setText(
         "dash-encours-perf-delta",
         totalNom
-          ? `soit ${positive ? "+" : ""}${moneyShort(periodAbs)} sur la période`
+          ? `soit ${positive ? "+ " : "− "}${milliersEuros(Math.abs(periodAbs))} sur la période`
           : "Import portefeuille requis",
       );
       setText("dash-encours-borne-a", monthShortFR(startDate));
@@ -626,6 +634,9 @@
       const curY = pts[pts.length - 1][1].toFixed(1);
       svg.setAttribute("viewBox", "0 0 380 112");
       svg.setAttribute("preserveAspectRatio", "none");
+      // LOT 15 § 2.1 : trame et ligne du curseur en --encre-faible — le
+      // token que la maquette nomme. (--color-border-strong y résolvait
+      // déjà, mais se lit « bordure forte », pas « trait discret ».)
       svg.innerHTML = `
         <defs>
           <linearGradient id="aireEncours" x1="0" y1="0" x2="0" y2="1">
@@ -633,7 +644,7 @@
             <stop offset="100%" stop-color="var(--color-safe)" stop-opacity="0"></stop>
           </linearGradient>
         </defs>
-        <g stroke="var(--color-border-strong)" stroke-width="1" stroke-dasharray="3 4">
+        <g stroke="var(--encre-faible)" stroke-width="1" stroke-dasharray="3 4">
           <line x1="0" y1="22" x2="380" y2="22"></line>
           <line x1="0" y1="50" x2="380" y2="50"></line>
           <line x1="0" y1="78" x2="380" y2="78"></line>
@@ -641,7 +652,7 @@
         </g>
         <path d="${area}" fill="url(#aireEncours)"></path>
         <path d="${line}" pathLength="1" fill="none" stroke="var(--color-safe)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:1;animation:tracer 900ms var(--ease-standard) 120ms both"></path>
-        <line x1="${curX}" y1="8" x2="${curX}" y2="104" stroke="var(--color-border-strong)" stroke-width="1"></line>
+        <line x1="${curX}" y1="8" x2="${curX}" y2="104" stroke="var(--encre-faible)" stroke-width="1"></line>
         <circle cx="${curX}" cy="${curY}" r="4.2" fill="var(--color-safe)" stroke="var(--color-surface-raised)" stroke-width="2" style="animation:paraitre 300ms linear 940ms both"></circle>`;
 
       const ranges = document.getElementById("dash-encours-ranges");
@@ -667,24 +678,29 @@
       // lundi de la semaine en cours
       const monday = new Date(now);
       monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
 
+      // LOT 15 § 3.1 : jour + mois, sans le nom du jour de semaine.
       setText(
         "dash-agenda-day",
-        now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }),
+        now.toLocaleDateString("fr-FR", { day: "numeric", month: "long" }),
+      );
+      // LOT 15 § 3.1 : la plage se calcule depuis le lundi affiché, elle
+      // ne s'écrit pas. Le mois n'est répété que si la semaine l'enjambe.
+      const moisLun = monday.toLocaleDateString("fr-FR", { month: "long" });
+      const moisDim = sunday.toLocaleDateString("fr-FR", { month: "long" });
+      setText(
+        "dash-agenda-range",
+        moisLun === moisDim
+          ? `${monday.getDate()} – ${sunday.getDate()} ${moisDim}`
+          : `${monday.getDate()} ${moisLun} – ${sunday.getDate()} ${moisDim}`,
       );
 
-      // garde-fou § 6 bis nº 2 : la pastille ne vient que d'un événement réel.
-      const events =
-        typeof root.buildProductCalendarEvents === "function"
-          ? root.buildProductCalendarEvents()
-          : [];
-      const byDay = new Map();
-      events.forEach((e) => {
-        const iso = e._dateIso;
-        if (!iso) return;
-        if (!byDay.has(iso)) byDay.set(iso, []);
-        byDay.get(iso).push(e);
-      });
+      // LOT 15 § 1.1 : la pastille ne vient QUE de la vie de cabinet. Un
+      // jour qui porte trois coupons mais aucun événement de cabinet n'a
+      // pas de pastille.
+      const joursCharges = new Set(cabinetEvents().map((e) => e.dateIso));
 
       const DOW = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
       let dows = "";
@@ -693,14 +709,14 @@
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
         const iso = d.toISOString().slice(0, 10);
-        const evs = byDay.get(iso) || [];
+        const charge = joursCharges.has(iso);
         const isToday = iso === todayIso;
         // LOT 10 : deux états seulement — aujourd'hui (disque rouge) ou
         // rien. Un jour chargé garde son numéro sans fond ; il se signale
         // par la seule pastille de 4px dessous, en une seule couleur (la
         // variante de risque de la pastille sort — deux signaux pour un fait).
         const numCls = isToday ? " is-today" : "";
-        const dot = evs.length
+        const dot = charge
           ? `<span class="dash-agenda-dot"></span>`
           : `<span class="dash-agenda-dot" hidden></span>`;
         dows += `<span class="dash-agenda-dow">${DOW[i]}</span>`;
@@ -709,29 +725,40 @@
       host.innerHTML = dows + cells;
     }
 
-    // Un caractère par gravité — dérivé du type d'alerte, pas un verbe
-    // (garde-fou § 6 bis nº 3 : la puce porte statusLabel, l'état réel).
-    const ALERT_GLYPH = { crit: "!", warn: "•" };
-
     function renderTodayList() {
       const host = document.getElementById("dash-today-list");
       const count = document.getElementById("dash-today-count");
+      const stake = document.getElementById("dash-today-stake");
       if (!host) return;
-      const list = buildPortfolioAlerts();
+      const list = buildCabinetToday();
       if (count) count.textContent = String(list.length);
+      // LOT 15 § 1.3 : la sous-ligne se dérive de la liste — la somme et
+      // le nombre de dossiers ne sont jamais écrits.
+      if (stake) {
+        if (list.length) {
+          const somme = list.reduce((s, a) => s + a.montant, 0);
+          stake.textContent = `${moneyShort(somme)} en jeu sur ${list.length} dossier${list.length > 1 ? "s" : ""}`;
+          stake.hidden = false;
+        } else {
+          stake.textContent = "";
+          stake.hidden = true;
+        }
+      }
       if (!list.length) {
-        host.innerHTML = "";
+        // LOT 15 § 0.1 : état vide écrit — en production cabinetEvents()
+        // est vide, la liste ne se contente pas de disparaître.
+        host.innerHTML = `<div class="dash-today-empty">Aucun dossier à traiter aujourd'hui.</div>`;
         return;
       }
       host.innerHTML = list
         .map(
-          (a) => `<button type="button" class="dash-today-row" onclick="openDrawer(${a.productId})">
-            <span class="dash-today-glyph" aria-hidden="true">${ALERT_GLYPH[a.lvl] || "•"}</span>
+          (a) => `<button type="button" class="dash-today-row">
+            <span class="dash-today-glyph" aria-hidden="true">${a.glyph}</span>
             <span class="dash-today-txt">
-              <span class="dash-today-name">${escapeHtml(a.name)}</span>
-              <span class="dash-today-detail">${escapeHtml(a.context)}</span>
+              <span class="dash-today-name">${escapeHtml(a.titre)}</span>
+              <span class="dash-today-detail">${escapeHtml(a.detail)}</span>
             </span>
-            <span class="dash-today-chip">${escapeHtml(a.statusLabel || "")}</span>
+            <span class="dash-today-chip">${escapeHtml(a.action)}</span>
           </button>`,
         )
         .join("");
@@ -855,6 +882,14 @@
         .toUpperCase();
     }
 
+    // LOT 15 § 2.4 : montant en milliers d'euros, arrondi au millier —
+    // toujours « k€ », jamais « M€ » (moneyShort bascule en M€ au-delà
+    // d'un million, ce que le cadre d'encours ne veut pas ici).
+    function milliersEuros(abs) {
+      const k = Math.round((Number(abs) || 0) / 1000);
+      return `${k.toLocaleString("fr-FR")} k€`;
+    }
+
     // La cellule montant découle du type de l'événement, jamais l'inverse
     // (passe 8, §3) : Constatation montre un état (distance, poids réduit,
     // §3 nuance validée à l'écran), Coupon un flux réel, Rappel/Maturité
@@ -922,7 +957,6 @@
       renderDashboardModules,
       renderIssuerExposure,
       renderVlTopFlop,
-      buildPortfolioAlerts,
       renderSessionChrome,
       evHtml,
       monthShortFR,

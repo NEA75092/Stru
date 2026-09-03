@@ -36,16 +36,15 @@ body {
 }
 
 /* ── Coquille — le cadre de page ────────────────────────────
-   Relevé l. 65-66. LOT 11 § 2 : plancher 1280px (portable), atteint par
-   clamp() et non par @media — un seul rendu continu de 1280 à 1600, et à
-   1600 les valeurs hautes valent exactement celles d'avant ce lot.
-   En-deçà de 1280 l'app défile, elle ne se recompose pas : le point de
-   rupture à 1080px de la passe 1 ne revient pas (§ 2.3). */
+   Relevé l. 65-66. LOT 15 § 4.1 : le plancher de 1280 tombe. L'app est à
+   la taille de l'écran — le repli se fait tout seul, par la loi de la
+   boîte (premier plan en flex-wrap, plâtre en auto-fit), sans une seule
+   @media et sans point de rupture nommé. À 1600, rien ne bouge d'un
+   pixel : les grandeurs en clamp()/cqw touchent leur borne haute. */
 .app {
     position: relative;
     display: flex;
-    min-width: 1280px;
-    min-height: 100vh;
+    min-height: 100dvh;
     padding: clamp(18px, 1.6vw, 30px);
     box-sizing: border-box;
     /* LOT 12 § 2.0 : conteneur de requête. Toutes les grandeurs variables
@@ -116,20 +115,24 @@ body {
    et guerfin-symbole-clair.png n'existe pas au dépôt : décision client,
    pas d'implémentation (§6). assets/structura-mark.png porte donc le
    monogramme, avec le mot STRUCTURA aux métriques ci-dessous. */
-/* LOT 11 § 4 : la marque est GUERFIN. Bloc aligné à gauche sur l'inset
-   de 14px des items de nav — il était centré, seul bloc centré du rail. */
+/* LOT 15 § 5 : le lockup — bloc de marque centré, en colonne, avec un
+   filet bas. Annule le LOT 11 § 4 (aligné à gauche sur l'inset de nav) —
+   arbitrage client du 03/09. Aucun pixel du logo n'est redessiné : seul
+   le cadrage d'affichage change (R7). */
 .sidebar-brand {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 11px;
-    padding: 0 14px;
-    margin: 2px 0 22px;
+    padding: 10px 14px 22px;
+    margin: 0 0 22px;
+    border-bottom: 1px solid var(--flottant-brd);
 }
 
 .sidebar-brand-img {
     display: block;
-    width: 34px;
-    height: 18px;
+    width: 56px;
+    height: 30px;
     flex: 0 0 auto;
     object-fit: contain;
 }
@@ -137,8 +140,11 @@ body {
 .sidebar-brand-word {
     font-family: var(--font-heading);
     font-weight: 500;
-    font-size: 15px;
-    letter-spacing: 0.18em;
+    font-size: 17px;
+    letter-spacing: 0.26em;
+    /* text-indent = letter-spacing : sans lui, l'interlettre du dernier
+       caractère décentre le mot dans le bloc centré. */
+    text-indent: 0.26em;
     color: var(--color-on-band);
     white-space: nowrap;
 }
@@ -326,28 +332,19 @@ body {
 /* ── La nappe — §4. Ordre des huit couches obligatoire : le fondu est
    toujours dernier, c'est lui qui raccorde l'eau au plâtre.
 
-   Correctif post-LOT2 : la nappe n'a de sens que là où les 640px du haut
-   sont un titre et des cartes de verre — le Dashboard, lui seul (doctrine
-   L1 : « rien d'informatif n'y vit sauf le titre et les cartes de verre »).
-   Sur les huit autres écrans, la mettre posait de la donnée dense sur
-   l'eau (en-tête de tableau Clients) et cassait le contraste (légendes
-   Calendrier). Erreur de découpage de la spec, pas d'implémentation :
-   la nappe reste dans shell.css (même fichier, même périmètre), mais ne
-   s'affiche que si elle est suivie du panneau Dashboard actif — :has()
-   sur un sélecteur de fratrie, aucun changement de JS ni de DOM. */
+   La nappe n'a de sens que sur le Dashboard (doctrine L1 : « rien
+   d'informatif n'y vit sauf le titre et les cartes de verre »). LOT 15
+   § 4.4 : elle vit désormais DANS #view-dashboard, première enfant de
+   .dash-eau, la boîte qui l'enveloppe avec .dash-avant. Elle n'a plus de
+   hauteur propre — inset: 0 la fait remplir .dash-eau, dont la hauteur
+   est celle de .dash-avant (min-height: --nappe-h, et davantage dès que
+   la colonne de droite se replie). Le panneau étant masqué hors
+   Dashboard, plus besoin de display:none ni du :has() de fratrie. */
 .nappe {
-    display: none;
     position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    height: var(--nappe-h);
+    inset: 0;
     overflow: hidden;
     pointer-events: none;
-}
-
-.nappe:has(~ #view-dashboard.active) {
-    display: block;
 }
 
 .nappe > * {

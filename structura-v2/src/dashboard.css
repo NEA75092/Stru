@@ -63,6 +63,16 @@
    les alertes à droite (440 px). min-height = la hauteur de la nappe :
    le plâtre commence sous l'eau (LOT 5 § 5.1). Le 28px du padding est
    la valeur de la maquette, il ne s'aligne pas sur le plâtre. */
+/* LOT 15 § 4.4 : l'eau suit le premier plan. La nappe n'a plus de
+   hauteur propre — elle remplit cette boîte (inset: 0, shell.css), et la
+   boîte prend la hauteur de .dash-avant. Dès que la colonne de droite
+   se replie, .dash-avant grandit, l'eau grandit avec, et les cartes de
+   verre restent sur l'eau (doctrine L1). À 1600, .dash-avant vaut
+   toujours --nappe-h : la hauteur d'eau ne bouge pas d'un pixel. */
+.dash-eau {
+    position: relative;
+}
+
 .dash-avant {
     /* border-box (LOT 7 bis) : sans lui, padding: 52px s'ajoutait aux 640
        de min-height et la boîte dépassait la nappe de 52 px. La maquette
@@ -70,17 +80,26 @@
     box-sizing: border-box;
     position: relative;
     z-index: 30;
-    display: grid;
-    /* LOT 11 § 2 : colonnes et rythme en clamp() — à 1600 px de fenêtre,
-       440px / 40px / 52px 28px, exactement comme avant. */
-    grid-template-columns: minmax(0, 1fr) clamp(360px, 27.5cqw, 440px);
+    /* LOT 15 § 4.2 : le premier plan se replie tout seul, par la loi de
+       la boîte — deux colonnes tant que la place existe, empilées quand
+       elle manque. Plus de grid-template-columns, aucune @media. */
+    display: flex;
+    flex-wrap: wrap;
+    /* LOT 11 § 2 : rythme en clamp() — à 1600 px, 40px de gouttière,
+       52px 28px de marge, exactement comme avant. LOT 15 § 4.2 : un
+       padding bas (28→38px) pour que l'eau garde une lisière sous la
+       dernière carte quand la colonne de droite passe en dessous. */
     gap: clamp(24px, 2.5cqw, 40px);
     align-items: start;
-    padding: clamp(40px, 3.25cqw, 52px) clamp(18px, 1.75cqw, 28px) 0;
+    padding: clamp(40px, 3.25cqw, 52px) clamp(18px, 1.75cqw, 28px)
+        clamp(28px, 2.4cqw, 38px);
     min-height: var(--nappe-h);
 }
 
 .dash-avant-main {
+    /* LOT 15 § 4.2 : prend la place libre, plancher 420px, peut rétrécir
+       (min-width: 0) pour ne jamais forcer un débordement. */
+    flex: 1 1 420px;
     min-width: 0;
 }
 
@@ -158,6 +177,16 @@
     color: var(--color-safe);
 }
 
+/* LOT 15 § 2.5 : la teinte de la perf de période est portée par une
+   classe, jamais par style="" en JS. Deux états seulement. */
+.dash-encours-perf-mois.is-up {
+    color: var(--color-safe);
+}
+
+.dash-encours-perf-mois.is-dn {
+    color: var(--color-breach);
+}
+
 .dash-encours-perf-delta {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
@@ -209,7 +238,9 @@
     cursor: pointer;
     font-family: inherit;
     font-size: var(--text-sm);
-    color: var(--color-text-tertiary);
+    /* LOT 15 § 2.2 : période inactive en --encre-2 (secondaire), pas
+       --encre-3 (tertiaire). L'active reste --color-ink. */
+    color: var(--color-text-secondary);
     transition: color 200ms var(--ease-standard);
 }
 
@@ -229,6 +260,11 @@
 
 /* ── Colonne de droite — 440 px, deux cartes de verre ───────── */
 .dash-avant-side {
+    /* LOT 15 § 4.2 : plancher 320px, plafond 440 (sa largeur d'origine),
+       peut rétrécir puis passer sous la colonne principale. */
+    flex: 1 1 320px;
+    max-width: 440px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -393,6 +429,16 @@
     color: var(--color-text-on-dark);
 }
 
+/* LOT 15 § 3.1 : la plage de semaine, à droite du jour, calculée depuis
+   le lundi affiché — « 17 – 23 août ». Elle pousse la croix au bord. */
+.dash-agenda-range {
+    margin-left: 10px;
+    flex: 1;
+    font-size: 13px;
+    color: var(--sur-azur-2);
+    white-space: nowrap;
+}
+
 /* LOT 12 § 4 bis : la cible fait 44 × 44 (transparente), le disque bordé
    de 30 px est un span intérieur — l'aspect ne change pas. Marges
    négatives pour que le disque garde sa place d'origine dans l'en-tête. */
@@ -456,7 +502,9 @@
     font-family: var(--font-heading);
     font-variant-numeric: tabular-nums;
     background: transparent;
-    color: var(--sur-azur-2);
+    /* LOT 15 § 3.2 : numéro de jour ordinaire en blanc plein. Le disque
+       rouge d'aujourd'hui (.is-today) ne change pas. */
+    color: var(--sur-azur);
 }
 
 .dash-agenda-num.is-today {
@@ -468,7 +516,10 @@
     width: 4px;
     height: 4px;
     border-radius: var(--radius-full);
-    background: var(--color-text-tertiary);
+    /* LOT 15 § 3.3 : la pastille de jour chargé était peinte en encre
+       sombre (--color-text-tertiary) sur l'eau — invisible. Blanc à
+       70 % : défaut de lisibilité réel, pas un écart de goût. */
+    background: rgba(255, 255, 255, 0.7);
 }
 
 .dash-agenda-dot[hidden] {
@@ -507,9 +558,25 @@
     color: var(--rouge-encre);
 }
 
+/* LOT 15 § 1.3 : la somme en jeu et le nombre de dossiers, dérivés de
+   la liste. Sous l'en-tête, avant la première ligne. */
+.dash-today-stake {
+    display: block;
+    margin: -6px 0 12px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.76);
+}
+
 .dash-today-list {
     display: flex;
     flex-direction: column;
+}
+
+/* LOT 15 § 0.1 : état vide écrit (production — aucune vie de cabinet). */
+.dash-today-empty {
+    padding: 12px 0;
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.76);
 }
 
 .dash-today-row {
@@ -774,9 +841,12 @@
    consommés en couche 1 (§ 6 : aucun alias --color-* pour eux). */
 .dash-platre {
     display: grid;
-    /* LOT 11 § 2.1 : trois colonnes de 1280 à 1600, jamais de repli à
-       deux — la dalle la plus étroite tient ~265px de contenu à 1280. */
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* LOT 15 § 4.3 : 3 → 2 → 1 colonne selon la place, par auto-fit —
+       aucune @media, aucun point de rupture nommé. minmax(min(100%,
+       300px), 1fr) : une colonne ne descend jamais sous 300px et ne
+       force jamais un débordement. Annule le LOT 11 § 2.1 (« jamais de
+       repli à deux »), qui supposait le plancher de 1280. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
     gap: clamp(16px, 1.4cqw, 22px);
     align-items: start;
 }

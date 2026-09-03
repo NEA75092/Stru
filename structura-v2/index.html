@@ -21,10 +21,10 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="./src/design-tokens.css?v=20260903b" />
-        <link rel="stylesheet" href="./src/shell.css?v=20260903b" />
+        <link rel="stylesheet" href="./src/shell.css?v=20260903c" />
         <link rel="stylesheet" href="./src/controls.css?v=20260805b" />
         <link rel="stylesheet" href="./src/overlays.css?v=20260831a" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260903d" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260903e" />
         <link rel="stylesheet" href="./src/tables.css?v=20260831a" />
         <link rel="stylesheet" href="./src/views.css?v=20260831a" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260903a" />
@@ -35,7 +35,7 @@
             <aside class="sidebar">
                 <div class="sidebar-brand">
                     <img class="sidebar-brand-img" src="assets/guerfin-symbole-clair-detoure.png"
-                         alt="Guerfin" width="34" height="18" />
+                         alt="Guerfin" width="56" height="30" />
                     <span class="sidebar-brand-word">GUERFIN</span>
                 </div>
                 <button
@@ -113,19 +113,23 @@
 
             <div class="app-shell">
             <div class="main">
-                <div class="nappe" aria-hidden="true">
-                    <div class="nappe-eau"></div>
-                    <div class="nappe-derive-a"></div>
-                    <div class="nappe-derive-b"></div>
-                    <div class="nappe-voile"></div>
-                    <div class="nappe-halo"></div>
-                    <div class="nappe-arete-a"></div>
-                    <div class="nappe-arete-b"></div>
-                    <div class="nappe-fondu"></div>
-                </div>
                 <!-- ===== DASHBOARD ===== -->
                 <div class="view active" id="view-dashboard">
                     <div class="spotlight" aria-hidden="true"></div>
+                    <!-- LOT 15 § 4.4 : la nappe et le premier plan dans une
+                         seule boîte position:relative — l'eau suit le premier
+                         plan quand il se replie. Seule addition de DOM du lot. -->
+                    <div class="dash-eau">
+                    <div class="nappe" aria-hidden="true">
+                        <div class="nappe-eau"></div>
+                        <div class="nappe-derive-a"></div>
+                        <div class="nappe-derive-b"></div>
+                        <div class="nappe-voile"></div>
+                        <div class="nappe-halo"></div>
+                        <div class="nappe-arete-a"></div>
+                        <div class="nappe-arete-b"></div>
+                        <div class="nappe-fondu"></div>
+                    </div>
                     <div class="dash-avant">
                         <div class="dash-avant-main">
                             <div class="dash-lede-kicker" id="dash-lede-kicker">—</div>
@@ -188,6 +192,7 @@
                             <div class="dash-agenda">
                                 <div class="dash-agenda-hdr">
                                     <span class="dash-agenda-day" id="dash-agenda-day">—</span>
+                                    <span class="dash-agenda-range" id="dash-agenda-range"></span>
                                     <button type="button" class="dash-agenda-close" aria-label="Masquer la semaine">
                                         <span class="dash-agenda-close-disc" aria-hidden="true">
                                             <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"></path></svg>
@@ -202,9 +207,11 @@
                                     <span class="dash-today-title">À regarder aujourd'hui</span>
                                     <span class="dash-today-count" id="dash-today-count">0</span>
                                 </div>
+                                <div class="dash-today-stake" id="dash-today-stake" hidden></div>
                                 <div class="dash-today-list" id="dash-today-list"></div>
                             </div>
                         </div>
+                    </div>
                     </div>
 
                     <div class="dash-body">
@@ -240,7 +247,7 @@
                             </button>
                             </section>
                         <section class="dalle dalle-c">
-                            <h2 class="dalle-title">Événements de la semaine</h2>
+                            <h2 class="dalle-title">Événements produits</h2>
                             <div class="dalle-big">
                                 <span class="dalle-num" id="dalle-c-num">—</span>
                                 <span class="dalle-ctx" id="dalle-c-num-ctx">—</span>
