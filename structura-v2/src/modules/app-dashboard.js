@@ -433,14 +433,14 @@
         return `<div class="conc-row">
             <div class="conc-row-top">
               <span class="conc-name-wrap"><span class="conc-dot${tint}"></span><span class="conc-name">${escapeHtml(r.issuer)}</span></span>
-              <span class="conc-fig"><span class="conc-amt">${moneyShort(r.nominal)}</span><span class="conc-pct">${pctFr(pct, 0)}<span class="conc-pct-u">%</span></span></span>
+              <span class="conc-fig"><span class="conc-amt">${moneyShort(r.nominal)}</span><span class="conc-pct">${ptsFr(pct, 0)}<span class="conc-pct-u">%</span></span></span>
             </div>
             <div class="conc-gauge"><span class="conc-dot-fill${tint}" style="width:${pct.toFixed(1)}%"></span></div>
           </div>`;
       }).join("");
       const deux = rows.slice(0, 2).reduce((s, r) => s + r.nominal, 0) / total * 100;
       const totalLine = rows.length >= 2
-        ? `<div class="conc-total"><span>Les deux premiers</span><span class="conc-total-val">${pctFr(deux, 0)} %</span></div>`
+        ? `<div class="conc-total"><span>Les deux premiers</span><span class="conc-total-val">${pctFr(deux, 0)} de l'encours</span></div>`
         : "";
       c.innerHTML = `<div class="conc-list">${body}</div>${totalLine}`;
       if (!rows.length) c.innerHTML = `<div class="empty-inline">Aucune exposition à afficher.</div>`;
