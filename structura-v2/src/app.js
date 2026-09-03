@@ -74,8 +74,6 @@ const {
   updateAppModeUI,
   toggleAppMode,
   renderDashboardSummary,
-  renderAlerts,
-  drawPerfChart,
   renderDashboardModules,
   renderPf,
   renderBarriers,
@@ -6459,8 +6457,6 @@ function addOnboardedProduct() {
 if (typeof document !== "undefined") {
   updateAppModeUI();
   renderSessionChrome?.();
-  renderAlerts();
-  drawPerfChart();
   renderDashboardModules();
   renderDashboardSummary();
   updateIngestionLearningUI();

@@ -101,8 +101,6 @@
       updateClientsMeta();
       root.renderSessionChrome?.();
       root.renderDashboardSummary?.();
-      root.renderAlerts?.();
-      root.drawPerfChart?.();
       root.renderDashboardModules?.();
       root.renderPf?.();
       root.renderBarriers?.();

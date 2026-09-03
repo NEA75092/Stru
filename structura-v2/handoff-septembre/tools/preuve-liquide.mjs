@@ -14,8 +14,8 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (![1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 13].includes(LOT)) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8|9|10|11|13');
+if (![1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 14].includes(LOT)) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8|9|10|11|14');
   process.exit(2);
 }
 
@@ -120,12 +120,16 @@ const AUTORISES = LOT === 1
           join('structura-v2', 'handoff-septembre', 'tools', 'preuve-liquide.mjs'),
           join('structura-v2', 'handoff-septembre', 'tools', 'check-tokens.mjs'),
         ]
-      : LOT === 13
+      : LOT === 14
       ? [
-          // lot 13 : les deux dalles pleine largeur du bas passent en
-          // Liquide — dashboard.css, index.html, app-dashboard.js, bump ?v=.
+          // lot 14 : suppression des deux dalles du bas (défait le LOT 13).
+          // dashboard.css, index.html, app-dashboard.js + les trois
+          // appelants (app.js, app-navigation.js, app-clients.js), bump ?v=.
           join(SRC, 'dashboard.css'),
           join(SRC, 'modules', 'app-dashboard.js'),
+          join(SRC, 'modules', 'app-navigation.js'),
+          join(SRC, 'modules', 'app-clients.js'),
+          join(SRC, 'app.js'),
           INDEX,
           join('structura-v2', 'handoff-septembre', 'tools', 'preuve-liquide.mjs'),
         ]
@@ -895,61 +899,60 @@ if (LOT === 11) {
   }
 }
 
-/* — lot 13 : les deux dalles pleine largeur du bas passent en Liquide —
-   six preuves, statiques + DOM (la n° 6 est une capture pleine hauteur). */
-if (LOT === 13) {
-  const dash = lire(join(SRC, 'dashboard.css'));
+/* — lot 14 : suppression des deux dalles pleine largeur du bas (défait le
+   LOT 13). Zéro sélecteur orphelin, zéro fonction sans appelant. */
+if (LOT === 14) {
   const html = lire(INDEX);
   const app = lire(join(SRC, 'modules', 'app-dashboard.js'));
 
-  // Régions des deux sections dans index.html.
-  const perfSec = (html.match(/<section class="dalle dalle-a dalle--wide" id="dash-perf-section">[\s\S]*?<\/section>/) || [''])[0];
-  const capSec = (html.match(/<section class="dalle dalle-c dalle--wide" id="dash-cap-section">[\s\S]*?<\/section>/) || [''])[0];
+  // 1 — plus aucune trace des deux dalles ni de leur code, sous src/ et
+  //  dans index.html : sélecteurs, ids, fonctions, helpers.
+  const TRACES = [
+    'dash-perf-section', 'dash-cap-section', 'dash-alerts-block',
+    'dalle--wide', 'perf-panel', 'perf-header', 'perf-kpi', 'perf-range-controls',
+    'perf-chart', 'perf-wide', 'perf-history-svg', 'perf-big', 'perf-ranges', 'perf-borne',
+    'cap-ruler', 'cap-grad', 'cap-axis', 'cap-zero', 'cap-rows', 'cap-line', 'cap-seg',
+    'cap-big', 'cap-empty', 'cap-axis-hint', 'cap-table', 'cap-head-row', 'cap-groove',
+    'cap-notch', 'cap-cursor', 'cap-rule', 'cap-name', 'cap-perf', 'cap-niveau', 'cap-barriere',
+    'drawPerfChart', 'drawPerfHistory', 'renderAlerts', 'capCandidates',
+    'reglePct', 'regleSpan', 'signePts', 'periodeNom', 'PERF_RANGE_LABELS',
+  ];
+  for (const t of TRACES) {
+    const re = new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    const ou = [];
+    for (const f of [...fichiers, INDEX]) {
+      const n = (lire(f).match(re) || []).length;
+      if (n) ou.push(`${f} (${n})`);
+    }
+    verifier(`trace « ${t} »`, 0, ou.reduce((s, x) => s + Number(x.match(/\((\d+)\)/)[1]), 0), ou.join(', '));
+  }
 
-  // 1 — plus aucun libellé de fenêtre 6M / 1A / Tout dans les deux
-  //  sections ; la rangée de la dalle 4 est peuplée par PERIODES.
-  const vieuxLibelles = (perfSec + capSec).match(/>(\s*)(6M|1A|Tout|YTD|Depuis le début)(\s*)</g) || [];
-  verifier('libellés 6M / 1A / Tout dans le bas', 0, vieuxLibelles.length, vieuxLibelles.join(' ').replace(/\s+/g, ' '));
-  const per = (app.match(/const PERIODES\s*=\s*\[[\s\S]*?\];/) || [''])[0];
-  const noms = [...per.matchAll(/nom:\s*"([^"]+)"/g)].map((m) => m[1]);
-  verifier('PERIODES : les quatre libellés', "Mois,Trimestre,Année,Depuis l'origine", noms.join(','));
-  verifier('PERIODES : une seule déclaration', 1, (app.match(/const PERIODES\s*=/g) || []).length);
-  verifier('la dalle de perf lit PERIODES (pas une 2e liste)', true, /getElementById\("perf-ranges"\)[\s\S]{0,200}PERIODES\.map/.test(app));
+  // 1 bis — setRange, perfRange, REGLE n'existent plus dans le module ;
+  //  ce qui doit rester y est encore.
+  verifier('function setRange retirée', 0, (app.match(/function setRange\s*\(/g) || []).length);
+  verifier('variable perfRange retirée', 0, (app.match(/\bperfRange\b/g) || []).length);
+  verifier('REGLE retirée', 0, (app.match(/\bREGLE\b/g) || []).length);
+  verifier('PERIODES conservé', 1, (app.match(/const PERIODES\s*=/g) || []).length);
+  verifier('buildPerfSeries / perfRangeStart conservés', true,
+    /function buildPerfSeries\(/.test(app) && /function perfRangeStart\(/.test(app));
 
-  // 2 — la courbe large réemploie la même trajectoire (buildPerfSeries)
-  //  et le lissage Catmull-Rom, en viewBox 1200 × 208.
-  const dph = (app.match(/function drawPerfHistory\([\s\S]*?\n {4}\}/) || [''])[0];
-  verifier('courbe large : buildPerfSeries partagé', true, /buildPerfSeries\(data, perfRange\)/.test(dph));
-  verifier('courbe large : lissage Catmull-Rom', true, /\(p2\[0\] - p0\[0\]\) \/ 6/.test(dph) && /viewBox", "0 0 1200 208"/.test(dph));
+  // 2 — les deux titres ne sont plus dans la vue Dashboard.
+  const dashView = html.slice(html.indexOf('id="view-dashboard"'), html.indexOf('id="view-portfolio"'));
+  verifier('« Performance du portefeuille » dans le Dashboard', 0, (dashView.match(/Performance du portefeuille/g) || []).length);
+  verifier('« Sous la protection du capital » dans le Dashboard', 0, (dashView.match(/Sous la protection du capital/g) || []).length);
 
-  // 3 — REGLE déclarée une fois, tout dérivé.
-  verifier('REGLE : une seule déclaration', 1, (app.match(/const REGLE\s*=\s*\{/g) || []).length);
-  verifier('REGLE = { min: -30, max: 60 }', true, /const REGLE\s*=\s*\{\s*min:\s*-30,\s*max:\s*60\s*\}/.test(app));
+  // 4 — aucun appel résiduel vers une fonction retirée.
+  const APPELS = ['drawPerfChart', 'drawPerfHistory', 'renderAlerts', 'setRange', 'capCandidates', 'periodeNom'];
+  const appelsResiduels = [];
+  for (const nom of APPELS) {
+    const re = new RegExp(`(?<![\\w.])${nom}\\s*\\(`, 'g');
+    for (const f of [...fichiers, INDEX]) {
+      if ((lire(f).match(re) || []).length) appelsResiduels.push(`${f}:${nom}`);
+    }
+  }
+  verifier('appel résiduel vers une fonction retirée', 0, appelsResiduels.length, appelsResiduels.join(', '));
 
-  // 4 — zéro box-shadow et zéro rayon hors échelle dans les sélecteurs
-  //  du bas (.dalle--wide, .perf-wide-*, .cap-*).
-  const basBlocs = dash.split('}').filter((b) => /(\.dalle--wide|\.perf-wide|\.cap-ruler|\.cap-grad|\.cap-axis|\.cap-zero|\.cap-rows|\.cap-line|\.cap-seg|\.cap-empty|\.cap-axis-hint)/.test(b.split('{')[0] || ''));
-  const basTxt = basBlocs.join('}');
-  verifier('box-shadow dans le bas', 0, (basTxt.match(/box-shadow\s*:(?!\s*none)/g) || []).length);
-  const rayonsBas = [];
-  basBlocs.forEach((b) => {
-    const m = b.match(/border-radius:\s*([^;]+)/);
-    if (m && !/var\(--radius-|var\(--r-|^\s*0(px)?\s*$|50%|999px/.test(m[1])) rayonsBas.push(m[1].trim());
-  });
-  verifier('rayon hors échelle dans le bas', 0, rayonsBas.length, rayonsBas.join(' | '));
-
-  // 4 bis — la règle de barrière n'emploie que deux teintes.
-  const capBar = (app.match(/const signePts[\s\S]*?function renderAlerts\([\s\S]*?\n {4}\}/) || [''])[0];
-  const teintes = new Set([...capBar.matchAll(/var\((--color-[a-z-]+)\)/g)].map((m) => m[1]));
-  // le rendu ne pose de couleur QUE via les classes .cap-line--under (CSS) ;
-  //  côté CSS, .cap-seg-*/.cap-line-val n'ont que --color-ink et --color-breach.
-  const capCss = dash.split('}').filter((b) => /\.cap-seg|\.cap-line-val|\.cap-line--under/.test(b.split('{')[0] || '')).join('}');
-  const capCssTeintes = new Set([...capCss.matchAll(/(?:background|color):\s*var\((--color-[a-z-]+)\)/g)].map((m) => m[1]));
-  verifier('règle de barrière : deux teintes', true,
-    [...capCssTeintes].every((t) => t === '--color-ink' || t === '--color-breach') && capCssTeintes.size <= 2,
-    [...capCssTeintes].join(', '));
-
-  // DOM.
+  // 3 + 5/6 — DOM : trois dalles, rien après ; capture pleine hauteur.
   try {
     const { createServer } = await import('node:http');
     const { chromium } = await import('playwright');
@@ -963,60 +966,51 @@ if (LOT === 13) {
     const port = srv.address().port;
     const browser = await chromium.launch({ headless: true });
 
-    const mesure = async (W, Hpx) => {
+    const check = async (W, Hpx) => {
       const page = await browser.newPage({ viewport: { width: W, height: Hpx } });
       await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
-      await page.waitForSelector('#dash-cap-section .cap-ruler', { timeout: 10000 });
-      await page.waitForTimeout(1400);
+      await page.waitForSelector('.dash-platre .dalle', { timeout: 10000 });
+      await page.waitForTimeout(1200);
       const g = await page.evaluate(() => {
         const body = document.querySelector('.dash-body');
         const dalles = body.querySelectorAll('.dalle');
-        const wide = [...body.querySelectorAll('.dalle--wide')].map((d) => Math.round(d.getBoundingClientRect().width));
-        const bodyW = Math.round(body.getBoundingClientRect().width);
-        const small = [...document.querySelectorAll('#dash-perf-section button, #dash-cap-section button')]
-          .map((b) => { const r = b.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), t: (b.textContent || '?').trim().slice(0, 16) }; })
+        const kids = [...body.children].map((c) => c.tagName.toLowerCase() + (c.className ? '.' + String(c.className).split(' ')[0] : ''));
+        const platre = body.querySelector('.dash-platre');
+        const apres = platre ? [...body.children].indexOf(platre) < body.children.length - 1 : true;
+        const se = document.scrollingElement;
+        const small = [...document.querySelectorAll('#view-dashboard button')]
+          .map((b) => { const r = b.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), t: (b.textContent || b.getAttribute('aria-label') || '?').trim().slice(0, 16) }; })
           .filter((b) => b.w > 0 && b.h > 0 && (b.w < 44 || b.h < 44));
-        const under = [...document.querySelectorAll('#dash-cap-section .cap-line')].filter((r) => r.classList.contains('cap-line--under')).length;
-        const capBig = Number((document.getElementById('cap-big').textContent || '0').replace(/\D/g, ''));
-        return { nDalle: dalles.length, wide, bodyW, small, under, capBig };
+        return { nDalle: dalles.length, kids, apres: apres ? 1 : 0, over: se.scrollWidth - se.clientWidth, small };
       });
       await page.close();
       return g;
     };
-    const m1600 = await mesure(1600, 1000);
-    const m1280 = await mesure(1280, 800);
+    const c1600 = await check(1600, 1000);
+    const c1280 = await check(1280, 800);
 
-    // n° 6 — capture pleine hauteur, jusqu'au dernier pixel.
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
-    await page.waitForSelector('#dash-cap-section .cap-ruler', { timeout: 10000 });
-    await page.waitForTimeout(1600);
-    // La capture de conformité (preuve n° 6) va dans le dossier temporaire
-    // par défaut — jamais dans l'arbre. LOT13_SHOT force un chemin précis
-    // pour la joindre au rapport.
-    const shot = process.env.LOT13_SHOT || join(tmpdir(), 'preuve-lot13-pleine-hauteur.png');
+    await page.waitForSelector('.dash-platre .dalle', { timeout: 10000 });
+    await page.waitForTimeout(1500);
+    const shot = process.env.LOT14_SHOT || join(tmpdir(), 'preuve-lot14-pleine-hauteur.png');
     await page.screenshot({ path: shot, fullPage: true });
-    const dims = await page.evaluate(() => ({ h: document.scrollingElement.scrollHeight, capBottom: Math.round(document.querySelector('#dash-cap-section').getBoundingClientRect().bottom + window.scrollY) }));
+    const dims = await page.evaluate(() => {
+      const dalles = document.querySelectorAll('.dash-platre .dalle');
+      const last = dalles[dalles.length - 1].getBoundingClientRect();
+      return { h: document.scrollingElement.scrollHeight, lastBottom: Math.round(last.bottom + window.scrollY) };
+    });
     await page.close();
     await browser.close();
     await new Promise((r) => srv.close(r));
 
-    // 2 (DOM) — cinq dalles, les deux dernières à la largeur du plâtre.
-    verifier('.dash-body : cinq enfants de dalle', 5, m1600.nDalle);
-    verifier('les deux dalles du bas à la largeur du plâtre (1600)', true,
-      m1600.wide.length === 2 && m1600.wide.every((w) => Math.abs(w - m1600.bodyW) <= 1), `${m1600.wide.join(' / ')} vs ${m1600.bodyW}`);
-    verifier('les deux dalles du bas à la largeur du plâtre (1280)', true,
-      m1280.wide.length === 2 && m1280.wide.every((w) => Math.abs(w - m1280.bodyW) <= 1), `${m1280.wide.join(' / ')} vs ${m1280.bodyW}`);
-
-    // 5 (DOM) — aucune cible sous 44 px dans les deux sections.
-    const small = [...m1600.small.map((b) => `1600 « ${b.t} » ${b.w}×${b.h}`), ...m1280.small.map((b) => `1280 « ${b.t} » ${b.w}×${b.h}`)];
-    verifier('aucune cible sous 44 px dans les deux dalles du bas', 0, small.length, small.join(' | '));
-
-    // 4 (DOM) — le nombre affiché = le nombre de lignes rouges.
-    verifier('dalle 5 : grand chiffre = lignes sous la barrière', m1600.capBig, m1600.under, `chiffre ${m1600.capBig} / lignes rouges ${m1600.under}`);
-
-    // 6 (DOM) — la capture descend au-delà du bas de la dalle 5.
-    verifier('capture pleine hauteur (jusqu\'au dernier pixel)', true, dims.h >= dims.capBottom - 1, `page ${dims.h}px ≥ bas dalle 5 ${dims.capBottom}px`);
+    verifier('.dash-platre : trois dalles', 3, c1600.nDalle);
+    verifier('.dash-body : un seul enfant (.dash-platre)', '1 · div.dash-platre', `${c1600.kids.length} · ${c1600.kids.join(', ')}`);
+    verifier('rien après .dash-platre dans .dash-body', 0, c1600.apres);
+    verifier('aucun débordement horizontal (1600 / 1280)', 0, Math.max(c1600.over, c1280.over, 0), `${c1600.over} / ${c1280.over}`);
+    const small = [...c1600.small.map((b) => `1600 « ${b.t} » ${b.w}×${b.h}`), ...c1280.small.map((b) => `1280 « ${b.t} » ${b.w}×${b.h}`)];
+    verifier('aucune cible du Dashboard sous 44 px', 0, small.length, small.join(' | '));
+    verifier('capture pleine hauteur (jusqu\'au dernier pixel)', true, dims.h >= dims.lastBottom - 1, `page ${dims.h}px ≥ bas 3e dalle ${dims.lastBottom}px`);
   } catch (e) {
     verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
   }

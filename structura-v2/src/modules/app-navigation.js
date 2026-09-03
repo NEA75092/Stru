@@ -72,8 +72,6 @@
       }
       if (viewId === "dashboard") {
         root.renderDashboardSummary?.();
-        root.renderAlerts?.();
-        root.drawPerfChart?.();
         root.renderDashboardModules?.();
       }
       if (viewId === "portfolio") root.renderPf?.();
