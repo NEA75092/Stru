@@ -27,16 +27,26 @@
     outline-offset: -2px;
 }
 
+/* LOT 11 § 2 : le <body> gardait la marge de 8px de l'agent utilisateur.
+   Invisible tant que .app imposait un plancher de 1600 (l'app débordait
+   toujours) ; sur portable elle ajoute 16px et crée un défilement
+   horizontal. La maquette la remet à zéro (l. 59) — ici aussi. */
+body {
+    margin: 0;
+}
+
 /* ── Coquille — le cadre de page ────────────────────────────
-   Relevé l. 65-66. Largeur plancher 1600px : en-deçà, l'app défile,
-   elle ne se recompose pas — c'est pourquoi le point de rupture à
-   1080px de la passe 1 disparaît avec ce lot. */
+   Relevé l. 65-66. LOT 11 § 2 : plancher 1280px (portable), atteint par
+   clamp() et non par @media — un seul rendu continu de 1280 à 1600, et à
+   1600 les valeurs hautes valent exactement celles d'avant ce lot.
+   En-deçà de 1280 l'app défile, elle ne se recompose pas : le point de
+   rupture à 1080px de la passe 1 ne revient pas (§ 2.3). */
 .app {
     position: relative;
     display: flex;
-    min-width: 1600px;
+    min-width: 1280px;
     min-height: 100vh;
-    padding: 30px;
+    padding: clamp(18px, 1.6vw, 30px);
     box-sizing: border-box;
     background: var(--color-bg);
     color: var(--color-text-primary);
@@ -79,7 +89,7 @@
 .sidebar {
     position: relative;
     z-index: 40;
-    width: 236px;
+    width: clamp(208px, 15vw, 236px);
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
@@ -100,28 +110,30 @@
    et guerfin-symbole-clair.png n'existe pas au dépôt : décision client,
    pas d'implémentation (§6). assets/structura-mark.png porte donc le
    monogramme, avec le mot STRUCTURA aux métriques ci-dessous. */
+/* LOT 11 § 4 : la marque est GUERFIN. Bloc aligné à gauche sur l'inset
+   de 14px des items de nav — il était centré, seul bloc centré du rail. */
 .sidebar-brand {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 11px;
-    padding: 0 6px;
-    margin: 2px 0 32px;
+    padding: 0 14px;
+    margin: 2px 0 22px;
 }
 
 .sidebar-brand-img {
     display: block;
-    width: 38px;
-    height: 28px;
+    width: 34px;
+    height: 18px;
+    flex: 0 0 auto;
     object-fit: contain;
 }
 
 .sidebar-brand-word {
     font-family: var(--font-heading);
     font-weight: 500;
-    font-size: 16px;
-    letter-spacing: 0.2em;
-    color: var(--sur-azur);
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    color: var(--color-on-band);
     white-space: nowrap;
 }
 
@@ -235,58 +247,21 @@
     line-height: 1;
 }
 
-/* ── Le pied du rail ── §3, « Le pied ». Mêmes trois actions que la
-   passe 1 (Mode démo / CSV / Excel / + Nouveau produit) : ce lot ne
-   touche pas à la logique, seulement à la peinture. Compound selectors
-   pour rester au-dessus de .btn/.btn-primary (partagés par tout
-   l'app, hors périmètre de ce lot) sans dépendre de l'ordre du
-   fichier. */
-.sidebar-foot {
+/* ── L'action primaire, en tête de rail ── LOT 11 § 1.2.
+   L'ancien pied de rail (MODE DÉMO / CSV / Excel / Nouveau produit) est
+   retiré — il n'existe plus dans la maquette. « Nouveau produit » remonte
+   ici, entre la marque et la nav ; CSV / Excel repartent dans la barre
+   d'outils du Portefeuille ; MODE DÉMO passe derrière la pastille de
+   profil (§ 1.3). */
+.sidebar-primary {
     display: flex;
-    flex-direction: column;
-    gap: 9px;
-    margin-top: 26px;
-    padding-top: 22px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-.sidebar-actions {
-    display: flex;
-    gap: 9px;
-}
-
-.sidebar-actions .btn {
-    flex: 1;
-}
-
-.btn.sidebar-mode,
-.btn.sidebar-btn {
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 12px 0;
     min-height: 44px;
-    padding: 11px 0;
-    border: 1px solid var(--flottant-brd);
-    border-radius: var(--r-plein);
-    background: transparent;
-    color: var(--sur-azur);
-    font-family: var(--font-heading);
-    font-size: 11.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: background var(--duration-base) var(--ease);
-}
-
-.btn.sidebar-mode:hover,
-.btn.sidebar-btn:hover {
-    background: var(--flottant);
-}
-
-.btn.sidebar-mode.is-live {
-    border-color: var(--azur-clair);
-    color: var(--azur-clair);
-}
-
-.btn.btn-primary.sidebar-add {
-    min-height: 44px;
-    padding: 11px 0;
     border: none;
     border-radius: var(--r-plein);
     background: var(--azur-clair);
@@ -294,11 +269,22 @@
     font-family: var(--font-heading);
     font-size: 13.5px;
     letter-spacing: 0.02em;
+    cursor: pointer;
     transition: background var(--duration-base) var(--ease);
 }
 
-.btn.btn-primary.sidebar-add:hover {
+.sidebar-primary:hover {
     background: color-mix(in oklab, var(--azur-clair) 82%, #fff);
+}
+
+.sidebar-primary svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: var(--marine);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 /* ── Zone de vues ────────────────────────────────────────────
@@ -590,28 +576,17 @@
     border-color: transparent;
 }
 
-.mode-btn,
-.sidebar-btn {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
-}
-
-/* ── La rangée d'outils, en pied de rail ── LOT 9, § 3.
-   Quatrième et dernier bloc du rail : recherche · notifications ·
-   jour/nuit · profil. C'est elle qui pousse désormais (margin-top: auto),
-   .sidebar-nav ayant perdu son flex: 1. Mêmes tokens que le reste du
-   rail — --flottant, --flottant-brd, --sur-azur, --r-plein, --ease —
-   tous déjà consommés ici, zéro token neuf. */
+/* ── La rangée d'outils, en pied de rail ── LOT 9 § 3, révisée LOT 11 § 1.4.
+   Recherche · notifications · jour/nuit · profil. Elle ne pousse plus
+   (le pied vestige a disparu) : margin-top fixe + un filet, comme la
+   maquette (l. 124). Mêmes tokens que le reste du rail, zéro token neuf. */
 .sidebar-tools {
-    margin-top: auto;
-    padding-top: 22px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 2px;
 }
 
 .sidebar-tool {
@@ -645,12 +620,18 @@
     stroke-linejoin: round;
 }
 
-/* Le profil : cible de 44px, poussée à droite, un disque de 34px dedans. */
+/* Le profil : cible de 44px avec un disque de 34px dedans. LOT 11 § 1.4 :
+   margin-left fixe (6px), plus « auto » — la rangée n'est plus flottante.
+   Derrière la pastille, un menu à une entrée : MODE DÉMO (§ 1.3). */
 .sidebar-profile {
+    position: relative;
+    margin-left: 6px;
+}
+
+.sidebar-profile-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-left: auto;
     width: 44px;
     height: 44px;
     padding: 0;
@@ -673,4 +654,41 @@
     letter-spacing: 0.04em;
     line-height: 1;
     color: var(--sur-azur);
+}
+
+.sidebar-profile-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    min-width: 148px;
+    padding: 6px;
+    border-radius: var(--r-min);
+    background: color-mix(in oklab, var(--marine) 88%, #000);
+    border: 1px solid var(--flottant-brd);
+}
+
+.sidebar-menu-item {
+    padding: 10px 12px;
+    border: none;
+    border-radius: var(--r-min);
+    background: transparent;
+    color: var(--sur-azur);
+    font-family: var(--font-heading);
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--duration-base) var(--ease);
+}
+
+.sidebar-menu-item:hover {
+    background: var(--flottant);
+}
+
+.sidebar-menu-item.on {
+    color: var(--azur-clair);
 }

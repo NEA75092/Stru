@@ -1991,6 +1991,34 @@ function toggleTheme() {
   applyTheme(next);
 }
 
+// LOT 11 § 1.3 : MODE DÉMO vit désormais derrière la pastille de profil
+// du pied de rail. Le menu est un simple bloc [hidden] que la pastille
+// ouvre/ferme ; un clic ailleurs ou Échap le referme.
+function closeProfileMenu() {
+  const menu = document.getElementById("session-menu");
+  const btn = document.getElementById("session-profile");
+  if (menu) menu.hidden = true;
+  if (btn) btn.setAttribute("aria-expanded", "false");
+}
+
+function toggleProfileMenu(btn) {
+  const menu = document.getElementById("session-menu");
+  if (!menu) return;
+  const open = menu.hidden;
+  menu.hidden = !open;
+  if (btn) btn.setAttribute("aria-expanded", String(open));
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener("click", (e) => {
+    const wrap = e.target && e.target.closest && e.target.closest(".sidebar-profile");
+    if (!wrap) closeProfileMenu();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeProfileMenu();
+  });
+}
+
 const PITCH_WIZARD_STEP_COUNT = 4;
 let pitchWizardCurrentStep = 1;
 

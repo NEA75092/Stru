@@ -37,7 +37,7 @@ const IGNORED_PREFIXES = ["--space-", "--text-", "--radius-", "--font-", "--ease
 // ce ne sont pas des tokens de design, elles n'ont jamais eu à être déclarées
 // dans design-tokens.css. Perdu dans le passage whitelist → blacklist du
 // 22/08 ; restauré ici (whitelist du lot Liquide 01).
-const IGNORED_EXACT = new Set(["--tone", "--dot", "--at", "--mx", "--my", "--pitch-header-h", "--view-enter-y", "--gradient-card-lit", "--dur"]);
+const IGNORED_EXACT = new Set(["--tone", "--dot", "--at", "--mx", "--my", "--pitch-header-h", "--view-enter-y", "--gradient-card-lit", "--dur", "--we-delay"]);
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {

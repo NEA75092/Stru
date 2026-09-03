@@ -13,8 +13,8 @@ import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const LOT = Number((process.argv[process.argv.indexOf('--lot') + 1]) || 0);
-if (![1, 2, 3, 5, 6, 7, 8, 9, 10].includes(LOT)) {
-  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8|9|10');
+if (![1, 2, 3, 5, 6, 7, 8, 9, 10, 11].includes(LOT)) {
+  console.error('usage: preuve-liquide.mjs --lot 1|2|3|5|6|7|8|9|10|11');
   process.exit(2);
 }
 
@@ -104,6 +104,20 @@ const AUTORISES = LOT === 1
           join(SRC, 'dashboard.css'),
           join(SRC, 'modules', 'app-dashboard.js'),
           INDEX,
+        ]
+      : LOT === 11
+      ? [
+          // lot 11, § 6 : format portable (clamp), vestiges du rail,
+          // quatre défauts de rendu, marque GUERFIN.
+          TOKENS,
+          join(SRC, 'shell.css'),
+          join(SRC, 'dashboard.css'),
+          join(SRC, 'passe7.css'),
+          join(SRC, 'modules', 'app-dashboard.js'),
+          join(SRC, 'app.js'),
+          INDEX,
+          join('structura-v2', 'handoff-septembre', 'tools', 'preuve-liquide.mjs'),
+          join('structura-v2', 'handoff-septembre', 'tools', 'check-tokens.mjs'),
         ]
       : [
           // lot 3, § 5 : sept fichiers d'écran, plus design-tokens.css
@@ -510,11 +524,15 @@ if (LOT === 9) {
   const reglesHeader = (shellNu.match(/(^|[\s,}])\.header[\w-]*\s*(,|\{)/g) || []);
   verifier('règle .header dans shell.css', 0, reglesHeader.length, reglesHeader.map((s) => s.trim()).join(' | '));
 
-  // 6.3 — les quatre outils du rail sont des <button> ; zéro div cliquable.
+  // 6.3 — les quatre cibles du rail sont des <button> ; zéro div/span
+  //  cliquable. Depuis le LOT 11 la pastille de profil ouvre un menu
+  //  (MODE DÉMO) : on compte les 3 .sidebar-tool + le .sidebar-profile-btn,
+  //  pas les entrées du menu.
   const toolsBloc = (html.match(/<div class="sidebar-tools">[\s\S]*?\n {16}<\/div>/) || [''])[0];
-  const nbButtons = (toolsBloc.match(/<button\b/g) || []).length;
+  const nbTools = (toolsBloc.match(/class="sidebar-tool[ "]/g) || []).length;
+  const nbProfileBtn = (toolsBloc.match(/class="sidebar-profile-btn"/g) || []).length;
   const divCliquables = (toolsBloc.match(/<div[^>]*\bonclick|<div[^>]*role="button"|<span[^>]*\bonclick/g) || []).length;
-  verifier('rangée d\'outils : 4 boutons', 4, nbButtons, toolsBloc ? '' : 'bloc .sidebar-tools introuvable');
+  verifier('rangée d\'outils : 3 .sidebar-tool + 1 profil = 4 <button>', 4, nbTools + nbProfileBtn, toolsBloc ? '' : 'bloc .sidebar-tools introuvable');
   verifier('rangée d\'outils : 0 div/span cliquable', 0, divCliquables);
 
   // 6.4 — .sidebar-nav n'a plus flex: 1.
@@ -548,7 +566,7 @@ if (LOT === 9) {
         const main = document.querySelector('.main').getBoundingClientRect();
         const tools = [
           ...document.querySelectorAll('.sidebar-tools .sidebar-tool'),
-          document.querySelector('.sidebar-tools .sidebar-profile'),
+          document.querySelector('.sidebar-tools .sidebar-profile-btn'),
         ].filter(Boolean).map((b) => {
           const r = b.getBoundingClientRect();
           return [Math.round(r.width), Math.round(r.height)];
@@ -674,6 +692,140 @@ if (LOT === 10) {
     verifier('4 boutons de période, tous des <button>', true,
       tags.length === 4 && tags.every((t) => t === 'button') && jour.ranges.every((w) => w > 0),
       `cibles marge incluse : ${jour.ranges.join(' / ')} px (maquette : « Mois » ≈ 43)`);
+  } catch (e) {
+    verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
+  }
+}
+
+/* — lot 11 : le format portable, les vestiges, quatre défauts — § 5 — statiques + DOM. */
+if (LOT === 11) {
+  const shell = lire(join(SRC, 'shell.css'));
+  const html = lire(INDEX);
+  const dash = lire(join(SRC, 'dashboard.css'));
+  const app = lire(join(SRC, 'modules', 'app-dashboard.js'));
+
+  // 5.1 — zéro vestige du pied de rail dans index.html ET shell.css.
+  for (const [nom, re] of [
+    ['sidebar-foot', /sidebar-foot/g],
+    ['sidebar-mode', /sidebar-mode/g],
+    ['sidebar-btn', /sidebar-btn/g],
+    ['sidebar-add', /sidebar-add/g],
+  ]) {
+    const n = (html.match(re) || []).length + (shell.match(re) || []).length;
+    verifier(`vestige « ${nom} »`, 0, n);
+  }
+
+  // 5.2 — .app plancher 1280, plus aucun 1600px dans shell.css.
+  verifier('.app { min-width: 1280px }', true, /\.app\s*\{[^}]*min-width:\s*1280px/s.test(shell));
+  verifier('1600px dans shell.css', 0, (shell.match(/1600px/g) || []).length);
+
+  // 5.5 — plus d'orangé sur le Top/Flop : zéro --ambre dans les fichiers
+  //  du Dashboard. Le token reste déclaré (il porte --color-watch, hors
+  //  périmètre) ; ce qui compte, c'est qu'il ne peigne plus cette figure.
+  verifier('--ambre dans dashboard.css / app-dashboard.js', 0,
+    (dash.match(/--ambre\b/g) || []).length + (app.match(/--ambre\b/g) || []).length);
+
+  // 5.7 — .sidebar-tools ne pousse plus (plus de margin-top: auto).
+  const toolsRule = (shell.replace(/\/\*[\s\S]*?\*\//g, '').match(/\.sidebar-tools\s*\{[^}]*\}/s) || [''])[0];
+  verifier('.sidebar-tools sans margin-top: auto', 0, (toolsRule.match(/margin-top:\s*auto/g) || []).length, toolsRule.replace(/\s+/g, ' '));
+
+  // DOM — deux largeurs, jour et nuit.
+  try {
+    const { createServer } = await import('node:http');
+    const { chromium } = await import('playwright');
+    const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json' };
+    const srv = createServer((req, res) => {
+      const p = join(process.cwd(), decodeURIComponent(req.url.split('?')[0]));
+      try { const body = readFileSync(p); res.writeHead(200, { 'content-type': TYPES[p.slice(p.lastIndexOf('.'))] || 'application/octet-stream' }); res.end(body); }
+      catch { res.writeHead(404); res.end(); }
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const port = srv.address().port;
+    const browser = await chromium.launch({ headless: true });
+    const VIEWS = ['dashboard', 'clients', 'portfolio', 'barriers', 'calendar', 'analytics', 'autopitch', 'screener', 'ingest'];
+    const NAPPE = { 1280: 568, 1440: 640, 1600: 640 };
+
+    const passeLargeur = async (W, Hpx) => {
+      const page = await browser.newPage({ viewport: { width: W, height: Hpx } });
+      await page.goto(`http://127.0.0.1:${port}/${INDEX}`, { waitUntil: 'load' });
+      await page.waitForSelector('.dash-platre .dalle', { timeout: 10000 });
+      await page.waitForTimeout(900);
+      const out = { theme: {} };
+      for (const mode of ['jour', 'nuit']) {
+        if (mode === 'nuit') { await page.evaluate(() => window.toggleTheme()); await page.waitForTimeout(300); }
+        const debordements = [];
+        for (const v of VIEWS) {
+          await page.evaluate((id) => window.nav && window.nav(id), v);
+          await page.waitForTimeout(120);
+          const over = await page.evaluate(() => {
+            const se = document.scrollingElement || document.documentElement;
+            return se.scrollWidth - window.innerWidth;
+          });
+          if (over > 1) debordements.push(`${v} +${over}`);
+        }
+        await page.evaluate((id) => window.nav && window.nav(id), 'dashboard');
+        // block-in rejoue à la ré-entrée de #view-dashboard : laisser
+        // l'animation d'entrée retomber avant de mesurer la géométrie
+        // (même précaution qu'au --lot 7).
+        await page.waitForTimeout(1500);
+        const g = await page.evaluate(() => {
+          const a = document.querySelector('.dash-avant').getBoundingClientRect();
+          const first = document.querySelector('.dash-platre .dalle').getBoundingClientRect();
+          const nappeH = getComputedStyle(document.documentElement).getPropertyValue('--nappe-h').trim();
+          const probe = document.createElement('div');
+          probe.style.height = nappeH; probe.style.position = 'absolute'; probe.style.visibility = 'hidden';
+          document.body.appendChild(probe);
+          const resolved = Math.round(probe.getBoundingClientRect().height);
+          probe.remove();
+          const prim = document.querySelector('.sidebar .sidebar-primary');
+          const firstFocus = document.querySelector('.sidebar button, .sidebar a[href], .sidebar input, .sidebar select, .sidebar [tabindex]');
+          return {
+            avantH: Math.round(a.height),
+            nappeResolved: resolved,
+            ecartDalle: Math.round(first.top - a.bottom),
+            primIsButton: !!prim && prim.tagName === 'BUTTON',
+            primMinH: prim ? Math.round(parseFloat(getComputedStyle(prim).minHeight) || prim.getBoundingClientRect().height) : 0,
+            primIsFirstFocus: !!prim && firstFocus === prim,
+          };
+        });
+        out.theme[mode] = { debordements, ...g };
+      }
+      await page.close();
+      return out;
+    };
+
+    const r1280 = await passeLargeur(1280, 800);
+    const r1440 = await passeLargeur(1440, 900);
+    const r1600 = await passeLargeur(1600, 1000);
+    await browser.close();
+    await new Promise((r) => srv.close(r));
+
+    // 5.3 — aucun débordement horizontal, 9 vues, 2 largeurs, 2 thèmes.
+    const tousDeb = [];
+    for (const [lbl, r] of [['1280', r1280], ['1440', r1440], ['1600', r1600]]) {
+      for (const mode of ['jour', 'nuit']) {
+        for (const d of r.theme[mode].debordements) tousDeb.push(`${lbl}/${mode} ${d}`);
+      }
+    }
+    verifier('aucun débordement horizontal (9 vues × 2 largeurs × 2 thèmes)', 0, tousDeb.length, tousDeb.join(' · ').slice(0, 300));
+
+    // 5.4 — .dash-avant = --nappe-h résolu ; 568 à 1280, 640 à 1440/1600 ;
+    //  écart bas de .dash-avant → première dalle = 54 à 1600.
+    for (const [W, r] of [[1280, r1280], [1440, r1440], [1600, r1600]]) {
+      for (const mode of ['jour', 'nuit']) {
+        const t = r.theme[mode];
+        verifier(`${W}/${mode} : .dash-avant = --nappe-h résolu`, true, Math.abs(t.avantH - t.nappeResolved) <= 1, `${t.avantH} vs ${t.nappeResolved}`);
+        verifier(`${W}/${mode} : --nappe-h ≈ ${NAPPE[W]}`, true, Math.abs(t.nappeResolved - NAPPE[W]) <= 2, String(t.nappeResolved));
+      }
+    }
+    verifier('1600/jour : écart nappe → première dalle = 54', 54, r1600.theme.jour.ecartDalle);
+    verifier('1600/nuit : écart nappe → première dalle = 54', 54, r1600.theme.nuit.ecartDalle);
+
+    // 5.6 — bouton primaire du rail : <button>, min-height ≥ 44, premier focalisable.
+    const p = r1600.theme.jour;
+    verifier('bouton primaire = <button>', true, p.primIsButton);
+    verifier('bouton primaire min-height ≥ 44', true, p.primMinH >= 44, String(p.primMinH));
+    verifier('bouton primaire = premier focalisable du rail', true, p.primIsFirstFocus);
   } catch (e) {
     verifier('mesure DOM (playwright)', 'disponible', 'indisponible', String(e && e.message).slice(0, 200));
   }

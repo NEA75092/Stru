@@ -20,24 +20,32 @@
             href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="./src/design-tokens.css?v=20260901a" />
-        <link rel="stylesheet" href="./src/shell.css?v=20260902d" />
+        <link rel="stylesheet" href="./src/design-tokens.css?v=20260903a" />
+        <link rel="stylesheet" href="./src/shell.css?v=20260903a" />
         <link rel="stylesheet" href="./src/controls.css?v=20260805b" />
         <link rel="stylesheet" href="./src/overlays.css?v=20260831a" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260902e" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260903a" />
         <link rel="stylesheet" href="./src/tables.css?v=20260831a" />
         <link rel="stylesheet" href="./src/views.css?v=20260831a" />
-        <link rel="stylesheet" href="./src/passe7.css?v=20260831a" />
+        <link rel="stylesheet" href="./src/passe7.css?v=20260903a" />
         <link rel="stylesheet" href="./src/relief.css?v=20260902b" />
     </head>
     <body>
         <div class="app">
             <aside class="sidebar">
                 <div class="sidebar-brand">
-                    <img class="sidebar-brand-img" src="assets/structura-mark.png"
-                         alt="" width="38" height="28" />
-                    <span class="sidebar-brand-word">STRUCTURA</span>
+                    <img class="sidebar-brand-img" src="assets/guerfin-symbole-clair-detoure.png"
+                         alt="Guerfin" width="34" height="18" />
+                    <span class="sidebar-brand-word">GUERFIN</span>
                 </div>
+                <button
+                    type="button"
+                    class="sidebar-primary"
+                    onclick="openModal()"
+                >
+                    <svg viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg>
+                    Nouveau produit
+                </button>
                 <nav class="sidebar-nav">
                     <div class="nav-indicator" id="nav-indicator" aria-hidden="true"></div>
                     <div
@@ -101,22 +109,6 @@
                         <span class="ico"><svg viewBox="0 0 20 20"><circle cx="6" cy="4.5" r="1.8"/><circle cx="14" cy="4.5" r="1.8"/><path d="M6 4.5h8v9.5c0 2-1.8 3.5-4 3.5s-4-1.5-4-3.5V4.5z"/><path d="M8 8.3h4M8 11h4"/></svg></span> Doc Reader
                     </div>
                 </nav>
-                <div class="sidebar-foot">
-                    <button
-                        class="btn mode-btn sidebar-mode"
-                        id="mode-toggle"
-                        onclick="toggleAppMode()"
-                    >
-                        MODE DEMO
-                    </button>
-                    <div class="sidebar-actions">
-                        <button class="btn sidebar-btn" onclick="exportCSV()">CSV</button>
-                        <button class="btn sidebar-btn" onclick="exportXLSX()">Excel</button>
-                    </div>
-                    <button class="btn btn-primary sidebar-add" onclick="openModal()">
-                        + Nouveau produit
-                    </button>
-                </div>
                 <div class="sidebar-tools">
                     <button
                         type="button"
@@ -144,14 +136,29 @@
                     >
                         <svg viewBox="0 0 20 20"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z"/></svg>
                     </button>
-                    <button
-                        type="button"
-                        class="sidebar-profile"
-                        id="session-profile"
-                        title="Conseiller"
-                    >
-                        <span class="sidebar-profile-disc" id="session-avatar">CG</span>
-                    </button>
+                    <div class="sidebar-profile">
+                        <button
+                            type="button"
+                            class="sidebar-profile-btn"
+                            id="session-profile"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            onclick="toggleProfileMenu(this)"
+                            title="Conseiller"
+                        >
+                            <span class="sidebar-profile-disc" id="session-avatar">CG</span>
+                        </button>
+                        <div class="sidebar-profile-menu" id="session-menu" hidden>
+                            <button
+                                type="button"
+                                class="sidebar-menu-item"
+                                id="mode-toggle"
+                                onclick="toggleAppMode()"
+                            >
+                                MODE DEMO
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </aside>
 
@@ -333,6 +340,8 @@
                                     onclick="pfAlerts(this)"
                                     >⚠ Alertes seules</span
                                 >
+                                <button type="button" class="btn btn-secondary control-band-btn" onclick="exportCSV()">CSV</button>
+                                <button type="button" class="btn btn-secondary control-band-btn" onclick="exportXLSX()">Excel</button>
                                 <span class="control-band-count" id="pf-count">54 produits</span>
                             </div>
                         </div>

@@ -71,10 +71,12 @@
     position: relative;
     z-index: 30;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 440px;
-    gap: 40px;
+    /* LOT 11 § 2 : colonnes et rythme en clamp() — à 1600 px de fenêtre,
+       440px / 40px / 52px 28px, exactement comme avant. */
+    grid-template-columns: minmax(0, 1fr) clamp(360px, 28vw, 440px);
+    gap: clamp(24px, 2.6vw, 40px);
     align-items: start;
-    padding: 52px 28px 0;
+    padding: clamp(40px, 3.6vw, 52px) clamp(18px, 1.9vw, 28px) 0;
     min-height: var(--nappe-h);
 }
 
@@ -92,7 +94,8 @@
     margin: 0;
     font-family: var(--font-heading);
     font-weight: 300;
-    font-size: var(--text-2xl);
+    /* LOT 11 § 2 : 54px à 1600, plancher 40px sur portable. */
+    font-size: clamp(40px, 3.5vw, 54px);
     line-height: 1.04;
     letter-spacing: -0.012em;
     color: var(--color-text-on-dark);
@@ -101,8 +104,8 @@
 /* Le cadre flottant — verre nº 1 de L3, une seule carte en deux
    épaisseurs : le cadre (blur 14), la dalle intérieure (blur 18). */
 .dash-encours-frame {
-    margin-top: 34px;
-    width: 472px;
+    margin-top: clamp(24px, 2.4vw, 34px);
+    width: min(472px, 100%);
     padding: 12px;
     border-radius: var(--radius-xl);
     border: 1px solid var(--flottant-brd);
@@ -136,7 +139,8 @@
     margin: 13px 0 5px;
     font-family: var(--font-heading);
     font-weight: 300;
-    font-size: var(--text-verre);
+    /* LOT 11 § 2 : 40px à 1600, plancher 33px. */
+    font-size: clamp(33px, 2.7vw, 40px);
     line-height: 1;
     letter-spacing: -0.012em;
     font-variant-numeric: tabular-nums;
@@ -182,15 +186,16 @@
 .dash-encours-borne-a { left: 0; }
 .dash-encours-borne-b { right: 0; }
 
+/* LOT 11 § 3.3 : une seule source d'espacement — gap: 14px sur la rangée,
+   plus de margin-right sur les boutons. */
 .dash-encours-ranges {
     display: flex;
-    gap: 8px;
+    gap: 14px;
     margin-top: 6px;
 }
 
 .dash-encours-range {
     padding: 6px 0;
-    margin-right: 14px;
     border: none;
     background: none;
     cursor: pointer;
@@ -838,17 +843,19 @@
    consommés en couche 1 (§ 6 : aucun alias --color-* pour eux). */
 .dash-platre {
     display: grid;
+    /* LOT 11 § 2.1 : trois colonnes de 1280 à 1600, jamais de repli à
+       deux — la dalle la plus étroite tient ~265px de contenu à 1280. */
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
+    gap: clamp(16px, 1.5vw, 22px);
     align-items: start;
 }
 
 .dalle {
-    padding: 34px;
+    padding: clamp(24px, 2.3vw, 34px);
     border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
-    gap: 34px;
+    gap: clamp(24px, 2.3vw, 34px);
     transition: transform 280ms var(--ease-standard);
     animation: colonne 700ms var(--ease-standard) both;
 }
@@ -879,7 +886,8 @@
 .dalle-num {
     font-family: var(--font-heading);
     font-weight: 300;
-    font-size: 44px;
+    /* LOT 11 § 2 : 44px à 1600, plancher 34px. */
+    font-size: clamp(34px, 2.9vw, 44px);
     letter-spacing: -0.01em;
     font-variant-numeric: tabular-nums;
     color: var(--color-ink);
@@ -1070,9 +1078,12 @@
     color: var(--color-text-secondary);
 }
 
+/* LOT 11 § 3.4 corollaire : la pastille active prend --chip-encre, pas
+   --color-ink — en nuit, encre claire sur pastille claire, le libellé
+   était invisible. */
 .topflop-btn.on {
-    background: var(--color-accent);
-    color: var(--color-accent-ink);
+    background: var(--color-surface-raised);
+    color: var(--chip-encre);
 }
 
 .tf-row {
@@ -1126,12 +1137,18 @@
     white-space: nowrap;
 }
 
+/* LOT 11 § 3.4 : deux états. Au-dessus de la barrière — encre ; en
+   dessous — --color-breach. La jauge suit la même règle. */
 .tf-ecart {
     font-size: var(--text-sm);
     font-family: var(--font-heading);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    color: var(--color-text-secondary);
+    color: var(--color-ink);
+}
+
+.tf-row--under .tf-ecart {
+    color: var(--color-breach);
 }
 
 .tf-gauge {
@@ -1151,6 +1168,10 @@
     animation: jauge 900ms var(--ease-standard) 520ms both;
 }
 
+.tf-row--under .tf-gauge-fill {
+    background: var(--color-breach);
+}
+
 .tf-marker {
     position: absolute;
     top: -4px;
@@ -1165,13 +1186,19 @@
     flex-direction: column;
 }
 
+/* LOT 11 § 3.3 : quatre colonnes — date · pastille émetteur · texte ·
+   montant. Le padding-left:37px qui faisait tenir le détail sous le titre
+   disparaît : titre et détail partagent le bord gauche parce qu'ils sont
+   dans la même colonne. La colonne de pastille est en `auto` (et non 28px
+   de la maquette) : la pastille porte l'id du registre — BNP, NATIXIS… —,
+   décision § 4 ter du LOT 8, pas un sigle de deux lettres. */
 .we-row {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr) auto;
+    grid-template-columns: 34px auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 13px;
+    gap: 11px;
     width: 100%;
-    padding: 12px 10px;
+    padding: 11px 10px;
     margin: 0 -10px;
     min-height: 44px;
     background: none;
@@ -1181,16 +1208,22 @@
     text-align: left;
     cursor: pointer;
     transition: background-color 160ms var(--ease-standard);
+    animation: ligne 460ms var(--ease-standard) var(--we-delay, 0ms) both;
 }
 
 .we-row:hover {
     background: var(--survol);
 }
 
+.we-pill-empty {
+    width: 28px;
+}
+
 .we-date {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    gap: 1px;
 }
 
 .we-dow {
@@ -1202,6 +1235,7 @@
     font-size: var(--text-base);
     font-family: var(--font-heading);
     font-variant-numeric: tabular-nums;
+    line-height: 1.1;
     color: var(--color-ink);
 }
 
@@ -1212,16 +1246,10 @@
     min-width: 0;
 }
 
-.we-title-wrap {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: var(--text-base);
-    color: var(--color-ink);
-    min-width: 0;
-}
-
 .we-title {
+    font-size: var(--text-base);
+    line-height: 1.25;
+    color: var(--color-ink);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1229,11 +1257,17 @@
 
 .we-detail {
     font-size: var(--text-xs);
+    line-height: 1.25;
     color: var(--color-text-tertiary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-left: 37px;
+}
+
+/* § 3.1 : un événement passé descend en bas de la liste et s'éteint en
+   encre atténuée — date comprise. */
+.we-row--past .we-num {
+    color: var(--color-text-tertiary);
 }
 
 .we-amt {
@@ -1549,10 +1583,11 @@
     flex-direction: column;
     gap: 44px;
     /* Une seule valeur entre l'eau et la première dalle, portée par le
-       plâtre — comme la maquette (l. 246 : margin: 54px 28px). Plus de
-       padding-top qui s'ajoutait au gap de vue (lot-liquide-07 § 2).
-       Le 28 latéral coïncide avec celui du premier plan. */
-    margin: 54px 28px;
+       plâtre — comme la maquette (l. 244). Plus de padding-top qui
+       s'ajoutait au gap de vue (lot-liquide-07 § 2). LOT 11 § 2 : en
+       clamp() — 54px 28px à 1600, plancher 40px 18px sur portable. Le
+       latéral coïncide avec celui du premier plan à toute largeur. */
+    margin: clamp(40px, 3.6vw, 54px) clamp(18px, 1.9vw, 28px);
     padding: 0;
 }
 

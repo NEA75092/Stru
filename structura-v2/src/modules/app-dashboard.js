@@ -642,9 +642,11 @@
         const marker = hasBar
           ? `<span class="tf-marker" title="Barrière de protection du capital" style="left:${((Number(p.barrier) / VL_MAX) * 100).toFixed(2)}%"></span>`
           : "";
-        // Écart et jauge en encre monochrome — audit § 2.3 : la trame
-        // d'encre est un acquis, le CODE a raison, jamais de couleur ici.
-        return `<button type="button" class="tf-row" onclick="openDrawer(${p.id})">
+        // LOT 11 § 3.4 : deux états, jamais trois — plus d'orangé sur
+        // cette figure. L'écart et la jauge sont en encre au-dessus de la
+        // barrière, en --color-breach en dessous (VL sous la protection).
+        const underBar = hasBar && p.vlLevel < Number(p.barrier);
+        return `<button type="button" class="tf-row${underBar ? " tf-row--under" : ""}" onclick="openDrawer(${p.id})">
             <span class="tf-row-top">
               <span class="tf-name-wrap">${pill}<span class="tf-name">${escapeHtml(p.name)}</span></span>
               <span class="tf-vl">${(p.vlLevel).toFixed(1).replace(".", ",")}</span>
@@ -702,19 +704,34 @@
       setText("dash-encours-borne-a", monthShortFR(startDate));
       setText("dash-encours-borne-b", monthShortFR(endDate));
 
+      // LOT 11 § 3.2 : lissage Catmull-Rom sur les constatations réelles
+      // (tangentes réelles, pas des plateaux — l'ancien tracé posait un
+      // segment droit entre chaque point mensuel). Ligne de base BAS = 104
+      // (la dernière ligne de la trame : l'aire se ferme SUR la trame, pas
+      // 8px dessous), haut HAUT = 14.
       const W = 380;
-      const H = 112;
+      const BAS = 104;
+      const HAUT = 14;
       const vals = points.map((p) => p.idx);
       const minV = Math.min(...vals) - 0.6;
       const maxV = Math.max(...vals) + 0.6;
       const xAt = (i) => (i / (points.length - 1 || 1)) * W;
-      const yAt = (v) => 8 + (104 - 8) * (1 - (v - minV) / (maxV - minV || 1));
-      const line = points
-        .map((p, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(p.idx).toFixed(1)}`)
-        .join(" ");
-      const area = `${line} L${W},${yAt(minV).toFixed(1)} L0,${yAt(minV).toFixed(1)} Z`;
-      const curX = xAt(points.length - 1).toFixed(1);
-      const curY = yAt(points[points.length - 1]?.idx ?? 100).toFixed(1);
+      const yAt = (v) => BAS - ((v - minV) / (maxV - minV || 1)) * (BAS - HAUT);
+      const pts = points.map((p, i) => [xAt(i), yAt(p.idx)]);
+      const at = (i) => pts[Math.max(0, Math.min(pts.length - 1, i))];
+      let line = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+      for (let i = 0; i < pts.length - 1; i += 1) {
+        const p0 = at(i - 1);
+        const p1 = at(i);
+        const p2 = at(i + 1);
+        const p3 = at(i + 2);
+        const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+        const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+        line += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+      }
+      const area = `${line} L${W},${BAS} L0,${BAS} Z`;
+      const curX = pts[pts.length - 1][0].toFixed(1);
+      const curY = pts[pts.length - 1][1].toFixed(1);
       svg.setAttribute("viewBox", "0 0 380 112");
       svg.setAttribute("preserveAspectRatio", "none");
       svg.innerHTML = `
@@ -902,15 +919,26 @@
 
       if (!evs.length) { c.innerHTML = ""; return; }
       const DOW = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
-      c.innerHTML = evs.map((e) => {
+      const todayIso = now.toISOString().slice(0, 10);
+      // LOT 11 § 3.1 : tri explicite, jamais l'ordre d'écriture. Ce qui
+      // reste à faire d'abord (aujourd'hui puis à venir, au plus proche) ;
+      // le passé descend en bas, du plus récent au plus ancien, en encre
+      // atténuée. Le délai d'animation est posé APRÈS le tri, sur l'index
+      // affiché — l'entrée échelonnée suit l'ordre à l'écran.
+      const ordered = evs
+        .map((e) => ({ e, n: new Date(`${e._dateIso}T00:00:00`).getTime(), passe: e._dateIso < todayIso }))
+        .sort((a, b) => (a.passe - b.passe) || (a.passe ? b.n - a.n : a.n - b.n));
+      c.innerHTML = ordered.map(({ e, passe }, i) => {
         const d = new Date(`${e._dateIso}T00:00:00`);
         const emet = String(e.desc || "").split(" · ").pop() || "";
         const pill = emitterPill(emet);
         const amt = e.amt || e.exposure || "";
-        return `<button type="button" class="we-row" onclick="openDrawer(${e.productId})">
+        const delay = 500 + i * 50;
+        return `<button type="button" class="we-row${passe ? " we-row--past" : ""}" style="--we-delay:${delay}ms" onclick="openDrawer(${e.productId})">
             <span class="we-date"><span class="we-dow">${DOW[(d.getDay() + 6) % 7]}</span><span class="we-num">${d.getDate()}</span></span>
+            ${pill || '<span class="we-pill-empty"></span>'}
             <span class="we-main">
-              <span class="we-title-wrap">${pill}<span class="we-title">${escapeHtml(e.name || "")}</span></span>
+              <span class="we-title">${escapeHtml(e.name || "")}</span>
               <span class="we-detail">${escapeHtml(e.desc || "")}</span>
             </span>
             <span class="we-amt">${escapeHtml(amt)}</span>
