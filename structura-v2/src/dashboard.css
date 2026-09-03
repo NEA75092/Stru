@@ -1291,6 +1291,30 @@
     color: var(--color-text-tertiary);
 }
 
+/* lot Liquide 11 bis : pied de liste de la dalle « Événements produits » —
+   le total des coupons attendus de la semaine. En encre, jamais en vert :
+   un coupon reconstitué reste prévu, pas acquis (doctrine passe 8 § 2). */
+.we-coupons {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 10px;
+}
+
+.we-coupons-lbl {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+.we-coupons-val {
+    font-size: 14px;
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+    white-space: nowrap;
+}
+
 /* Remplissage de jauge — image 100% explicite (leçon LOT 7 bis : une
    keyframe from-only + fill both laisse un résiduel). scaleX depuis la
    gauche, la largeur cible est posée en inline. */

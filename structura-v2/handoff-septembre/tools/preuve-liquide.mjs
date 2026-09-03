@@ -495,6 +495,28 @@ if (LOT === 8) {
   // odomètre : une seule rAF, pas de seconde boucle
   verifier('odomètre : une requestAnimationFrame', true, /function runOdometer\(\)/.test(app) && /matchMedia\(/.test(app));
 
+  // 8.9 — lot Liquide 11 bis : pied de la dalle « Événements produits »,
+  //  le total des coupons ATTENDUS de la semaine.
+  const cal = lire(join(SRC, 'modules', 'app-calendar.js'));
+  const weBlock = (app.match(/function renderWeekEvents\(\)[\s\S]*?\n {4}\}/) || [''])[0];
+  const weCoupons = (dash.match(/\.we-coupons-val\s*\{[^}]*\}/s) || [''])[0];
+  const weCouponsLbl = (dash.match(/\.we-coupons-lbl\s*\{[^}]*\}/s) || [''])[0];
+  verifier('11bis : « Coupons attendus », jamais « encaissés »', true,
+    /Coupons attendus cette semaine/.test(weBlock) && !/encaiss/.test(weBlock));
+  verifier('11bis : total en encre (--color-ink), jamais en vert', true,
+    /color:\s*var\(--color-ink\)/.test(weCoupons)
+    && !/--color-safe|--vert\b/.test(weCoupons));
+  verifier('11bis : libellé en --color-text-secondary, 13px', true,
+    /color:\s*var\(--color-text-secondary\)/.test(weCouponsLbl) && /font-size:\s*13px/.test(weCouponsLbl));
+  verifier('11bis : val 14px, font-heading, tabular-nums', true,
+    /font-size:\s*14px/.test(weCoupons) && /font-family:\s*var\(--font-heading\)/.test(weCoupons) && /tabular-nums/.test(weCoupons));
+  verifier('11bis : total dérivé de la liste (e.amtValue), pas re-parcouru', true,
+    /e\.amtValue/.test(weBlock)
+    && !/productsForScope\(\)\.find|couponCashflowAmount/.test(weBlock));
+  verifier('11bis : eventDetail pose amtValue sur le coupon', true,
+    /if \(type === "coupon"\) \{[\s\S]{0,800}?return \{ amt: moneyShort\(amount\), amtValue: amount \}/.test(cal));
+  verifier('11bis : à 0, pas de ligne', true, /couponsTotal > 0\s*\?/.test(weBlock));
+
   // 8.7 / 8.8 — mesures DOM
   try {
     const { createServer } = await import('node:http');

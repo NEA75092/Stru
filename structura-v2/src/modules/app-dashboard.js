@@ -847,7 +847,7 @@
       const ordered = evs
         .map((e) => ({ e, n: new Date(`${e._dateIso}T00:00:00`).getTime(), passe: e._dateIso < todayIso }))
         .sort((a, b) => (a.passe - b.passe) || (a.passe ? b.n - a.n : a.n - b.n));
-      c.innerHTML = ordered.map(({ e, passe }, i) => {
+      const rows = ordered.map(({ e, passe }, i) => {
         const d = new Date(`${e._dateIso}T00:00:00`);
         const emet = String(e.desc || "").split(" · ").pop() || "";
         const pill = emitterPill(emet);
@@ -863,6 +863,24 @@
             <span class="we-amt">${escapeHtml(amt)}</span>
           </button>`;
       }).join("");
+
+      // lot Liquide 11 bis : le total des coupons de la semaine, dérivé de
+      // la MÊME liste que les lignes (e.amtValue, posé par eventDetail),
+      // jamais recalculé à part. Libellé « attendus » et total en encre —
+      // un coupon reconstitué s'affiche prévu, jamais acquis (doctrine
+      // passe 8 § 2). À 0, la ligne ne s'affiche pas.
+      const couponsTotal = evs.reduce(
+        (s, e) => s + (e.type === "coupon" ? Number(e.amtValue) || 0 : 0),
+        0,
+      );
+      const couponsLine = couponsTotal > 0
+        ? `<div class="we-coupons">
+            <span class="we-coupons-lbl">Coupons attendus cette semaine</span>
+            <span class="we-coupons-val">${escapeHtml(moneyShort(couponsTotal))}</span>
+          </div>`
+        : "";
+
+      c.innerHTML = rows + couponsLine;
     }
 
     function renderDashboardModules() {

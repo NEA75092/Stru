@@ -201,7 +201,11 @@
       if (type === "coupon") {
         const amount = couponCashflowAmount(product);
         if (!(amount > 0)) return {};
-        return { amt: moneyShort(amount) };
+        // amtValue : le même montant en nombre, pour que le pied de la
+        // dalle « Événements produits » du Dashboard somme les coupons de
+        // la semaine depuis la liste elle-même, sans re-parser moneyShort
+        // ni re-parcourir les produits (lot Liquide 11 bis).
+        return { amt: moneyShort(amount), amtValue: amount };
       }
       // Maturité en franchissement : ce que la ligne dit change de nature,
       // pas seulement de couleur. Une maturité saine annonce un versement
