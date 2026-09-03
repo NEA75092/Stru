@@ -230,14 +230,9 @@
       );
     }
 
-    let perfRange = "ytd";
-
-    const PERF_RANGE_LABELS = {
-      ytd: "YTD",
-      "6m": "6 mois",
-      "1a": "1 an",
-      all: "depuis le début",
-    };
+    // LOT 13 : la dalle de performance lit les mêmes fenêtres que le cadre
+    // d'encours (PERIODES, déclaré plus bas) — « 6M / 1A / Tout » disparaît.
+    let perfRange = "month";
 
     function productInceptionDate(product) {
       const subs = getProductAllocations(product)
@@ -359,113 +354,89 @@
       return { points, startSnap, endSnap, periodPct, periodAbs, startDate, endDate };
     }
 
-    function drawPerfHistory(totalNom, _totalVal) {
+    // LOT 13 — dalle de performance, pleine largeur : grand chiffre teinté
+    // par son signe, la rangée de fenêtres partagée (PERIODES), et une
+    // courbe large en viewBox 0 0 1200 208 qui réemploie EXACTEMENT la même
+    // trajectoire que la petite (buildPerfSeries + lissage Catmull-Rom,
+    // base BAS = 196, haut HAUT = 24) — les deux figures ne peuvent pas
+    // raconter deux histoires.
+    function drawPerfHistory(totalNom) {
       const svg = document.getElementById("perf-history-svg");
-      if (!svg) return;
       const data = productsForScope();
-      const series = buildPerfSeries(data, perfRange);
-      const { points, periodPct, periodAbs, startDate, endDate } = series;
-      const W = 800;
-      const H = 180;
-      const pad = { l: 44, r: 24, t: 22, b: 34 };
-      const currentIdx = points[points.length - 1]?.idx || 100;
+      const { points, periodPct, periodAbs, startDate, endDate } = buildPerfSeries(data, perfRange);
       const positive = periodPct >= 0;
-      // Ce chart est dessiné en SVG via des attributs stroke/fill en dur
-      // (pas de CSS, donc pas de var(--color-*)) : les recolorer à la
-      // main selon le thème est le seul moyen de les faire suivre le
-      // dark mode (2026-07-24). Refonte Dolce Vita Fintech (2026-07-25) :
-      // la ligne est toujours bleue (plus de rouge/vert conditionnel sur
-      // le tracé — la direction reste lisible via le %/montant textuels
-      // à côté, en couleur sémantique, eux inchangés).
-      const css = getComputedStyle(document.documentElement);
-      const token = (name) => css.getPropertyValue(name).trim();
-      const gridColor = token("--color-divider");
-      const labelColor = token("--color-text-tertiary");
-      const refLineColor = token("--color-border-strong");
-      const lineColor = token("--color-ink");
-      const vals = points.map((p) => p.idx);
-      const minV = Math.min(98, ...vals, currentIdx) - 1.2;
-      const maxV = Math.max(102, ...vals, currentIdx) + 1.2;
-      const plotW = W - pad.l - pad.r;
-      const plotH = H - pad.t - pad.b;
-      const xAt = (i) => pad.l + (i / (points.length - 1 || 1)) * plotW;
-      const yAt = (v) => pad.t + plotH - ((v - minV) / (maxV - minV || 1)) * plotH;
-      const line = points
-        .map((p, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(p.idx).toFixed(1)}`)
-        .join(" ");
-      const area = `${line} L${xAt(points.length - 1).toFixed(1)},${(pad.t + plotH).toFixed(1)} L${pad.l},${(pad.t + plotH).toFixed(1)} Z`;
-      const refY = yAt(100);
-      const gridStep = (maxV - minV) / 4;
-      let grid = "";
-      for (let i = 0; i <= 4; i += 1) {
-        const v = minV + gridStep * i;
-        const y = yAt(v);
-        grid += `<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W - pad.r}" y2="${y.toFixed(1)}" stroke="${gridColor}" stroke-width="1"/>`;
+
+      // Rangée de fenêtres — même liste que le cadre d'encours.
+      const rangesHost = document.getElementById("perf-ranges");
+      if (rangesHost) {
+        rangesHost.innerHTML = PERIODES.map(
+          (r) => `<button type="button" class="dash-encours-range${r.key === perfRange ? " on" : ""}" data-perf-range="${r.key}" onclick="setRange(this, '${r.key}')">${escapeHtml(r.nom)}</button>`,
+        ).join("");
       }
-      grid += `<text x="${pad.l - 6}" y="${refY.toFixed(1)}" text-anchor="end" dominant-baseline="middle" fill="${labelColor}" font-size="9" font-family="var(--font-mono-data)">100</text>`;
-      const labelEvery = Math.max(1, Math.ceil(points.length / 5));
-      const labels = points
-        .filter((_, i) => i === 0 || i === points.length - 1 || i % labelEvery === 0)
-        .map((p) => {
-          const i = points.indexOf(p);
-          const lbl = p.date.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
-          return `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${labelColor}" font-size="10" font-family="var(--font-mono-data)">${escapeHtml(lbl)}</text>`;
-        })
-        .join("");
-      const markerRing = token("--color-surface-1");
-      const endX = xAt(points.length - 1).toFixed(1);
-      const endY = yAt(currentIdx).toFixed(1);
+
+      const big = document.getElementById("perf-big");
+      if (big) {
+        big.textContent = totalNom ? `${positive ? "+" : ""}${pctFr(periodPct, 2)}` : "—";
+        big.classList.toggle("is-up", totalNom > 0 && positive);
+        big.classList.toggle("is-down", totalNom > 0 && !positive);
+      }
+      setText(
+        "perf-big-ctx",
+        totalNom
+          ? `sur ${periodeNom(perfRange).toLowerCase()} · ${positive ? "+" : ""}${moneyShort(periodAbs)}`
+          : "Import portefeuille requis",
+      );
+      setText("perf-borne-a", monthShortFR(startDate));
+      setText("perf-borne-b", monthShortFR(endDate));
+
+      if (!svg) return;
+      const W = 1200;
+      const BAS = 196;
+      const HAUT = 24;
+      const vals = points.map((p) => p.idx);
+      const minV = Math.min(...vals) - 0.6;
+      const maxV = Math.max(...vals) + 0.6;
+      const xAt = (i) => (i / (points.length - 1 || 1)) * W;
+      const yAt = (v) => BAS - ((v - minV) / (maxV - minV || 1)) * (BAS - HAUT);
+      const pts = points.map((p, i) => [xAt(i), yAt(p.idx)]);
+      const at = (i) => pts[Math.max(0, Math.min(pts.length - 1, i))];
+      let line = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+      for (let i = 0; i < pts.length - 1; i += 1) {
+        const p0 = at(i - 1);
+        const p1 = at(i);
+        const p2 = at(i + 1);
+        const p3 = at(i + 2);
+        const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+        const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+        line += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+      }
+      const area = `${line} L${W},${BAS} L0,${BAS} Z`;
+      const curX = pts[pts.length - 1][0].toFixed(1);
+      const curY = pts[pts.length - 1][1].toFixed(1);
+      svg.setAttribute("viewBox", "0 0 1200 208");
+      svg.setAttribute("preserveAspectRatio", "none");
       svg.innerHTML = `
         <defs>
-          <linearGradient id="perfAreaFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="${lineColor}" stop-opacity="0.22"/>
-            <stop offset="100%" stop-color="${lineColor}" stop-opacity="0"/>
+          <linearGradient id="airePerf" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--color-safe)" stop-opacity="0.16"></stop>
+            <stop offset="100%" stop-color="var(--color-safe)" stop-opacity="0"></stop>
           </linearGradient>
         </defs>
-        ${grid}
-        <line x1="${pad.l}" y1="${refY.toFixed(1)}" x2="${W - pad.r}" y2="${refY.toFixed(1)}" stroke="${refLineColor}" stroke-dasharray="5 4"/>
-        <path d="${area}" fill="url(#perfAreaFill)"/>
-        <path d="${line}" fill="none" stroke="${lineColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="${endX}" cy="${endY}" r="10" fill="${lineColor}" opacity="0.2"/>
-        <circle cx="${endX}" cy="${endY}" r="6" fill="${lineColor}" stroke="${markerRing}" stroke-width="2"/>
-        <text x="${W - pad.r}" y="${pad.t}" text-anchor="end" fill="${lineColor}" font-size="13" font-weight="600" font-family="var(--font-mono-data)">${currentIdx.toFixed(1)}</text>
-        ${labels}`;
-
-      const rangeLabel = PERF_RANGE_LABELS[perfRange] || perfRange;
-      setText(
-        "perf-change",
-        totalNom ? `${positive ? "+" : ""}${pctFr(periodPct, 2)}` : "—",
-      );
-      setText(
-        "perf-change-abs",
-        totalNom
-          ? `${positive ? "+" : ""}${moneyShort(periodAbs)} sur la période`
-          : "—",
-      );
-      setText("perf-change-label", `Performance · ${rangeLabel}`);
-      setText(
-        "perf-chart-note",
-        `Courbe indicative ${rangeLabel} · du ${startDate.toLocaleDateString("fr-FR")} au ${endDate.toLocaleDateString("fr-FR")} · base 100 au début de période`,
-      );
-      const changeEl = document.getElementById("perf-change");
-      if (changeEl) {
-        changeEl.classList.toggle("up", positive);
-        changeEl.classList.toggle("dn", !positive && totalNom > 0);
-      }
+        <g stroke="var(--color-border-strong)" stroke-width="1" stroke-dasharray="3 4">
+          <line x1="0" y1="40" x2="1200" y2="40"></line>
+          <line x1="0" y1="92" x2="1200" y2="92"></line>
+          <line x1="0" y1="144" x2="1200" y2="144"></line>
+          <line x1="0" y1="196" x2="1200" y2="196"></line>
+        </g>
+        <path d="${area}" fill="url(#airePerf)"></path>
+        <path d="${line}" pathLength="1" fill="none" stroke="var(--color-safe)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:1;animation:tracer 1100ms var(--ease-standard) 260ms both"></path>
+        <circle cx="${curX}" cy="${curY}" r="4.2" fill="var(--color-safe)" stroke="var(--color-surface-raised)" stroke-width="2" style="animation:paraitre 300ms linear 1200ms both"></circle>`;
     }
 
     function drawPerfChart() {
       const data = productsForScope();
       const totalNom = data.reduce((s, p) => s + (Number(p.nominal) || 0), 0);
-      const totalVal = data.reduce((s, p) => s + (Number(p.val) || 0), 0);
-
-      setText("perf-nominal", totalNom ? moneyShort(totalNom) : "—");
-      setText("perf-valuation", totalVal ? moneyShort(totalVal) : "—");
-
-      const panel = document.getElementById("perf-cgp");
-      if (panel) panel.classList.toggle("perf-empty", !totalNom);
-
-      drawPerfHistory(totalNom, totalVal);
+      drawPerfHistory(totalNom);
     }
 
     // Tableau part/encours (Dashboard v3, remplace l'anneau SVG de
@@ -673,12 +644,16 @@
     //    Chacun réemploie un fait de l'app, aucun n'invente de série ni
     //    de liste. Valeurs de rendu relevées dans la maquette (l. 159-243).
 
-    const ENCOURS_RANGES = [
+    // LOT 13 : une seule liste de fenêtres, lue par le cadre d'encours du
+    // premier plan ET par la dalle de performance du bas. Deux rangées de
+    // boutons, une source — elles ne peuvent pas diverger.
+    const PERIODES = [
       { key: "month", nom: "Mois" },
       { key: "trim", nom: "Trimestre" },
       { key: "annee", nom: "Année" },
       { key: "all", nom: "Depuis l'origine" },
     ];
+    const periodeNom = (key) => (PERIODES.find((p) => p.key === key) || {}).nom || key;
     let encoursRange = "month";
 
     function renderEncoursFrame() {
@@ -762,7 +737,7 @@
 
       const ranges = document.getElementById("dash-encours-ranges");
       if (ranges) {
-        ranges.innerHTML = ENCOURS_RANGES.map(
+        ranges.innerHTML = PERIODES.map(
           (r) =>
             `<button type="button" class="dash-encours-range${r.key === encoursRange ? " on" : ""}" data-encours-range="${r.key}" onclick="setEncoursRange('${r.key}')">${escapeHtml(r.nom)}</button>`,
         ).join("");
@@ -959,6 +934,8 @@
       renderVlTopFlop();
       renderWeekEvents();
       renderEncoursFrame();
+      drawPerfChart();
+      renderAlerts();
       renderAgendaWeek();
       renderTodayList();
       runOdometer();
@@ -975,71 +952,82 @@
     // largeur (§2.1) : sous 3 % de l'axe (~9 px sur 300), la trame ne
     // rend plus qu'une hachure et devient invisible — un produit à peine
     // sous sa barrière est justement le cas qu'il faut voir.
-    const CAP_AXIS_MIN = -60;
-    const CAP_AXIS_MAX = 20;
-    const CAP_ZONE_FLOOR_PCT = 3;
-    function capAxisPct(value) {
-      const clamped = Math.max(CAP_AXIS_MIN, Math.min(CAP_AXIS_MAX, Number(value) || 0));
-      return ((clamped - CAP_AXIS_MIN) / (CAP_AXIS_MAX - CAP_AXIS_MIN)) * 100;
+    // LOT 13 — Sous la protection du capital, pleine largeur : une règle
+    // horizontale graduée en POINTS DE VL. Les bornes de l'échelle sont
+    // déclarées une fois (REGLE) ; les six graduations, la position de
+    // chaque produit et le repère zéro en dérivent. Une ligne par produit,
+    // les plus proches de la barrière d'abord. Deux teintes seulement,
+    // comme le Top/Flop : --color-breach sous la barrière, --color-ink
+    // au-dessus.
+    const REGLE = { min: -30, max: 60 };
+    const regleSpan = REGLE.max - REGLE.min;
+    const reglePct = (v) => ((Math.max(REGLE.min, Math.min(REGLE.max, v)) - REGLE.min) / regleSpan) * 100;
+    const signePts = (d) => `${d > 0 ? "+" : d < 0 ? "−" : ""}${ptsFr(Math.abs(d))} pts`;
+
+    function capCandidates() {
+      return productsForScope()
+        .filter((p) => Number.isFinite(Number(p.barrier)) && Number(p.barrier) > 0)
+        .map((p) => {
+          const vlLevel = Number.isFinite(Number(p.vlPct))
+            ? Number(p.vlPct)
+            : Number(p.nominal) > 0
+              ? (Number(p.val) / Number(p.nominal)) * 100
+              : 100;
+          return { p, d: vlLevel - Number(p.barrier) };
+        })
+        .sort((a, b) => a.d - b.d);
     }
+
     function renderAlerts() {
-      const c = document.getElementById("alerts-list");
-      const block = document.getElementById("dash-alerts-block");
+      const c = document.getElementById("cap-rows");
       if (!c) return;
-      const list = buildPortfolioAlerts();
-      const meta = document.getElementById("alerts-meta");
-      if (block) block.classList.toggle("is-empty", !list.length);
-      if (meta) {
-        meta.textContent = list.length
-          ? `${list.length} position${list.length > 1 ? "s" : ""}`
-          : "Aucune position sous la protection du capital";
+      const all = capCandidates();
+      const rows = all.slice(0, 6);
+      const sous = all.filter((x) => x.d < 0).length;
+
+      setDalleNum("cap-big", sous, { decimals: 0 });
+      setText(
+        "cap-big-ctx",
+        all.length
+          ? `produits sous la barrière · la plus proche à ${signePts(all[0].d)}`
+          : "aucun produit avec barrière de protection",
+      );
+      setFootLabel("dash-cap-foot", "Ouvrir le suivi des barrières");
+
+      const grads = document.getElementById("cap-grads");
+      if (grads) {
+        let g = "";
+        for (let i = 0; i <= 5; i += 1) {
+          const v = Math.round(REGLE.min + (regleSpan / 5) * i);
+          const lbl = `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)}`;
+          g += `<span class="cap-grad" style="left:${reglePct(v).toFixed(2)}%">${lbl}</span>`;
+        }
+        grads.innerHTML = g;
       }
-      if (!list.length) {
-        c.innerHTML = '<div class="cap-empty">Rien d\'urgent — aucune position sous la protection du capital.</div>';
+      const zeroEl = document.getElementById("cap-zero");
+      if (zeroEl) zeroEl.style.left = `${reglePct(0).toFixed(2)}%`;
+
+      if (!rows.length) {
+        c.innerHTML = '<div class="cap-empty">Aucune position à surveiller.</div>';
         return;
       }
-      // Forme en tableau (Dashboard v3, remplace la forme en cartes de
-      // dashboard-correctif-02.md § 2) : <ton> = breach si la position a
-      // franchi (statusCls "st-breach"), watch sinon (crit ou warn, non
-      // franchi) — posé sur .cap-row, lu par les descendants .cap-breach/
-      // .cap-cursor/.cap-perf via .tone-watch. « depuis N j » n'est pas
-      // rendu : aucun champ du modèle ne porte la date d'entrée dans
-      // l'état breach/watch (RÈGLE ABSOLUE, trou nommé dans le rapport).
-      const head = `<div class="cap-head-row">
-          <span class="dash-th">Position</span>
-          <span class="dash-th cap-col-right">Vs initial</span>
-          <span class="dash-th cap-axis-labels"><span>${CAP_AXIS_MIN} %</span><span>+${CAP_AXIS_MAX} %</span></span>
-          <span class="dash-th cap-col-right">Niveau initial</span>
-          <span class="dash-th cap-col-right">Barrière</span>
-        </div>`;
-      const rows = list.map((a) => {
-        const hasPerf = Number.isFinite(Number(a.perfVsInitial));
-        const hasBarrier = Number.isFinite(Number(a.barrierVsInitial));
-        const hasInitial = a.initialSpot != null && Number.isFinite(Number(a.initialSpot));
-        const toneClass = a.statusCls === "st-breach" ? "" : " tone-watch";
-        let rule = "";
-        if (hasPerf && hasBarrier) {
-          const spotPct = capAxisPct(a.perfVsInitial);
-          const pdiPct = capAxisPct(a.barrierVsInitial);
-          const zoneL = Math.min(spotPct, pdiPct);
-          const zoneW = Math.max(CAP_ZONE_FLOOR_PCT, Math.abs(spotPct - pdiPct));
-          rule = `<span class="cap-rule">
-              <span class="cap-groove" data-calque="groove"></span>
-              <span class="cap-breach" data-calque="breach" style="left:${zoneL.toFixed(2)}%;width:${zoneW.toFixed(2)}%"></span>
-              <span class="cap-zero"></span>
-              <span class="cap-notch" data-calque="notch" style="left:${pdiPct.toFixed(2)}%"></span>
-              <span class="cap-cursor" style="left:${spotPct.toFixed(2)}%"></span>
-            </span>`;
-        }
-        return `<div class="cap-row${toneClass}" onclick="openDrawer(${a.productId})">
-            <span class="cap-name"><strong>${escapeHtml(a.name)}</strong><span class="cap-meta">${escapeHtml(a.context)}</span></span>
-            <span class="cap-perf">${hasPerf ? `${a.perfVsInitial >= 0 ? "+" : ""}${pctFr(a.perfVsInitial, 1)}` : "\u2014"}</span>
-            ${rule || '<span class="cap-rule"></span>'}
-            <span class="cap-niveau">${hasInitial ? a.initialSpot.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "\u2014"}</span>
-            <span class="cap-barriere">${hasBarrier ? `${a.barrierVsInitial >= 0 ? "+" : ""}${pctFr(a.barrierVsInitial, 0)}` : "\u2014"}</span>
-          </div>`;
-      }).join("");
-      c.innerHTML = `<div class="cap-table">${head}${rows}</div>`;
+      const zeroPct = reglePct(0);
+      c.innerHTML = rows
+        .map(({ p, d }) => {
+          const x = reglePct(d);
+          const gauche = Math.min(x, zeroPct);
+          const largeur = Math.abs(x - zeroPct);
+          const pill = emitterPill(p.emetteur);
+          return `<button type="button" class="cap-line${d < 0 ? " cap-line--under" : ""}" onclick="openDrawer(${p.id})">
+            <span class="cap-line-name">${pill}<span class="cap-line-lbl">${escapeHtml(p.name || "")}</span></span>
+            <span class="cap-seg">
+              <span class="cap-seg-bar" style="left:${gauche.toFixed(2)}%;width:${largeur.toFixed(2)}%"></span>
+              <span class="cap-seg-tip" style="left:${x.toFixed(2)}%"></span>
+            </span>
+            <span class="cap-line-val">${signePts(d)}</span>
+          </button>`;
+        })
+        .join("");
     }
 
     function monthShortFR(date) {
@@ -1106,8 +1094,8 @@
     }
 
     function setRange(el, range) {
-      perfRange = range || "ytd";
-      document.querySelectorAll(".perf-range-controls .pill-filter").forEach((chip) => {
+      perfRange = PERIODES.some((p) => p.key === range) ? range : "month";
+      document.querySelectorAll("#perf-ranges [data-perf-range]").forEach((chip) => {
         chip.classList.toggle(
           "on",
           chip === el || chip.dataset.perfRange === perfRange,

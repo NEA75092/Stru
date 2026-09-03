@@ -769,228 +769,6 @@
     stroke-linejoin: round;
 }
 
-/* ── Sous la protection du capital — tableau (Dashboard v3, maquette
-   handoff-septembre/maquette/Structura - Dashboard v3.html, mesurée en
-   DOM : grille 5 colonnes, pas de carte bordée — remplace la forme en
-   cartes de dashboard-correctif-02.md § 2, dépassée). La règle graduée
-   (groove/breach/notch/cursor) garde son mécanisme intact : seule la
-   boîte autour change. <ton> = --color-breach, ou --color-watch si le
-   produit est en surveillance non franchie (.tone-watch, posé depuis
-   statusCls). ── */
-.cap-empty {
-    padding: var(--space-4) var(--space-3);
-    font-size: var(--text-sm);
-    color: var(--color-text-tertiary);
-}
-
-.cap-table {
-    display: flex;
-    flex-direction: column;
-}
-
-.cap-head-row,
-.cap-row {
-    display: grid;
-    grid-template-columns: minmax(240px, 1fr) 96px minmax(220px, 1.1fr) 110px 90px;
-    gap: 24px;
-    align-items: center;
-    padding: var(--space-4);
-}
-
-.cap-head-row {
-    border-bottom: 1px solid var(--color-border);
-    padding-top: 0;
-    padding-bottom: 12px;
-}
-
-.cap-row {
-    cursor: pointer;
-    transition: background-color var(--duration-fast) var(--ease-standard);
-}
-
-.cap-row:hover {
-    background: var(--color-surface-1-hover);
-}
-
-.cap-col-right {
-    text-align: right;
-}
-
-.cap-axis-labels {
-    display: flex;
-    justify-content: space-between;
-}
-
-.cap-name {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 0;
-}
-
-.cap-name strong {
-    font-size: var(--text-base);
-    font-weight: 500;
-    letter-spacing: -0.012em;
-    color: var(--color-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cap-meta {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cap-perf {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xl);
-    letter-spacing: -0.025em;
-    color: var(--color-breach);
-    text-align: right;
-}
-
-.cap-row.tone-watch .cap-perf {
-    color: var(--color-watch);
-}
-
-.cap-niveau {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-
-.cap-barriere {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-sm);
-    color: var(--color-ink);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-
-.cap-rule {
-    position: relative;
-    display: block;
-    height: 12px;
-    overflow: hidden;
-    background: var(--color-surface-sunk);
-    /* Contour complet en outline, pas en border : la hauteur (12px) et
-       la largeur de .cap-breach sont calculées, un border changerait
-       la boîte. outline ne compte pas dans le box-model (lot 3, §3.1). */
-    outline: 1px solid var(--color-border);
-    outline-offset: -1px;
-}
-
-.cap-groove {
-    position: absolute;
-    inset: 0;
-}
-
-.cap-breach {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    background-image: repeating-linear-gradient(115deg, var(--color-breach) 0 2px, transparent 2px 5px);
-    background-color: color-mix(in oklch, var(--color-breach), transparent 80%);
-    outline: 1px solid color-mix(in oklch, var(--color-breach), transparent 55%);
-    outline-offset: -1px;
-}
-
-.cap-row.tone-watch .cap-breach {
-    background-image: repeating-linear-gradient(115deg, var(--color-watch) 0 2px, transparent 2px 5px);
-    background-color: color-mix(in oklch, var(--color-watch), transparent 80%);
-    outline: 1px solid color-mix(in oklch, var(--color-watch), transparent 55%);
-    outline-offset: -1px;
-}
-
-.cap-zero {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 75%;
-    width: 1px;
-    background: var(--color-border-strong);
-}
-
-.cap-notch {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: var(--encre);
-    opacity: 0.72;
-}
-
-.cap-cursor {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--color-breach);
-}
-
-.cap-row.tone-watch .cap-cursor {
-    background: var(--color-watch);
-}
-
-/* ── Performance ─────────────────────────────────────────────
-   Le graphe était à cheval sur les 640 px de la nappe (LOT 5, D2). Il
-   descend dans le plâtre et devient une dalle mate, pleine opacité, même
-   traitement que les autres blocs du plâtre — pas de verre, pas de
-   bordure de carte. Le couple titre + kicker descend avec lui et devient
-   l'entête de la dalle (§ 4). */
-/* LOT 8 § 5 : la dalle de performance et « Sous la protection du capital »
-   restent (arbitrage designer, motivé à l'audit § 5) mais passent au
-   patron du § 3 — fond de dalle du plâtre, pleine largeur, sous la grille
-   des trois. */
-.dash-perf-section,
-.dash-alerts-block {
-    padding: 34px;
-    border-radius: var(--radius-lg);
-    background: var(--dalle-a);
-    transition: transform 280ms var(--ease-standard);
-}
-
-.dash-perf-section:hover,
-.dash-alerts-block:hover {
-    transform: translateY(-3px);
-}
-
-/* .sec-hdr est l'entête de la dalle : la marge sous lui est déjà posée
-   par la règle partagée. Les .sec-title / .sec-meta prennent ici les
-   valeurs de L4 — scopé, les autres sections n'y touchent pas. */
-.dash-perf-section .sec-title {
-    font-family: var(--font-heading);
-    font-weight: 500;
-    font-size: var(--text-lg);
-    letter-spacing: 0.004em;
-    color: var(--color-ink);
-}
-
-.dash-perf-section .sec-meta {
-    font-family: var(--font-body);
-    font-size: var(--text-xs);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
-}
-
-/* Le panel intérieur a perdu sa raison d'être : la dalle porte le fond,
-   le rayon et le padding. Il ne reste que la colonne flex du graphe. */
-.dash-perf-section .perf-panel {
-    padding: 0;
-    border: none;
-    border-radius: 0;
-    background: none;
-}
-
 /* ── Le plâtre — trois dalles mates, relevé maquette l. 246-336 (LOT 8) ──
    Aucune bordure, aucun verre (L1), aucune ombre (R5). Fonds --dalle-a/b/c
    consommés en couche 1 (§ 6 : aucun alias --color-* pour eux). */
@@ -1100,6 +878,200 @@
     line-height: 1;
     color: var(--color-text-secondary);
     white-space: nowrap;
+}
+
+/* ── LOT 13 — les deux dalles pleine largeur du bas ──────────────
+   Même patron que les trois dalles de la grille (fond mat, radius,
+   padding, survol translateY, pied à chevron), mais en bloc pleine
+   largeur sous la grille, pas en colonne. */
+.dalle--wide {
+    display: block;
+    animation: none;
+}
+
+.dalle-wide-hdr {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.dalle--wide .dalle-title {
+    font-size: 17.5px;
+}
+
+.dalle--wide .dalle-big {
+    margin-top: 14px;
+}
+
+/* Grand chiffre de la dalle 4 : teinté par le signe de la performance —
+   deux états seulement, comme le Top/Flop. */
+.dalle-num.is-up {
+    color: var(--color-safe);
+}
+
+.dalle-num.is-down {
+    color: var(--color-breach);
+}
+
+.perf-wide-chart {
+    position: relative;
+    margin-top: 22px;
+}
+
+.perf-wide-chart svg {
+    display: block;
+    width: 100%;
+    height: 208px;
+}
+
+.perf-wide-bornes {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.cap-axis-hint {
+    align-self: flex-end;
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+}
+
+.cap-ruler {
+    position: relative;
+    margin-top: 26px;
+    padding-top: 20px;
+}
+
+.cap-grads {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 16px;
+}
+
+.cap-grad {
+    position: absolute;
+    transform: translateX(-50%);
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+}
+
+.cap-axis {
+    position: relative;
+    height: 2px;
+    background: var(--color-border-strong);
+}
+
+/* Repère du niveau initial (zéro) — position posée en inline par le JS
+   à partir de REGLE, jamais en dur. */
+.cap-zero {
+    position: absolute;
+    top: -7px;
+    bottom: -7px;
+    width: 1.5px;
+    background: var(--color-text-secondary);
+}
+
+.cap-rows {
+    display: flex;
+    flex-direction: column;
+    margin-top: 6px;
+}
+
+.cap-line {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(200px, 26%) minmax(0, 1fr) 96px;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 11px 10px;
+    margin: 0 -10px;
+    min-height: 44px;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 160ms var(--ease-standard);
+}
+
+.cap-line:hover {
+    background: var(--survol);
+}
+
+.cap-line-name {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.cap-line-lbl {
+    font-size: var(--text-base);
+    color: var(--color-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cap-seg {
+    position: relative;
+    height: 8px;
+}
+
+/* Deux teintes, pas trois : --color-breach sous la barrière, --color-ink
+   au-dessus — la même règle que l'écart du Top/Flop. */
+.cap-seg-bar {
+    position: absolute;
+    top: 3px;
+    height: 2px;
+    background: var(--color-ink);
+}
+
+.cap-seg-tip {
+    position: absolute;
+    top: 0;
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    border-radius: var(--radius-full);
+    background: var(--color-ink);
+}
+
+.cap-line-val {
+    font-family: var(--font-heading);
+    font-size: var(--text-base);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--color-ink);
+}
+
+.cap-line--under .cap-seg-bar,
+.cap-line--under .cap-seg-tip,
+.cap-line--under .cap-line-val {
+    background: var(--color-breach);
+}
+
+.cap-line--under .cap-line-val {
+    background: none;
+    color: var(--color-breach);
+}
+
+.cap-empty {
+    padding: 12px 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
 }
 
 /* ── Dalle A — Concentration émetteurs ── */
@@ -1476,84 +1448,6 @@
 .conc-dot.issuer-leonteq, .conc-gauge > span.issuer-leonteq { background: var(--issuer-leonteq); }
 .conc-dot.issuer-bofa, .conc-gauge > span.issuer-bofa { background: var(--issuer-bofa); }
 
-.perf-panel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-}
-
-.perf-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--space-5);
-    flex-wrap: wrap;
-}
-
-/* Grille à 2 rangées (passe 6, section B.4) : les 3 valeurs sur la
-   première, alignées sur leur ligne de base commune : la 3e portait
-   un sous-titre qui allongeait son bloc et décalait son chiffre vers
-   le haut tant que chaque colonne était son propre flex-column
-   indépendant (align-items: flex-end alignait le BAS du bloc, pas la
-   ligne de base du texte). Les sous-titres vivent sur la seconde
-   rangée, leur hauteur ne touche plus la première. */
-.perf-kpi-row {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    column-gap: var(--space-7);
-    row-gap: var(--space-1);
-    align-items: baseline;
-}
-
-.perf-kpi-val {
-    grid-row: 1;
-    font-family: var(--font-mono-data);
-    font-size: var(--text-lg);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-ink);
-}
-
-.perf-kpi-cap {
-    grid-row: 2;
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-text-tertiary);
-}
-
-.perf-kpi-cap small {
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    letter-spacing: normal;
-    text-transform: none;
-    color: var(--color-text-secondary);
-}
-
-/* Point + valeur, comme les pastilles de statut des tableaux — pas un
-   aplat de couleur porté par le texte seul (passe 4, section F). */
-.perf-change-val::before {
-    content: "";
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    margin-right: var(--space-2);
-    border-radius: var(--radius-full);
-    background: currentColor;
-    vertical-align: middle;
-}
-
-.perf-range-controls {
-    display: flex;
-    gap: var(--space-2);
-}
-
 .pill-filter {
     display: inline-flex;
     align-items: center;
@@ -1581,30 +1475,6 @@
 .pill-filter.on {
     background: var(--color-accent);
     color: var(--color-accent-ink);
-}
-
-.perf-chart-area {
-    min-height: 180px;
-}
-
-.perf-chart-area svg {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
-.perf-empty {
-    display: grid;
-    place-items: center;
-    color: var(--color-text-tertiary);
-}
-
-.perf-chart-note {
-    margin: 0;
-    font-family: var(--font-mono-data);
-    font-size: var(--text-xs);
-    letter-spacing: 0.06em;
-    color: var(--color-text-tertiary);
 }
 
 /* ── Top / Flop VL ───────────────────────────────────────── */
@@ -1741,7 +1611,10 @@
 .dash-body {
     display: flex;
     flex-direction: column;
-    gap: 44px;
+    /* LOT 13 : même valeur d'espacement partout dans le plâtre — entre les
+       trois colonnes de la grille, et entre la grille et les deux dalles
+       pleine largeur du bas. */
+    gap: clamp(16px, 1.4cqw, 22px);
     /* Une seule valeur entre l'eau et la première dalle, portée par le
        plâtre — comme la maquette (l. 244). Plus de padding-top qui
        s'ajoutait au gap de vue (lot-liquide-07 § 2). LOT 11 § 2 : en
@@ -1771,13 +1644,6 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-text-tertiary);
-}
-
-.dash-alerts-block .sec-title,
-.dash-vl-section .sec-title,
-.dash-issuer-section .sec-title {
-    font-size: var(--text-xl);
-    font-weight: 300;
 }
 
 /* ── Exposition par groupe bancaire (Dashboard v3, mesurée en DOM) —

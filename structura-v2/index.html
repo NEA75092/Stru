@@ -24,7 +24,7 @@
         <link rel="stylesheet" href="./src/shell.css?v=20260903b" />
         <link rel="stylesheet" href="./src/controls.css?v=20260805b" />
         <link rel="stylesheet" href="./src/overlays.css?v=20260831a" />
-        <link rel="stylesheet" href="./src/dashboard.css?v=20260903b" />
+        <link rel="stylesheet" href="./src/dashboard.css?v=20260903c" />
         <link rel="stylesheet" href="./src/tables.css?v=20260831a" />
         <link rel="stylesheet" href="./src/views.css?v=20260831a" />
         <link rel="stylesheet" href="./src/passe7.css?v=20260903a" />
@@ -252,44 +252,50 @@
                             </button>
                             </section>
                         </div>
-                        <div class="dash-perf-section">
-                            <div class="sec-hdr">
-                                <div class="sec-title">Performance du portefeuille</div>
-                                <span class="sec-meta" id="perf-section-meta">Encours initial vs valorisation · performance sur la période</span>
-                            </div>
-                            <div class="panel perf-panel">
-                                <div class="perf-header">
-                                    <div class="perf-kpi-row">
-                                        <strong class="perf-kpi-val" id="perf-nominal">—</strong>
-                                        <strong class="perf-kpi-val" id="perf-valuation">—</strong>
-                                        <strong class="perf-kpi-val perf-change-val" id="perf-change">—</strong>
-                                        <span class="perf-kpi-cap">Encours initial</span>
-                                        <span class="perf-kpi-cap">Valorisation</span>
-                                        <span class="perf-kpi-cap">
-                                            <span id="perf-change-label">Performance période</span>
-                                            <small id="perf-change-abs">—</small>
-                                        </span>
-                                    </div>
-                                    <div class="perf-range-controls">
-                                        <span class="pill-filter on" data-perf-range="ytd" onclick="setRange(this, 'ytd')">YTD</span>
-                                        <span class="pill-filter" data-perf-range="6m" onclick="setRange(this, '6m')">6M</span>
-                                        <span class="pill-filter" data-perf-range="1a" onclick="setRange(this, '1a')">1A</span>
-                                        <span class="pill-filter" data-perf-range="all" onclick="setRange(this, 'all')">Depuis le début</span>
+                        <section class="dalle dalle-a dalle--wide" id="dash-perf-section">
+                            <div class="dalle-wide-hdr">
+                                <div>
+                                    <h2 class="dalle-title">Performance du portefeuille</h2>
+                                    <div class="dalle-big">
+                                        <span class="dalle-num" id="perf-big">—</span>
+                                        <span class="dalle-ctx" id="perf-big-ctx">—</span>
                                     </div>
                                 </div>
-                                <div class="perf-chart-area" id="perf-cgp">
-                                    <svg id="perf-history-svg" viewBox="0 0 800 180" preserveAspectRatio="xMidYMid meet"></svg>
+                                <div class="dash-encours-ranges" role="group" aria-label="Fenêtre" id="perf-ranges"></div>
+                            </div>
+                            <div class="perf-wide-chart">
+                                <svg id="perf-history-svg" viewBox="0 0 1200 208" preserveAspectRatio="none" role="img" aria-label="Évolution de la performance sur la fenêtre"></svg>
+                                <div class="perf-wide-bornes">
+                                    <span id="perf-borne-a">—</span>
+                                    <span id="perf-borne-b">—</span>
                                 </div>
-                                <p class="perf-chart-note" id="perf-chart-note">Courbe reconstituée indicative · base 100 au début de la période</p>
                             </div>
-                        </div>
-                        <div class="dash-alerts-block" id="dash-alerts-block">
-                            <div class="sec-hdr">
-                                <div class="sec-title">Sous la protection du capital</div>
-                                <span class="sec-meta" id="alerts-meta">0 position</span>
+                            <button type="button" class="dalle-foot" id="dash-perf-foot">
+                                <span class="dalle-foot-lbl">Ouvrir le pilotage</span>
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14L14 6M8.5 6H14v5.5"></path></svg>
+                            </button>
+                        </section>
+                        <section class="dalle dalle-c dalle--wide" id="dash-cap-section">
+                            <div class="dalle-wide-hdr">
+                                <div>
+                                    <h2 class="dalle-title">Sous la protection du capital</h2>
+                                    <div class="dalle-big">
+                                        <span class="dalle-num" id="cap-big">—</span>
+                                        <span class="dalle-ctx" id="cap-big-ctx">—</span>
+                                    </div>
+                                </div>
+                                <span class="cap-axis-hint">distance à la barrière, en points de VL</span>
                             </div>
-                            <div id="alerts-list"></div>
-                        </div>
+                            <div class="cap-ruler">
+                                <div class="cap-grads" id="cap-grads"></div>
+                                <div class="cap-axis"><span class="cap-zero" id="cap-zero"></span></div>
+                                <div class="cap-rows" id="cap-rows"></div>
+                            </div>
+                            <button type="button" class="dalle-foot" id="dash-cap-foot">
+                                <span class="dalle-foot-lbl">Ouvrir le suivi des barrières</span>
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14L14 6M8.5 6H14v5.5"></path></svg>
+                            </button>
+                        </section>
 
                     </div>
                 </div>
